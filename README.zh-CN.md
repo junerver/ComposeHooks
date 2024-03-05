@@ -5,7 +5,7 @@
 </picture>
 [English](https://github.com/junerver/ComposeHooks/blob/master/README.md) | 简体中文
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0) ![release](https://img.shields.io/badge/release-v1.0.0-blue)
 
 ## 简介
 
@@ -40,6 +40,68 @@
 | useTimeout    | 用于执行定时任务                                             |
 | useUndo       | 用于处理撤销、重做的 Hook。                                  |
 | useUnmount    | 在组件卸载（unmount）时执行的 Hook。                         |
+
+## 添加依赖
+
+```groovy
+implementation 'xyz.junerver.compose:hooks:1.0.0'
+```
+
+```kotlin
+implementation("xyz.junerver.compose:hooks:1.0.0")
+```
+
+## 快速开始
+
+1. 使用 `useState` 快速创建受控组件
+
+   ```kotlin
+   val (name, setName) = useState("")
+   OutlinedTextField(
+       value = name,
+       onValueChange = setName,
+       label = { Text("Input Name") }
+   )
+   ```
+
+2. 使用 `useEffect` 执行组件副作用
+
+3. 使用 `useRef` 创建不受组件重组影响的对象引用
+
+   ```kotlin
+   val countRef = useRef(0)
+   Button(onClick = {
+       countRef.current += 1
+       println(countRef)
+   }) {
+       Text(text = "Ref= ${countRef.current}")
+   }
+   ```
+
+4. 使用 `useRequest` 轻松管理**网络状态**
+
+   ```kotlin
+   val (data, loading, error, run) = useRequest(
+       requestFn = WebService::login.asRequestFn(),
+       optionsOf {
+           manual = true
+       }
+   )
+   if (loading) {
+       Text(text = "loading ....")
+   }
+   if (data != null) {
+       Text(text = "resp: $data")
+   }
+   if (error != null) {
+       Text(text = "error: $error")
+   }
+   Button(onClick = { run(arrayOf(requestBody)) }) {
+       Text(text = "Login")
+   }
+   ```
+
+   
 
 ## 使用 Live Templates
 
