@@ -1,0 +1,32 @@
+<templateSet group="hooks">
+    <template name="ur"
+        description="useRequest"
+        toReformat="false" toShortenFQNames="true" value="val ($data$, $loading$, $error$, $run$, $mutate$, $refresh$, $cancel$) = useRequest(&#10;    requestFn = $request$,&#10;    optionsOf {&#10;        defaultParams = arrayOf($1$, $2$)&#10;    })">
+        <variable name="data" alwaysStopAt="true" defaultValue="&quot;data&quot;" expression="" />
+        <variable name="loading" alwaysStopAt="true" defaultValue="&quot;loading&quot;"
+            expression="" />
+        <variable name="error" alwaysStopAt="true" defaultValue="&quot;error&quot;" expression="" />
+        <variable name="run" alwaysStopAt="true" defaultValue="&quot;run&quot;" expression="" />
+        <variable name="mutate" alwaysStopAt="true" defaultValue="&quot;mutate&quot;"
+            expression="" />
+        <variable name="refresh" alwaysStopAt="true" defaultValue="&quot;refresh&quot;"
+            expression="" />
+        <variable name="cancel" alwaysStopAt="true" defaultValue="&quot;cancel&quot;"
+            expression="" />
+        <variable name="request" alwaysStopAt="true" defaultValue="" expression="" />
+        <variable name="1" alwaysStopAt="true" defaultValue="" expression="" />
+        <variable name="2" alwaysStopAt="true" defaultValue="" expression="" />
+        <context>
+            <option name="KOTLIN" value="true" />
+        </context>
+    </template>
+    <template name="us" description="useState"
+        toReformat="false" toShortenFQNames="true" value="val ($state$, set$State$) = useState($default$)">
+        <variable name="state" alwaysStopAt="true" defaultValue="&quot;state&quot;" expression="" />
+        <variable name="State" alwaysStopAt="true" defaultValue="capitalize(state)" expression="" />
+        <variable name="default" alwaysStopAt="true" defaultValue="" expression="" />
+        <context>
+            <option name="KOTLIN" value="true" />
+        </context>
+    </template>
+</templateSet>

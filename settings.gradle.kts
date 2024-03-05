@@ -21,4 +21,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "ComposeHooks"
 include(":app")
- 
+include(":hooks")
