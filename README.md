@@ -4,9 +4,10 @@
   <img src="art/logo.jpg" width="300">
 </picture>
 
-English | [简体中文](https://github.com/junerver/ComposeHooks/blob/master/README.zh-cn.md)
+English | [简体中文](https://github.com/junerver/ComposeHooks/blob/master/README.zh-CN.md)
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0) ![release](https://img.shields.io/badge/release-v1.0.0-blue)
+
 
 ## About
 
@@ -46,7 +47,67 @@ The hooks that have been implemented so far are as follows:
 | useUndo       | A Hook for handling undo and redo.                           |
 | useUnmount    | A hook that executes the function right before the component is unmounted. |
 
+## Add to dependencies
+
+```groovy
+implementation 'xyz.junerver.compose:hooks:1.0.0'
+```
+
+```kotlin
+implementation("xyz.junerver.compose:hooks:1.0.0")
+```
+
 ## Quick Setup
+
+1. Use `useState` to quickly create controlled components
+
+   ```kotlin
+   val (name, setName) = useState("")
+   OutlinedTextField(
+       value = name,
+       onValueChange = setName,
+       label = { Text("Input Name") }
+   )
+   ```
+
+2. Use `useEffect` to perform component LaunchedEffects
+
+3. Use `useRef` to create object references that are not affected by component recompose
+
+   ```kotlin
+   val countRef = useRef(0)
+   Button(onClick = {
+       countRef.current += 1
+       println(countRef)
+   }) {
+       Text(text = "Ref= ${countRef.current}")
+   }
+   ```
+
+4. Use `useRequest` to easily manage **network query state**
+
+   ```kotlin
+   val (data, loading, error, run) = useRequest(
+       requestFn = WebService::login.asRequestFn(), //retrofit friendl
+       optionsOf {
+           manual = true
+       }
+   )
+   if (loading) {
+       Text(text = "loading ....")
+   }
+   if (data != null) {
+       Text(text = "resp: $data")
+   }
+   if (error != null) {
+       Text(text = "error: $error")
+   }
+   Button(onClick = { run(arrayOf(requestBody)) }) {
+       Text(text = "Login")
+   }
+   ```
+
+   
 
 ## Live Templates
 
