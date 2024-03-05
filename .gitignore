@@ -1,3 +1,8 @@
+.gradle
+.DS_Store
+.externalNativeBuild
+.cxx
+
 # Gradle files
 .gradle/
 build/
@@ -31,3 +36,6 @@ google-services.json
 
 # Android Profiling
 *.hprof
+
+gradle.properties
+secring.gpg
