@@ -1,10 +1,10 @@
 package xyz.junerver.compose.hooks
 
-import xyz.junerver.kotlin.Tuple3
-import xyz.junerver.kotlin.tuple
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.companionObjectInstance
 import kotlin.reflect.full.functions
+import xyz.junerver.kotlin.Tuple3
+import xyz.junerver.kotlin.tuple
 
 /**
  * Description: 规范Options的形式
@@ -47,7 +47,6 @@ inline fun <reified T> defaultOption(): T {
     val (companionObj, defaultMethod, _) = checkCompanionObject<T>()
     return defaultMethod.call(companionObj) as T
 }
-
 
 /**
  * 检查伴生对象是否实现了 [Options] 抽象类。

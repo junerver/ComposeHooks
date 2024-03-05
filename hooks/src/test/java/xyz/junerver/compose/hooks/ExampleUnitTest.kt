@@ -1,8 +1,7 @@
 package xyz.junerver.compose.hooks
 
-import org.junit.Test
-
 import org.junit.Assert.*
+import org.junit.Test
 
 /**
  * Example local unit test, which will execute on the development machine (host).

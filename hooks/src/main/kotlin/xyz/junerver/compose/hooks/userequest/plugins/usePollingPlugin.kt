@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.rememberSaveable
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -16,7 +17,6 @@ import xyz.junerver.compose.hooks.userequest.PluginLifecycle
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 import xyz.junerver.kotlin.tuple
-import kotlin.time.Duration.Companion.milliseconds
 
 /**
  * Description:
@@ -67,7 +67,6 @@ class PollingPlugin<TData : Any> : Plugin<TData>() {
 //                    }
 //                }.also { pollingJob = it }
 //            }
-
 
             object : PluginLifecycle<TData>() {
                 override val onBefore: ((TParams) -> OnBeforeReturn<TData>?)

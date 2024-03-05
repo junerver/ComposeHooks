@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import kotlin.reflect.KFunction1
 import xyz.junerver.compose.hooks.NoParamsVoidFunction
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.VoidFunction
@@ -21,7 +22,6 @@ import xyz.junerver.compose.hooks.userequest.plugins.useRetryPlugin
 import xyz.junerver.compose.hooks.userequest.plugins.useThrottlePlugin
 import xyz.junerver.kotlin.Tuple7
 import xyz.junerver.kotlin.tuple
-import kotlin.reflect.KFunction1
 
 /**
  * Description: 一个用来管理网络状态的Hook，它可以非常方便的接入到传统的 retrofit 网络请求模式中。
@@ -89,14 +89,15 @@ inline fun <reified TData : Any> useRequest(
     options: RequestOptions<TData> = defaultOption(),
     plugins: Array<@Composable (RequestOptions<TData>) -> Plugin<TData>> = emptyArray(),
 ): Tuple7<TData?, Boolean, Throwable?, VoidFunction, KFunction1<(TData?) -> TData, Unit>, NoParamsVoidFunction, NoParamsVoidFunction> {
-
     val fetch = useRequestPluginsImpl(
         requestFn,
         options,
         buildList {
-            addAll(plugins.map {
-                it(options)
-            })
+            addAll(
+                plugins.map {
+                    it(options)
+                }
+            )
             addAll(
                 arrayOf(
                     useDebouncePlugin(options),
@@ -105,7 +106,7 @@ inline fun <reified TData : Any> useRequest(
                     useThrottlePlugin(options),
                     useAutoRunPlugin(options),
                     useCachePlugin(options),
-                    useRetryPlugin(options),
+                    useRetryPlugin(options)
                 )
             )
         }.toTypedArray()
@@ -181,7 +182,7 @@ fun <TData : Any> useRequestPluginsImpl(
             this.fetchState = plugins.mapNotNull {
                 it.onInit?.invoke(options)
             }.cover() ?: FetchState()
-            //此时插件被装在，并且获得相应实例
+            // 此时插件被装在，并且获得相应实例
             this.pluginImpls = plugins.map { it.invoke(this, options) }.toTypedArray()
         }
     }.apply {

@@ -1,6 +1,5 @@
 package xyz.junerver.compose.hooks.usenetwork
 
-
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -64,7 +63,7 @@ object NetConnectManager {
      */
     fun addListener(
         typeChangeListener: NetTypeChangeListener,
-        statusChangeListener: NetStatusChangeListener
+        statusChangeListener: NetStatusChangeListener,
     ) {
         addNetTypeChangeListener(typeChangeListener)
         addNetStatusChangeListener(statusChangeListener)
@@ -75,7 +74,7 @@ object NetConnectManager {
      */
     fun removeListener(
         typeChangeListener: NetTypeChangeListener,
-        statusChangeListener: NetStatusChangeListener
+        statusChangeListener: NetStatusChangeListener,
     ) {
         removeNetTypeChangeListener(typeChangeListener)
         removeNetStatusChangeListener(statusChangeListener)
@@ -137,9 +136,11 @@ object NetConnectManager {
         if (mConnectivityManager == null) {
             throw UninitializedPropertyAccessException("请先调用init()初始化")
         }
-        return (mIsNetAvailable
-            ?: mConnectivityManager?.getNetworkCapabilities(mConnectivityManager?.activeNetwork)
-                ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)) == true
+        return (
+            mIsNetAvailable
+                ?: mConnectivityManager?.getNetworkCapabilities(mConnectivityManager?.activeNetwork)
+                    ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+            ) == true
     }
 
     private class DefaultNetConnectCallback : ConnectivityManager.NetworkCallback() {
@@ -158,7 +159,7 @@ object NetConnectManager {
 
         override fun onCapabilitiesChanged(
             network: Network,
-            networkCapabilities: NetworkCapabilities
+            networkCapabilities: NetworkCapabilities,
         ) {
             super.onCapabilitiesChanged(network, networkCapabilities)
             mainHandler.post {
@@ -212,7 +213,6 @@ object NetConnectManager {
                     mNetTypeListener.forEach { it(ConnectType.None) }
                 }
             }, 500)
-
         }
     }
 }

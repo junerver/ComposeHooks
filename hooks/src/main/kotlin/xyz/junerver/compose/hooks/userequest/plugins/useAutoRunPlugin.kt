@@ -30,7 +30,6 @@ class AutoRunPlugin<TData : Any> : Plugin<TData>() {
      */
     var ready = true
 
-
     override val onInit: (RequestOptions<TData>) -> FetchState<TData> = {
         // 如果是手动模式 则不loading，自动模式则loading
         FetchState(loading = it.manual.not() && ready)
@@ -69,7 +68,6 @@ class AutoRunPlugin<TData : Any> : Plugin<TData>() {
     //endregion
 }
 
-
 /**
  * 钩子应该返回两个值，一个是plugin自身，方便调用init函数，另一个是pluginreturn，用来调用周期得methods
  */
@@ -101,8 +99,8 @@ fun <T : Any> useAutoRunPlugin(options: RequestOptions<T>): Plugin<T> {
             if (refreshDepsAction.asBoolean()) {
                 refreshDepsAction.invoke()
             } else {
-                //自动状态 && !ready 时，会调用此处，但是实际最终驱动run的时候
-                //由于 !ready 会阻止请求发出。
+                // 自动状态 && !ready 时，会调用此处，但是实际最终驱动run的时候
+                // 由于 !ready 会阻止请求发出。
                 autoRunPlugin.refresh()
             }
         }

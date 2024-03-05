@@ -1,15 +1,15 @@
 package xyz.junerver.compose.hooks.userequest
 
 import android.util.Log
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.DebounceOptions
 import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.ThrottleOptions
 import xyz.junerver.compose.hooks.VoidFunction
 import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * Description: 请求参数
@@ -178,5 +178,4 @@ data class RequestOptions<TData> internal constructor(
         result = 31 * result + loadingDelay.hashCode()
         return result
     }
-
 }

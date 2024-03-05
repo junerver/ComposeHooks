@@ -3,12 +3,11 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
-
 
 /**
  * 更符合 Compose 的函数命名方式
@@ -31,26 +30,26 @@ fun <T> rememberCreation(vararg keys: Any?, factory: () -> T) =
 @Composable
 fun <S> rememberDebounce(
     value: S,
-    options: DebounceOptions = defaultOption()
+    options: DebounceOptions = defaultOption(),
 ) = useDebounce(value, options)
 
 @Composable
 fun rememberDebounceFn(
     fn: VoidFunction,
-    options: DebounceOptions = defaultOption()
+    options: DebounceOptions = defaultOption(),
 ) = useDebounceFn(fn, options)
 
 @Composable
 fun LaunchedDebounceEffect(
     vararg keys: Any?,
     options: DebounceOptions = defaultOption(),
-    block: () -> Unit
+    block: () -> Unit,
 ) = useDebounceEffect(*keys, options = options, block = block)
 
 @Composable
 fun rememberInterval(
     fn: () -> Unit,
-    options: IntervalOptions = defaultOption()
+    options: IntervalOptions = defaultOption(),
 ) = useInterval(fn, options)
 
 @Composable
@@ -79,14 +78,14 @@ fun <S> rememberThrottle(value: S, options: ThrottleOptions = defaultOption()) =
 @Composable
 fun rememberThrottleFn(
     fn: NormalFunction<Any?>,
-    options: ThrottleOptions = defaultOption()
+    options: ThrottleOptions = defaultOption(),
 ) = useThrottleFn(fn, options)
 
 @Composable
 fun LaunchedThrottleEffect(
     vararg keys: Any?,
     options: ThrottleOptions = defaultOption(),
-    block: () -> Unit
+    block: () -> Unit,
 ) = useThrottleEffect(*keys, options = options, block = block)
 
 @Composable
@@ -95,26 +94,26 @@ fun rememberTimeout(fn: () -> Unit, delay: Duration = 1.seconds) = useTimeout(fn
 @Composable
 fun <T> rememberToggle(
     defaultValue: T? = null,
-    reverseValue: T? = null
+    reverseValue: T? = null,
 ) = useToggle(defaultValue, reverseValue)
 
 @Composable
 fun <L, R> rememberToggleEither(
     defaultValue: L? = null,
-    reverseValue: R? = null
+    reverseValue: R? = null,
 ) = useToggleEither(defaultValue, reverseValue)
 
 @Composable
 fun rememberToggleVisible(
     isVisible: Boolean = false,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ) = useToggleVisible(isVisible, content)
 
 @Composable
 fun rememberToggleVisible(
     isFirst: Boolean = true,
     content1: @Composable () -> Unit,
-    content2: @Composable () -> Unit
+    content2: @Composable () -> Unit,
 ) = useToggleVisible(isFirst, content1, content2)
 
 @Composable

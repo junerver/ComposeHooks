@@ -4,6 +4,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import kotlin.properties.Delegates
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -11,9 +14,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import xyz.junerver.kotlin.Tuple2
 import xyz.junerver.kotlin.tuple
-import kotlin.properties.Delegates
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * Description: 一个间隔固定时间执行的interval函数。
@@ -30,7 +30,7 @@ data class IntervalOptions internal constructor(
     // 调用间隔
     var period: Duration = 5.seconds,
     // 是否就绪，默认就绪，如果为 false，需要通过run函数手动启动
-    var ready: Boolean = true
+    var ready: Boolean = true,
 ) {
     companion object : Options<IntervalOptions>(::IntervalOptions)
 }
@@ -78,11 +78,10 @@ internal class Interval(private val options: IntervalOptions) {
     }
 }
 
-
 @Composable
 fun useInterval(
     fn: () -> Unit,
-    options: IntervalOptions = defaultOption()
+    options: IntervalOptions = defaultOption(),
 ): Tuple2<NoParamsVoidFunction, NoParamsVoidFunction> {
     val (_, _, ready) = options
     val interval = remember {
@@ -94,7 +93,7 @@ fun useInterval(
         this.ready = ready
     }
     LaunchedEffect(key1 = ready) {
-        //只作为ready 使用，一旦ready后再次变更不处理
+        // 只作为ready 使用，一旦ready后再次变更不处理
         if (ready && !interval.isRunning()) {
             interval.run()
         }

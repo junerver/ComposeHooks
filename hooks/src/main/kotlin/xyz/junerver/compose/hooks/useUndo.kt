@@ -1,9 +1,9 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import java.io.Serializable
 import xyz.junerver.kotlin.Tuple7
 import xyz.junerver.kotlin.tuple
-import java.io.Serializable
 
 /**
  * Description:
@@ -14,7 +14,7 @@ import java.io.Serializable
  */
 
 data class UndoState<T>(
-    //过去的状态
+    // 过去的状态
     var past: List<T> = emptyList(),
     var present: T,
     var future: List<T> = emptyList(),
@@ -30,7 +30,6 @@ data class UndoAction<S>(override val type: UndoActionType, override val payload
         fun <T> set(payload: T) = UndoAction(UndoActionType.Set, payload)
         fun <T> reset(payload: T) = UndoAction(UndoActionType.Reset, payload)
     }
-
 }
 
 @Suppress("UNCHECKED_CAST")
@@ -50,7 +49,7 @@ fun <T> undoReducer(preState: UndoState<T>, action: Action): UndoState<T> {
                 // 将新的present和新的past设置到state中
                 past = newPast,
                 present = newPresent,
-                //将旧的present放入到future数组的头部
+                // 将旧的present放入到future数组的头部
                 future = listOf(present) + future
             )
         }
@@ -66,7 +65,6 @@ fun <T> undoReducer(preState: UndoState<T>, action: Action): UndoState<T> {
                 present = newPresent,
                 future = newFuture
             )
-
         }
 
         UndoActionType.Set -> {
@@ -91,9 +89,9 @@ fun <T> undoReducer(preState: UndoState<T>, action: Action): UndoState<T> {
 @Composable
 fun <T> useUndo(initialPresent: T): Tuple7<UndoState<T>, (T) -> Unit, (T) -> Unit, () -> Unit, () -> Unit, Boolean, Boolean> {
     val (state, dispatch) = useReducer(::undoReducer, UndoState(present = initialPresent))
-    //是否可以撤销
+    // 是否可以撤销
     val canUndo = state.past.isNotEmpty()
-    //是否可以重做
+    // 是否可以重做
     val canRedo = state.future.isNotEmpty()
     // undo相关的四个函数
     val undo = { dispatch(UndoAction.undo()) }
@@ -108,6 +106,6 @@ fun <T> useUndo(initialPresent: T): Tuple7<UndoState<T>, (T) -> Unit, (T) -> Uni
         fourth = undo,
         fifth = redo,
         sixth = canUndo,
-        seventh = canRedo,
+        seventh = canRedo
     )
 }

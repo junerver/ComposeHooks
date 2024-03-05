@@ -107,7 +107,7 @@ implementation("xyz.junerver.compose:hooks:1.0.0")
    }
    ```
 
-   
+
 
 ## Live Templates
 

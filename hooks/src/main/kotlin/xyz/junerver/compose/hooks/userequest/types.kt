@@ -3,6 +3,8 @@
 package xyz.junerver.compose.hooks.userequest
 
 import androidx.compose.runtime.Composable
+import java.io.Serializable
+import kotlin.coroutines.CoroutineContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -13,8 +15,6 @@ import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.userequest.plugins.useAutoRunPlugin
 import xyz.junerver.kotlin.isNotNull
-import java.io.Serializable
-import kotlin.coroutines.CoroutineContext
 
 object Keys {
     const val loading = "loading"
@@ -65,7 +65,7 @@ sealed class IFetchStata<out TData>(
     open val loading: Boolean? = null,
     open val params: TParams? = null,
     open val data: TData? = null,
-    open val error: Throwable? = null
+    open val error: Throwable? = null,
 ) {
     var copyMap: Map<String, Any?> = emptyMap()
     abstract fun asNotNullMap(): Map<String, Any?>
@@ -80,9 +80,8 @@ data class FetchState<TData>(
     override var loading: Boolean? = null,
     override var params: TParams? = null,
     override var data: TData? = null,
-    override var error: Throwable? = null
+    override var error: Throwable? = null,
 ) : IFetchStata<TData>(), Copyable<FetchState<TData>> {
-
 
     override fun copy(needCopyMap: Map<String, Any?>?): FetchState<TData> {
         needCopyMap ?: return this
@@ -101,7 +100,7 @@ data class FetchState<TData>(
      * 只产生不是空的map
      */
     override fun asNotNullMap(): Map<String, Any?> {
-        //如果手动设置了map则采用手动设置的，否则用默认的
+        // 如果手动设置了map则采用手动设置的，否则用默认的
         if (copyMap.entries.isNotEmpty()) return copyMap
         return buildMap {
             if (loading.isNotNull) this[Keys.loading] = loading
@@ -118,7 +117,7 @@ data class FetchState<TData>(
         Keys.loading to loading,
         Keys.params to params,
         Keys.data to data,
-        Keys.error to error,
+        Keys.error to error
     )
 
     override fun copy(that: FetchState<TData>?): FetchState<TData> {
@@ -165,7 +164,7 @@ data class OnBeforeReturn<TData>(
     override val loading: Boolean? = null,
     override val params: TParams? = null,
     override val data: TData? = null,
-    override val error: Throwable? = null
+    override val error: Throwable? = null,
 ) : IFetchStata<TData>(), Copyable<OnBeforeReturn<TData>> {
 
     fun asFetchStateMap(): Map<String, Any?> = buildMap {
@@ -174,7 +173,6 @@ data class OnBeforeReturn<TData>(
         this[Keys.data] = data
         this[Keys.error] = error
     }
-
 
     override fun copy(needCopyMap: Map<String, Any?>?): OnBeforeReturn<TData> {
         needCopyMap ?: return this
@@ -192,7 +190,7 @@ data class OnBeforeReturn<TData>(
     }
 
     override fun asNotNullMap(): Map<String, Any?> {
-        //如果手动设置了map则采用手动设置的，否则用默认的
+        // 如果手动设置了map则采用手动设置的，否则用默认的
         if (copyMap.entries.isNotEmpty()) return copyMap
         return buildMap {
             if (stopNow.isNotNull) this[Keys.stopNow] = stopNow
@@ -360,7 +358,7 @@ abstract class Plugin<TData : Any> : IFetch<TData>, Serializable, CoroutineScope
      */
     abstract val invoke: GenPluginLifecycleFn<TData>
 
-    //用来初始化[FetchState]，目前看主要是自动运行时设置loading状态为true
+    // 用来初始化[FetchState]，目前看主要是自动运行时设置loading状态为true
     open val onInit: ((RequestOptions<TData>) -> FetchState<TData>)? = null
 
     /**
@@ -380,7 +378,6 @@ internal class EmptyPlugin<TData : Any> : Plugin<TData>() {
         get() = { _, _ ->
             object : PluginLifecycle<TData>() {}
         }
-
 }
 
 /**

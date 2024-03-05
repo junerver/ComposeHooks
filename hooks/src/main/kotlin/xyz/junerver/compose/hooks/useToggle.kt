@@ -11,9 +11,9 @@ import arrow.core.right
 @Composable
 fun <T> useToggle(
     defaultValue: T? = null,
-    reverseValue: T? = null
+    reverseValue: T? = null,
 ): Pair<T?, () -> Unit> {
-    //默认是左值（false）
+    // 默认是左值（false）
     val (isLeft, toggle) = useBoolean(true)
     return (if (isLeft) defaultValue else reverseValue) to toggle
 }
@@ -25,9 +25,9 @@ fun <T> useToggle(
 @Composable
 fun <L, R> useToggleEither(
     defaultValue: L? = null,
-    reverseValue: R? = null
+    reverseValue: R? = null,
 ): Pair<Either<L?, R?>, () -> Unit> {
-    //默认是左值
+    // 默认是左值
     val (isLeft, toggle) = useBoolean(true)
     return (if (isLeft) defaultValue.left() else reverseValue.right()) to toggle
 }
@@ -38,7 +38,7 @@ fun <L, R> useToggleEither(
 @Composable
 fun useToggleVisible(
     isVisible: Boolean = false,
-    content: @Composable () -> Unit
+    content: @Composable () -> Unit,
 ): Pair<@Composable () -> Unit, () -> Unit> {
     val empty: @Composable () -> Unit = {}
     return useToggleVisible(isVisible, content, empty)
@@ -48,9 +48,8 @@ fun useToggleVisible(
 fun useToggleVisible(
     isFirst: Boolean = true,
     content1: @Composable () -> Unit,
-    content2: @Composable () -> Unit
+    content2: @Composable () -> Unit,
 ): Pair<@Composable () -> Unit, () -> Unit> {
     val (visible, toggle) = useBoolean(isFirst)
     return (if (visible) content1 else content2) to toggle
 }
-

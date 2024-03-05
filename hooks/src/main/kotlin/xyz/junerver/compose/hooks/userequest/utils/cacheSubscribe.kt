@@ -20,7 +20,7 @@ val listeners: MutableMap<String, MutableList<CachedDataChangeListener>> = mutab
 data class Data(
     val loading: Boolean? = null,
     val error: Throwable? = null,
-    val data: Any? = null
+    val data: Any? = null,
 )
 
 /**
@@ -37,7 +37,7 @@ fun trigger(key: String, data: Data) {
  */
 fun subscribe(key: String, listener: CachedDataChangeListener): () -> Unit {
     if (!listeners.containsKey(key)) {
-        listeners[key] = mutableListOf() //初始化一个列表给这个key
+        listeners[key] = mutableListOf() // 初始化一个列表给这个key
     }
     listeners[key]?.add(listener)
 

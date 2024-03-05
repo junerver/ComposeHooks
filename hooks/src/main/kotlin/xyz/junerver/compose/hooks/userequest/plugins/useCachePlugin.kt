@@ -31,7 +31,6 @@ import xyz.junerver.kotlin.asBoolean
 import xyz.junerver.kotlin.isNotNull
 import xyz.junerver.kotlin.tuple
 
-
 /**
  * Description:
  * @author Junerver
@@ -60,14 +59,14 @@ class CachePlugin<TData : Any> : Plugin<TData>() {
                 override val onBefore: ((TParams) -> OnBeforeReturn<TData>?)
                     get() = onBefore@{
                         val cacheData = getCache(cacheKey, it)
-                        //正在请求，啥也不做
+                        // 正在请求，啥也不做
                         if (!cacheData.asBoolean()) return@onBefore null
                         if (staleTime == -1L || currentTime - cacheData.time <= staleTime) {
                             OnBeforeReturn(
                                 loading = false,
                                 data = cacheData.data,
                                 error = null,
-                                returnNow = true, //未过期直接返回
+                                returnNow = true // 未过期直接返回
                             ).apply {
                                 copyMap = buildMap {
                                     putAll(asNotNullMap())
@@ -75,10 +74,10 @@ class CachePlugin<TData : Any> : Plugin<TData>() {
                                 }
                             }
                         } else {
-                            //过期继续请求
+                            // 过期继续请求
                             OnBeforeReturn(
                                 data = cacheData.data,
-                                error = null,
+                                error = null
                             ).apply {
                                 copyMap = buildMap {
                                     putAll(asNotNullMap())
@@ -108,10 +107,11 @@ class CachePlugin<TData : Any> : Plugin<TData>() {
                 override val onSuccess: ((data: TData, params: TParams) -> Unit)
                     get() = { data: TData, params: TParams ->
                         if (cacheKey.asBoolean()) {
-                            //取消订阅，保存
+                            // 取消订阅，保存
                             unSubscribeRef.current?.invoke()
                             setCache(
-                                cacheKey, CachedData(
+                                cacheKey,
+                                CachedData(
                                     data,
                                     params,
                                     currentTime
@@ -126,14 +126,14 @@ class CachePlugin<TData : Any> : Plugin<TData>() {
                         if (cacheKey.asBoolean()) {
                             unSubscribeRef.current?.invoke()
                             trigger(
-                                cacheKey, Data(
+                                cacheKey,
+                                Data(
                                     error = e,
-                                    loading = false,
+                                    loading = false
                                 )
                             )
                             unSubscribeRef.current = subscribe(cacheKey, ::setFetchState)
                         }
-
                     }
 
                 override val onMutate: ((data: TData) -> Unit)
@@ -141,7 +141,8 @@ class CachePlugin<TData : Any> : Plugin<TData>() {
                         if (cacheKey.asBoolean()) {
                             unSubscribeRef.current?.invoke()
                             setCache(
-                                cacheKey, CachedData(
+                                cacheKey,
+                                CachedData(
                                     it,
                                     fetchInstance.fetchState.params ?: emptyArray(),
                                     currentTime
@@ -175,7 +176,6 @@ class CachePlugin<TData : Any> : Plugin<TData>() {
             }
         )
     }
-
 }
 
 @Composable
@@ -193,7 +193,8 @@ fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
             FetchCacheManager.saveCache(key, cacheTime, cachedData)
         }
         trigger(
-            key, Data(
+            key,
+            Data(
                 data = cachedData.data,
                 loading = false,
                 error = null
@@ -209,7 +210,7 @@ fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
         }
     }
 
-    //反订阅函数
+    // 反订阅函数
     val unSubscribeRef = useRef<(() -> Unit)?>(null)
     val currentPromiseRef = useRef<Deferred<*>?>(null)
 
@@ -222,11 +223,10 @@ fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
         }
     }
 
-
     useCreation {
         val cacheData = getCache(cacheKey)
         cacheData?.let {
-            //使用缓存初始化
+            // 使用缓存初始化
             cachePlugin.initFetchStateWithCachedData(it)
         }
 
@@ -236,7 +236,6 @@ fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
         unSubscribeRef.current = subscribe(cacheKey) {
             cachePlugin.setFetchState(it)
         }
-
     }
 
     useUnmount {

@@ -17,7 +17,7 @@ import xyz.junerver.compose.hooks.useState
  */
 data class NetworkState(
     val isConnect: Boolean,
-    val connectType: ConnectType
+    val connectType: ConnectType,
 )
 
 /**

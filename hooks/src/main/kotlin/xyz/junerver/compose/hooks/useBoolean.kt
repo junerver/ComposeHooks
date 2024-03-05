@@ -15,12 +15,10 @@ import xyz.junerver.kotlin.tuple
 fun useBoolean(default: Boolean = false): Tuple5<Boolean, () -> Unit, (Boolean) -> Unit, () -> Unit, () -> Unit> {
     val (state, setState) = useState(default)
     return tuple(
-        first = state, //boolean状态
-        second = { setState(!state) }, //toggle函数
-        third = { b: Boolean -> setState(b) }, //set函数
-        fourth = { setState(true) }, //setTrue
-        fifth = { setState(false) } //setFalse
+        first = state, // boolean状态
+        second = { setState(!state) }, // toggle函数
+        third = { b: Boolean -> setState(b) }, // set函数
+        fourth = { setState(true) }, // setTrue
+        fifth = { setState(false) } // setFalse
     )
 }
-
-

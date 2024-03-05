@@ -36,17 +36,16 @@ class LoadingDelayPlugin<TData : Any> : Plugin<TData>() {
         timeoutJob = null
     } ?: Unit
 
-
     override val invoke: GenPluginLifecycleFn<TData>
         get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
             val (loadingDelay, staleTime) = with(requestOptions) { tuple(loadingDelay, staleTime) }
             object : PluginLifecycle<TData>() {
                 override val onBefore: ((TParams) -> OnBeforeReturn<TData>?)
                     get() = {
-                        //清空并创建一个新的定时器对象
+                        // 清空并创建一个新的定时器对象
                         cancelTimeout()
                         if (ready && staleTime != -1L && loadingDelay.inWholeMilliseconds > staleTime) {
-                            //如果已经ready则添加一个定时任务
+                            // 如果已经ready则添加一个定时任务
                             launch {
                                 delay(loadingDelay)
                                 fetch.setState(Keys.loading to true)
@@ -67,7 +66,6 @@ class LoadingDelayPlugin<TData : Any> : Plugin<TData>() {
         cancelTimeout()
         super.cancel()
     }
-
 }
 
 @Composable

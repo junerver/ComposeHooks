@@ -1,7 +1,7 @@
 package xyz.junerver.compose.hooks.userequest.utils
 
-import xyz.junerver.compose.hooks.TParams
 import java.io.Serializable
+import xyz.junerver.compose.hooks.TParams
 
 /**
  * Description:
@@ -13,7 +13,7 @@ import java.io.Serializable
 data class CachedData<TData>(
     val data: TData,
     val params: TParams,
-    val time: Long
+    val time: Long,
 ) : Serializable {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -1,5 +1,7 @@
 package xyz.junerver.compose.hooks.userequest
 
+import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -11,8 +13,6 @@ import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 import xyz.junerver.kotlin.Tuple2
 import xyz.junerver.kotlin.tuple
-import kotlin.coroutines.CoroutineContext
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * Description:
@@ -52,9 +52,9 @@ object FetchCacheManager : CoroutineScope {
      * 缓存是否有效
      */
     private fun isCacheValid(key: String): Boolean {
-        if (!cache.containsKey(key)) return false //无缓存
+        if (!cache.containsKey(key)) return false // 无缓存
         val cacheData = cache[key]!!
-        return currentTime < cacheData.second  // 还新鲜
+        return currentTime < cacheData.second // 还新鲜
     }
 
     /**
@@ -74,7 +74,7 @@ object FetchCacheManager : CoroutineScope {
 
     fun clearCache(vararg cacheKeys: String) {
         if (cacheKeys.isEmpty()) {
-            //无参数全部清空
+            // 无参数全部清空
             cache.clear()
         } else {
             cache.entries.removeIf {

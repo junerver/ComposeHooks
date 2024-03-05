@@ -6,15 +6,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.DurationUnit
 import kotlin.time.toDuration
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
  * Description:
@@ -25,10 +25,10 @@ import kotlin.time.toDuration
  */
 
 data class DebounceOptions internal constructor(
-    var wait: Duration = 1.seconds, //防抖间隔
+    var wait: Duration = 1.seconds, // 防抖间隔
     var leading: Boolean = true, // true：第一次点击保障执行且不延时
-    var trailing: Boolean = true, //false 则只取消事件。true 则添加一次延时任务
-    var maxWait: Duration = 0.seconds //最大等待时长，防抖超过该时长则不再拦截
+    var trailing: Boolean = true, // false 则只取消事件。true 则添加一次延时任务
+    var maxWait: Duration = 0.seconds, // 最大等待时长，防抖超过该时长则不再拦截
 ) {
     companion object : Options<DebounceOptions>(::DebounceOptions)
 }
@@ -36,7 +36,7 @@ data class DebounceOptions internal constructor(
 class Debounce(
     private val fn: VoidFunction,
     private val scope: CoroutineScope,
-    private val options: DebounceOptions = defaultOption()
+    private val options: DebounceOptions = defaultOption(),
 ) : VoidFunction {
     // 调用计数
     private var calledCount = 0
@@ -44,10 +44,10 @@ class Debounce(
     // 任务 - 是否保障执行
     private val jobs: MutableList<Pair<Job, Boolean>> = arrayListOf()
 
-    //执行成功时间
+    // 执行成功时间
     private var latestInvokedTime = System.currentTimeMillis()
 
-    //点击调用时间
+    // 点击调用时间
     private var latestCalledTime = System.currentTimeMillis()
 
     /**
@@ -75,7 +75,7 @@ class Debounce(
          */
         fun task(guarantee: Boolean, isDelay: Boolean) {
             if (guarantee) {
-                //如果是保障性任务立即修改成功调用的时间，避免连续创建保障性任务
+                // 如果是保障性任务立即修改成功调用的时间，避免连续创建保障性任务
                 latestInvokedTime = System.currentTimeMillis()
             }
             scope.launch {
@@ -85,28 +85,28 @@ class Debounce(
             }.also { jobs.add(it to guarantee) }
         }
 
-        //等待超时 || 首次&&leading直接执行
+        // 等待超时 || 首次&&leading直接执行
         val currentTime = System.currentTimeMillis()
         // 总计等待（当前时间-上次成功）
         val waitTime = (currentTime - latestInvokedTime).toDuration(DurationUnit.MILLISECONDS)
         // 调用间隔(毫秒)
         val interval = (currentTime - latestCalledTime).toDuration(DurationUnit.MILLISECONDS)
-        //是否为超时
+        // 是否为超时
         val isMaxWait = maxWait in 1.milliseconds..waitTime
         if (isMaxWait || (calledCount == 0 && leading)) {
-            //超时、leading的首次调用则保障任务执行且不在延时
+            // 超时、leading的首次调用则保障任务执行且不在延时
             task(guarantee = isMaxWait, isDelay = false)
         } else {
             if (calledCount > 0 && interval < wait) {
-                //后续调用，且间隔时间小于设定的wait，清除之前的任务
+                // 后续调用，且间隔时间小于设定的wait，清除之前的任务
                 clear()
-                //是结束边缘则添加
+                // 是结束边缘则添加
                 if (trailing) {
                     task(guarantee = false, isDelay = true)
                 }
             } else {
-                //1. ==0，但是非leading
-                //2. >0 && 满足间隔
+                // 1. ==0，但是非leading
+                // 2. >0 && 满足间隔
                 task(guarantee = false, isDelay = true)
             }
         }
@@ -122,10 +122,10 @@ class Debounce(
 @Composable
 fun <S> useDebounce(
     value: S,
-    options: DebounceOptions = defaultOption()
+    options: DebounceOptions = defaultOption(),
 ): S {
     val (debounced, setDebounced) = useState(value)
-    //value的最新值
+    // value的最新值
     val latestValueRef by useLatestState(value = value)
     // 最简单的创建 noop 函数的方法就是使用 匿名函数 lambda。
     val debouncedSet = useDebounceFn(fn = {
@@ -147,7 +147,7 @@ fun <S> useDebounce(
 @Composable
 fun useDebounceFn(
     fn: VoidFunction,
-    options: DebounceOptions = defaultOption()
+    options: DebounceOptions = defaultOption(),
 ): VoidFunction {
     // 协程作用域
     val scope = rememberCoroutineScope()
@@ -162,7 +162,7 @@ fun useDebounceFn(
 fun useDebounceEffect(
     vararg keys: Any?,
     options: DebounceOptions = defaultOption(),
-    block: () -> Unit
+    block: () -> Unit,
 ) {
     val debouncedBlock = useDebounceFn(fn = { block() }, options)
     LaunchedEffect(*keys) {

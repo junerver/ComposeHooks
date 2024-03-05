@@ -1,6 +1,9 @@
 package xyz.junerver.compose.hooks.userequest
 
 import androidx.compose.runtime.MutableState
+import java.io.Serializable
+import kotlin.properties.Delegates
+import kotlin.reflect.KFunction
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -14,9 +17,6 @@ import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.VoidFunction
 import xyz.junerver.compose.hooks.defaultOption
 import xyz.junerver.compose.hooks.userequest.utils.awaitPlus
-import java.io.Serializable
-import kotlin.properties.Delegates
-import kotlin.reflect.KFunction
 
 /**
  * Description:插件化的 Fetch
@@ -66,7 +66,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
      */
     internal var scope: CoroutineScope by Delegates.notNull()
 
-    //缓存jobs，处理竞态取消
+    // 缓存jobs，处理竞态取消
     private var requestJobs: MutableList<Job> = arrayListOf()
 
     @Synchronized
@@ -91,9 +91,8 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
     var run: VoidFunction = ::_run
     val originRun: KFunction<Any> = ::_run
 
-
     fun setState(map: Map<String, Any?>) {
-        //传入map，按需替换
+        // 传入map，按需替换
         fetchState = fetchState.copy(map) // 更新本地状态
         with(fetchState) {
             loading?.let(setLoading)
@@ -123,9 +122,9 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
         // 这里等同于runPluginHandler
         val onBeforeReturn = OnBeforeReturn<TData>(
             stopNow = false,
-            returnNow = false,
+            returnNow = false
         ).copy(
-            //如果列表不为空，则说明onBefore有返回，返回的对象必须实现copy函数，来达成用后一个的值覆盖前一个
+            // 如果列表不为空，则说明onBefore有返回，返回的对象必须实现copy函数，来达成用后一个的值覆盖前一个
             (runPluginHandler(OnBefore, latestParams) as List<OnBeforeReturn<TData>>).cover()
                 ?.asNotNullMap()
         )
@@ -135,7 +134,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
          * [AutoRunPlugin] 中的 [AutoRunPlugin.ready] 可以阻止请求
          */
         if (stopNow!!) return@coroutineScope
-        //使用缓存插件可以直接返回缓存的内容，而不需要发起真实请求
+        // 使用缓存插件可以直接返回缓存的内容，而不需要发起真实请求
         setState(
             FetchState<TData>(
                 loading = true,
@@ -148,18 +147,22 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
 
         try {
             var (serviceDeferred) = OnRequestReturn<TData>().copy(
-                (runPluginHandler(
-                    OnRequest, requestFn, latestParams
-                ) as List<OnRequestReturn<TData>>).cover()
+                (
+                    runPluginHandler(
+                        OnRequest,
+                        requestFn,
+                        latestParams
+                    ) as List<OnRequestReturn<TData>>
+                    ).cover()
             )
-            //此处要明确声明async所在的job，避免异常传递
+            // 此处要明确声明async所在的job，避免异常传递
             serviceDeferred = serviceDeferred ?: async(SupervisorJob()) { requestFn(params) }
             val result = serviceDeferred.awaitPlus()
             if (currentCount != count) return@coroutineScope
             setState(
                 Keys.loading to false,
                 Keys.data to result,
-                Keys.error to null,
+                Keys.error to null
             )
             options.onSuccess.invoke(result, latestParams)
             runPluginHandler(OnSuccess, result, latestParams)
@@ -172,7 +175,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
             if (currentCount != count) return@coroutineScope
             setState(
                 Keys.loading to false,
-                Keys.error to error,
+                Keys.error to error
             )
             options.onError.invoke(error, latestParams)
             runPluginHandler(OnError, error, latestParams)
@@ -191,7 +194,6 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
             _runAsync(params)
         }.also { requestJobs.add(it) }
     }
-
 
     /**
      * 取消请求

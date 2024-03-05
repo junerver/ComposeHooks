@@ -6,15 +6,15 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import kotlin.time.DurationUnit
+import kotlin.time.toDuration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 
 /**
  * Description:
@@ -26,7 +26,7 @@ import kotlin.time.toDuration
 data class ThrottleOptions internal constructor(
     var wait: Duration = 1.seconds, // 节流时长
     var leading: Boolean = true, // true：第一个任务是不延时
-    var trailing: Boolean = true,// true：将最后一次点击添加到延时任务中
+    var trailing: Boolean = true, // true：将最后一次点击添加到延时任务中
 ) {
     companion object : Options<ThrottleOptions>(::ThrottleOptions)
 }
@@ -34,7 +34,7 @@ data class ThrottleOptions internal constructor(
 class Throttle(
     private val fn: NormalFunction<Any?>,
     private val scope: CoroutineScope,
-    private val options: ThrottleOptions = defaultOption()
+    private val options: ThrottleOptions = defaultOption(),
 ) : VoidFunction {
     // 调用计数
     private var calledCount = 0
@@ -42,7 +42,7 @@ class Throttle(
     // 任务 -- 是否结束边缘
     private val trailingJobs: MutableList<Job> = arrayListOf()
 
-    //执行成功时间
+    // 执行成功时间
     private var latestInvokedTime = 0L
     private fun clearTrailing() {
         if (trailingJobs.isNotEmpty()) {
@@ -59,12 +59,12 @@ class Throttle(
             (System.currentTimeMillis() - latestInvokedTime).toDuration(DurationUnit.MILLISECONDS)
 
         fun task(isDelay: Boolean, isTrailing: Boolean = false) {
-            //尾随任务不自动运行
+            // 尾随任务不自动运行
             scope.launch(start = if (isTrailing) CoroutineStart.LAZY else CoroutineStart.DEFAULT) {
                 if (isDelay) delay(wait)
                 fn(p1)
                 if (!isTrailing && trailingJobs.isNotEmpty()) {
-                    //非尾随任务执行完毕后清空尾随任务
+                    // 非尾随任务执行完毕后清空尾随任务
                     trailingJobs.last().apply {
                         start()
                         join()
@@ -81,11 +81,11 @@ class Throttle(
             task(isDelay = !(calledCount == 0 && leading))
             latestInvokedTime = System.currentTimeMillis()
         } else {
-            //有常规任务
+            // 有常规任务
             if (trailing) {
-                //移除全部尾任务
+                // 移除全部尾任务
                 clearTrailing()
-                //追加一个结束边缘,结束边缘不clear
+                // 追加一个结束边缘,结束边缘不clear
                 task(isDelay = true, isTrailing = true)
             }
         }
@@ -96,7 +96,7 @@ class Throttle(
 @Composable
 fun <S> useThrottle(value: S, options: ThrottleOptions = defaultOption()): S {
     val (throttled, setThrottled) = useState(value)
-    //value的最新值
+    // value的最新值
     val latestValueRef by useLatestState(value = value)
     val throttledSet = useThrottleFn(fn = {
         setThrottled(latestValueRef)
@@ -110,7 +110,7 @@ fun <S> useThrottle(value: S, options: ThrottleOptions = defaultOption()): S {
 @Composable
 fun useThrottleFn(
     fn: NormalFunction<Any?>,
-    options: ThrottleOptions = defaultOption()
+    options: ThrottleOptions = defaultOption(),
 ): VoidFunction {
     val scope = rememberCoroutineScope()
     val throttled = remember {
@@ -124,7 +124,7 @@ fun useThrottleFn(
 fun useThrottleEffect(
     vararg keys: Any?,
     options: ThrottleOptions = defaultOption(),
-    block: () -> Unit
+    block: () -> Unit,
 ) {
     val throttledBlock = useThrottleFn(fn = { block() }, options)
     LaunchedEffect(*keys) {

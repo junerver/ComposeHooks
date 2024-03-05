@@ -12,14 +12,15 @@ import kotlin.reflect.full.callSuspend
  * Version: v1.0
  */
 
-//原始函数模型 (TParams) -> TData
-typealias TParams = Array<Any?> //原函数可变长度的参数
+// 原始函数模型 (TParams) -> TData
+typealias TParams = Array<Any?> // 原函数可变长度的参数
 
-//对所有函数固定抽象
+// 对所有函数固定抽象
 typealias NormalFunction<TData> = (TParams) -> TData
 typealias SuspendNormalFunction<TData> = suspend (TParams) -> TData
 typealias VoidFunction = NormalFunction<Unit>
 typealias SuspendVoidFunction = SuspendNormalFunction<Unit>
+
 // 最常规的函数 ()->Unit
 typealias NoParamsVoidFunction = KFunction0<Unit>
 
@@ -39,7 +40,6 @@ fun <TData> NormalFunction<TData>.invokeWithEmpty() = this(emptyArray())
 fun VoidFunction.invokeWithEmpty() = this(emptyArray())
 
 typealias DependencyList = Array<out Any>
-
 
 /**
  * 用来将任意一个函数转换成 noop 函数。但是需要注意，如果这个函数是一个实例的函数，必须要传入对应的实例。

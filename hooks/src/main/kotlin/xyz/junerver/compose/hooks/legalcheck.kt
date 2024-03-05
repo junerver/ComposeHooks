@@ -28,7 +28,6 @@ import kotlin.reflect.full.isSubtypeOf
  *
  */
 fun checkIsLegalParameters(fn: KFunction<*>, vararg params: Any?) {
-
     require(fn.parameters.size == params.size) {
         "Number of fn:${fn.name} parameters does not match. Expected: ${fn.parameters.size}, Actual: ${params.size}"
     }
@@ -38,11 +37,11 @@ fun checkIsLegalParameters(fn: KFunction<*>, vararg params: Any?) {
     for (i in realFnParams.indices) {
         // 函数的参数类型
         val fnParamType = realFnParams[i].type
-        //实际传入的参数
+        // 实际传入的参数
         val realParamType = params[i]?.javaClass?.kotlin?.createType()!!
         require(
             fnParamType.toString() == realParamType.toString() ||
-                    realParamType.isSubtypeOf(fnParamType)
+                realParamType.isSubtypeOf(fnParamType)
         ) {
             "Parameter at index $i has incorrect type. Expected: $fnParamType, Actual: $realParamType"
         }

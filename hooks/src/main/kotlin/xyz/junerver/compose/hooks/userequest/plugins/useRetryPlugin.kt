@@ -2,6 +2,9 @@ package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.saveable.rememberSaveable
+import kotlin.math.pow
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -14,9 +17,6 @@ import xyz.junerver.compose.hooks.userequest.PluginLifecycle
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 import xyz.junerver.kotlin.tuple
-import kotlin.math.pow
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 /**
  * Description:
@@ -27,7 +27,7 @@ import kotlin.time.Duration.Companion.seconds
  */
 class RetryPlugin<TData : Any> : Plugin<TData>() {
     var count = 0
-    var triggerByRetry = false //触发retry标志
+    var triggerByRetry = false // 触发retry标志
 
     override val invoke: GenPluginLifecycleFn<TData>
         get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
@@ -41,7 +41,7 @@ class RetryPlugin<TData : Any> : Plugin<TData>() {
             object : PluginLifecycle<TData>() {
                 override val onBefore: ((TParams) -> OnBeforeReturn<TData>?)
                     get() = {
-                        //未触发retry时，
+                        // 未触发retry时，
                         if (!triggerByRetry) {
                             count = 0
                         }
@@ -60,11 +60,11 @@ class RetryPlugin<TData : Any> : Plugin<TData>() {
                         if (retryCount == -1 || count <= retryCount) {
                             launch(Dispatchers.IO) {
                                 delay(
-                                    if (retryInterval > 0.milliseconds)
+                                    if (retryInterval > 0.milliseconds) {
                                         retryInterval
-                                    else
+                                    } else {
                                         (1.seconds * 2f.pow(count).toInt()).coerceAtMost(30.seconds)
-
+                                    }
                                 )
                                 triggerByRetry = true
                                 fetch.refreshAsync()

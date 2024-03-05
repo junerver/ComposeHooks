@@ -19,5 +19,3 @@ data class Ref<T>(var current: T) : Serializable
 fun <T> useRef(default: T): Ref<T> = rememberSaveable {
     Ref(default)
 }
-
-

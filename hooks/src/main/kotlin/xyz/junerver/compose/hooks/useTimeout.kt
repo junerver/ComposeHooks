@@ -2,9 +2,9 @@ package xyz.junerver.compose.hooks
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
-import kotlinx.coroutines.delay
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
 
 /**
  * Description: 定时一段时间后执行的任务
