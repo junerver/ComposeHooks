@@ -106,6 +106,15 @@ implementation("xyz.junerver.compose:hooks:1.0.0")
        Text(text = "Login")
    }
    ```
+   useRequest organizes code through a plug-in pattern, the core code is extremely simple, and can be easily extended for more advanced features. Current features include:
+   - Automatic/manual request
+   - Polling
+   - Debounce
+   - Throttle
+   - Error retry
+   - Loading delay
+   - SWR(stale-while-revalidate)
+   - Caching
 
 
 
