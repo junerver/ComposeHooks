@@ -14,3 +14,7 @@ ij_java_use_single_class_imports = true
 ij_kotlin_imports_layout = *
 ij_kotlin_allow_trailing_comma = true
 ij_kotlin_allow_trailing_comma_on_call_site = false
+
+[hooks/**.{kt,kts}]
+ktlint_standard_filename = disabled
+ktlint_standard_no-wildcard-imports = disabled
