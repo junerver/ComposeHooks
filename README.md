@@ -6,7 +6,7 @@
 
 English | [简体中文](https://github.com/junerver/ComposeHooks/blob/master/README.zh-CN.md)
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0) ![release](https://img.shields.io/badge/release-v1.0.0-blue)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0) ![release](https://img.shields.io/badge/release-v1.0.1-blue)
 
 
 ## About
@@ -50,11 +50,11 @@ The hooks that have been implemented so far are as follows:
 ## Add to dependencies
 
 ```groovy
-implementation 'xyz.junerver.compose:hooks:1.0.0'
+implementation 'xyz.junerver.compose:hooks:<latest_release>'
 ```
 
 ```kotlin
-implementation("xyz.junerver.compose:hooks:1.0.0")
+implementation("xyz.junerver.compose:hooks:<latest_release>")
 ```
 
 ## Quick Setup
