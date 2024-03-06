@@ -125,6 +125,13 @@ File, paste into `C:\Users\<user-name>\AppData\Roaming\Google\AndroidStudio2023.
 
 You can easily create code snippets of `useState` and `useRequest` through `us` and `ur`.
 
+## Open Inlay Hints for Kotlin Type
+
+For hooks like `useRequest`, its return value can deconstruct many objects and functions. It is necessary to enable InlayHint:
+
+Editor - Inlay Hints - Types - Kotlin
+
+
 ## Todo:
 
 - KMP friendly

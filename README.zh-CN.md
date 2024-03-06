@@ -119,6 +119,12 @@ implementation("xyz.junerver.compose:hooks:<latest_release>")
 
 你可以方便的通过 `us`、`ur` 来创建 `useState`、`useRequest`的代码片段。
 
+## 开启类型的内嵌提示
+
+像`useRequest`这样的钩子，它的返回值可以解构出很多对象、函数，开启 InlayHint 很有必要：
+
+Editor - Inlay Hints - Types - Kotlin
+
 ## Todo:
 
 - KMP friendly
