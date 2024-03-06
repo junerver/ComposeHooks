@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>Plugin</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+                    <a class="library-name--link" href="../../../index.html">
+                            hooks
+                    </a>
+            </div>
+            <div class="library-version">
+            </div>
+        </div>
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":hooks:dokkaHtml/release">androidJvm</button>
+        </div>
+    </div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
+    </div>
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="hooks::xyz.junerver.compose.hooks.userequest/Plugin///PointingToDeclaration//1917587792">
+  <div class="breadcrumbs"><a href="../../../index.html">hooks</a><span class="delimiter">/</span><a href="../index.html">xyz.junerver.compose.hooks.userequest</a><span class="delimiter">/</span><span class="current">Plugin</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span><span>Plugin</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="index.html">Plugin</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span> : <a href="../-i-fetch/index.html">IFetch</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt; </span>, <a href="https://developer.android.com/reference/kotlin/java/io/Serializable.html">Serializable</a>, <span data-unresolved-link="kotlinx.coroutines/CoroutineScope///PointingToDeclaration/">CoroutineScope</span></div><p class="paragraph">插件函数useXXXPlugin的返回值是真实的插件<a href="index.html">Plugin</a>对象， 可以通过在<a href="../use-request-plugins-impl.html">useRequestPluginsImpl</a>中调用<a href="on-init.html">onInit</a>函数，用来初始化 <a href="../-fetch/fetch-state.html">Fetch.fetchState</a>状态。 插件对象自身实现了协程作用域<span data-unresolved-link="kotlinx.coroutines/CoroutineScope///PointingToDeclaration/">CoroutineScope</span>，持有<a href="../-fetch/index.html">Fetch</a>的实例、请求<a href="../-request-options/index.html">RequestOptions</a>配置等内容。 按需实现<a href="../-i-fetch/index.html">IFetch</a>对应<a href="../-fetch/index.html">Fetch</a>中的各个函数调用，就可以在插件函数useXXXPlugin中需要使用副作用函数时，间接回调<a href="../-fetch/index.html">Fetch</a>实例。 具体用例可以参考：<a href="../../xyz.junerver.compose.hooks.userequest.plugins/use-auto-run-plugin.html">useAutoRunPlugin</a></p><h4 class="">Inheritors</h4><div class="table"><div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../xyz.junerver.compose.hooks.userequest.plugins/-auto-run-plugin/index.html">AutoRunPlugin</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../xyz.junerver.compose.hooks.userequest.plugins/-cache-plugin/index.html">CachePlugin</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../xyz.junerver.compose.hooks.userequest.plugins/-debounce-plugin/index.html">DebouncePlugin</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../xyz.junerver.compose.hooks.userequest.plugins/-loading-delay-plugin/index.html">LoadingDelayPlugin</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../xyz.junerver.compose.hooks.userequest.plugins/-polling-plugin/index.html">PollingPlugin</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../xyz.junerver.compose.hooks.userequest.plugins/-retry-plugin/index.html">RetryPlugin</a></div></span></div><div></div></div></div><div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../../xyz.junerver.compose.hooks.userequest.plugins/-throttle-plugin/index.html">ThrottlePlugin</a></div></span></div><div></div></div></div></div></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="CONSTRUCTOR">
+        <h2 class="">Constructors</h2>
+        <div class="table"><a data-name="1490826933%2FConstructors%2F1917587792" anchor-label="Plugin" id="1490826933%2FConstructors%2F1917587792" data-filterable-set=":hooks:dokkaHtml/release"></a>
+          <div class="table-row" data-togglable="CONSTRUCTOR" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="-plugin.html"><span><span>Plugin</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1490826933%2FConstructors%2F1917587792"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="PROPERTY">
+        <h2 class="">Properties</h2>
+        <div class="table"><a data-name="1628666129%2FProperties%2F1917587792" anchor-label="coroutineContext" id="1628666129%2FProperties%2F1917587792" data-filterable-set=":hooks:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="coroutine-context.html"><span>coroutine</span><wbr></wbr><span><span>Context</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1628666129%2FProperties%2F1917587792"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="coroutine-context.html">coroutineContext</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.coroutines/-coroutine-context/index.html">CoroutineContext</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-530972701%2FProperties%2F1917587792" anchor-label="fetchInstance" id="-530972701%2FProperties%2F1917587792" data-filterable-set=":hooks:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="fetch-instance.html"><span>fetch</span><wbr></wbr><span><span>Instance</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-530972701%2FProperties%2F1917587792"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">lateinit </span><span class="token keyword">var </span><a href="fetch-instance.html">fetchInstance</a><span class="token operator">: </span><a href="../-fetch/index.html">Fetch</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">因为我们无法像js那样直接定义一个函数类型的同时声明一个函数属性，而且因为序列化的考虑， 我们必须用一个实例对象来存储插件函数、初始化函数。故而<a href="../-fetch/index.html">Fetch</a>的实例我们必须保存在插件对象中。 对外暴露的副作用也不能再直接通过<a href="../-fetch/index.html">Fetch</a>实例调用，必须要再通过插件报装一手。</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1992782128%2FProperties%2F1917587792" anchor-label="invoke" id="1992782128%2FProperties%2F1917587792" data-filterable-set=":hooks:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="invoke.html"><span><span>invoke</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1992782128%2FProperties%2F1917587792"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="invoke.html">invoke</a><span class="token operator">: </span><a href="../-gen-plugin-lifecycle-fn/index.html">GenPluginLifecycleFn</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">必须实现的<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/index.html">invoke</a>属性，该属性执行后返回<a href="../-plugin-lifecycle/index.html">PluginLifecycle</a>， 它被调用的时机是实例化<a href="../-fetch/index.html">Fetch</a>时，调用后存入pluginImpls。 调用时应该执行<a href="init-fetch.html">initFetch</a>拿到相应实例，返回值是<a href="../-plugin-lifecycle/index.html">PluginLifecycle</a></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="1769582073%2FProperties%2F1917587792" anchor-label="onInit" id="1769582073%2FProperties%2F1917587792" data-filterable-set=":hooks:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="on-init.html"><span>on</span><wbr></wbr><span><span>Init</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1769582073%2FProperties%2F1917587792"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">val </span><a href="on-init.html">onInit</a><span class="token operator">: </span><span class="token punctuation">(</span><a href="../-request-options/index.html">RequestOptions</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt;</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="../-fetch-state/index.html">FetchState</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null</div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-396759724%2FProperties%2F1917587792" anchor-label="options" id="-396759724%2FProperties%2F1917587792" data-filterable-set=":hooks:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="options.html"><span><span>options</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-396759724%2FProperties%2F1917587792"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">lateinit </span><span class="token keyword">var </span><a href="options.html">options</a><span class="token operator">: </span><a href="../-request-options/index.html">RequestOptions</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="290286958%2FFunctions%2F1917587792" anchor-label="cancel" id="290286958%2FFunctions%2F1917587792" data-filterable-set=":hooks:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="cancel.html"><span><span>cancel</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="290286958%2FFunctions%2F1917587792"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">fun </span><a href="cancel.html"><span class="token function">cancel</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">插件默认有一个作用域，可通过</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-2103101052%2FFunctions%2F1917587792" anchor-label="initFetch" id="-2103101052%2FFunctions%2F1917587792" data-filterable-set=":hooks:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="init-fetch.html"><span>init</span><wbr></wbr><span><span>Fetch</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-2103101052%2FFunctions%2F1917587792"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">fun </span><a href="init-fetch.html"><span class="token function">initFetch</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">fetchInstance<span class="token operator">: </span><a href="../-fetch/index.html">Fetch</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt;</span><span class="token punctuation">, </span></span><span class="parameter ">options<span class="token operator">: </span><a href="../-request-options/index.html">RequestOptions</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div><div class="brief "><p class="paragraph">插件在被<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/index.html">invoke</a>执行调用时初始化<a href="../-fetch/index.html">Fetch</a>与<a href="../-request-options/index.html">RequestOptions</a></p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

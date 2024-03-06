@@ -59,7 +59,11 @@ fun <T> Map<String, Any?>.getOrElse(key: String, default: T?) = if (this.contain
 }
 
 /**
- * 使用密封类或者密封接口，可以避免外部继承实现，但是不影响使用接口声明
+ * 使用密封类或者密封接口，可以避免外部继承实现，但是不影响使用接口声明。
+ * @param loading 当前请求是否正在loading
+ * @param params 发起请求使用的参数
+ * @param data 请求的响应值
+ * @param error 请求出错后的错误信息
  */
 sealed class IFetchStata<out TData>(
     open val loading: Boolean? = null,
@@ -67,6 +71,9 @@ sealed class IFetchStata<out TData>(
     open val data: TData? = null,
     open val error: Throwable? = null,
 ) {
+    /**
+     * [copyMap] 当前对象用于覆盖时的等价map
+     */
     var copyMap: Map<String, Any?> = emptyMap()
     abstract fun asNotNullMap(): Map<String, Any?>
     abstract fun copy(needCopyMap: Map<String, Any?>?): IFetchStata<TData>
