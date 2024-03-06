@@ -25,19 +25,13 @@ typealias SuspendVoidFunction = SuspendNormalFunction<Unit>
 typealias NoParamsVoidFunction = KFunction0<Unit>
 
 /**
- * 简化无参函数的调用，伪装成无参函数的样子，可能需要手动导包：
+ * 优化函数调用形式，将导出的函数伪装成普通函数的样子，无需对参数进行[arrayOf]，可能需要手动导包：
  * ```
  * import xyz.junerver.compose.hooks.invoke
  * ```
  */
-operator fun <TData> NormalFunction<TData>.invoke() = this(emptyArray())
-operator fun VoidFunction.invoke() = this(emptyArray())
-
-@Suppress("unused")
-fun <TData> NormalFunction<TData>.invokeWithEmpty() = this(emptyArray())
-
-@Suppress("unused")
-fun VoidFunction.invokeWithEmpty() = this(emptyArray())
+operator fun <TData> NormalFunction<TData>.invoke(vararg params: Any?) = this(arrayOf(*params))
+operator fun VoidFunction.invoke(vararg params: Any?) = this(arrayOf(*params))
 
 typealias DependencyList = Array<out Any>
 

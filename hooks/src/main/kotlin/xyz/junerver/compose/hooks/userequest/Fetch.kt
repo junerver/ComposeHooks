@@ -17,6 +17,7 @@ import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.VoidFunction
 import xyz.junerver.compose.hooks.defaultOption
 import xyz.junerver.compose.hooks.userequest.utils.awaitPlus
+import xyz.junerver.compose.hooks.userequest.plugins.AutoRunPlugin
 
 /**
  * Description:插件化的 Fetch
@@ -29,7 +30,7 @@ import xyz.junerver.compose.hooks.userequest.utils.awaitPlus
 class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOption()) :
     IFetch<TData>, Serializable {
     // 请求的计数器
-    internal var count: Int = 0
+    private var count: Int = 0
 
     lateinit var fetchState: FetchState<TData>
 
@@ -56,7 +57,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
     lateinit var setLoading: (Boolean) -> Unit
 
     /**
-     * 对[useRequest]中的[request]函数进行try-catch
+     * 对[useRequest]中的[requestFn]函数进行try-catch
      */
     lateinit var errorState: MutableState<Throwable?>
     lateinit var setError: (Throwable?) -> Unit
@@ -156,7 +157,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
                     ).cover()
             )
             // 此处要明确声明async所在的job，避免异常传递
-            serviceDeferred = serviceDeferred ?: async(SupervisorJob()) { requestFn(params) }
+            serviceDeferred = serviceDeferred ?: async(SupervisorJob()) { requestFn(latestParams) }
             val result = serviceDeferred.awaitPlus()
             if (currentCount != count) return@coroutineScope
             setState(
