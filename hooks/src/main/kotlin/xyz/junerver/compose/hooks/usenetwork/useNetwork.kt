@@ -2,11 +2,11 @@ package xyz.junerver.compose.hooks.usenetwork
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
-import xyz.junerver.compose.hooks.useState
 
 /**
  * Description:
@@ -26,27 +26,27 @@ data class NetworkState(
  */
 @Composable
 fun useNetwork(): NetworkState {
-    NetConnectManager.init(LocalContext.current)
-    val (network, setNetwork) = useState(
-        NetworkState(
+    val context = LocalContext.current
+    remember {
+        NetConnectManager.init(context)
+    }
+    return produceState(
+        initialValue = NetworkState(
             isConnect = NetConnectManager.isConnected(),
             connectType = NetConnectManager.getConnectType()
         )
-    )
-    DisposableEffect(Unit) {
+    ) {
         val typeChangeListener: (type: ConnectType) -> Unit = {
-            setNetwork(network.copy(connectType = it))
+            value = value.copy(connectType = it)
         }
         val statusChangeListener: (isAvailable: Boolean) -> Unit = {
-            setNetwork(network.copy(isConnect = it))
+            value = value.copy(isConnect = it)
         }
-
         NetConnectManager.addListener(typeChangeListener, statusChangeListener)
-        onDispose {
+        awaitDispose {
             NetConnectManager.removeListener(typeChangeListener, statusChangeListener)
         }
-    }
-    return network
+    }.value
 }
 
 /**

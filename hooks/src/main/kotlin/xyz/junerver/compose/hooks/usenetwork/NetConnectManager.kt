@@ -46,7 +46,7 @@ object NetConnectManager {
     /**
      * 初始化
      */
-    fun init(context: Context) {
+    fun init(context: Context): NetConnectManager {
         mConnectivityManager = context.getSystemService(ConnectivityManager::class.java)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             mConnectivityManager?.registerDefaultNetworkCallback(DefaultNetConnectCallback())
@@ -56,6 +56,7 @@ object NetConnectManager {
                 IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
             )
         }
+        return this
     }
 
     /**
