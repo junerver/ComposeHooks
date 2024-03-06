@@ -16,8 +16,8 @@ import xyz.junerver.compose.hooks.SuspendVoidFunction
 import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.VoidFunction
 import xyz.junerver.compose.hooks.defaultOption
-import xyz.junerver.compose.hooks.userequest.utils.awaitPlus
 import xyz.junerver.compose.hooks.userequest.plugins.AutoRunPlugin
+import xyz.junerver.compose.hooks.userequest.utils.awaitPlus
 
 /**
  * Description:插件化的 Fetch
@@ -233,39 +233,54 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
     private fun runPluginHandler(method: PluginLifecycleMethods, vararg rest: Any?): List<*> {
         return pluginImpls.mapNotNull {
             when (method) {
-                OnBefore -> it.onBefore?.invoke(rest[0] as TParams)
-                OnRequest -> it.onRequest?.invoke(
-                    rest[0] as SuspendNormalFunction<TData>,
-                    rest[1] as TParams
-                )
+                OnBefore -> {
+                    it.onBefore?.invoke(rest[0] as TParams)
+                }
+
+                OnRequest -> {
+                    it.onRequest?.invoke(
+                        rest[0] as SuspendNormalFunction<TData>,
+                        rest[1] as TParams
+                    )
+                }
                 /**
                  * 参数1：请求的返回值，参数2：请求使用的参数
                  */
-                OnSuccess -> it.onSuccess?.invoke(
-                    rest[0] as TData,
-                    rest[1] as TParams
-                )
+                OnSuccess -> {
+                    it.onSuccess?.invoke(
+                        rest[0] as TData,
+                        rest[1] as TParams
+                    )
+                }
                 /**
                  * 参数1：错误，参数2：请求使用的参数
                  */
-                OnError -> it.onError?.invoke(
-                    rest[0] as Throwable,
-                    rest[1] as TParams
-                )
+                OnError -> {
+                    it.onError?.invoke(
+                        rest[0] as Throwable,
+                        rest[1] as TParams
+                    )
+                }
                 /**
                  * 参数1：请求使用的参数，参数2：请求的返回值，参数3：错误
                  */
-                OnFinally -> it.onFinally?.invoke(
-                    rest[0] as TParams,
-                    rest[1] as TData?,
-                    rest[2] as Throwable?
-                )
+                OnFinally -> {
+                    it.onFinally?.invoke(
+                        rest[0] as TParams,
+                        rest[1] as TData?,
+                        rest[2] as Throwable?
+                    )
+                }
 
-                OnCancel -> it.onCancel?.invoke()
+                OnCancel -> {
+                    it.onCancel?.invoke()
+                }
                 /**
                  * 参数1：要修改的目标数据
                  */
-                OnMutate -> it.onMutate?.invoke(rest[0] as TData)
+                OnMutate -> {
+                    it.onMutate?.invoke(rest[0] as TData)
+                }
             }
         }
     }
