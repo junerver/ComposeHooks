@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.jetbrainsKotlinAndroid)
     alias(libs.plugins.mavenPublish)
+    alias(libs.plugins.dokka)
 }
 
 android {
@@ -25,6 +26,13 @@ android {
         kotlinCompilerExtensionVersion = "1.5.0"
     }
 }
+
+tasks.dokkaHtml  {
+    outputDirectory.set(file("$rootDir/docs/api"))
+    suppressInheritedMembers.set(true)
+    moduleName.set("hooks")
+}
+
 
 dependencies {
 
