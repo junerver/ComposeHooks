@@ -107,7 +107,6 @@ implementation("xyz.junerver.compose:hooks:<latest_release>")
    - 轮询
    - 防抖
    - 节流
-   - 屏幕聚焦重新请求
    - 错误重试
    - loading delay
    - SWR(stale-while-revalidate)
