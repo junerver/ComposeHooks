@@ -124,7 +124,7 @@ fun <S> useDebounce(
     value: S,
     options: DebounceOptions = defaultOption(),
 ): S {
-    val (debounced, setDebounced) = useState(value)
+    val (debounced, setDebounced) = _useState(value)
     // value的最新值
     val latestValueRef by useLatestState(value = value)
     // 最简单的创建 noop 函数的方法就是使用 匿名函数 lambda。

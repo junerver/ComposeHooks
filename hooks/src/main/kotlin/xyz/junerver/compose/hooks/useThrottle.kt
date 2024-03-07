@@ -95,7 +95,7 @@ class Throttle(
 
 @Composable
 fun <S> useThrottle(value: S, options: ThrottleOptions = defaultOption()): S {
-    val (throttled, setThrottled) = useState(value)
+    val (throttled, setThrottled) = _useState(value)
     // value的最新值
     val latestValueRef by useLatestState(value = value)
     val throttledSet = useThrottleFn(fn = {

@@ -27,7 +27,7 @@ inline fun <reified S> useReducer(
     noinline reducer: Reducer<S>,
     initialState: S,
 ): Tuple2<S, Dispatch> {
-    val (state, setState) = useState(initialState)
+    val (state, setState) = _useState(initialState)
     return tuple(
         first = state, // state状态值
         second = { action: Action -> setState(reducer(state, action)) } // dispatch函数

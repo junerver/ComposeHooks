@@ -69,7 +69,7 @@ inline fun <reified S> rememberReducer(noinline reducer: Reducer<S>, initialStat
 fun <T> rememberRef(default: T) = useRef(default)
 
 @Composable
-fun <T> rememberState(default: T) = useState(default)
+fun <T> rememberState(default: T) = _useState(default)
 
 @Composable
 fun <S> rememberThrottle(value: S, options: ThrottleOptions = defaultOption()) =

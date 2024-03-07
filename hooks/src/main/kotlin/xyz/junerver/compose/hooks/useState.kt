@@ -1,15 +1,8 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.snapshots.SnapshotStateMap
-import androidx.compose.runtime.toMutableStateList
-import androidx.compose.runtime.toMutableStateMap
 import xyz.junerver.kotlin.Tuple2
 
 /**
@@ -33,49 +26,43 @@ import xyz.junerver.kotlin.Tuple2
  * Version: v1.0
  */
 @Composable
-fun <T> useState(default: T): Tuple2<T, (T) -> Unit> {
+inline fun <reified T> useState(default: T & Any): Tuple2<T, (T) -> Unit> {
+    return when (default) {
+        is Int -> useInt(default)
+        is Float -> useFloat(default)
+        is Double -> useDouble(default)
+        is Long -> useLong(default)
+        else -> _useState(default)
+    } as Tuple2<T, (T) -> Unit>
+}
+
+/**
+ * 这是一个可空的[useState]，如果对象的状态可能为空，应该使用它
+ */
+@Composable
+fun <T> _useState(default: T): Tuple2<T, (T) -> Unit> {
     val (state, setState) = remember {
         mutableStateOf(default)
     }
     return state to setState
 }
 
+@Deprecated("change fun name", ReplaceWith("useInt(default)"))
 @Composable
-fun useIntState(default: Int = 0): Tuple2<Int, (Int) -> Unit> {
-    val (state, setState) = remember {
-        mutableIntStateOf(default)
-    }
-    return state to setState
-}
+fun useIntState(default: Int = 0) = useInt(default)
 
+@Deprecated("change fun name", ReplaceWith("useList(elements)"))
 @Composable
-fun <T> useListState(elements: Collection<T>): SnapshotStateList<T> {
-    val list = remember {
-        elements.toMutableStateList()
-    }
-    return list
-}
+fun <T> useListState(elements: Collection<T>) = useList(elements)
 
+@Deprecated("change fun name", ReplaceWith("useList(elements)"))
 @Composable
-fun <T> useListState(vararg elements: T): SnapshotStateList<T> {
-    val list = remember {
-        mutableStateListOf(*elements)
-    }
-    return list
-}
+fun <T> useListState(vararg elements: T) = useList(elements = elements)
 
+@Deprecated("change fun name", ReplaceWith("useMap(pairs)"))
 @Composable
-fun <K, V> useMapState(vararg pairs: Pair<K, V>): SnapshotStateMap<K, V> {
-    val map = remember {
-        mutableStateMapOf(*pairs)
-    }
-    return map
-}
+fun <K, V> useMapState(vararg pairs: Pair<K, V>) = useMap(pairs = pairs)
 
+@Deprecated("change fun name", ReplaceWith("useMap(pairs)"))
 @Composable
-fun <K, V> useMapState(pairs: Iterable<Pair<K, V>>): SnapshotStateMap<K, V> {
-    val map = remember {
-        pairs.toMutableStateMap()
-    }
-    return map
-}
+fun <K, V> useMapState(pairs: Iterable<Pair<K, V>>) = useMap(pairs)
