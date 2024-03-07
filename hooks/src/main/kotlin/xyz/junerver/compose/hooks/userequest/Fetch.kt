@@ -113,8 +113,8 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
     @Suppress("UNCHECKED_CAST")
     override suspend fun _runAsync(params: TParams) = coroutineScope {
         // 有手动参数但是与默认参数不匹配，报错
-        if (params.isNotEmpty()) {
-            check(params.size == options.defaultParams.size) { "Parameter length mismatch" }
+        if (params.isNotEmpty() && options.defaultParams.isNotEmpty()) {
+            check(params.size == options.defaultParams.size) { "pass parameters length mismatch defaultParams" }
         }
         // 请求参数，如果为空则使用默认参数
         latestParams = if (params.isNotEmpty()) params else options.defaultParams
