@@ -83,7 +83,7 @@ implementation("xyz.junerver.compose:hooks:<latest_release>")
 
    ```kotlin
    val (data, loading, error, run) = useRequest(
-       requestFn = WebService::login.asRequestFn(),
+       requestFn = WebService::login.asRequestFn(), //自行封装相应扩展函数
        optionsOf {
            manual = true
        }
@@ -124,6 +124,11 @@ implementation("xyz.junerver.compose:hooks:<latest_release>")
 像`useRequest`这样的钩子，它的返回值可以解构出很多对象、函数，开启 InlayHint 很有必要：
 
 Editor - Inlay Hints - Types - Kotlin
+
+## 文档
+
+[在Compose中使用useRequest轻松管理网络请求](https://junerver.xyz/2024/03/06/%E5%9C%A8Compose%E4%B8%AD%E4%BD%BF%E7%94%A8useRequest%E8%BD%BB%E6%9D%BE%E7%AE%A1%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/)
+
 
 ## Todo:
 
