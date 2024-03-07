@@ -6,7 +6,7 @@
 
 [English](https://github.com/junerver/ComposeHooks/blob/master/README.md) | 简体中文
 
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0) ![release](https://img.shields.io/badge/release-v1.0.1-blue)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0) ![release](https://img.shields.io/badge/release-v1.0.2-blue)
 
 ## 简介
 
