@@ -257,7 +257,7 @@ $dokka.location:xyz.junerver.compose.hooks//rememberBoolean/#kotlin.Boolean/Poin
 $dokka.location:xyz.junerver.compose.hooks//rememberCreation/#kotlin.Array[kotlin.Any?]#kotlin.Function0[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-creation.html
 $dokka.location:xyz.junerver.compose.hooks//rememberDebounce/#TypeParam(bounds=[kotlin.Any?])#xyz.junerver.compose.hooks.DebounceOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-debounce.html
 $dokka.location:xyz.junerver.compose.hooks//rememberDebounceFn/#kotlin.Function1[kotlin.Array[kotlin.Any?],kotlin.Unit]#xyz.junerver.compose.hooks.DebounceOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-debounce-fn.html
-$dokka.location:xyz.junerver.compose.hooks//rememberInterval/#kotlin.Function0[kotlin.Unit]#xyz.junerver.compose.hooks.IntervalOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-interval.html
+$dokka.location:xyz.junerver.compose.hooks//rememberInterval/#xyz.junerver.compose.hooks.IntervalOptions#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-interval.html
 $dokka.location:xyz.junerver.compose.hooks//rememberLatestRef/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-latest-ref.html
 $dokka.location:xyz.junerver.compose.hooks//rememberMount/#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-mount.html
 $dokka.location:xyz.junerver.compose.hooks//rememberPrevious/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-previous.html
@@ -267,7 +267,7 @@ $dokka.location:xyz.junerver.compose.hooks//rememberRequest/#kotlin.coroutines.S
 $dokka.location:xyz.junerver.compose.hooks//rememberState/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-state.html
 $dokka.location:xyz.junerver.compose.hooks//rememberThrottle/#TypeParam(bounds=[kotlin.Any?])#xyz.junerver.compose.hooks.ThrottleOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-throttle.html
 $dokka.location:xyz.junerver.compose.hooks//rememberThrottleFn/#kotlin.Function1[kotlin.Array[kotlin.Any?],kotlin.Any?]#xyz.junerver.compose.hooks.ThrottleOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-throttle-fn.html
-$dokka.location:xyz.junerver.compose.hooks//rememberTimeout/#kotlin.Function0[kotlin.Unit]#kotlin.time.Duration/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-timeout.html
+$dokka.location:xyz.junerver.compose.hooks//rememberTimeout/#kotlin.time.Duration#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-timeout.html
 $dokka.location:xyz.junerver.compose.hooks//rememberToggle/#TypeParam(bounds=[kotlin.Any?])?#TypeParam(bounds=[kotlin.Any?])?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-toggle.html
 $dokka.location:xyz.junerver.compose.hooks//rememberToggleEither/#TypeParam(bounds=[kotlin.Any?])?#TypeParam(bounds=[kotlin.Any?])?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-toggle-either.html
 $dokka.location:xyz.junerver.compose.hooks//rememberToggleVisible/#kotlin.Boolean#kotlin.Function0[kotlin.Unit]#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-toggle-visible.html
@@ -287,7 +287,7 @@ $dokka.location:xyz.junerver.compose.hooks//useEffect/#kotlin.Array[kotlin.Any]#
 $dokka.location:xyz.junerver.compose.hooks//useFloat/#kotlin.Float/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-float.html
 $dokka.location:xyz.junerver.compose.hooks//useInt/#kotlin.Int/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-int.html
 $dokka.location:xyz.junerver.compose.hooks//useIntState/#kotlin.Int/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-int-state.html
-$dokka.location:xyz.junerver.compose.hooks//useInterval/#kotlin.Function0[kotlin.Unit]#xyz.junerver.compose.hooks.IntervalOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-interval.html
+$dokka.location:xyz.junerver.compose.hooks//useInterval/#xyz.junerver.compose.hooks.IntervalOptions#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-interval.html
 $dokka.location:xyz.junerver.compose.hooks//useLatestRef/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-latest-ref.html
 $dokka.location:xyz.junerver.compose.hooks//useLatestState/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-latest-state.html
 $dokka.location:xyz.junerver.compose.hooks//useList/#kotlin.Array[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-list.html
@@ -307,13 +307,14 @@ $dokka.location:xyz.junerver.compose.hooks//useState/#TypeParam(bounds=[kotlin.A
 $dokka.location:xyz.junerver.compose.hooks//useThrottle/#TypeParam(bounds=[kotlin.Any?])#xyz.junerver.compose.hooks.ThrottleOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-throttle.html
 $dokka.location:xyz.junerver.compose.hooks//useThrottleEffect/#kotlin.Array[kotlin.Any?]#xyz.junerver.compose.hooks.ThrottleOptions#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-throttle-effect.html
 $dokka.location:xyz.junerver.compose.hooks//useThrottleFn/#kotlin.Function1[kotlin.Array[kotlin.Any?],kotlin.Any?]#xyz.junerver.compose.hooks.ThrottleOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-throttle-fn.html
-$dokka.location:xyz.junerver.compose.hooks//useTimeout/#kotlin.Function0[kotlin.Unit]#kotlin.time.Duration/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-timeout.html
+$dokka.location:xyz.junerver.compose.hooks//useTimeout/#kotlin.time.Duration#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-timeout.html
 $dokka.location:xyz.junerver.compose.hooks//useToggle/#TypeParam(bounds=[kotlin.Any?])?#TypeParam(bounds=[kotlin.Any?])?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-toggle.html
 $dokka.location:xyz.junerver.compose.hooks//useToggleEither/#TypeParam(bounds=[kotlin.Any?])?#TypeParam(bounds=[kotlin.Any?])?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-toggle-either.html
 $dokka.location:xyz.junerver.compose.hooks//useToggleVisible/#kotlin.Boolean#kotlin.Function0[kotlin.Unit]#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-toggle-visible.html
 $dokka.location:xyz.junerver.compose.hooks//useToggleVisible/#kotlin.Boolean#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-toggle-visible.html
 $dokka.location:xyz.junerver.compose.hooks//useUndo/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-undo.html
 $dokka.location:xyz.junerver.compose.hooks//useUnmount/#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-unmount.html
+$dokka.location:xyz.junerver.compose.hooks//useUpdate/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-update.html
 $dokka.location:xyz.junerver.compose.hooks/Action///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-action/index.html
 $dokka.location:xyz.junerver.compose.hooks/Action/Action/#kotlin.Any#kotlin.Any?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-action/-action.html
 $dokka.location:xyz.junerver.compose.hooks/Action/payload/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-action/payload.html
