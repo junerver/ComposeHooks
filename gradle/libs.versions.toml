@@ -10,6 +10,7 @@ activityCompose = "1.8.2"
 composeBom = "2023.08.00"
 appcompat = "1.6.1"
 material = "1.11.0"
+navigationCompose = "2.7.7"
 
 
 [libraries]
@@ -34,6 +35,7 @@ kotlin-bom = { group = "org.jetbrains.kotlin", name = "kotlin-bom", version.ref 
 kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect" }
 
 ktx = "xyz.junerver.kotlin:ktx:0.1.6"
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigationCompose" }
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
