@@ -15,7 +15,7 @@ import kotlinx.coroutines.delay
  */
 @SuppressLint("ComposableNaming")
 @Composable
-fun useTimeout(fn: () -> Unit, delay: Duration = 1.seconds) {
+fun useTimeout(delay: Duration = 1.seconds, fn: () -> Unit) {
     useEffect {
         delay(delay)
         fn()

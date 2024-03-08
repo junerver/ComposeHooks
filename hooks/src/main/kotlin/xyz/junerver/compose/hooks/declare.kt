@@ -48,9 +48,9 @@ fun LaunchedDebounceEffect(
 
 @Composable
 fun rememberInterval(
-    fn: () -> Unit,
     options: IntervalOptions = defaultOption(),
-) = useInterval(fn, options)
+    fn: () -> Unit,
+) = useInterval(options, fn)
 
 @Composable
 fun <T> rememberLatestRef(value: T) = useLatestRef(value)
@@ -89,7 +89,7 @@ fun LaunchedThrottleEffect(
 ) = useThrottleEffect(*keys, options = options, block = block)
 
 @Composable
-fun rememberTimeout(fn: () -> Unit, delay: Duration = 1.seconds) = useTimeout(fn, delay)
+fun rememberTimeout(delay: Duration = 1.seconds, fn: () -> Unit) = useTimeout(delay, fn)
 
 @Composable
 fun <T> rememberToggle(

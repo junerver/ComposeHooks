@@ -80,8 +80,8 @@ internal class Interval(private val options: IntervalOptions) {
 
 @Composable
 fun useInterval(
-    fn: () -> Unit,
     options: IntervalOptions = defaultOption(),
+    fn: () -> Unit,
 ): Tuple2<NoParamsVoidFunction, NoParamsVoidFunction> {
     val (_, _, ready) = options
     val interval = remember {
