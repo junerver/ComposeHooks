@@ -6,9 +6,12 @@ import xyz.junerver.composehooks.example.UseBooleanExample
 import xyz.junerver.composehooks.example.UseDebounceExample
 import xyz.junerver.composehooks.example.UseIntervalExample
 import xyz.junerver.composehooks.example.UseLatestExample
+import xyz.junerver.composehooks.example.UseListExample
+import xyz.junerver.composehooks.example.UseMapExample
 import xyz.junerver.composehooks.example.UseMountExample
 import xyz.junerver.composehooks.example.UseNetworkExample
 import xyz.junerver.composehooks.example.UseRefExample
+import xyz.junerver.composehooks.example.UseStateExample
 import xyz.junerver.composehooks.example.UseUpdateExample
 
 /**
@@ -29,14 +32,14 @@ val routes = arrayOf<Pair<String, @Composable () -> Unit>>(
     "useEffect" to { TODO() },
     "useInterval" to { UseIntervalExample() },
     "useLatest" to { UseLatestExample() },
-    "useList" to { TODO() },
-    "useMap" to { TODO() },
+    "useList" to { UseListExample() },
+    "useMap" to { UseMapExample() },
     "useMount" to { UseMountExample() },
     "useNumber" to { TODO() },
     "usePrevious" to { TODO() },
     "useReducer" to { TODO() },
     "useRef" to { UseRefExample() },
-    "useState" to { TODO() },
+    "useState" to { UseStateExample() },
     "useThrottle" to { TODO() },
     "useTimeout" to { TODO() },
     "useToggle" to { TODO() },
