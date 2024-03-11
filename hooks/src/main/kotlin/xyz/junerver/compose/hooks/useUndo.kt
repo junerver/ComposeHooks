@@ -20,26 +20,18 @@ data class UndoState<T>(
     var future: List<T> = emptyList(),
 ) : Serializable
 
-enum class UndoActionType { Undo, Redo, Set, Reset, }
-data class UndoAction<S>(override val type: UndoActionType, override val payload: S? = null) :
-    Action(type, payload) {
-    companion object {
-        fun undo() = UndoAction<Nothing>(UndoActionType.Undo)
-        fun redo() = UndoAction<Nothing>(UndoActionType.Redo)
-
-        fun <T> set(payload: T) = UndoAction(UndoActionType.Set, payload)
-        fun <T> reset(payload: T) = UndoAction(UndoActionType.Reset, payload)
-    }
-}
+sealed interface UndoAction<S>
+internal data object Undo : UndoAction<Nothing>
+internal data object Redo : UndoAction<Nothing>
+internal data class Set<S>(val payload: S) : UndoAction<S>
+internal data class Reset<S>(val payload: S) : UndoAction<S>
 
 @Suppress("UNCHECKED_CAST")
-fun <T> undoReducer(preState: UndoState<T>, action: Action): UndoState<T> {
+fun <T> undoReducer(preState: UndoState<T>, action: Any): UndoState<T> {
     val (past, present, future) = preState
-    // 此处明确Action为其子类型[UndoAction]
-    val (type, payload) = action as UndoAction<T>
-    return when (type) {
+    return when (action) {
         // 撤销
-        UndoActionType.Undo -> {
+        Undo -> {
             if (past.isEmpty()) return preState
             // 取出过去操作中的最后一个操作作为新的present
             val newPresent = past[past.size - 1]
@@ -54,7 +46,7 @@ fun <T> undoReducer(preState: UndoState<T>, action: Action): UndoState<T> {
             )
         }
         // 重做
-        UndoActionType.Redo -> {
+        Redo -> {
             if (future.isEmpty()) return preState
             // 取出第一个future
             val newPresent = future[0]
@@ -67,7 +59,8 @@ fun <T> undoReducer(preState: UndoState<T>, action: Action): UndoState<T> {
             )
         }
 
-        UndoActionType.Set -> {
+        is Set<*> -> {
+            val (payload) = action as Set<T>
             if (present === payload) return preState
             preState.copy(
                 past = past + listOf(present),
@@ -76,13 +69,16 @@ fun <T> undoReducer(preState: UndoState<T>, action: Action): UndoState<T> {
             )
         }
 
-        UndoActionType.Reset -> {
+        is Reset<*> -> {
+            val (payload) = action as Reset<T>
             preState.copy(
                 past = emptyList(),
                 present = payload!!,
                 future = emptyList()
             )
         }
+
+        else -> preState
     }
 }
 
@@ -94,10 +90,10 @@ fun <T> useUndo(initialPresent: T): Tuple7<UndoState<T>, (T) -> Unit, (T) -> Uni
     // 是否可以重做
     val canRedo = state.future.isNotEmpty()
     // undo相关的四个函数
-    val undo = { dispatch(UndoAction.undo()) }
-    val redo = { dispatch(UndoAction.redo()) }
-    val set = { newPresent: T -> dispatch(UndoAction.set(newPresent)) }
-    val reset = { newPresent: T -> dispatch(UndoAction.reset(newPresent)) }
+    val undo = { dispatch(Undo) }
+    val redo = { dispatch(Redo) }
+    val set = { newPresent: T -> dispatch(Set(newPresent)) }
+    val reset = { newPresent: T -> dispatch(Reset(newPresent)) }
 
     return tuple(
         first = state,
