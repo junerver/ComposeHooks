@@ -19,13 +19,11 @@ import androidx.navigation.compose.rememberNavController
  */
 typealias Component = @Composable () -> Unit
 
-
 private val LocalNavHostController: ProvidableCompositionLocal<NavHostController> =
     staticCompositionLocalOf { error("provide first") }
 
 @Composable
 fun useNavigate() = LocalNavHostController.current
-
 
 @SuppressLint("ComposableNaming")
 @Composable

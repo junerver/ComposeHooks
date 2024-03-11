@@ -10,6 +10,7 @@ import xyz.junerver.composehooks.example.UseListExample
 import xyz.junerver.composehooks.example.UseMapExample
 import xyz.junerver.composehooks.example.UseMountExample
 import xyz.junerver.composehooks.example.UseNetworkExample
+import xyz.junerver.composehooks.example.UseNumberExample
 import xyz.junerver.composehooks.example.UseRefExample
 import xyz.junerver.composehooks.example.UseStateExample
 import xyz.junerver.composehooks.example.UseUpdateExample
@@ -35,7 +36,7 @@ val routes = arrayOf<Pair<String, @Composable () -> Unit>>(
     "useList" to { UseListExample() },
     "useMap" to { UseMapExample() },
     "useMount" to { UseMountExample() },
-    "useNumber" to { TODO() },
+    "useNumber" to { UseNumberExample() },
     "usePrevious" to { TODO() },
     "useReducer" to { TODO() },
     "useRef" to { UseRefExample() },
@@ -45,5 +46,5 @@ val routes = arrayOf<Pair<String, @Composable () -> Unit>>(
     "useToggle" to { TODO() },
     "useUndo" to { TODO() },
     "useUnmount" to { UseMountExample() },
-    "useUpdate" to { UseUpdateExample() },
+    "useUpdate" to { UseUpdateExample() }
 )

@@ -15,7 +15,7 @@ import xyz.junerver.compose.hooks.usenetwork.rememberNetwork
  * Version: v1.0
  */
 @Composable
-fun UseNetworkExample(){
+fun UseNetworkExample() {
     NetworkProvider {
         val networkState = rememberNetwork()
         Surface {

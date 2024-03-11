@@ -15,7 +15,7 @@ import xyz.junerver.compose.hooks.useState
  * Version: v1.0
  */
 @Composable
-fun UseStateExample(){
+fun UseStateExample() {
     val (state, setState) = useState("")
     Surface {
         Column {

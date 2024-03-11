@@ -23,10 +23,12 @@ import xyz.junerver.compose.hooks.useState
 fun UseIntervalExample() {
     val (countDown, setCountDown) = useState(60)
     val currentCount by useLatestState(value = countDown)
-    val (_, cancel) = useInterval(optionsOf {
-        initialDelay = 5.seconds
-        period = 2.seconds
-    }) {
+    val (_, cancel) = useInterval(
+        optionsOf {
+            initialDelay = 5.seconds
+            period = 2.seconds
+        }
+    ) {
         setCountDown(currentCount - 1)
     }
     useEffect(currentCount) {

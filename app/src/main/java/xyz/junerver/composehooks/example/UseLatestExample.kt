@@ -41,10 +41,12 @@ fun UseLatestExample() {
 @Composable
 fun Normal() {
     var count by remember { mutableIntStateOf(0) }
-    useInterval(optionsOf {
-        initialDelay = 5.seconds
-        period = 1.seconds
-    }) {
+    useInterval(
+        optionsOf {
+            initialDelay = 5.seconds
+            period = 1.seconds
+        }
+    ) {
         count += 1
     }
     Text(text = "Normal : $count")
@@ -53,10 +55,12 @@ fun Normal() {
 @Composable
 fun UseStateButWithoutUseLatest() {
     val (count, setCount) = useState(0)
-    useInterval(optionsOf {
-        initialDelay = 5.seconds
-        period = 1.seconds
-    }) {
+    useInterval(
+        optionsOf {
+            initialDelay = 5.seconds
+            period = 1.seconds
+        }
+    ) {
         // 这里会出现闭包问题，count的值永远是0
         // There will be a closure problem here, the value of count is always 0
         setCount(count + 1)
@@ -68,10 +72,12 @@ fun UseStateButWithoutUseLatest() {
 fun UseStateAndUseLatest() {
     val (count, setCount) = useState(0)
     val latestRef = useLatestRef(value = count)
-    useInterval(optionsOf {
-        initialDelay = 5.seconds
-        period = 1.seconds
-    }) {
+    useInterval(
+        optionsOf {
+            initialDelay = 5.seconds
+            period = 1.seconds
+        }
+    ) {
         // 这里会出现闭包问题，count的值永远是0
         // There will be a closure problem here, the value of count is always 0
         setCount(latestRef.current + 1)

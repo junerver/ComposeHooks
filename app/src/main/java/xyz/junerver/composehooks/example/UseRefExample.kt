@@ -31,7 +31,7 @@ fun UseRefExample() {
                 update()
             }
             TButton(text = "toast ref") {
-               ctx.toast("ref.current: ${countRef.current}")
+                ctx.toast("ref.current: ${countRef.current}")
             }
         }
     }

@@ -17,7 +17,7 @@ import xyz.junerver.composehooks.ui.component.TButton
  * Version: v1.0
  */
 @Composable
-fun UseMapExample(){
+fun UseMapExample() {
     val mapState = useMap(
         1 to "first",
         2 to "second"
@@ -26,7 +26,7 @@ fun UseMapExample(){
         Column {
             Row {
                 TButton(text = "+1") {
-                    mapState[mapState.size+1] = "random${Random.nextInt()}"
+                    mapState[mapState.size + 1] = "random${Random.nextInt()}"
                 }
                 TButton(text = "-1") {
                     if (mapState.isNotEmpty()) {
