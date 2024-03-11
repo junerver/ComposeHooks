@@ -1,12 +1,11 @@
 package xyz.junerver.compose.hooks.usenetwork
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.ProvidableCompositionLocal
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalContext
+import xyz.junerver.compose.hooks.createContext
+import xyz.junerver.compose.hooks.useContext
 
 /**
  * Description:
@@ -16,9 +15,11 @@ import androidx.compose.ui.platform.LocalContext
  * Version: v1.0
  */
 data class NetworkState(
-    val isConnect: Boolean,
-    val connectType: ConnectType,
+    val isConnect: Boolean = false,
+    val connectType: ConnectType = ConnectType.None,
 )
+
+val NetworkContext = createContext(NetworkState())
 
 /**
  * 直接到处使用该hook会导致大量的监听器回调创建，虽影响不大，但是更建议使用
@@ -55,16 +56,13 @@ fun useNetwork(): NetworkState {
 @Composable
 fun NetworkProvider(content: @Composable () -> Unit) {
     val network = useNetwork()
-    CompositionLocalProvider(LocalNetwork provides network) {
+    NetworkContext.Provider(value = network) {
         content()
     }
 }
-
-private val LocalNetwork: ProvidableCompositionLocal<NetworkState> =
-    staticCompositionLocalOf { error("provide first") }
 
 /**
  * 务必注意：必须配合[NetworkProvider]在子组件内使用。
  */
 @Composable
-fun rememberNetwork() = LocalNetwork.current
+fun rememberNetwork() = useContext(context = NetworkContext)
