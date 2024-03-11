@@ -26,7 +26,7 @@ using similar API names.
 The hooks that have been implemented so far are as follows:
 
 | hook name     | effect                                                       |
-| ------------- | ------------------------------------------------------------ |
+|---------------| ------------------------------------------------------------ |
 | useRequest    | Manage network requests and implement: manual and automatic triggering; life cycle callbacks; refresh; mutate changes; cancel requests; polling; Ready; dependency refresh; debounce, throttle; error retry; |
 | useBoolean    | Hook to manage boolean state.                                |
 | useContext    | just like react                                              |
@@ -48,6 +48,7 @@ The hooks that have been implemented so far are as follows:
 | useTimeout    | A hook that handles the `setTimeout` timer function.         |
 | useUndo       | A Hook for handling undo and redo.                           |
 | useUnmount    | A hook that executes the function right before the component is unmounted. |
+| useUpdate     | A hook that returns a function which can be used to force the component to re-render.                           |
 
 ## Add to dependencies
 

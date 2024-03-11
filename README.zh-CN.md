@@ -18,30 +18,30 @@
 
 目前已经实现的钩子如下：
 
-| 函数名称      | 效果                                                         |
-| ------------- | ------------------------------------------------------------ |
+| 函数名称          | 效果                                                                   |
+|---------------|----------------------------------------------------------------------|
 | useRequest    | 管理网络请求，实现了：手动、自动触发；生命周期回调；刷新；mutate变更；取消请求；轮询；Ready；依赖刷新；防抖、节流；错误重试； |
-| useBoolean    | 管理 boolean 状态的 Hook。                                   |
-| useContext    | just like react                                              |
-| useCreation   | 用来替换 useRef                                              |
-| useDebounce   | 用来处理防抖值的 Hook。                                      |
-| useDebounceFn | 用来处理防抖函数的 Hook。                                    |
-| useEffect     | just like react                                              |
-| useInterval   | 一个可以处理 setInterval 的 Hook。                           |
-| useLatest     | 返回当前最新值的 Hook，可以避免在使用解构写法时的闭包问题。  |
-| useMount      | 只在组件初始化时执行的 Hook。                                |
-| useNetwork    | 获取网络连接状态、类型                                       |
-| usePrevious   | 保存上一次状态的 Hook。                                      |
-| useReducer    | 一个可以在组件内使用的极简 redux                             |
-| useRef        | just like react                                              |
-| useState      | just like react                                              |
-| useThrottle   | 用来处理节流值的 Hook。                                      |
-| useThrottleFn | 用来处理函数节流的 Hook。                                    |
-| useToggle     | 用于在两个状态值间切换的 Hook。                              |
-| useTimeout    | 用于执行定时任务                                             |
-| useUndo       | 用于处理撤销、重做的 Hook。                                  |
-| useUnmount    | 在组件卸载（unmount）时执行的 Hook。                         |
-
+| useBoolean    | 管理 boolean 状态的 Hook。                                                 |
+| useContext    | just like react                                                      |
+| useCreation   | 用来替换 useRef                                                          |
+| useDebounce   | 用来处理防抖值的 Hook。                                                       |
+| useDebounceFn | 用来处理防抖函数的 Hook。                                                      |
+| useEffect     | just like react                                                      |
+| useInterval   | 一个可以处理 setInterval 的 Hook。                                           |
+| useLatest     | 返回当前最新值的 Hook，可以避免在使用解构写法时的闭包问题。                                     |
+| useMount      | 只在组件初始化时执行的 Hook。                                                    |
+| useNetwork    | 获取网络连接状态、类型                                                          |
+| usePrevious   | 保存上一次状态的 Hook。                                                       |
+| useReducer    | 一个可以在组件内使用的极简 redux                                                  |
+| useRef        | just like react                                                      |
+| useState      | just like react                                                      |
+| useThrottle   | 用来处理节流值的 Hook。                                                       |
+| useThrottleFn | 用来处理函数节流的 Hook。                                                      |
+| useToggle     | 用于在两个状态值间切换的 Hook。                                                   |
+| useTimeout    | 用于执行定时任务                                                             |
+| useUndo       | 用于处理撤销、重做的 Hook。                                                     |
+| useUnmount    | 在组件卸载（unmount）时执行的 Hook。                                             |
+| useUpdate     | useUpdate 会返回一个函数，调用该函数会强制组件重新渲染。      |
 ## 添加依赖
 
 ```groovy
