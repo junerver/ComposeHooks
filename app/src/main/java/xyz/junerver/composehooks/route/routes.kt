@@ -3,6 +3,8 @@ package xyz.junerver.composehooks.route
 import androidx.compose.runtime.Composable
 import xyz.junerver.composehooks.HomeScreen
 import xyz.junerver.composehooks.example.UseBooleanExample
+import xyz.junerver.composehooks.example.UseContextExample
+import xyz.junerver.composehooks.example.UseCreationExample
 import xyz.junerver.composehooks.example.UseDebounceExample
 import xyz.junerver.composehooks.example.UseEffectExample
 import xyz.junerver.composehooks.example.UseIntervalExample
@@ -35,8 +37,8 @@ val routes = arrayOf<Pair<String, @Composable () -> Unit>>(
     "useNetwork" to { UseNetworkExample() },
     "useRequest" to { TODO() },
     "useBoolean" to { UseBooleanExample() },
-    "useContext" to { TODO() },
-    "useCreation" to { TODO() },
+    "useContext" to { UseContextExample() },
+    "useCreation" to { UseCreationExample() },
     "useDebounce" to { UseDebounceExample() },
     "useEffect" to { UseEffectExample() },
     "useInterval" to { UseIntervalExample() },
