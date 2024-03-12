@@ -7,7 +7,6 @@ import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.DebounceOptions
 import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.ThrottleOptions
-import xyz.junerver.compose.hooks.VoidFunction
 import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 
@@ -18,6 +17,11 @@ import xyz.junerver.compose.hooks.userequest.utils.CachedData
  * Email: junerver@gmail.com
  * Version: v1.0
  */
+typealias OnBeforeCallback = (TParams) -> Unit
+typealias OnSuccessCallback<TData> =  (TData?, TParams) -> Unit
+typealias OnErrorCallback =  (Throwable, TParams) -> Unit
+typealias OnFinallyCallback<TData> = (TParams, TData?, Throwable?) -> Unit
+
 data class RequestOptions<TData> internal constructor(
     /**
      * 默认 false。 即在初始化时自动执行 requestFn。
@@ -31,19 +35,19 @@ data class RequestOptions<TData> internal constructor(
     /**
      * requestFn 执行前触发
      */
-    var onBefore: VoidFunction = {},
+    var onBefore: OnBeforeCallback = {},
     /**
      * requestFn 成功时触发；参数1：请求返回值，参数2：请求参数
      */
-    var onSuccess: (TData?, TParams) -> Unit = { _, _ -> },
+    var onSuccess: OnSuccessCallback<TData> = { _, _ -> },
     /**
      * requestFn 抛出异常时触发
      */
-    var onError: (Throwable, TParams) -> Unit = { e, _ -> Log.e("useRequest", "OnError: ", e) },
+    var onError: OnErrorCallback = { e, _ -> Log.e("useRequest", "OnError: ", e) },
     /**
      * requestFn 执行完成时触发；参数1：请求参数，参数2：返回值，参数3：异常
      */
-    var onFinally: (TParams, TData?, Throwable?) -> Unit = { _, _, _ -> },
+    var onFinally:OnFinallyCallback<TData> = { _, _, _ -> },
     /**
      * 错误重试次数。如果设置为 -1，则无限次重试。
      */

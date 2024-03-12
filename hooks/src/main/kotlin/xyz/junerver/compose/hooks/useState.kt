@@ -20,6 +20,16 @@ import xyz.junerver.kotlin.Tuple2
  *     label = { Text("Name") }
  * )
  * ```
+ * 重要提示：这种方式在便捷的同时也有俩个缺陷：
+ * 1. 带来闭包问题，当我们在某个闭包函数中使用状态，会出现闭包问题，需要使用[useLatestRef]避免。
+ * 2. 当你快速的（毫秒级）调用set函数时，会触发 Compose 的重组优化，导致状态丢失。
+ *
+ * Important note: While this method is convenient, it also has two flaws:
+ * 1. It causes closure problems. When we use state in a closure function,
+ *  closure problems will occur, need to use [useLatestRef] to avoid.
+ * 2. When you call the set function quickly(millisecond level),
+ *  Compose's recompose optimization will be triggered, resulting in state loss.
+ *
  * @author Junerver
  * date: 2024/2/29-9:00
  * Email: junerver@gmail.com
