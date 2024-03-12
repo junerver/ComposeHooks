@@ -1,6 +1,7 @@
 $dokka.format:html-v1
 $dokka.linkExtension:html
 $dokka.location:xyz.junerver.compose.hooks.usenetwork////PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usenetwork/index.html
+$dokka.location:xyz.junerver.compose.hooks.usenetwork//NetworkContext/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usenetwork/-network-context.html
 $dokka.location:xyz.junerver.compose.hooks.usenetwork//NetworkProvider/#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usenetwork/-network-provider.html
 $dokka.location:xyz.junerver.compose.hooks.usenetwork//rememberNetwork/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usenetwork/remember-network.html
 $dokka.location:xyz.junerver.compose.hooks.usenetwork//useNetwork/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usenetwork/use-network.html
@@ -165,6 +166,7 @@ $dokka.location:xyz.junerver.compose.hooks.userequest/Keys/params/#/PointingToDe
 $dokka.location:xyz.junerver.compose.hooks.userequest/Keys/returnNow/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-keys/return-now.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/Keys/stopNow/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-keys/stop-now.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/OnBefore///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-before/index.html
+$dokka.location:xyz.junerver.compose.hooks.userequest/OnBeforeCallback///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-before-callback/index.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/OnBeforeReturn///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-before-return/index.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/OnBeforeReturn/OnBeforeReturn/#kotlin.Boolean?#kotlin.Boolean?#kotlin.Boolean?#kotlin.Array[kotlin.Any?]?#TypeParam(bounds=[kotlin.Any?])?#kotlin.Throwable?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-before-return/-on-before-return.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/OnBeforeReturn/asFetchStateMap/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-before-return/as-fetch-state-map.html
@@ -181,7 +183,9 @@ $dokka.location:xyz.junerver.compose.hooks.userequest/OnBeforeReturn/returnNow/#
 $dokka.location:xyz.junerver.compose.hooks.userequest/OnBeforeReturn/stopNow/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-before-return/stop-now.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/OnCancel///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-cancel/index.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/OnError///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-error/index.html
+$dokka.location:xyz.junerver.compose.hooks.userequest/OnErrorCallback///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-error-callback/index.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/OnFinally///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-finally/index.html
+$dokka.location:xyz.junerver.compose.hooks.userequest/OnFinallyCallback///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-finally-callback/index.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/OnMutate///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-mutate/index.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/OnRequest///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-request/index.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/OnRequestReturn///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-request-return/index.html
@@ -189,6 +193,7 @@ $dokka.location:xyz.junerver.compose.hooks.userequest/OnRequestReturn/OnRequestR
 $dokka.location:xyz.junerver.compose.hooks.userequest/OnRequestReturn/copy/#xyz.junerver.compose.hooks.userequest.OnRequestReturn[TypeParam(bounds=[kotlin.Any?])]?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-request-return/copy.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/OnRequestReturn/requestDeferred/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-request-return/request-deferred.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/OnSuccess///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-success/index.html
+$dokka.location:xyz.junerver.compose.hooks.userequest/OnSuccessCallback///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-success-callback/index.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/Plugin///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-plugin/index.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/Plugin/Plugin/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-plugin/-plugin.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/Plugin/cancel/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-plugin/cancel.html

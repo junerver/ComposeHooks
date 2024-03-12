@@ -35,7 +35,7 @@ fun UseStateExample() {
      * 2. When you call the set function quickly(millisecond level),
      *  Compose's recompose optimization will be triggered, resulting in state loss.
      */
-    val (state, setState) = useState("")
+        val (state, setState) = useState("")
     Surface {
         Column {
             Text(text = "this is a simple controlled component:")
@@ -50,7 +50,7 @@ fun UseStateExample() {
 }
 
 @Composable
-fun UseStateQuestionOne(){
+fun UseStateQuestionOne() {
     val (state, setState) = useState("state")
 
     val (state2, setState2) = useState("stateRef")
@@ -65,21 +65,21 @@ fun UseStateQuestionOne(){
             // Closure problems will occur when using the value of state in a closure function
             setState("$state.")
             // by + remember, it will not cause closure problems
-            remState+="."
+            remState += "."
             // useState + useLatestRef ,Can avoid closure problems
             setState2("${state2Ref.current}.")
         }
     }
-   Column {
-       Text(text = "Question1.")
-       Text(text = state)
-       Text(text = state2)
-       Text(text = remState)
-   }
+    Column {
+        Text(text = "Question1.")
+        Text(text = state)
+        Text(text = state2)
+        Text(text = remState)
+    }
 }
 
 @Composable
-fun UseStateQuestionTwo(){
+fun UseStateQuestionTwo() {
     val (state2, setState2) = useState("stateRef")
     val state2Ref = useLatestRef(state2)
     var remState by remember {
@@ -87,7 +87,7 @@ fun UseStateQuestionTwo(){
     }
     LaunchedEffect(key1 = Unit) {
         repeat(20) {
-            remState+="."
+            remState += "."
             // If you call the set function quickly(millisecond level), there will be a problem of state loss.
             setState2("${state2Ref.current}.")
         }

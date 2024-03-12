@@ -5,10 +5,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import kotlin.random.Random
-import xyz.junerver.compose.hooks.useDouble
-import xyz.junerver.compose.hooks.useFloat
-import xyz.junerver.compose.hooks.useInt
-import xyz.junerver.compose.hooks.useLong
+import xyz.junerver.compose.hooks.useState
 import xyz.junerver.composehooks.ui.component.TButton
 
 /**
@@ -20,10 +17,10 @@ import xyz.junerver.composehooks.ui.component.TButton
  */
 @Composable
 fun UseNumberExample() {
-    val (countInt, setCountInt) = useInt(0)
-    val (countLong, setCountLong) = useLong(0)
-    val (countFloat, setCountFloat) = useFloat(0f)
-    val (countDouble, setCountDouble) = useDouble(0.0)
+    val (countInt, setCountInt) = useState(0)
+    val (countLong, setCountLong) = useState(0L)
+    val (countFloat, setCountFloat) = useState(0f)
+    val (countDouble, setCountDouble) = useState(0.0)
 
     Surface {
         Column {

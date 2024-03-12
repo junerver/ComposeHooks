@@ -6,7 +6,6 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
-import xyz.junerver.kotlin.Tuple2
 
 /**
  * Description: 使用相应的数字可以提升些许性能
@@ -16,33 +15,21 @@ import xyz.junerver.kotlin.Tuple2
  * Version: v1.0
  */
 @Composable
-fun useDouble(default: Double = 0.0): Tuple2<Double, (Double) -> Unit> {
-    val (state, setState) = remember {
-        mutableDoubleStateOf(default)
-    }
-    return state to setState
+fun useDouble(default: Double = 0.0) = remember {
+    mutableDoubleStateOf(default)
 }
 
 @Composable
-fun useFloat(default: Float = 0f): Tuple2<Float, (Float) -> Unit> {
-    val (state, setState) = remember {
-        mutableFloatStateOf(default)
-    }
-    return state to setState
+fun useFloat(default: Float = 0f) = remember {
+    mutableFloatStateOf(default)
 }
 
 @Composable
-fun useInt(default: Int = 0): Tuple2<Int, (Int) -> Unit> {
-    val (state, setState) = remember {
-        mutableIntStateOf(default)
-    }
-    return state to setState
+fun useInt(default: Int = 0) = remember {
+    mutableIntStateOf(default)
 }
 
 @Composable
-fun useLong(default: Long = 0L): Tuple2<Long, (Long) -> Unit> {
-    val (state, setState) = remember {
-        mutableLongStateOf(default)
-    }
-    return state to setState
+fun useLong(default: Long = 0L) = remember {
+    mutableLongStateOf(default)
 }

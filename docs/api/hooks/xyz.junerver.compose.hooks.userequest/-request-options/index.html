@@ -65,7 +65,7 @@
   <div class="breadcrumbs"><a href="../../../index.html">hooks</a><span class="delimiter">/</span><a href="../index.html">xyz.junerver.compose.hooks.userequest</a><span class="delimiter">/</span><span class="current">RequestOptions</span></div>
   <div class="cover ">
     <h1 class="cover"><span>Request</span><wbr></wbr><span><span>Options</span></span></h1>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="index.html">RequestOptions</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt;</span></div><p class="paragraph">Description: 请求参数</p><span class="kdoc-tag"><h4 class="">Author</h4><p class="paragraph">Junerver date: 2024/1/31-9:58 Email: junerver@gmail.com Version: v1.0</p></span></div></div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="index.html">RequestOptions</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt;</span></div></div></div>
   </div>
   <div class="tabbedcontent">
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
@@ -206,7 +206,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">var </span><a href="on-before.html">onBefore</a><span class="token operator">: </span><a href="../../xyz.junerver.compose.hooks/-void-function/index.html">VoidFunction</a></div><div class="brief "><p class="paragraph">requestFn 执行前触发</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">var </span><a href="on-before.html">onBefore</a><span class="token operator">: </span><a href="../-on-before-callback/index.html">OnBeforeCallback</a></div><div class="brief "><p class="paragraph">requestFn 执行前触发</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -221,7 +221,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">var </span><a href="on-error.html">onError</a><span class="token operator">: </span><span class="token punctuation">(</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-throwable/index.html">Throwable</a><span class="token punctuation">, </span><a href="../../xyz.junerver.compose.hooks/-t-params/index.html">TParams</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></div><div class="brief "><p class="paragraph">requestFn 抛出异常时触发</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">var </span><a href="on-error.html">onError</a><span class="token operator">: </span><a href="../-on-error-callback/index.html">OnErrorCallback</a></div><div class="brief "><p class="paragraph">requestFn 抛出异常时触发</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -236,7 +236,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">var </span><a href="on-finally.html">onFinally</a><span class="token operator">: </span><span class="token punctuation">(</span><a href="../../xyz.junerver.compose.hooks/-t-params/index.html">TParams</a><span class="token punctuation">, </span><a href="index.html">TData</a><span class="token operator">?</span><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-throwable/index.html">Throwable</a><span class="token operator">?</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></div><div class="brief "><p class="paragraph">requestFn 执行完成时触发；参数1：请求参数，参数2：返回值，参数3：异常</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">var </span><a href="on-finally.html">onFinally</a><span class="token operator">: </span><a href="../-on-finally-callback/index.html">OnFinallyCallback</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">requestFn 执行完成时触发；参数1：请求参数，参数2：返回值，参数3：异常</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -251,7 +251,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">var </span><a href="on-success.html">onSuccess</a><span class="token operator">: </span><span class="token punctuation">(</span><a href="index.html">TData</a><span class="token operator">?</span><span class="token punctuation">, </span><a href="../../xyz.junerver.compose.hooks/-t-params/index.html">TParams</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></div><div class="brief "><p class="paragraph">requestFn 成功时触发；参数1：请求返回值，参数2：请求参数</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">var </span><a href="on-success.html">onSuccess</a><span class="token operator">: </span><a href="../-on-success-callback/index.html">OnSuccessCallback</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">requestFn 成功时触发；参数1：请求返回值，参数2：请求参数</p></div></div></div>
                 </div>
               </div>
             </div>
