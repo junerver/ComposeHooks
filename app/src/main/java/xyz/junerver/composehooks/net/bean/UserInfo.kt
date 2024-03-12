@@ -5,6 +5,8 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class UserInfo(
+    val login: String,
+    val name: String,
     val avatar_url: String,
     val bio: String,
     val blog: String,
@@ -22,8 +24,6 @@ data class UserInfo(
     val html_url: String,
     val id: Int,
     val location: String? = null,
-    val login: String,
-    val name: String,
     val node_id: String,
     val organizations_url: String,
     val public_gists: Int,
