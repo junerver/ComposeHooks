@@ -23,6 +23,8 @@ object Keys {
     const val error = "error"
     const val stopNow = "stopNow"
     const val returnNow = "returnNow"
+
+    val FetchStateKeys = arrayOf(loading, params, data, error)
 }
 
 /**
@@ -174,11 +176,8 @@ data class OnBeforeReturn<TData>(
     override val error: Throwable? = null,
 ) : IFetchStata<TData>(), Copyable<OnBeforeReturn<TData>> {
 
-    fun asFetchStateMap(): Map<String, Any?> = buildMap {
-        this[Keys.loading] = loading
-        this[Keys.params] = params
-        this[Keys.data] = data
-        this[Keys.error] = error
+    fun asFetchStateMap(): Map<String, Any?> = this.asNotNullMap().filter {
+        it.key in Keys.FetchStateKeys
     }
 
     override fun copy(needCopyMap: Map<String, Any?>?): OnBeforeReturn<TData> {

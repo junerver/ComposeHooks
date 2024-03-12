@@ -137,10 +137,10 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
         if (stopNow!!) return@coroutineScope
         // 使用缓存插件可以直接返回缓存的内容，而不需要发起真实请求
         setState(
-            FetchState<TData>(
-                loading = true,
-                params = latestParams
-            ).copy(state).asNotNullMap()
+            mapOf(
+                Keys.loading to true,
+                Keys.params to latestParams
+            ) + state
         )
         if (returnNow!!) return@coroutineScope
         // 调用选项配置的生命周期函数
