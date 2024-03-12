@@ -31,11 +31,13 @@ val initialState = SimpleData("default", 18)
 /**
  * 上下文的初始值并没有限定，但是我推荐使用[tuple]来传递一个元组
  */
-val SimpleContext = createContext(tuple(
-    initialState,
-    { _: String -> },
-    {}
-))
+val SimpleContext = createContext(
+    tuple(
+        initialState,
+        { _: String -> },
+        {}
+    )
+)
 
 @Composable
 fun UseContextExample() {
@@ -86,5 +88,4 @@ fun ChildTwo() {
             ageIncrease()
         }
     }
-
 }

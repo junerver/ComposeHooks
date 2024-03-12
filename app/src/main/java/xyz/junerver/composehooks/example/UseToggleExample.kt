@@ -24,7 +24,7 @@ import xyz.junerver.composehooks.ui.component.TButton
 fun UseToggleExample() {
     val (state, toggle) = useToggle("hello", "world")
     val (either, toggleEither) = useToggleEither("example", Math.random())
-    val (component,toggleVisible) = useToggleVisible {
+    val (component, toggleVisible) = useToggleVisible {
         Text(text = "a simple component can be visible/invisible")
     }
 
@@ -35,12 +35,14 @@ fun UseToggleExample() {
                 toggle()
             }
             Spacer(modifier = Modifier.height(10.dp))
-            Text(text = "either: ${
-                either.fold(
-                    { "string: $it" },
-                    { "double: $it" }
-                )
-            }")
+            Text(
+                text = "either: ${
+                    either.fold(
+                        { "string: $it" },
+                        { "double: $it" }
+                    )
+                }"
+            )
             TButton(text = "toggle") {
                 toggleEither()
             }

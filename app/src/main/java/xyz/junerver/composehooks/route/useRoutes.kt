@@ -27,12 +27,12 @@ fun useNavigate() = LocalNavHostController.current
 
 @SuppressLint("ComposableNaming")
 @Composable
-fun useRoutes(routes: Array<Pair<String, Component>>) {
+fun useRoutes(routes: Map<String, Component>) {
     val navController = rememberNavController()
     return CompositionLocalProvider(LocalNavHostController provides navController) {
         NavHost(navController = navController, startDestination = "/") {
             routes.map { route ->
-                composable(route.first) { route.second() }
+                composable(route.key) { route.value() }
             }
         }
     }

@@ -17,6 +17,7 @@ import xyz.junerver.composehooks.example.UseNumberExample
 import xyz.junerver.composehooks.example.UsePreviousExample
 import xyz.junerver.composehooks.example.UseReducerExample
 import xyz.junerver.composehooks.example.UseRefExample
+import xyz.junerver.composehooks.example.UseRequestExample
 import xyz.junerver.composehooks.example.UseStateExample
 import xyz.junerver.composehooks.example.UseThrottleExample
 import xyz.junerver.composehooks.example.UseTimeoutExample
@@ -32,10 +33,10 @@ import xyz.junerver.composehooks.example.UseUpdateExample
  * Email: junerver@gmail.com
  * Version: v1.0
  */
-val routes = arrayOf<Pair<String, @Composable () -> Unit>>(
+val routes = mapOf<String, @Composable () -> Unit>(
     "/" to { HomeScreen() },
     "useNetwork" to { UseNetworkExample() },
-    "useRequest" to { TODO() },
+    "useRequest" to { UseRequestExample() },
     "useBoolean" to { UseBooleanExample() },
     "useContext" to { UseContextExample() },
     "useCreation" to { UseCreationExample() },

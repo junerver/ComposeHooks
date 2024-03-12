@@ -22,7 +22,7 @@ import xyz.junerver.compose.hooks.useState
 @Composable
 fun UsePreviousExample() {
     val (input, setInput) = useState("")
-    val previous = usePrevious(present =input)
+    val previous = usePrevious(present = input)
     Surface {
         Column {
             OutlinedTextField(value = input, onValueChange = setInput)

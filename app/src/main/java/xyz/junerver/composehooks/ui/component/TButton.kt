@@ -16,8 +16,8 @@ import androidx.compose.ui.unit.dp
  * Version: v1.0
  */
 @Composable
-fun TButton(text: String,enabled: Boolean = true, modifier: Modifier = Modifier, onClick: () -> Unit) {
-    Button(onClick = onClick, enabled = enabled,modifier = modifier.padding(PaddingValues(4.dp))) {
+fun TButton(text: String, enabled: Boolean = true, modifier: Modifier = Modifier, onClick: () -> Unit) {
+    Button(onClick = onClick, enabled = enabled, modifier = modifier.padding(PaddingValues(4.dp))) {
         Text(text = text)
     }
 }
