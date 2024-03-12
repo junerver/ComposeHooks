@@ -13,7 +13,7 @@ import xyz.junerver.composehooks.example.RequestExampleList
 val subRoutes = mapOf<String, @Composable () -> Unit>(
     "/" to { RequestExampleList() },
     "auto&manual" to { AutoManual() },
-    "lifecycle" to { TODO() },
+    "lifecycle" to { Lifecycle() },
     "refresh" to { TODO() },
     "mutate" to { TODO() },
     "cancel" to { TODO() },
