@@ -5,8 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import kotlin.reflect.KFunction0
 import kotlin.reflect.KFunction1
-import xyz.junerver.compose.hooks.NoParamsVoidFunction
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.VoidFunction
 import xyz.junerver.compose.hooks.asNoopFn
@@ -83,12 +83,17 @@ import xyz.junerver.kotlin.tuple
  * Email: junerver@gmail.com
  * Version: v1.0
  */
+typealias RunFn = VoidFunction
+typealias MutateFn<TData> = KFunction1<(TData?) -> TData, Unit>
+typealias RefreshFn = KFunction0<Unit>
+typealias CancelFn = KFunction0<Unit>
+
 @Composable
 inline fun <reified TData : Any> useRequest(
     noinline requestFn: SuspendNormalFunction<TData>,
     options: RequestOptions<TData> = defaultOption(),
     plugins: Array<@Composable (RequestOptions<TData>) -> Plugin<TData>> = emptyArray(),
-): Tuple7<TData?, Boolean, Throwable?, VoidFunction, KFunction1<(TData?) -> TData, Unit>, NoParamsVoidFunction, NoParamsVoidFunction> {
+): Tuple7<TData?, Boolean, Throwable?, RunFn, MutateFn<TData>, RefreshFn, CancelFn> {
     val fetch = useRequestPluginsImpl(
         requestFn,
         options,
