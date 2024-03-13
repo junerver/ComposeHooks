@@ -6,14 +6,14 @@ import androidx.compose.runtime.Composable
 /**
  * Description:
  * @author Junerver
- * date: 2024/3/12-15:28
+ * date: 2024/3/13-14:28
  * Email: junerver@gmail.com
  * Version: v1.0
  */
 @Composable
-fun LoadingDelay() {
+fun Debounce() {
     Surface {
-        Container("loadingDelay",OptionFunc.LoadingDelay)
+        Container("debounced",OptionFunc.Debounce)
     }
 }
 
