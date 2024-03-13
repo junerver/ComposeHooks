@@ -7,6 +7,7 @@ import xyz.junerver.composehooks.example.UseContextExample
 import xyz.junerver.composehooks.example.UseCreationExample
 import xyz.junerver.composehooks.example.UseDebounceExample
 import xyz.junerver.composehooks.example.UseEffectExample
+import xyz.junerver.composehooks.example.UseEventExample
 import xyz.junerver.composehooks.example.UseIntervalExample
 import xyz.junerver.composehooks.example.UseLatestExample
 import xyz.junerver.composehooks.example.UseListExample
@@ -42,6 +43,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useCreation" to { UseCreationExample() },
     "useDebounce" to { UseDebounceExample() },
     "useEffect" to { UseEffectExample() },
+    "useEvent" to { UseEventExample() },
     "useInterval" to { UseIntervalExample() },
     "useLatest" to { UseLatestExample() },
     "useList" to { UseListExample() },
