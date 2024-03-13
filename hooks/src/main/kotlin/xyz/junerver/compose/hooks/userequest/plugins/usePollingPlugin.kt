@@ -58,16 +58,6 @@ class PollingPlugin<TData : Any> : Plugin<TData>() {
             }
             val pluginScope = this
 
-            // 替换run函数为循环执行
-//            fetch.run = {
-//                scope.launch {
-//                    while (isActive) {
-//                        fetch._run(it)
-//                        delay(pollingInterval)
-//                    }
-//                }.also { pollingJob = it }
-//            }
-
             object : PluginLifecycle<TData>() {
                 override val onBefore: ((TParams) -> OnBeforeReturn<TData>?)
                     get() = {
@@ -91,7 +81,7 @@ class PollingPlugin<TData : Any> : Plugin<TData>() {
                         if (pollingErrorRetryCount == -1 || count <= pollingErrorRetryCount) {
                             usedScope.launch(Dispatchers.IO) {
                                 delay(pollingInterval)
-                                fetch.refreshAsync()
+                                if (pollingWhenHidden) fetch.refreshAsync() else fetch.refresh()
                             }.also { pollingJob = it }
                         } else {
                             count = 0
