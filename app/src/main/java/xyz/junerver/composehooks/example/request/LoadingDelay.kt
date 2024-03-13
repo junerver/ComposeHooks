@@ -12,8 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.optionsOf
-import xyz.junerver.compose.hooks.useEvent
-import xyz.junerver.compose.hooks.useSubscribe
+import xyz.junerver.compose.hooks.useEventPublish
+import xyz.junerver.compose.hooks.useEventSubscribe
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.WebService
 import xyz.junerver.composehooks.net.asRequestFn
@@ -29,7 +29,7 @@ import xyz.junerver.kotlin.asBoolean
  */
 @Composable
 fun LoadingDelay() {
-    val post = useEvent<Unit>()
+    val post = useEventPublish<Unit>()
 
     Surface {
         Column {
@@ -63,7 +63,7 @@ fun SubComponent(isLoadingDelay: Boolean = false) {
             }
         }
     )
-    useSubscribe { _: Unit ->
+    useEventSubscribe { _: Unit ->
         refresh()
     }
     Column(modifier = Modifier.height(100.dp)) {
