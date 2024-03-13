@@ -15,7 +15,7 @@ import kotlin.reflect.KClass
  * 现在你可以通过[useEventSubscribe]和[useEventPublish] 这两个钩子来轻松实现组件之间的通讯了，它们非常简单。
  *
  * 在子组件使用[useEventSubscribe]注册一个订阅函数，你无需关注他的生命周期，它会在组件挂载时注册，在卸载时反注册。
- * 在父组件中使用[useEventPublish]获得一个post函数，注意它并非`@Composable`，在适当的时机调用post函数，传递你的事件对象。
+ * 在父组件中使用[useEventPublish]获得一个post函数，在适当的时机调用post函数，传递你的事件对象。
  *
  * Description: In Compose, child components can easily call the functions of the parent component,
  * such as passing props parameters, using [useContext] hook exposure, etc.
@@ -35,7 +35,7 @@ import kotlin.reflect.KClass
  * You do not need to pay attention to its life cycle. It will be registered when the component
  * is mounted and deregistered when it is uninstalled.
  *
- * Use [useEventPublish] in the parent component to get a post function. Note that it is not `@Composable`.
+ * Use [useEventPublish] in the parent component to get a post function.
  * Call the post function at the appropriate time and pass your event object.
  * @author Junerver
  * date: 2024/3/13-8:11
@@ -76,6 +76,10 @@ inline fun <reified T : Any> useEventSubscribe(noinline subscriber: (T) -> Unit)
     }
 }
 
+@Composable
 inline fun <reified T : Any> useEventPublish(): (T) -> Unit {
-    return { event: T -> EventManager.post(event) }
+    val postRef = useCreation {
+        { event: T -> EventManager.post(event) }
+    }
+    return postRef.current
 }
