@@ -27,6 +27,7 @@
 | [useDebounce](https://github.com/junerver/ComposeHooks/blob/master/app/src/main/java/xyz/junerver/composehooks/example/UseDebounceExample.kt)         | 用来处理防抖值的 Hook。                                                       |
 | [useDebounceFn](https://github.com/junerver/ComposeHooks/blob/master/app/src/main/java/xyz/junerver/composehooks/example/UseDebounceExample.kt)       | 用来处理防抖函数的 Hook。                                                      |
 | [useEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/main/java/xyz/junerver/composehooks/example/UseEffectExample.kt)             | just like react                                                      |
+| [useEvent](https://github.com/junerver/ComposeHooks/blob/master/app/src/main/java/xyz/junerver/composehooks/example/UseEffectExample.kt)             | 使用订阅发布模式实现轻量级的跨组件通信  |
 | [useInterval](https://github.com/junerver/ComposeHooks/blob/master/app/src/main/java/xyz/junerver/composehooks/example/UseIntervalExample.kt)         | 一个可以处理 setInterval 的 Hook。                                           |
 | [useLatest](https://github.com/junerver/ComposeHooks/blob/master/app/src/main/java/xyz/junerver/composehooks/example/UseLatestExample.kt)             | 返回当前最新值的 Hook，可以避免在使用解构写法时的闭包问题。                                     |
 | [useMount](https://github.com/junerver/ComposeHooks/blob/master/app/src/main/java/xyz/junerver/composehooks/example/UseMountExample.kt)               | 只在组件初始化时执行的 Hook。                                                    |

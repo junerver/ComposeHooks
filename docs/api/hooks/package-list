@@ -97,6 +97,7 @@ $dokka.location:xyz.junerver.compose.hooks.userequest//cover/kotlin.collections.
 $dokka.location:xyz.junerver.compose.hooks.userequest//getOrElse/kotlin.collections.Map[kotlin.String,kotlin.Any?]#kotlin.String#TypeParam(bounds=[kotlin.Any?])?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/get-or-else.html
 $dokka.location:xyz.junerver.compose.hooks.userequest//useRequest/#kotlin.coroutines.SuspendFunction1[kotlin.Array[kotlin.Any?],TypeParam(bounds=[kotlin.Any])]#xyz.junerver.compose.hooks.userequest.RequestOptions[TypeParam(bounds=[kotlin.Any])]#kotlin.Array[kotlin.Function1[xyz.junerver.compose.hooks.userequest.RequestOptions[TypeParam(bounds=[kotlin.Any])],xyz.junerver.compose.hooks.userequest.Plugin[TypeParam(bounds=[kotlin.Any])]]]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/use-request.html
 $dokka.location:xyz.junerver.compose.hooks.userequest//useRequestPluginsImpl/#kotlin.coroutines.SuspendFunction1[kotlin.Array[kotlin.Any?],TypeParam(bounds=[kotlin.Any])]#xyz.junerver.compose.hooks.userequest.RequestOptions[TypeParam(bounds=[kotlin.Any])]#kotlin.Array[xyz.junerver.compose.hooks.userequest.Plugin[TypeParam(bounds=[kotlin.Any])]]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/use-request-plugins-impl.html
+$dokka.location:xyz.junerver.compose.hooks.userequest/CancelFn///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-cancel-fn/index.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/Copyable///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-copyable/index.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/Copyable/copy/#TypeParam(bounds=[kotlin.Any?])?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-copyable/copy.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/Copyable/plus/#TypeParam(bounds=[kotlin.Any?])?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-copyable/plus.html
@@ -159,12 +160,14 @@ $dokka.location:xyz.junerver.compose.hooks.userequest/IFetchStata/error/#/Pointi
 $dokka.location:xyz.junerver.compose.hooks.userequest/IFetchStata/loading/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-i-fetch-stata/loading.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/IFetchStata/params/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-i-fetch-stata/params.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/Keys///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-keys/index.html
+$dokka.location:xyz.junerver.compose.hooks.userequest/Keys/FetchStateKeys/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-keys/-fetch-state-keys.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/Keys/data/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-keys/data.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/Keys/error/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-keys/error.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/Keys/loading/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-keys/loading.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/Keys/params/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-keys/params.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/Keys/returnNow/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-keys/return-now.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/Keys/stopNow/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-keys/stop-now.html
+$dokka.location:xyz.junerver.compose.hooks.userequest/MutateFn///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-mutate-fn/index.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/OnBefore///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-before/index.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/OnBeforeCallback///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-before-callback/index.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/OnBeforeReturn///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-on-before-return/index.html
@@ -213,6 +216,7 @@ $dokka.location:xyz.junerver.compose.hooks.userequest/PluginLifecycle/onMutate/#
 $dokka.location:xyz.junerver.compose.hooks.userequest/PluginLifecycle/onRequest/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-plugin-lifecycle/on-request.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/PluginLifecycle/onSuccess/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-plugin-lifecycle/on-success.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/PluginLifecycleMethods///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-plugin-lifecycle-methods/index.html
+$dokka.location:xyz.junerver.compose.hooks.userequest/RefreshFn///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-refresh-fn/index.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/RequestOptions.Companion///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-request-options/-companion/index.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/RequestOptions.Companion/default/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-request-options/-companion/default.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/RequestOptions.Companion/optionOf/#kotlin.Function1[xyz.junerver.compose.hooks.userequest.RequestOptions[TypeParam(bounds=[kotlin.Any?])],kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-request-options/-companion/option-of.html
@@ -241,6 +245,7 @@ $dokka.location:xyz.junerver.compose.hooks.userequest/RequestOptions/retryInterv
 $dokka.location:xyz.junerver.compose.hooks.userequest/RequestOptions/setCache/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-request-options/set-cache.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/RequestOptions/staleTime/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-request-options/stale-time.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/RequestOptions/throttleOptions/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-request-options/throttle-options.html
+$dokka.location:xyz.junerver.compose.hooks.userequest/RunFn///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-run-fn/index.html
 $dokka.location:xyz.junerver.compose.hooks.utils////PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/index.html
 $dokka.location:xyz.junerver.compose.hooks.utils//depsAreSame/#kotlin.Array[kotlin.Any]#kotlin.Array[kotlin.Any]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/deps-are-same.html
 $dokka.location:xyz.junerver.compose.hooks////PointingToDeclaration/hooks/xyz.junerver.compose.hooks/index.html
@@ -287,6 +292,8 @@ $dokka.location:xyz.junerver.compose.hooks//useDebounceEffect/#kotlin.Array[kotl
 $dokka.location:xyz.junerver.compose.hooks//useDebounceFn/#kotlin.Function1[kotlin.Array[kotlin.Any?],kotlin.Unit]#xyz.junerver.compose.hooks.DebounceOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-debounce-fn.html
 $dokka.location:xyz.junerver.compose.hooks//useDouble/#kotlin.Double/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-double.html
 $dokka.location:xyz.junerver.compose.hooks//useEffect/#kotlin.Array[kotlin.Any]#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-effect.html
+$dokka.location:xyz.junerver.compose.hooks//useEventPublish/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-event-publish.html
+$dokka.location:xyz.junerver.compose.hooks//useEventSubscribe/#kotlin.Function1[TypeParam(bounds=[kotlin.Any]),kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-event-subscribe.html
 $dokka.location:xyz.junerver.compose.hooks//useFloat/#kotlin.Float/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-float.html
 $dokka.location:xyz.junerver.compose.hooks//useInt/#kotlin.Int/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-int.html
 $dokka.location:xyz.junerver.compose.hooks//useIntState/#kotlin.Int/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-int-state.html
@@ -330,6 +337,10 @@ $dokka.location:xyz.junerver.compose.hooks/DebounceOptions/trailing/#/PointingTo
 $dokka.location:xyz.junerver.compose.hooks/DebounceOptions/wait/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-debounce-options/wait.html
 $dokka.location:xyz.junerver.compose.hooks/DependencyList///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-dependency-list/index.html
 $dokka.location:xyz.junerver.compose.hooks/Dispatch///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-dispatch/index.html
+$dokka.location:xyz.junerver.compose.hooks/EventManager///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-event-manager/index.html
+$dokka.location:xyz.junerver.compose.hooks/EventManager/post/#TypeParam(bounds=[kotlin.Any])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-event-manager/post.html
+$dokka.location:xyz.junerver.compose.hooks/EventManager/register/#kotlin.Function1[TypeParam(bounds=[kotlin.Any]),kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-event-manager/register.html
+$dokka.location:xyz.junerver.compose.hooks/EventManager/subscriberMap/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-event-manager/subscriber-map.html
 $dokka.location:xyz.junerver.compose.hooks/IntervalOptions.Companion///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-interval-options/-companion/index.html
 $dokka.location:xyz.junerver.compose.hooks/IntervalOptions///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-interval-options/index.html
 $dokka.location:xyz.junerver.compose.hooks/IntervalOptions/initialDelay/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-interval-options/initial-delay.html

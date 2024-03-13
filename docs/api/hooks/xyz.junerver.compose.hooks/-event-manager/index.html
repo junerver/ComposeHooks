@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" charset="UTF-8">
+    <title>EventManager</title>
+    <link href="../../../images/logo-icon.svg" rel="icon" type="image/svg">
+    <script>var pathToRoot = "../../../";</script>
+    <script>document.documentElement.classList.replace("no-js","js");</script>
+    <script>const storage = localStorage.getItem("dokka-dark-mode")
+    if (storage == null) {
+        const osDarkSchemePreferred = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+        if (osDarkSchemePreferred === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    } else {
+        const savedDarkMode = JSON.parse(storage)
+        if(savedDarkMode === true) {
+            document.getElementsByTagName("html")[0].classList.add("theme-dark")
+        }
+    }
+    </script>
+<script type="text/javascript" src="https://unpkg.com/kotlin-playground@1/dist/playground.min.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/sourceset_dependencies.js" async="async"></script>
+<link href="../../../styles/style.css" rel="Stylesheet">
+<link href="../../../styles/main.css" rel="Stylesheet">
+<link href="../../../styles/prism.css" rel="Stylesheet">
+<link href="../../../styles/logo-styles.css" rel="Stylesheet">
+<link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
+<script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
+</head>
+<body>
+    <div class="root">
+<nav class="navigation" id="navigation-wrapper">
+    <div class="navigation--inner">
+        <div class="navigation-title">
+            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
+            <div class="library-name">
+                    <a class="library-name--link" href="../../../index.html">
+                            hooks
+                    </a>
+            </div>
+            <div class="library-version">
+            </div>
+        </div>
+        <div class="filter-section" id="filter-section">
+                <button class="platform-tag platform-selector jvm-like" data-active="" data-filter=":hooks:dokkaHtml/release">androidJvm</button>
+        </div>
+    </div>
+    <div class="navigation-controls">
+        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
+        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
+    </div>
+</nav>
+        <div id="container">
+            <div class="sidebar" id="leftColumn">
+                <div class="sidebar--inner" id="sideMenu"></div>
+            </div>
+            <div id="main">
+<div class="main-content" data-page-type="classlike" id="content" pageIds="hooks::xyz.junerver.compose.hooks/EventManager///PointingToDeclaration//1917587792">
+  <div class="breadcrumbs"><a href="../../../index.html">hooks</a><span class="delimiter">/</span><a href="../index.html">xyz.junerver.compose.hooks</a><span class="delimiter">/</span><span class="current">EventManager</span></div>
+  <div class="cover ">
+    <h1 class="cover"><span>Event</span><wbr></wbr><span><span>Manager</span></span></h1>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">object </span><a href="index.html">EventManager</a></div><p class="paragraph">Description: 在Compose中，子组件可以轻易的调用父组件的函数，例如通过 props 参数传递、使用 <a href="../use-context.html">useContext</a>钩子暴露等。 但是如果我们希望让父组件调用子组件的方法，举个最简单的例子：父组件中的刷新按钮可以刷新子组件的网络请求， 这时候就有点麻烦了。</p><p class="paragraph">我们当然可以传递状态给子组件，当父组件点击刷新按钮时子组件通过<a href="../use-effect.html">useEffect</a>监听状态，调用刷新函数， 但是这不够优雅。</p><p class="paragraph">现在你可以通过<a href="../use-event-subscribe.html">useEventSubscribe</a>和<a href="../use-event-publish.html">useEventPublish</a> 这两个钩子来轻松实现组件之间的通讯了，它们非常简单。</p><p class="paragraph">在子组件使用<a href="../use-event-subscribe.html">useEventSubscribe</a>注册一个订阅函数，你无需关注他的生命周期，它会在组件挂载时注册，在卸载时反注册。 在父组件中使用<a href="../use-event-publish.html">useEventPublish</a>获得一个post函数，在适当的时机调用post函数，传递你的事件对象。</p><p class="paragraph">Description: In Compose, child components can easily call the functions of the parent component, such as passing props parameters, using <a href="../use-context.html">useContext</a> hook exposure, etc.</p><p class="paragraph">But if we want the parent component to call the child component's method, let's take the simplest example: the refresh button in the parent component can refresh the network request of the child component, which is a bit troublesome at this time.</p><p class="paragraph">Of course we can pass the state to the child component. When the parent component clicks the refresh button, the child component listens to the state through <a href="../use-effect.html">useEffect</a> and calls the refresh function, but this is not elegant enough.</p><p class="paragraph">Now you can easily implement communication between components through the two hooks <a href="../use-event-subscribe.html">useEventSubscribe</a> and <a href="../use-event-publish.html">useEventPublish</a>.They are very simple.</p><p class="paragraph">Use <a href="../use-event-subscribe.html">useEventSubscribe</a> to register a subscription function in the subcomponent. You do not need to pay attention to its life cycle. It will be registered when the component is mounted and deregistered when it is uninstalled.</p><p class="paragraph">Use <a href="../use-event-publish.html">useEventPublish</a> in the parent component to get a post function. Call the post function at the appropriate time and pass your event object.</p><span class="kdoc-tag"><h4 class="">Author</h4><p class="paragraph">Junerver date: 2024/3/13-8:11 Email: junerver@gmail.com Version: v1.0</p></span></div></div>
+  </div>
+  <div class="tabbedcontent">
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section-body">
+      <div data-togglable="PROPERTY">
+        <h2 class="">Properties</h2>
+        <div class="table"><a data-name="-1793557660%2FProperties%2F1917587792" anchor-label="subscriberMap" id="-1793557660%2FProperties%2F1917587792" data-filterable-set=":hooks:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="subscriber-map.html"><span>subscriber</span><wbr></wbr><span><span>Map</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1793557660%2FProperties%2F1917587792"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">val </span><a href="subscriber-map.html">subscriberMap</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-mutable-map/index.html">MutableMap</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.reflect/-k-class/index.html">KClass</a><span class="token operator">&lt;</span><span class="token operator">*</span><span class="token operator">&gt;</span><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.collections/-mutable-list/index.html">MutableList</a><span class="token operator">&lt;</span><span class="token punctuation">(</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="1935439407%2FFunctions%2F1917587792" anchor-label="post" id="1935439407%2FFunctions%2F1917587792" data-filterable-set=":hooks:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="post.html"><span><span>post</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1935439407%2FFunctions%2F1917587792"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="post.html">T</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt; </span><a href="post.html"><span class="token function">post</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">event<span class="token operator">: </span><a href="post.html">T</a></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="589149417%2FFunctions%2F1917587792" anchor-label="register" id="589149417%2FFunctions%2F1917587792" data-filterable-set=":hooks:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="register.html"><span><span>register</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="589149417%2FFunctions%2F1917587792"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">inline </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="register.html">T</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt; </span><a href="register.html"><span class="token function">register</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">noinline </span>subscriber<span class="token operator">: </span><span class="token punctuation">(</span><a href="register.html">T</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-unit/index.html">Unit</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      <div class="footer">
+        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span
+                class="pull-right"><span>Generated by </span><a
+                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
+      </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
