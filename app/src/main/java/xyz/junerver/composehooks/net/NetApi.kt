@@ -9,6 +9,7 @@ import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Path
 import xyz.junerver.compose.hooks.asSuspendNoopFn
+import xyz.junerver.composehooks.acc_token
 import xyz.junerver.composehooks.net.bean.RepoInfo
 import xyz.junerver.composehooks.net.bean.UserInfo
 
@@ -41,11 +42,17 @@ object NetApi {
 }
 
 interface WebService {
-    @Headers("Content-Type:application/json;charset=UTF-8")
+    @Headers(
+        "Content-Type:application/json;charset=UTF-8",
+        "Authorization: token $acc_token"
+    )
     @GET("users/{user}")
     suspend fun userInfo(@Path("user") user: String): UserInfo
 
-    @Headers("Content-Type:application/json;charset=UTF-8")
+    @Headers(
+        "Content-Type:application/json;charset=UTF-8",
+        "Authorization: token $acc_token"
+    )
     @GET("repos/{user}/{repo}")
     suspend fun repoInfo(@Path("user") user: String, @Path("repo") repo: String): RepoInfo
 }

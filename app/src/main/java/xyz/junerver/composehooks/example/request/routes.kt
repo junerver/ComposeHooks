@@ -17,7 +17,7 @@ val subRoutes = mapOf<String, @Composable () -> Unit>(
     "refresh" to { Refresh() },
     "mutate" to { Mutate() },
     "cancel" to { Cancel() },
-    "loadingDelay" to { TODO() },
+    "loadingDelay" to { LoadingDelay() },
     "polling" to { TODO() },
     "ready" to { TODO() },
     "depsRefresh" to { TODO() },
