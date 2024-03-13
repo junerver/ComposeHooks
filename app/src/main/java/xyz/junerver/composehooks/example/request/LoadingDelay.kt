@@ -12,9 +12,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.optionsOf
-import xyz.junerver.compose.hooks.useMount
-import xyz.junerver.compose.hooks.useRef
-import xyz.junerver.compose.hooks.useUnmount
+import xyz.junerver.compose.hooks.useEvent
+import xyz.junerver.compose.hooks.useSubscribe
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.WebService
 import xyz.junerver.composehooks.net.asRequestFn
@@ -30,11 +29,12 @@ import xyz.junerver.kotlin.asBoolean
  */
 @Composable
 fun LoadingDelay() {
+    val post = useEvent<Unit>()
 
     Surface {
         Column {
             TButton(text = "refresh") {
-                trigger()
+                post(Unit)
             }
             SubComponent()
             Divider(modifier = Modifier.fillMaxWidth())
@@ -63,14 +63,8 @@ fun SubComponent(isLoadingDelay: Boolean = false) {
             }
         }
     )
-    val unsubscribeRef = useRef<(() -> Unit)?>(null)
-    useMount {
-        unsubscribeRef.current = subscribe {
-            refresh()
-        }
-    }
-    useUnmount {
-        unsubscribeRef.current?.invoke()
+    useSubscribe { _: Unit ->
+        refresh()
     }
     Column(modifier = Modifier.height(100.dp)) {
         Text(text = "isLoadingDelay:$isLoadingDelay")
@@ -79,20 +73,5 @@ fun SubComponent(isLoadingDelay: Boolean = false) {
         } else if (userInfo.asBoolean()) {
             Text(text = "$userInfo".substring(0..100))
         }
-    }
-}
-
-val listeners = mutableListOf<() -> Unit>()
-
-fun subscribe(listener: () -> Unit): () -> Unit {
-    listeners.add(listener)
-    return fun() {
-        listeners.remove(listener)
-    }
-}
-
-fun trigger() {
-    listeners.forEach {
-        it.invoke()
     }
 }
