@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.lifecycle.compose.LifecycleResumeEffect
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -26,9 +27,12 @@ import xyz.junerver.kotlin.tuple
  * Version: v1.0
  */
 class PollingPlugin<TData : Any> : Plugin<TData>() {
-    var count = 0
+    // 已经重试计数
+    var currentRetryCount = 0
 
-    // 保存正在轮询的job
+    var isBackground = false
+
+    // 保存正在轮询的job，其本质是一个延时执行刷新的协程job
     private lateinit var pollingJob: Job
 
     // 被使用的作用域
@@ -67,24 +71,25 @@ class PollingPlugin<TData : Any> : Plugin<TData>() {
 
                 override val onError: ((e: Throwable, params: TParams) -> Unit)
                     get() = { _, _ ->
-                        count += 1
+                        currentRetryCount += 1
                     }
 
                 override val onSuccess: ((data: TData, params: TParams) -> Unit)
                     get() = { _, _ ->
-                        count = 0
+                        currentRetryCount = 0
                     }
 
                 override val onFinally: ((params: TParams, data: TData?, e: Throwable?) -> Unit)
-                    get() = { _, _, _ ->
+                    get() = onFinally@{ _, _, _ ->
                         usedScope = if (pollingWhenHidden) pluginScope else fetch.scope
-                        if (pollingErrorRetryCount == -1 || count <= pollingErrorRetryCount) {
+                        if (!pollingWhenHidden && isBackground) return@onFinally
+                        if (pollingErrorRetryCount == -1 || currentRetryCount <= pollingErrorRetryCount) {
                             usedScope.launch(Dispatchers.IO) {
                                 delay(pollingInterval)
                                 if (pollingWhenHidden) fetch.refreshAsync() else fetch.refresh()
                             }.also { pollingJob = it }
                         } else {
-                            count = 0
+                            currentRetryCount = 0
                         }
                     }
 
@@ -99,6 +104,10 @@ class PollingPlugin<TData : Any> : Plugin<TData>() {
         if (isPolling()) pollingJob.cancel()
         super.cancel()
     }
+
+    override fun refresh() {
+        fetchInstance.refresh()
+    }
 }
 
 @Composable
@@ -109,5 +118,20 @@ fun <T : Any> usePollingPlugin(options: RequestOptions<T>): Plugin<T> {
     val pollingPlugin = remember {
         PollingPlugin<T>()
     }
+    if (!options.pollingWhenHidden) {
+        LifecycleResumeEffect(Unit) {
+            //resume时触发
+            if (pollingPlugin.isBackground) {
+                pollingPlugin.refresh()
+                pollingPlugin.isBackground = false
+            }
+            onPauseOrDispose {
+                //后台时暂停
+                pollingPlugin.stopPolling(true)
+                pollingPlugin.isBackground = true
+            }
+        }
+    }
+
     return pollingPlugin
 }
