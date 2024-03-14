@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 
@@ -51,6 +52,11 @@ inline fun <reified T> useState(default: T & Any): MutableState<T> {
         is Long -> useLong(default)
         else -> _useState(default)
     } as MutableState<T>
+}
+
+@Composable
+inline fun <reified T> useState(vararg keys: Any, noinline factory: () -> T) = remember(keys = keys) {
+    derivedStateOf(factory)
 }
 
 /**
