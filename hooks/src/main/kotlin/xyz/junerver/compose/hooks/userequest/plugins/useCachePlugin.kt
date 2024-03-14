@@ -1,7 +1,7 @@
 package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
@@ -214,7 +214,7 @@ fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
     val unSubscribeRef = useRef<(() -> Unit)?>(null)
     val currentPromiseRef = useRef<Deferred<*>?>(null)
 
-    val cachePlugin = rememberSaveable {
+    val cachePlugin = remember {
         CachePlugin<T>().apply {
             this.setCache = ::setCache
             this.getCache = ::getCache

@@ -1,7 +1,7 @@
 package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -77,7 +77,7 @@ fun <T : Any> useLoadingDelayPlugin(options: RequestOptions<T>): Plugin<T> {
         return useEmptyPlugin()
     }
 
-    val loadingDelayPlugin = rememberSaveable {
+    val loadingDelayPlugin = remember {
         LoadingDelayPlugin<T>()
     }.apply {
         this.ready = ready

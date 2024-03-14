@@ -1,7 +1,6 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
-import java.io.Serializable
 import xyz.junerver.kotlin.Tuple7
 import xyz.junerver.kotlin.tuple
 
@@ -18,7 +17,7 @@ data class UndoState<T>(
     var past: List<T> = emptyList(),
     var present: T,
     var future: List<T> = emptyList(),
-) : Serializable
+)
 
 sealed interface UndoAction<S>
 internal data object Undo : UndoAction<Nothing>

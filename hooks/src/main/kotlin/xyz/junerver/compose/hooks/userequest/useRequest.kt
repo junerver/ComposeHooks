@@ -3,8 +3,8 @@ package xyz.junerver.compose.hooks.userequest
 import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import kotlin.reflect.KFunction0
 import kotlin.reflect.KFunction1
 import xyz.junerver.compose.hooks.SuspendNormalFunction
@@ -163,17 +163,17 @@ fun <TData : Any> useRequestPluginsImpl(
 ): Fetch<TData> {
     // 为了驱动组件更新，必须要持有真实的状态
     // 请求的数据状态
-    val dataState = rememberSaveable { mutableStateOf<TData?>(null) }
+    val dataState = remember { mutableStateOf<TData?>(null) }
     val (_, setData) = dataState
     // 是否处于首次请求中的状态
-    val loadingState = rememberSaveable { mutableStateOf(false) }
+    val loadingState = remember { mutableStateOf(false) }
     val (_, setLoading) = loadingState
     // 请求出错后的保存错误的状态
-    val errorState = rememberSaveable { mutableStateOf<Throwable?>(null) }
+    val errorState = remember { mutableStateOf<Throwable?>(null) }
     val (_, setError) = errorState
 
     // Fetch 对象用于持有请求的状态
-    val fetch = rememberSaveable {
+    val fetch = remember {
         Fetch(options).apply {
             this.dataState = dataState
             this.setData = setData

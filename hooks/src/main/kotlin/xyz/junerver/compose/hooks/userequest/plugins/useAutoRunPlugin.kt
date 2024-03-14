@@ -2,7 +2,7 @@ package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.userequest.Fetch
@@ -78,7 +78,7 @@ fun <T : Any> useAutoRunPlugin(options: RequestOptions<T>): Plugin<T> {
     }
     val hasAutoRun = useRef(default = false)
     hasAutoRun.current = false
-    val autoRunPlugin = rememberSaveable {
+    val autoRunPlugin = remember {
         AutoRunPlugin<T>()
     }.apply {
         this.ready = ready

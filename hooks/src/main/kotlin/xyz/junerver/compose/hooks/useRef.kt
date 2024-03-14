@@ -1,8 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.saveable.rememberSaveable
-import java.io.Serializable
+import androidx.compose.runtime.remember
 
 /**
  * Description: [useRef]可以方便的创建一个不受重组影响的对象引用。另外，它不同于[rememberUpdatedState]
@@ -13,9 +12,9 @@ import java.io.Serializable
  * Version: v1.0
  */
 
-data class Ref<T>(var current: T) : Serializable
+data class Ref<T>(var current: T)
 
 @Composable
-fun <T> useRef(default: T): Ref<T> = rememberSaveable {
+fun <T> useRef(default: T): Ref<T> = remember {
     Ref(default)
 }

@@ -1,7 +1,7 @@
 package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.Throttle
 import xyz.junerver.compose.hooks.userequest.Fetch
@@ -50,7 +50,7 @@ fun <T : Any> useThrottlePlugin(options: RequestOptions<T>): Plugin<T> {
     if (options.throttleOptions.wait == 0.seconds) {
         return useEmptyPlugin()
     }
-    val throttlePlugin = rememberSaveable {
+    val throttlePlugin = remember {
         ThrottlePlugin<T>()
     }
     return throttlePlugin

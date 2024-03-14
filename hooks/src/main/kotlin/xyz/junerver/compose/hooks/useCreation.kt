@@ -1,7 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 
 /**
  * Description: [useCreation] 是 useMemo 或 [useRef] 的替代品
@@ -15,7 +15,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
  */
 @Composable
 fun <T> useCreation(vararg keys: Any?, factory: () -> T): Ref<T> {
-    val ref = rememberSaveable(inputs = keys) {
+    val ref = remember(keys = keys) {
         Ref(factory())
     }
     return ref

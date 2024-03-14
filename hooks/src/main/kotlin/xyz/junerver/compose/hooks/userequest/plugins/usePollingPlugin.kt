@@ -1,7 +1,7 @@
 package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -106,7 +106,7 @@ fun <T : Any> usePollingPlugin(options: RequestOptions<T>): Plugin<T> {
     if (options.pollingInterval == 0.milliseconds) {
         return useEmptyPlugin()
     }
-    val pollingPlugin = rememberSaveable {
+    val pollingPlugin = remember {
         PollingPlugin<T>()
     }
     return pollingPlugin

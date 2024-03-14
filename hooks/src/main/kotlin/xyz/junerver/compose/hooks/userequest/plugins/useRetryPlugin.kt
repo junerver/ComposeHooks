@@ -1,7 +1,7 @@
 package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.remember
 import kotlin.math.pow
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -87,7 +87,7 @@ fun <T : Any> useRetryPlugin(options: RequestOptions<T>): Plugin<T> {
     if (options.retryCount == 0) {
         return useEmptyPlugin()
     }
-    val retryPlugin = rememberSaveable {
+    val retryPlugin = remember {
         RetryPlugin<T>()
     }
     return retryPlugin
