@@ -12,7 +12,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import xyz.junerver.kotlin.Tuple2
+import xyz.junerver.kotlin.Tuple3
 import xyz.junerver.kotlin.tuple
 
 /**
@@ -82,7 +82,7 @@ internal class Interval(private val options: IntervalOptions) {
 fun useInterval(
     options: IntervalOptions = defaultOption(),
     fn: () -> Unit,
-): Tuple2<NoParamsVoidFunction, NoParamsVoidFunction> {
+): Tuple3<PauseFn, ResumeFn, IsActive> {
     val (_, _, ready) = options
     val interval = remember {
         Interval(options).apply {
@@ -104,7 +104,8 @@ fun useInterval(
     return with(interval) {
         tuple(
             first = ::run,
-            second = ::cancel
+            second = ::cancel,
+            third = interval.isRunning()
         )
     }
 }

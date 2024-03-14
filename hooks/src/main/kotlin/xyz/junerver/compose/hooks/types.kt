@@ -93,3 +93,7 @@ fun <T> synthesisParametersAndCheck(instance: Any?, params: TParams, fn: KFuncti
     checkIsLegalParameters(fn, *finalParams)
     return finalParams
 }
+
+typealias PauseFn = KFunction0<Unit>
+typealias ResumeFn = KFunction0<Unit>
+typealias IsActive = Boolean
