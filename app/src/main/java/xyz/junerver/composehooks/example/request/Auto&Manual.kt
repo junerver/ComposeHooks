@@ -96,7 +96,7 @@ fun Manual() {
                      */
                     request()
                 }
-                TButton(text = "request with params") {
+                TButton(text = "request with error params") {
                     request("unknow", "unknow")
                 }
             }

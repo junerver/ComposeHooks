@@ -5,7 +5,6 @@ import java.io.Serializable
 import kotlin.properties.Delegates
 import kotlin.reflect.KFunction
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
@@ -191,7 +190,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
      * 使用自身作用域的同步请求函数
      */
     override fun _run(params: TParams) {
-        this.scope.launch(Dispatchers.IO + SupervisorJob()) {
+        this.scope.launch {
             _runAsync(params)
         }.also { requestJobs.add(it) }
     }
