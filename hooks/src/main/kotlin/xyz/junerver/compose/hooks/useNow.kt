@@ -1,0 +1,37 @@
+package xyz.junerver.compose.hooks
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import java.text.SimpleDateFormat
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
+import xyz.junerver.kotlin.tuple
+
+/**
+ * Description:
+ * @author Junerver
+ * date: 2024/3/14-11:41
+ * Email: junerver@gmail.com
+ * Version: v1.0
+ */
+data class UseNowOptions(
+    var interval: Duration = 1.seconds,
+    var format: ((Long) -> String)? = null,
+) {
+    companion object : Options<UseNowOptions>(::UseNowOptions)
+}
+
+@Composable
+fun useNow(options: UseNowOptions = defaultOption()): String {
+    val (interval, format) = with(options) { tuple(interval, format) }
+    val sdfRef = useCreation { SimpleDateFormat("yyyy-MM-dd HH:mm:ss") }
+    val (time) = useTimestamp(
+        optionsOf {
+            this.interval = interval
+        }
+    )
+    val date by useState(time) {
+        format?.run { invoke(time) } ?: sdfRef.current.format(time)
+    }
+    return date
+}
