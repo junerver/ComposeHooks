@@ -120,13 +120,13 @@ fun <T : Any> usePollingPlugin(options: RequestOptions<T>): Plugin<T> {
     }
     if (!options.pollingWhenHidden) {
         LifecycleResumeEffect(Unit) {
-            //resume时触发
+            // resume时触发
             if (pollingPlugin.isBackground) {
                 pollingPlugin.refresh()
                 pollingPlugin.isBackground = false
             }
             onPauseOrDispose {
-                //后台时暂停
+                // 后台时暂停
                 pollingPlugin.stopPolling(true)
                 pollingPlugin.isBackground = true
             }

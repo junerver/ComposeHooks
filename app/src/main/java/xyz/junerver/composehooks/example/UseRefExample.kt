@@ -18,7 +18,6 @@ import xyz.junerver.composehooks.ui.component.TButton
  */
 @Composable
 fun UseRefExample() {
-    val ctx = LocalContext.current
     val countRef = useRef(0)
     val update = useUpdate()
     Surface {
@@ -31,7 +30,7 @@ fun UseRefExample() {
                 update()
             }
             TButton(text = "toast ref") {
-                ctx.toast("ref.current: ${countRef.current}")
+                toast("ref.current: ${countRef.current}")
             }
         }
     }
