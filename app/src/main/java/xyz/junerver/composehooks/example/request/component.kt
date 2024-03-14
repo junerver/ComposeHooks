@@ -29,6 +29,14 @@ import xyz.junerver.kotlin.runIf
  * Version: v1.0
  */
 
+@Composable
+fun DividerSpacer() {
+    Column {
+        Divider(modifier = Modifier.fillMaxWidth())
+        Spacer(modifier = Modifier.height(20.dp))
+    }
+}
+
 enum class OptionFunc {
     LoadingDelay,
     Debounce,
@@ -36,15 +44,14 @@ enum class OptionFunc {
 }
 
 @Composable
-fun Container(label: String,optionFunc: OptionFunc){
+fun Container(label: String, optionFunc: OptionFunc) {
     val post = useEventPublish<Unit>()
     Column {
         TButton(text = "refresh") {
             post(Unit)
         }
         SubComponent(label, false, optionFunc)
-        Divider(modifier = Modifier.fillMaxWidth())
-        Spacer(modifier = Modifier.height(20.dp))
+        DividerSpacer()
         SubComponent(label, true, optionFunc)
     }
 }
