@@ -2,7 +2,6 @@ package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.lifecycle.compose.LifecycleResumeEffect
 import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -10,6 +9,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.TParams
+import xyz.junerver.compose.hooks.useBackToFrontEffect
+import xyz.junerver.compose.hooks.useFrontToBackEffect
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
 import xyz.junerver.compose.hooks.userequest.OnBeforeReturn
@@ -30,7 +31,7 @@ class PollingPlugin<TData : Any> : Plugin<TData>() {
     // 已经重试计数
     var currentRetryCount = 0
 
-    var isBackground = false
+    var inBackground = false
 
     // 保存正在轮询的job，其本质是一个延时执行刷新的协程job
     private lateinit var pollingJob: Job
@@ -82,7 +83,7 @@ class PollingPlugin<TData : Any> : Plugin<TData>() {
                 override val onFinally: ((params: TParams, data: TData?, e: Throwable?) -> Unit)
                     get() = onFinally@{ _, _, _ ->
                         usedScope = if (pollingWhenHidden) pluginScope else fetch.scope
-                        if (!pollingWhenHidden && isBackground) return@onFinally
+                        if (!pollingWhenHidden && inBackground) return@onFinally
                         if (pollingErrorRetryCount == -1 || currentRetryCount <= pollingErrorRetryCount) {
                             usedScope.launch(Dispatchers.IO) {
                                 delay(pollingInterval)
@@ -119,17 +120,13 @@ fun <T : Any> usePollingPlugin(options: RequestOptions<T>): Plugin<T> {
         PollingPlugin<T>()
     }
     if (!options.pollingWhenHidden) {
-        LifecycleResumeEffect(Unit) {
-            // resume时触发
-            if (pollingPlugin.isBackground) {
-                pollingPlugin.refresh()
-                pollingPlugin.isBackground = false
-            }
-            onPauseOrDispose {
-                // 后台时暂停
-                pollingPlugin.stopPolling(true)
-                pollingPlugin.isBackground = true
-            }
+        useBackToFrontEffect {
+            pollingPlugin.refresh()
+            pollingPlugin.inBackground = false
+        }
+        useFrontToBackEffect {
+            pollingPlugin.stopPolling(true)
+            pollingPlugin.inBackground = true
         }
     }
 
