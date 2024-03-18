@@ -11,6 +11,7 @@ android {
 
     defaultConfig {
         minSdk = 24
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -35,17 +36,29 @@ tasks.dokkaHtml  {
 
 
 dependencies {
+    api(platform(libs.androidx.compose.bom))
+    androidTestImplementation(platform(libs.androidx.compose.bom))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
-    implementation(libs.androidx.lifecycle.runtime.compose)
+
+    // Testing dependencies
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 
-    api(platform(libs.androidx.compose.bom))
+    // Compose testing dependencies
+    androidTestImplementation(libs.androidx.ui.test)
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    androidTestImplementation(libs.androidx.material3)
+    debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Compose
     api(libs.androidx.ui)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
+    // Kotlin and extension
     implementation(platform(libs.kotlin.bom))
     implementation(libs.kotlin.reflect)
     api(libs.ktx)
