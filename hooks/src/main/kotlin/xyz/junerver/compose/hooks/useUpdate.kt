@@ -12,7 +12,7 @@ import kotlin.random.Random
  */
 @Composable
 fun useUpdate(): () -> Unit {
-    val (_, setState) = useState(0.0)
+    val (state, setState) = useState(0.0)
     return fun() {
         setState(Random.nextDouble())
     }
