@@ -9,9 +9,7 @@ import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 
-/**
- * 更符合 Compose 的函数命名方式
- */
+/** 更符合 Compose 的函数命名方式 */
 
 @Composable
 inline fun <reified TData : Any> rememberRequest(
@@ -62,7 +60,7 @@ fun rememberMount(fn: () -> Unit) = useMount(fn)
 fun <T> rememberPrevious(present: T) = usePrevious(present)
 
 @Composable
-inline fun <reified S> rememberReducer(noinline reducer: Reducer<S>, initialState: S) =
+fun <S, A> rememberReducer(reducer: Reducer<S, A>, initialState: S) =
     useReducer(reducer, initialState)
 
 @Composable

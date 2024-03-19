@@ -11,20 +11,22 @@ import xyz.junerver.kotlin.Tuple2
  * Version: v1.1
  * update: 2024/3/11 10:57
  * 删除了模板代码，Action 使用 sealed 似乎是更好的决定
+ * update: 2024/3/19 13:48
+ * action类型从 Any 修改为泛型 A
  */
 // reducer 函数类型抽象
-typealias Reducer<S> = (prevState: S, action: Any) -> S
+typealias Reducer<S, A> = (prevState: S, action: A) -> S
 
-typealias Dispatch = (Any) -> Unit
+typealias Dispatch<A> = (A) -> Unit
 
 @Composable
-fun <S> useReducer(
-    reducer: Reducer<S>,
+fun <S, A> useReducer(
+    reducer: Reducer<S, A>,
     initialState: S,
-): Tuple2<S, Dispatch> {
+): Tuple2<S, Dispatch<A>> {
     val (state, setState) = _useState(initialState)
     return Pair(
         first = state, // state状态值
-        second = { action: Any -> setState(reducer(state, action)) } // dispatch函数
+        second = { action: A -> setState(reducer(state, action)) } // dispatch函数
     )
 }

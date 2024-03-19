@@ -31,11 +31,10 @@ sealed interface SimpleAction {
     data object AgeIncrease : SimpleAction
 }
 
-val simpleReducer: Reducer<SimpleData> = { prevState: SimpleData, action: Any ->
+val simpleReducer: Reducer<SimpleData,SimpleAction> = { prevState: SimpleData, action: SimpleAction ->
     when (action) {
         is SimpleAction.ChangeName -> prevState.copy(name = action.newName)
         is SimpleAction.AgeIncrease -> prevState.copy(age = prevState.age + 1)
-        else -> prevState
     }
 }
 
