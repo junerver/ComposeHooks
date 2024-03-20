@@ -74,5 +74,5 @@ dependencies {
         exclude(group = "com.squareup.okhttp3",module = "okhttp")
     }
 
-    implementation(project(":hooks"))
+    implementation(projects.hooks)
 }
