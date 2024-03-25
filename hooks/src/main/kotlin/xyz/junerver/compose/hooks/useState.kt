@@ -44,7 +44,7 @@ import androidx.compose.runtime.remember
  * Version: v1.0
  */
 @Composable
-inline fun <reified T> useState(default: T & Any): MutableState<T> {
+fun <T> useState(default: T & Any): MutableState<T> {
     return when (default) {
         is Int -> useInt(default)
         is Float -> useFloat(default)
