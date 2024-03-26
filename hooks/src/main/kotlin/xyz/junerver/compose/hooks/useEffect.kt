@@ -14,5 +14,5 @@ import kotlinx.coroutines.CoroutineScope
  */
 @SuppressLint("ComposableNaming")
 @Composable
-fun useEffect(vararg deps: Any, block: suspend CoroutineScope.() -> Unit) =
+fun useEffect(vararg deps: Any?, block: suspend CoroutineScope.() -> Unit) =
     LaunchedEffect(keys = deps, block = block)

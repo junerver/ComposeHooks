@@ -13,7 +13,7 @@ import kotlinx.coroutines.CoroutineScope
  */
 @SuppressLint("ComposableNaming")
 @Composable
-fun useUpdateEffect(vararg deps: Any, block: suspend CoroutineScope.() -> Unit) {
+fun useUpdateEffect(vararg deps: Any?, block: suspend CoroutineScope.() -> Unit) {
     val isMounted = useRef(false)
     useEffect(*deps) {
         if (!isMounted.current) {
