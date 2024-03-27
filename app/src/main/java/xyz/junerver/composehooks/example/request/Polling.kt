@@ -30,7 +30,7 @@ import xyz.junerver.kotlin.asBoolean
  */
 @Composable
 fun Polling() {
-    val (showTips,_,set) = useBoolean(false)
+    val (showTips, _, set) = useBoolean(false)
     useEventSubscribe { count: Int ->
         if (!showTips && count >= 1) {
             set(true)
@@ -42,11 +42,10 @@ fun Polling() {
             DividerSpacer()
             Sub(true)
             DividerSpacer()
-            if (showTips) Text(text = "!!! now push 'home' and wait a moment then back to app",color= Color.Magenta)
+            if (showTips) Text(text = "!!! now push 'home' and wait a moment then back to app", color = Color.Magenta)
         }
     }
 }
-
 
 @Composable
 fun Sub(isPollingWhenHidden: Boolean = false) {

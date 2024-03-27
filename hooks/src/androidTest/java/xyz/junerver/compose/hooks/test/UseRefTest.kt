@@ -49,11 +49,11 @@ class UseRefTest {
         buttonNode.performClick() // ref -> 1
         composeTestRule.onNodeWithText("Result:0").assertExists()
         assertEquals(1, refresh)
-        buttonNode.performClick()  // ref -> 2
+        buttonNode.performClick() // ref -> 2
         assertEquals(1, refresh) // will not execute sideEffect
         updateNode.performClick() // recompose ui
         composeTestRule.waitForIdle()
         composeTestRule.onNodeWithText("Result:2").assertExists()
-        assertEquals(2, refresh) //component recompose sideEffect executed
+        assertEquals(2, refresh) // component recompose sideEffect executed
     }
 }

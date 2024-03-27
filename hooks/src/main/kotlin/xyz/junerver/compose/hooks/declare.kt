@@ -75,7 +75,7 @@ fun <S> rememberThrottle(value: S, options: ThrottleOptions = defaultOption()) =
 
 @Composable
 fun rememberThrottleFn(
-    fn: NormalFunction<Any?>,
+    fn: VoidFunction,
     options: ThrottleOptions = defaultOption(),
 ) = useThrottleFn(fn, options)
 

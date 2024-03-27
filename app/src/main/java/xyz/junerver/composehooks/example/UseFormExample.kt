@@ -33,11 +33,11 @@ fun UseFormExample() {
     Surface {
         Column {
             Form(form) {
-                FormItem<String>(name = "name") {(state,validate,msgs)->
+                FormItem<String>(name = "name") { (state, validate, msgs) ->
                     var string by state
                     OutlinedTextField(value = string ?: "", onValueChange = { string = it })
                 }
-                FormItem<Int>(name = "age", listOf(Required())) { (state,validate,msgs)->
+                FormItem<Int>(name = "age", listOf(Required())) { (state, validate, msgs) ->
                     var age by state
                     Row {
                         TButton(text = "1") {
@@ -57,7 +57,7 @@ fun UseFormExample() {
                 }
             }
             TButton(text = "submit") {
-                toast(form.getAllFields().toString() +"isValidated :"+form.isValidated())
+                toast(form.getAllFields().toString() + "isValidated :" + form.isValidated())
             }
         }
     }

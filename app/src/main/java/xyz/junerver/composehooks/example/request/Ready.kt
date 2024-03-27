@@ -29,14 +29,14 @@ import xyz.junerver.kotlin.asBoolean
  */
 @Composable
 fun Ready() {
-    val (userInfo,userLoading) = useRequest(
+    val (userInfo, userLoading) = useRequest(
         requestFn = WebService::userInfo.asRequestFn(),
         optionsOf {
             defaultParams =
                 arrayOf("junerver")
         }
     )
-    val (repoInfo,repoLoading) = useRequest(
+    val (repoInfo, repoLoading) = useRequest(
         requestFn = WebService::repoInfo.asRequestFn(),
         optionsOf {
             defaultParams = arrayOf(

@@ -19,11 +19,13 @@ import xyz.junerver.composehooks.example.request.DividerSpacer
 @Composable
 fun UseNowExample() {
     val now = useNow()
-    val customize = useNow(optionsOf {
-        format = {
-            DateFormat.getDateInstance(DateFormat.FULL).format(it)
+    val customize = useNow(
+        optionsOf {
+            format = {
+                DateFormat.getDateInstance(DateFormat.FULL).format(it)
+            }
         }
-    })
+    )
     Surface {
         Column {
             Text(text = now)

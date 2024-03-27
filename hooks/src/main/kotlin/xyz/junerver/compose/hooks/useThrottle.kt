@@ -18,10 +18,9 @@ import kotlinx.coroutines.launch
 
 /**
  * Description:
- * @author Junerver
- * date: 2024/1/30-11:02
- * Email: junerver@gmail.com
- * Version: v1.0
+ *
+ * @author Junerver date: 2024/1/30-11:02 Email: junerver@gmail.com
+ *     Version: v1.0
  */
 data class ThrottleOptions internal constructor(
     var wait: Duration = 1.seconds, // 节流时长
@@ -32,7 +31,7 @@ data class ThrottleOptions internal constructor(
 }
 
 class Throttle(
-    private val fn: NormalFunction<Any?>,
+    var fn: VoidFunction,
     private val scope: CoroutineScope,
     private val options: ThrottleOptions = defaultOption(),
 ) : VoidFunction {
@@ -76,7 +75,6 @@ class Throttle(
                 }
             }
         }
-
         if (waitTime > wait) {
             task(isDelay = !(calledCount == 0 && leading))
             latestInvokedTime = System.currentTimeMillis()
@@ -96,10 +94,8 @@ class Throttle(
 @Composable
 fun <S> useThrottle(value: S, options: ThrottleOptions = defaultOption()): S {
     val (throttled, setThrottled) = _useState(value)
-    // value的最新值
-    val latestValueRef by useLatestState(value = value)
     val throttledSet = useThrottleFn(fn = {
-        setThrottled(latestValueRef)
+        setThrottled(value)
     }, options)
     LaunchedEffect(key1 = value, block = {
         throttledSet()
@@ -109,13 +105,14 @@ fun <S> useThrottle(value: S, options: ThrottleOptions = defaultOption()): S {
 
 @Composable
 fun useThrottleFn(
-    fn: NormalFunction<Any?>,
+    fn: VoidFunction,
     options: ThrottleOptions = defaultOption(),
 ): VoidFunction {
+    val latestFn by useLatestState(value = fn)
     val scope = rememberCoroutineScope()
     val throttled = remember {
-        Throttle(fn, scope, options)
-    }
+        Throttle(latestFn, scope, options)
+    }.apply { this.fn = latestFn }
     return throttled
 }
 

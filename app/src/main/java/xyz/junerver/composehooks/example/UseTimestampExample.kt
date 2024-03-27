@@ -22,7 +22,6 @@ import xyz.junerver.composehooks.ui.component.TButton
  */
 @Composable
 fun UseTimestampExample() {
-
     Surface {
         Column {
             SubState()
@@ -34,12 +33,14 @@ fun UseTimestampExample() {
 
 @Composable
 fun SubState() {
-    val (timestamp, pause, resume) = useTimestamp(optionsOf {
-        interval = 1.seconds
-        callback = {
-            Log.d("UseTimestampExample", "UseTimestampExample: $it")
+    val (timestamp, pause, resume) = useTimestamp(
+        optionsOf {
+            interval = 1.seconds
+            callback = {
+                Log.d("UseTimestampExample", "UseTimestampExample: $it")
+            }
         }
-    })
+    )
     Column {
         Text(text = "TimestampState: $timestamp")
         Row {
@@ -55,9 +56,11 @@ fun SubState() {
 
 @Composable
 fun SubRef() {
-    val (timestamp) = useTimestampRef(optionsOf {
-        interval = 1.seconds
-    })
+    val (timestamp) = useTimestampRef(
+        optionsOf {
+            interval = 1.seconds
+        }
+    )
     Column {
         Text(text = "TimestampRef: ${timestamp.current}")
         Row {

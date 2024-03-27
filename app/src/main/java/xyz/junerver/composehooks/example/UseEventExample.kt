@@ -28,7 +28,6 @@ fun UseEventExample() {
     }
 }
 
-
 @Composable
 fun Container() {
     val post = useEventPublish<Unit>()

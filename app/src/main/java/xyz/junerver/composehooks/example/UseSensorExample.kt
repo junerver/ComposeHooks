@@ -27,7 +27,7 @@ fun UseSensorExample() {
         SensorManager.getRotationMatrixFromVector(rotationMatrix, rotationVector)
         val orientationAngles = FloatArray(3)
         SensorManager.getOrientation(rotationMatrix, orientationAngles)
-        sensorData = orientationAngles.map { r-> Math.toDegrees(r.toDouble()).toFloat() }.toTypedArray()
+        sensorData = orientationAngles.map { r -> Math.toDegrees(r.toDouble()).toFloat() }.toTypedArray()
     })
     Surface {
         Column {
@@ -45,4 +45,3 @@ fun normalizeAzimuth(azimuth: Float): Float {
     }
     return normalizedAzimuth % 360f
 }
-

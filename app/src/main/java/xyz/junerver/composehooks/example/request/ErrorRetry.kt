@@ -31,7 +31,7 @@ import xyz.junerver.kotlin.asBoolean
 data class MockInfo(
     val name: String,
     val age: Int,
-    val sex: String
+    val sex: String,
 ) : Parcelable
 
 // 伪装的一个
@@ -53,7 +53,7 @@ suspend fun mockRequest(s1: String, s2: String): MockInfo {
 }
 
 @Composable
-fun ErrorRetry(){
+fun ErrorRetry() {
     var count by useState("")
 
     val (mockInfo, stuLoading, err) = useRequest(
@@ -63,17 +63,18 @@ fun ErrorRetry(){
             retryCount = 5
             retryInterval = 2.seconds
             onError = { _, _ ->
-                count+="${System.currentTimeMillis()/1000}\n"
+                count += "${System.currentTimeMillis() / 1000}\n"
             }
-        })
+        }
+    )
     Surface {
         Column {
             Text("error time：\n$count")
             if (stuLoading) {
                 Text("Loading ...")
-            }else if (mockInfo.asBoolean()) {
+            } else if (mockInfo.asBoolean()) {
                 Text("MockSucc：${(mockInfo)}")
-            }else if (err.asBoolean()) {
+            } else if (err.asBoolean()) {
                 Text(text = "Error msg: ${err.message}")
             }
         }

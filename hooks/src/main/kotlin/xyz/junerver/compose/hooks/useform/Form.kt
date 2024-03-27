@@ -28,11 +28,11 @@ class FormScope private constructor(
     fun <T : Any> FormItem(
         name: String,
         validators: List<Validator> = emptyList(),
-        content: @Composable (Tuple3<MutableState<T?>,Boolean,List<String>>) -> Unit,
+        content: @Composable (Tuple3<MutableState<T?>, Boolean, List<String>>) -> Unit,
     ) {
         val fieldState = _useState<T?>(default = null)
-        val (validate,_,set) = useBoolean()
-        val errMsg = useMap<KClass<*>,String>()
+        val (validate, _, set) = useBoolean()
+        val errMsg = useMap<KClass<*>, String>()
         ref.current.form[name] = fieldState as MutableState<Any>
 
         useEffect(fieldState.value) {
@@ -55,7 +55,7 @@ class FormScope private constructor(
             set(isValidate)
             ref.current.isValidated = isValidate
         }
-        content(tuple(fieldState,validate,errMsg.values.toList()))
+        content(tuple(fieldState, validate, errMsg.values.toList()))
     }
 
     companion object {

@@ -25,7 +25,7 @@ fun TButton(
     onClick: Context.() -> Unit,
 ) {
     val ctx = LocalContext.current
-    Button(onClick = {ctx.onClick()}, enabled = enabled, modifier = modifier.padding(PaddingValues(4.dp))) {
+    Button(onClick = { ctx.onClick() }, enabled = enabled, modifier = modifier.padding(PaddingValues(4.dp))) {
         Text(text = text)
     }
 }

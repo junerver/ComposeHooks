@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 @Composable
 fun LoadingDelay() {
     Surface {
-        Container("loadingDelay",OptionFunc.LoadingDelay)
+        Container("loadingDelay", OptionFunc.LoadingDelay)
     }
 }
-

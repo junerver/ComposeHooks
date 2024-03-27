@@ -40,7 +40,7 @@ fun DividerSpacer() {
 enum class OptionFunc {
     LoadingDelay,
     Debounce,
-    Throttle
+    Throttle,
 }
 
 @Composable

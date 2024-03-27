@@ -11,8 +11,8 @@ import androidx.compose.runtime.Composable
  * Version: v1.0
  */
 @Composable
-fun Throttle(){
+fun Throttle() {
     Surface {
-        Container("throttled",OptionFunc.Throttle)
+        Container("throttled", OptionFunc.Throttle)
     }
 }

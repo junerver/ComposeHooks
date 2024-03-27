@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
 @Composable
 fun Debounce() {
     Surface {
-        Container("debounced",OptionFunc.Debounce)
+        Container("debounced", OptionFunc.Debounce)
     }
 }
-
