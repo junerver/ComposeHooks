@@ -1,30 +1,65 @@
 <templateSet group="hooks">
-    <template name="ur"
-        description="useRequest"
-        toReformat="false" toShortenFQNames="true" value="val ($data$, $loading$, $error$, $run$, $mutate$, $refresh$, $cancel$) = useRequest(&#10;    requestFn = $request$,&#10;    optionsOf {&#10;        defaultParams = arrayOf($1$, $2$)&#10;    })">
-        <variable name="data" alwaysStopAt="true" defaultValue="&quot;data&quot;" expression="" />
-        <variable name="loading" alwaysStopAt="true" defaultValue="&quot;loading&quot;"
-            expression="" />
-        <variable name="error" alwaysStopAt="true" defaultValue="&quot;error&quot;" expression="" />
-        <variable name="run" alwaysStopAt="true" defaultValue="&quot;run&quot;" expression="" />
-        <variable name="mutate" alwaysStopAt="true" defaultValue="&quot;mutate&quot;"
-            expression="" />
-        <variable name="refresh" alwaysStopAt="true" defaultValue="&quot;refresh&quot;"
-            expression="" />
-        <variable name="cancel" alwaysStopAt="true" defaultValue="&quot;cancel&quot;"
-            expression="" />
-        <variable name="request" alwaysStopAt="true" defaultValue="" expression="" />
-        <variable name="1" alwaysStopAt="true" defaultValue="" expression="" />
-        <variable name="2" alwaysStopAt="true" defaultValue="" expression="" />
+    <template name="ur" value="val ($data$, $loading$, $error$, $run$, $mutate$, $refresh$, $cancel$) = useRequest(&#10;    requestFn = $request$,&#10;    optionsOf {&#10;        defaultParams = arrayOf($1$, $2$)&#10;    })" description="useRequest" toReformat="false" toShortenFQNames="true">
+        <variable name="data" expression="" defaultValue="&quot;data&quot;" alwaysStopAt="true" />
+        <variable name="loading" expression="" defaultValue="&quot;loading&quot;" alwaysStopAt="true" />
+        <variable name="error" expression="" defaultValue="&quot;error&quot;" alwaysStopAt="true" />
+        <variable name="run" expression="" defaultValue="&quot;run&quot;" alwaysStopAt="true" />
+        <variable name="mutate" expression="" defaultValue="&quot;mutate&quot;" alwaysStopAt="true" />
+        <variable name="refresh" expression="" defaultValue="&quot;refresh&quot;" alwaysStopAt="true" />
+        <variable name="cancel" expression="" defaultValue="&quot;cancel&quot;" alwaysStopAt="true" />
+        <variable name="request" expression="" defaultValue="" alwaysStopAt="true" />
+        <variable name="1" expression="" defaultValue="" alwaysStopAt="true" />
+        <variable name="2" expression="" defaultValue="" alwaysStopAt="true" />
         <context>
             <option name="KOTLIN" value="true" />
         </context>
     </template>
-    <template name="us" description="useState"
-        toReformat="false" toShortenFQNames="true" value="val ($state$, set$State$) = useState($default$)">
-        <variable name="state" alwaysStopAt="true" defaultValue="&quot;state&quot;" expression="" />
-        <variable name="State" alwaysStopAt="true" defaultValue="capitalize(state)" expression="" />
-        <variable name="default" alwaysStopAt="true" defaultValue="" expression="" />
+    <template name="us" value="val ($state$, set$State$) = useState($default$)" description="useState" toReformat="false" toShortenFQNames="true">
+        <variable name="state" expression="" defaultValue="&quot;state&quot;" alwaysStopAt="true" />
+        <variable name="State" expression="" defaultValue="capitalize(state)" alwaysStopAt="true" />
+        <variable name="default" expression="" defaultValue="" alwaysStopAt="true" />
+        <context>
+            <option name="KOTLIN" value="true" />
+        </context>
+    </template>
+    <template name="ulr" value="val $state$Ref = useLatestRef($state$)" description="useLatestRef" toReformat="false" toShortenFQNames="true">
+        <variable name="state" expression="" defaultValue="" alwaysStopAt="true" />
+        <context>
+            <option name="KOTLIN_STATEMENT" value="true" />
+        </context>
+    </template>
+    <template name="uup" value="val update = useUpdate()" description="useUpdate" toReformat="false" toShortenFQNames="true">
+        <context>
+            <option name="KOTLIN_STATEMENT" value="true" />
+        </context>
+    </template>
+    <template name="utg" value="val (state, toggle) = useToggle($default$)" description="useToggle" toReformat="false" toShortenFQNames="true">
+        <variable name="default" expression="" defaultValue="" alwaysStopAt="true" />
+        <context>
+            <option name="KOTLIN_STATEMENT" value="true" />
+        </context>
+    </template>
+    <template name="uun" value="val (state, set, reset, undo, redo, canUndo, canRedo) = useUndo(initialPresent = &quot;&quot;)" description="useUndo" toReformat="false" toShortenFQNames="true">
+        <context>
+            <option name="KOTLIN_STATEMENT" value="true" />
+        </context>
+    </template>
+    <template name="bus" value="var $state$ by useState($1$)" description="by useState" toReformat="false" toShortenFQNames="true">
+        <variable name="state" expression="" defaultValue="" alwaysStopAt="true" />
+        <variable name="1" expression="" defaultValue="" alwaysStopAt="true" />
+        <context>
+            <option name="KOTLIN_STATEMENT" value="true" />
+        </context>
+    </template>
+    <template name="uls" value="val latest$state$ by useLatestState($stateRef$)" description="useLatestState" toReformat="false" toShortenFQNames="true">
+        <variable name="state" expression="capitalize(state)" defaultValue="" alwaysStopAt="true" />
+        <variable name="stateRef" expression="" defaultValue="" alwaysStopAt="true" />
+        <context>
+            <option name="KOTLIN_STATEMENT" value="true" />
+        </context>
+    </template>
+    <template name="ued" value="useEffect($deps$) {&#10;&#10;}" description="useEffect" toReformat="false" toShortenFQNames="true">
+        <variable name="deps" expression="" defaultValue="clipboard()" alwaysStopAt="true" />
         <context>
             <option name="KOTLIN" value="true" />
         </context>
