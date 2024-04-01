@@ -135,6 +135,7 @@ private fun TodoItem(item: Todo) {
 private fun SimpleDataContainer() {
     Column {
         SubSimpleDataStateText()
+        SubSimpleDataStateText2()
         Spacer(modifier = Modifier.height(10.dp))
         SubSimpleDataDispatch()
     }
@@ -142,8 +143,14 @@ private fun SimpleDataContainer() {
 
 @Composable
 private fun SubSimpleDataStateText() {
-    val state = useSelector<OtherData>()
-    Text(text = "User: $state")
+    val name = useSelector<OtherData,String>{ name }
+    Text(text = "User Name: $name")
+}
+
+@Composable
+private fun SubSimpleDataStateText2() {
+    val age = useSelector<OtherData,String>{ "age : $age" }
+    Text(text = "User $age")
 }
 
 @Composable
