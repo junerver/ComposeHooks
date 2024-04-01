@@ -1,6 +1,7 @@
 $dokka.format:html-v1
 $dokka.linkExtension:html
 $dokka.location:xyz.junerver.compose.hooks.ext////PointingToDeclaration/hooks/xyz.junerver.compose.hooks.ext/index.html
+$dokka.location:xyz.junerver.compose.hooks.ext//px/androidx.compose.ui.unit.Dp#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.ext/px.html
 $dokka.location:xyz.junerver.compose.hooks.ext//toColor/kotlin.String#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.ext/to-color.html
 $dokka.location:xyz.junerver.compose.hooks.useform////PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useform/index.html
 $dokka.location:xyz.junerver.compose.hooks.useform//Form/#xyz.junerver.compose.hooks.useform.FormInstance#kotlin.Function1[xyz.junerver.compose.hooks.useform.FormScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useform/-form.html
@@ -54,6 +55,19 @@ $dokka.location:xyz.junerver.compose.hooks.usenetwork/NetworkState///PointingToD
 $dokka.location:xyz.junerver.compose.hooks.usenetwork/NetworkState/NetworkState/#kotlin.Boolean#xyz.junerver.compose.hooks.usenetwork.ConnectType/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usenetwork/-network-state/-network-state.html
 $dokka.location:xyz.junerver.compose.hooks.usenetwork/NetworkState/connectType/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usenetwork/-network-state/connect-type.html
 $dokka.location:xyz.junerver.compose.hooks.usenetwork/NetworkState/isConnect/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usenetwork/-network-state/is-connect.html
+$dokka.location:xyz.junerver.compose.hooks.useredux////PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/index.html
+$dokka.location:xyz.junerver.compose.hooks.useredux//ReduxContext/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-redux-context.html
+$dokka.location:xyz.junerver.compose.hooks.useredux//ReduxProvider/#kotlin.collections.Map[kotlin.reflect.KClass[*],kotlin.Triple[kotlin.Function2[kotlin.Any,kotlin.Any,kotlin.Any],kotlin.Any,kotlin.reflect.KClass[*]]]#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-redux-provider.html
+$dokka.location:xyz.junerver.compose.hooks.useredux//createStore/#kotlin.Function1[xyz.junerver.compose.hooks.useredux.StoreScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/create-store.html
+$dokka.location:xyz.junerver.compose.hooks.useredux//useDispatch/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/use-dispatch.html
+$dokka.location:xyz.junerver.compose.hooks.useredux//useSelector/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/use-selector.html
+$dokka.location:xyz.junerver.compose.hooks.useredux/Store///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store/index.html
+$dokka.location:xyz.junerver.compose.hooks.useredux/StoreScope.Companion///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store-scope/-companion/index.html
+$dokka.location:xyz.junerver.compose.hooks.useredux/StoreScope.Companion/getInstance/#kotlin.collections.MutableMap[kotlin.reflect.KClass[*],kotlin.Triple[kotlin.Function2[kotlin.Any,kotlin.Any,kotlin.Any],kotlin.Any,kotlin.reflect.KClass[*]]]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store-scope/-companion/get-instance.html
+$dokka.location:xyz.junerver.compose.hooks.useredux/StoreScope///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store-scope/index.html
+$dokka.location:xyz.junerver.compose.hooks.useredux/StoreScope/add/#kotlin.Pair[kotlin.Function2[TypeParam(bounds=[kotlin.Any]),TypeParam(bounds=[kotlin.Any]),TypeParam(bounds=[kotlin.Any])],TypeParam(bounds=[kotlin.Any])]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store-scope/add.html
+$dokka.location:xyz.junerver.compose.hooks.useredux/StoreScope/map/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store-scope/map.html
+$dokka.location:xyz.junerver.compose.hooks.useredux/StoreScope/with/kotlin.Function2[TypeParam(bounds=[kotlin.Any]),TypeParam(bounds=[kotlin.Any]),TypeParam(bounds=[kotlin.Any])]#TypeParam(bounds=[kotlin.Any])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store-scope/with.html
 $dokka.location:xyz.junerver.compose.hooks.userequest.plugins////PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest.plugins/index.html
 $dokka.location:xyz.junerver.compose.hooks.userequest.plugins//useAutoRunPlugin/#xyz.junerver.compose.hooks.userequest.RequestOptions[TypeParam(bounds=[kotlin.Any])]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest.plugins/use-auto-run-plugin.html
 $dokka.location:xyz.junerver.compose.hooks.userequest.plugins//useCachePlugin/#xyz.junerver.compose.hooks.userequest.RequestOptions[TypeParam(bounds=[kotlin.Any])]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest.plugins/use-cache-plugin.html
@@ -436,6 +450,7 @@ xyz.junerver.compose.hooks
 xyz.junerver.compose.hooks.ext
 xyz.junerver.compose.hooks.useform
 xyz.junerver.compose.hooks.usenetwork
+xyz.junerver.compose.hooks.useredux
 xyz.junerver.compose.hooks.userequest
 xyz.junerver.compose.hooks.userequest.plugins
 xyz.junerver.compose.hooks.userequest.utils
