@@ -17,6 +17,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import xyz.junerver.compose.hooks.useredux.ReduxProvider
+import xyz.junerver.composehooks.example.store
 import xyz.junerver.composehooks.route.routes
 import xyz.junerver.composehooks.route.useNavigate
 import xyz.junerver.composehooks.route.useRoutes
@@ -27,12 +29,14 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             ComposeHooksTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = MaterialTheme.colorScheme.background
-                ) {
-                    useRoutes(routes = routes)
+                // provide store for all components
+                ReduxProvider(store = store) {
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
+                    ) {
+                        useRoutes(routes = routes)
+                    }
                 }
             }
         }
