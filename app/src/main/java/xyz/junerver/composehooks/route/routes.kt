@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import xyz.junerver.composehooks.HomeScreen
 import xyz.junerver.composehooks.example.UseAsyncExample
 import xyz.junerver.composehooks.example.UseBooleanExample
+import xyz.junerver.composehooks.example.UseClipboardExample
 import xyz.junerver.composehooks.example.UseContextExample
 import xyz.junerver.composehooks.example.UseCreationExample
 import xyz.junerver.composehooks.example.UseDebounceExample
@@ -45,6 +46,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useRequest" to { UseRequestExample() },
     "useAsync" to { UseAsyncExample() },
     "useBoolean" to { UseBooleanExample() },
+    "useClipboard" to { UseClipboardExample() },
     "useContext" to { UseContextExample() },
     "useCreation" to { UseCreationExample() },
     "useDebounce" to { UseDebounceExample() },
