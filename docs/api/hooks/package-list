@@ -60,10 +60,12 @@ $dokka.location:xyz.junerver.compose.hooks.useredux//ReduxContext/#/PointingToDe
 $dokka.location:xyz.junerver.compose.hooks.useredux//ReduxProvider/#kotlin.collections.Map[kotlin.reflect.KClass[*],kotlin.Triple[kotlin.Function2[kotlin.Any,kotlin.Any,kotlin.Any],kotlin.Any,kotlin.reflect.KClass[*]]]#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-redux-provider.html
 $dokka.location:xyz.junerver.compose.hooks.useredux//createStore/#kotlin.Function1[xyz.junerver.compose.hooks.useredux.StoreScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/create-store.html
 $dokka.location:xyz.junerver.compose.hooks.useredux//useDispatch/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/use-dispatch.html
+$dokka.location:xyz.junerver.compose.hooks.useredux//useDispatchAsync/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/use-dispatch-async.html
 $dokka.location:xyz.junerver.compose.hooks.useredux//useSelector/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/use-selector.html
+$dokka.location:xyz.junerver.compose.hooks.useredux//useSelector/#kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/use-selector.html
+$dokka.location:xyz.junerver.compose.hooks.useredux/DispatchAsync///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-dispatch-async/index.html
 $dokka.location:xyz.junerver.compose.hooks.useredux/Store///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store/index.html
 $dokka.location:xyz.junerver.compose.hooks.useredux/StoreScope.Companion///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store-scope/-companion/index.html
-$dokka.location:xyz.junerver.compose.hooks.useredux/StoreScope.Companion/getInstance/#kotlin.collections.MutableMap[kotlin.reflect.KClass[*],kotlin.Triple[kotlin.Function2[kotlin.Any,kotlin.Any,kotlin.Any],kotlin.Any,kotlin.reflect.KClass[*]]]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store-scope/-companion/get-instance.html
 $dokka.location:xyz.junerver.compose.hooks.useredux/StoreScope///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store-scope/index.html
 $dokka.location:xyz.junerver.compose.hooks.useredux/StoreScope/add/#kotlin.Pair[kotlin.Function2[TypeParam(bounds=[kotlin.Any]),TypeParam(bounds=[kotlin.Any]),TypeParam(bounds=[kotlin.Any])],TypeParam(bounds=[kotlin.Any])]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store-scope/add.html
 $dokka.location:xyz.junerver.compose.hooks.useredux/StoreScope/map/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store-scope/map.html
@@ -330,6 +332,8 @@ $dokka.location:xyz.junerver.compose.hooks//rememberUndo/#TypeParam(bounds=[kotl
 $dokka.location:xyz.junerver.compose.hooks//rememberUnmount/#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-unmount.html
 $dokka.location:xyz.junerver.compose.hooks//synthesisParametersAndCheck/#kotlin.Any?#kotlin.Array[kotlin.Any?]#kotlin.reflect.KFunction[TypeParam(bounds=[kotlin.Any?])?]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/synthesis-parameters-and-check.html
 $dokka.location:xyz.junerver.compose.hooks//undoReducer/#xyz.junerver.compose.hooks.UndoState[TypeParam(bounds=[kotlin.Any?])]#xyz.junerver.compose.hooks.UndoAction/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/undo-reducer.html
+$dokka.location:xyz.junerver.compose.hooks//useAsync/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-async.html
+$dokka.location:xyz.junerver.compose.hooks//useAsync/#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-async.html
 $dokka.location:xyz.junerver.compose.hooks//useBackToFrontEffect/#kotlin.Array[kotlin.Any?]#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-back-to-front-effect.html
 $dokka.location:xyz.junerver.compose.hooks//useBoolean/#kotlin.Boolean/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-boolean.html
 $dokka.location:xyz.junerver.compose.hooks//useContext/#xyz.junerver.compose.hooks.ReactContext[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-context.html
@@ -379,6 +383,7 @@ $dokka.location:xyz.junerver.compose.hooks//useUndo/#TypeParam(bounds=[kotlin.An
 $dokka.location:xyz.junerver.compose.hooks//useUnmount/#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-unmount.html
 $dokka.location:xyz.junerver.compose.hooks//useUpdate/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-update.html
 $dokka.location:xyz.junerver.compose.hooks//useUpdateEffect/#kotlin.Array[kotlin.Any?]#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-update-effect.html
+$dokka.location:xyz.junerver.compose.hooks/AsyncRunFn///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-async-run-fn/index.html
 $dokka.location:xyz.junerver.compose.hooks/Debounce///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-debounce/index.html
 $dokka.location:xyz.junerver.compose.hooks/Debounce/Debounce/#kotlin.Function1[kotlin.Array[kotlin.Any?],kotlin.Unit]#kotlinx.coroutines.CoroutineScope#xyz.junerver.compose.hooks.DebounceOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-debounce/-debounce.html
 $dokka.location:xyz.junerver.compose.hooks/Debounce/fn/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-debounce/fn.html
