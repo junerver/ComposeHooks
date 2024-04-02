@@ -10,10 +10,7 @@ import xyz.junerver.compose.hooks.useContext
  * @return
  */
 @Composable
-inline fun <reified T> useSelector(): T {
-    val map = useContext(context = ReduxContext)
-    return map.first[T::class] as T
-}
+inline fun <reified T> useSelector(): T = useContext(context = ReduxContext).first[T::class] as T
 
 /**
  * Use selector, by pass [block], you can also select part of state

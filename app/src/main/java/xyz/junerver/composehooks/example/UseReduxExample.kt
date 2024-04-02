@@ -67,9 +67,9 @@ fun UseReduxExample() {
                 .padding(20.dp)
         ) {
             SimpleDataContainer()
-            Divider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp))
+            Divider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 20.dp))
             TodosListContainer()
-            Divider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp))
+            Divider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 20.dp))
             UseReduxFetch()
         }
     }
