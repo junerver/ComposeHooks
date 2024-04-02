@@ -26,7 +26,4 @@ inline fun <reified T> useSelector(): T {
  * @receiver
  */
 @Composable
-inline fun <reified T, R> useSelector(block: T.() -> R): R {
-    val map = useContext(context = ReduxContext)
-    return (map.first[T::class] as T).run(block)
-}
+inline fun <reified T, R> useSelector(block: T.() -> R) = useSelector<T>().run(block)

@@ -2,6 +2,7 @@ package xyz.junerver.composehooks.route
 
 import androidx.compose.runtime.Composable
 import xyz.junerver.composehooks.HomeScreen
+import xyz.junerver.composehooks.example.UseAsyncExample
 import xyz.junerver.composehooks.example.UseBooleanExample
 import xyz.junerver.composehooks.example.UseContextExample
 import xyz.junerver.composehooks.example.UseCreationExample
@@ -41,8 +42,8 @@ import xyz.junerver.composehooks.example.UseUpdateExample
  */
 val routes = mapOf<String, @Composable () -> Unit>(
     "/" to { HomeScreen() },
-    "useNetwork" to { UseNetworkExample() },
     "useRequest" to { UseRequestExample() },
+    "useAsync" to { UseAsyncExample() },
     "useBoolean" to { UseBooleanExample() },
     "useContext" to { UseContextExample() },
     "useCreation" to { UseCreationExample() },
@@ -55,6 +56,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useList" to { UseListExample() },
     "useMap" to { UseMapExample() },
     "useMount" to { UseMountExample() },
+    "useNetwork" to { UseNetworkExample() },
     "useNow" to { UseNowExample() },
     "useNumber" to { UseNumberExample() },
     "usePrevious" to { UsePreviousExample() },

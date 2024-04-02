@@ -14,36 +14,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.random.Random
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
 import xyz.junerver.compose.hooks.Reducer
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.useredux.createStore
 import xyz.junerver.compose.hooks.useredux.useDispatch
+import xyz.junerver.compose.hooks.useredux.useDispatchAsync
 import xyz.junerver.compose.hooks.useredux.useSelector
 import xyz.junerver.composehooks.MainActivity
 import xyz.junerver.composehooks.ui.component.TButton
-
-/**
- * Description:
- *
- * @author Junerver date: 2024/3/11-9:56 Email: junerver@gmail.com Version:
- *     v1.0
- */
-data class OtherData(
-    val name: String,
-    val age: Int,
-)
-
-sealed interface OtherAction {
-    data class ChangeName(val newName: String) : OtherAction
-    data object AgeIncrease : OtherAction
-}
-
-val otherReducer: Reducer<OtherData, OtherAction> = { prevState: OtherData, action: OtherAction ->
-    when (action) {
-        is OtherAction.ChangeName -> prevState.copy(name = action.newName)
-        is OtherAction.AgeIncrease -> prevState.copy(age = prevState.age + 1)
-    }
-}
 
 data class Todo(val name: String, val id: String)
 
@@ -63,7 +43,7 @@ val todoReducer: Reducer<List<Todo>, TodoAction> = { prevState: List<Todo>, acti
 }
 
 val store = createStore {
-    otherReducer with OtherData("default", 18)
+    simpleReducer with SimpleData("default", 18)
     todoReducer with emptyList()
 }
 
@@ -75,13 +55,14 @@ fun UseReduxExample() {
     Surface {
         Column {
             SimpleDataContainer()
-            Divider(modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp))
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            )
             TodosListContainer()
         }
     }
-
 }
 
 @Composable
@@ -90,7 +71,6 @@ private fun TodosListContainer() {
         Header()
         TodoList()
     }
-
 }
 
 @Composable
@@ -110,7 +90,7 @@ private fun Header() {
     Row {
         OutlinedTextField(
             value = input,
-            onValueChange = setInput,
+            onValueChange = setInput
         )
         TButton(text = "add") {
             dispatch(AddTodo(Todo(input, NanoId.generate())))
@@ -118,7 +98,6 @@ private fun Header() {
         }
     }
 }
-
 
 @Composable
 private fun TodoItem(item: Todo) {
@@ -143,27 +122,36 @@ private fun SimpleDataContainer() {
 
 @Composable
 private fun SubSimpleDataStateText() {
-    val name = useSelector<OtherData,String>{ name }
+    val name = useSelector<SimpleData, String> { name }
     Text(text = "User Name: $name")
 }
 
 @Composable
 private fun SubSimpleDataStateText2() {
-    val age = useSelector<OtherData,String>{ "age : $age" }
+    val age = useSelector<SimpleData, String> { "age : $age" }
     Text(text = "User $age")
 }
 
 @Composable
 private fun SubSimpleDataDispatch() {
     val (input, setInput) = useState("")
-    val dispatch = useDispatch<OtherAction>()
+    val dispatch = useDispatch<SimpleAction>()
+    val asyncDispatch = useDispatchAsync<SimpleAction>()
     Column {
         OutlinedTextField(value = input, onValueChange = setInput)
-        TButton(text = "changeName") {
-            dispatch(OtherAction.ChangeName(input))
+        Row {
+            TButton(text = "changeName") {
+                dispatch(SimpleAction.ChangeName(input))
+            }
+            TButton(text = "Async changeName") {
+                asyncDispatch {
+                    delay(1.seconds)
+                    SimpleAction.ChangeName(input)
+                }
+            }
         }
         TButton(text = "+1") {
-            dispatch(OtherAction.AgeIncrease)
+            dispatch(SimpleAction.AgeIncrease)
         }
     }
 }

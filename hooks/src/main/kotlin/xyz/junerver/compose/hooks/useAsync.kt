@@ -35,7 +35,7 @@ typealias AsyncRunFn = (suspend CoroutineScope.() -> Unit) -> Unit
 fun useAsync(): AsyncRun {
     val scope = rememberCoroutineScope()
     val async = remember {
-        AsyncRun( scope)
+        AsyncRun(scope)
     }
     return async
 }

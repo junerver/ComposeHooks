@@ -34,7 +34,3 @@ fun ReduxProvider(store: Store, content: @Composable () -> Unit) {
         content()
     }
 }
-
-
-
-
