@@ -11,10 +11,12 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.Reducer
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.useredux.createStore
@@ -41,6 +43,9 @@ val todoReducer: Reducer<List<Todo>, TodoAction> = { prevState: List<Todo>, acti
         is DelTodo -> prevState.filter { it.id != action.id }
     }
 }
+val fetchReducer: Reducer<NetFetchResult, NetFetchResult> = { _, action ->
+    action
+}
 
 /**
  * 通过使用[createStore]函数创建状态存储对象
@@ -50,6 +55,7 @@ val todoReducer: Reducer<List<Todo>, TodoAction> = { prevState: List<Todo>, acti
 val store = createStore {
     simpleReducer with SimpleData("default", 18)
     todoReducer with emptyList()
+    fetchReducer with NetFetchResult.Idle
 }
 
 @Composable
@@ -61,10 +67,10 @@ fun UseReduxExample() {
                 .padding(20.dp)
         ) {
             SimpleDataContainer()
-            Divider(
-                modifier = Modifier.fillMaxWidth()
-            )
+            Divider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp))
             TodosListContainer()
+            Divider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp))
+            UseReduxFetch()
         }
     }
 }
@@ -173,8 +179,13 @@ private fun SubSimpleDataDispatch() {
     Column {
         OutlinedTextField(value = input, onValueChange = setInput)
         Row {
+            val scope = rememberCoroutineScope()
             TButton(text = "changeName") {
-                dispatch(SimpleAction.ChangeName(input))
+                scope.launch {
+                    // 异步任务
+                    delay(1.seconds)
+                    dispatch(SimpleAction.ChangeName(input))
+                }
             }
             TButton(text = "Async changeName") {
                 asyncDispatch {
@@ -185,6 +196,30 @@ private fun SubSimpleDataDispatch() {
         }
         TButton(text = "+1") {
             dispatch(SimpleAction.AgeIncrease)
+        }
+    }
+}
+
+sealed interface NetFetchResult {
+    data class Success(val data: String, val code: Int) : NetFetchResult
+    data class Error(val msg: Throwable) : NetFetchResult
+    data object Idle : NetFetchResult
+    data object Loading : NetFetchResult
+}
+
+
+@Composable
+fun UseReduxFetch() {
+    val fetchResult: NetFetchResult = useSelector()
+    val dispatchAsync = useDispatchAsync<NetFetchResult>()
+    Column {
+        Text(text = "result: $fetchResult")
+        TButton(text = "fetch") {
+            dispatchAsync {
+                delay(2.seconds)
+                //网络请求结果
+                NetFetchResult.Success("success", 200)
+            }
         }
     }
 }
