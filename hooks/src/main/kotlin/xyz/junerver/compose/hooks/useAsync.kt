@@ -32,7 +32,7 @@ typealias AsyncRunFn = (suspend CoroutineScope.() -> Unit) -> Unit
  * @return
  */
 @Composable
-fun useAsync(): AsyncRun {
+fun useAsync(): AsyncRunFn {
     val scope = rememberCoroutineScope()
     val async = remember {
         AsyncRun(scope)
@@ -40,7 +40,7 @@ fun useAsync(): AsyncRun {
     return async
 }
 
-class Async(
+internal class Async(
     var fn: suspend CoroutineScope.() -> Unit,
     private val scope: CoroutineScope,
 ) : () -> Unit {
@@ -49,7 +49,7 @@ class Async(
     }
 }
 
-class AsyncRun(
+internal class AsyncRun(
     private val scope: CoroutineScope,
 ) : AsyncRunFn {
     override fun invoke(p1: suspend CoroutineScope.() -> Unit) {

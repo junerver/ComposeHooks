@@ -13,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import xyz.junerver.compose.hooks.Reducer
@@ -24,6 +23,7 @@ import xyz.junerver.compose.hooks.useredux.useDispatchAsync
 import xyz.junerver.compose.hooks.useredux.useSelector
 import xyz.junerver.composehooks.MainActivity
 import xyz.junerver.composehooks.ui.component.TButton
+import xyz.junerver.composehooks.utils.NanoId
 
 data class Todo(val name: String, val id: String)
 
@@ -42,6 +42,11 @@ val todoReducer: Reducer<List<Todo>, TodoAction> = { prevState: List<Todo>, acti
     }
 }
 
+/**
+ * 通过使用[createStore]函数创建状态存储对象
+ *
+ * Create a state store object by using the [createStore] function
+ */
 val store = createStore {
     simpleReducer with SimpleData("default", 18)
     todoReducer with emptyList()
@@ -49,16 +54,15 @@ val store = createStore {
 
 @Composable
 fun UseReduxExample() {
-    /**
-     * store provide by root component,see at [MainActivity]
-     */
+    /** store provide by root component,see at [MainActivity] */
     Surface {
-        Column {
+        Column(
+            modifier = Modifier
+                .padding(20.dp)
+        ) {
             SimpleDataContainer()
             Divider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
+                modifier = Modifier.fillMaxWidth()
             )
             TodosListContainer()
         }
@@ -75,6 +79,12 @@ private fun TodosListContainer() {
 
 @Composable
 fun TodoList() {
+    /**
+     * 通过[useSelector]函数可以快速获取 store 中保存的对应的状态对象；
+     *
+     * The corresponding state object saved in the store can be quickly
+     * obtained through the [useSelector] function;
+     */
     val todos = useSelector<List<Todo>>()
     Column {
         todos.map {
@@ -85,6 +95,12 @@ fun TodoList() {
 
 @Composable
 private fun Header() {
+    /**
+     * 通过[useDispatch]可以快速获取对应Action的 dispatch 函数
+     *
+     * You can quickly obtain the dispatch function corresponding to the Action
+     * through [useDispatch]
+     */
     val dispatch = useDispatch<TodoAction>()
     val (input, setInput) = useState("")
     Row {
@@ -122,6 +138,13 @@ private fun SimpleDataContainer() {
 
 @Composable
 private fun SubSimpleDataStateText() {
+    /**
+     * 使用[useSelector]的另一个重载，你可以轻松的对状态进行变形，或者只取状态对象的部分属性作为你要关注的状态；
+     *
+     * Using another overload of [use Selector], you can easily transform the
+     * state, or only take some attributes of the state object as the state you
+     * want to focus on;
+     */
     val name = useSelector<SimpleData, String> { name }
     Text(text = "User Name: $name")
 }
@@ -136,6 +159,16 @@ private fun SubSimpleDataStateText2() {
 private fun SubSimpleDataDispatch() {
     val (input, setInput) = useState("")
     val dispatch = useDispatch<SimpleAction>()
+
+    /**
+     * 使用[useDispatchAsync]你可以活动一个异步的dispatch函数，它允许你在当前组件的协程中执行异步操作，
+     * 异步函数的返回值是Action。
+     *
+     * Using [useDispatchAsync] you can activate an asynchronous dispatch
+     * function, which allows you to perform asynchronous operations in the
+     * coroutine of the current component. The return value of the asynchronous
+     * function is Action.
+     */
     val asyncDispatch = useDispatchAsync<SimpleAction>()
     Column {
         OutlinedTextField(value = input, onValueChange = setInput)
@@ -153,18 +186,5 @@ private fun SubSimpleDataDispatch() {
         TButton(text = "+1") {
             dispatch(SimpleAction.AgeIncrease)
         }
-    }
-}
-
-object NanoId {
-    private const val ALPHABET = "_~0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    private const val DEFAULT_SIZE = 8
-    fun generate(size: Int = DEFAULT_SIZE): String {
-        val builder = StringBuilder(size)
-        repeat(size) {
-            val randomIndex = Random.nextInt(ALPHABET.length)
-            builder.append(ALPHABET[randomIndex])
-        }
-        return builder.toString()
     }
 }
