@@ -55,7 +55,12 @@ val fetchReducer: Reducer<NetFetchResult, NetFetchResult> = { _, action ->
 val store = createStore {
     simpleReducer with SimpleData("default", 18)
     todoReducer with emptyList()
-    fetchReducer with NetFetchResult.Idle
+    named("fetch1") {
+        fetchReducer with NetFetchResult.Idle
+    }
+    named("fetch2") {
+        fetchReducer with NetFetchResult.Idle
+    }
 }
 
 @Composable
@@ -67,10 +72,18 @@ fun UseReduxExample() {
                 .padding(20.dp)
         ) {
             SimpleDataContainer()
-            Divider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 20.dp))
+            Divider(modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp, bottom = 20.dp))
             TodosListContainer()
-            Divider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 20.dp))
+            Divider(modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp, bottom = 20.dp))
             UseReduxFetch()
+            Divider(modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 20.dp, bottom = 20.dp))
+            UseReduxFetch2()
         }
     }
 }
@@ -201,7 +214,7 @@ private fun SubSimpleDataDispatch() {
 }
 
 sealed interface NetFetchResult {
-    data class Success(val data: String, val code: Int) : NetFetchResult
+    data class Success<T>(val data: T, val code: Int) : NetFetchResult
     data class Error(val msg: Throwable) : NetFetchResult
     data object Idle : NetFetchResult
     data object Loading : NetFetchResult
@@ -210,8 +223,8 @@ sealed interface NetFetchResult {
 
 @Composable
 fun UseReduxFetch() {
-    val fetchResult: NetFetchResult = useSelector()
-    val dispatchAsync = useDispatchAsync<NetFetchResult>()
+    val fetchResult: NetFetchResult = useSelector("fetch1")
+    val dispatchAsync = useDispatchAsync<NetFetchResult>("fetch1")
     Column {
         Text(text = "result: $fetchResult")
         TButton(text = "fetch") {
@@ -219,6 +232,22 @@ fun UseReduxFetch() {
                 delay(2.seconds)
                 //网络请求结果
                 NetFetchResult.Success("success", 200)
+            }
+        }
+    }
+}
+
+@Composable
+fun UseReduxFetch2() {
+    val fetchResult: NetFetchResult = useSelector("fetch2")
+    val dispatchAsync = useDispatchAsync<NetFetchResult>("fetch2")
+    Column {
+        Text(text = "result: $fetchResult")
+        TButton(text = "fetch2") {
+            dispatchAsync {
+                delay(2.seconds)
+                //网络请求结果
+                NetFetchResult.Success(SimpleData("Tony Stark", 53), 200)
             }
         }
     }

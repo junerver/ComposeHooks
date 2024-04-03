@@ -6,10 +6,18 @@ import xyz.junerver.compose.hooks.Dispatch
 import xyz.junerver.compose.hooks._useState
 import xyz.junerver.compose.hooks.createContext
 import xyz.junerver.compose.hooks.useMap
+import xyz.junerver.kotlin.Tuple3
+import xyz.junerver.kotlin.plus
 
 /** Redux context */
 val ReduxContext =
-    createContext<Pair<Map<KClass<*>, Any>, Map<KClass<*>, Dispatch<Any>>>>(Pair(mapOf(), mapOf()))
+    createContext<
+        Tuple3<
+            Map<KClass<*>, Any>,
+            Map<KClass<*>, Dispatch<Any>>,
+            Map<String, Pair<Any, Dispatch<Any>>>
+            >
+        >(Tuple3(mapOf(), mapOf(), mapOf()))
 
 /**
  * Redux provider, you should provide a state store to this Provider by use [createStore]
@@ -22,15 +30,19 @@ val ReduxContext =
 fun ReduxProvider(store: Store, content: @Composable () -> Unit) {
     val stateMap: MutableMap<KClass<*>, Any> = useMap()
     val dispatchMap: MutableMap<KClass<*>, Dispatch<Any>> = useMap()
-    if (store.entries.isNotEmpty()) {
-        for (entry in store.entries) {
-            val (state, setState) = _useState(entry.value.second)
-            val reducer = entry.value.first
-            stateMap[entry.key] = state
-            dispatchMap[entry.value.third] = { action: Any -> setState(reducer(state, action)) }
+    // alias - state\dispatch
+    val aliasMap: MutableMap<String, Pair<Any, Dispatch<Any>>> = useMap()
+    if (store.isNotEmpty()) {
+        for (entry in store) {
+            val (state, setState) = _useState(entry.second)
+            val reducer = entry.first
+            val dispatch = { action: Any -> setState(reducer(state, action)) }
+            stateMap[entry.third] = state
+            dispatchMap[entry.fourth] = dispatch
+            aliasMap[entry.fifth] = state to dispatch
         }
     }
-    ReduxContext.Provider(value = stateMap to dispatchMap) {
+    ReduxContext.Provider(value = (stateMap to dispatchMap) + aliasMap) {
         content()
     }
 }

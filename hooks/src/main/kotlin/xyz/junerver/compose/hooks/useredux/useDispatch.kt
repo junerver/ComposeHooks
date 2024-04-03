@@ -14,8 +14,9 @@ import xyz.junerver.compose.hooks.useContext
  * @return
  */
 @Composable
-inline fun <reified A> useDispatch(): Dispatch<A> =
-    useContext(context = ReduxContext).second[A::class] as Dispatch<A>
+inline fun <reified A> useDispatch(alias: String? = null): Dispatch<A> =
+    alias?.let { useContext(context = ReduxContext).third[alias]!!.second as Dispatch<A> }
+        ?: useContext(context = ReduxContext).second[A::class] as Dispatch<A>
 
 typealias DispatchAsync<A> = (block: suspend CoroutineScope.() -> A) -> Unit
 
@@ -29,8 +30,8 @@ typealias DispatchAsync<A> = (block: suspend CoroutineScope.() -> A) -> Unit
  * @receiver
  */
 @Composable
-inline fun <reified A> useDispatchAsync(): DispatchAsync<A> {
-    val dispatch: Dispatch<A> = useDispatch()
+inline fun <reified A> useDispatchAsync(alias: String? = null): DispatchAsync<A> {
+    val dispatch: Dispatch<A> = useDispatch(alias)
     val asyncRun = useAsync()
     return { block ->
         asyncRun {
