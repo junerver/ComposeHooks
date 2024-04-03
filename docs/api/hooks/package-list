@@ -59,6 +59,7 @@ $dokka.location:xyz.junerver.compose.hooks.useredux////PointingToDeclaration/ho
 $dokka.location:xyz.junerver.compose.hooks.useredux//ReduxContext/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-redux-context.html
 $dokka.location:xyz.junerver.compose.hooks.useredux//ReduxProvider/#kotlin.collections.List[xyz.junerver.kotlin.Quintuple[kotlin.Function2[kotlin.Any,kotlin.Any,kotlin.Any],kotlin.Any,kotlin.reflect.KClass[*],kotlin.reflect.KClass[*],kotlin.String]]#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-redux-provider.html
 $dokka.location:xyz.junerver.compose.hooks.useredux//createStore/#kotlin.Function1[xyz.junerver.compose.hooks.useredux.StoreScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/create-store.html
+$dokka.location:xyz.junerver.compose.hooks.useredux//registerErr/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/register-err.html
 $dokka.location:xyz.junerver.compose.hooks.useredux//useDispatch/#kotlin.String?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/use-dispatch.html
 $dokka.location:xyz.junerver.compose.hooks.useredux//useDispatchAsync/#kotlin.String?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/use-dispatch-async.html
 $dokka.location:xyz.junerver.compose.hooks.useredux//useSelector/#kotlin.String?#kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/use-selector.html
