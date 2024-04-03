@@ -55,11 +55,10 @@ val fetchReducer: Reducer<NetFetchResult, NetFetchResult> = { _, action ->
 val store = createStore {
     simpleReducer with SimpleData("default", 18)
     todoReducer with emptyList()
-    named("fetch1") {
-        fetchReducer with NetFetchResult.Idle
-    }
-    named("fetch2") {
-        fetchReducer with NetFetchResult.Idle
+    arrayOf("fetch1","fetch2").forEach {
+        named(it) {
+            fetchReducer with NetFetchResult.Idle
+        }
     }
 }
 
@@ -229,6 +228,7 @@ fun UseReduxFetch() {
         Text(text = "result: $fetchResult")
         TButton(text = "fetch") {
             dispatchAsync {
+                it(NetFetchResult.Loading)
                 delay(2.seconds)
                 //网络请求结果
                 NetFetchResult.Success("success", 200)
@@ -245,6 +245,7 @@ fun UseReduxFetch2() {
         Text(text = "result: $fetchResult")
         TButton(text = "fetch2") {
             dispatchAsync {
+                it(NetFetchResult.Loading)
                 delay(2.seconds)
                 //网络请求结果
                 NetFetchResult.Success(SimpleData("Tony Stark", 53), 200)

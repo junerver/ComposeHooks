@@ -20,7 +20,7 @@ inline fun <reified A> useDispatch(alias: String? = null): Dispatch<A> =
     }
         ?: useContext(context = ReduxContext).second[A::class] as? Dispatch<A> ?: registerErr()
 
-typealias DispatchAsync<A> = (block: suspend CoroutineScope.() -> A) -> Unit
+typealias DispatchAsync<A> = (block: suspend CoroutineScope.(Dispatch<A>) -> A) -> Unit
 
 /**
  * Get a dispatch function that supports asynchronous execution. This
@@ -37,7 +37,7 @@ inline fun <reified A> useDispatchAsync(alias: String? = null): DispatchAsync<A>
     val asyncRun = useAsync()
     return { block ->
         asyncRun {
-            dispatch(block())
+            dispatch(block(dispatch))
         }
     }
 }
