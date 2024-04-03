@@ -39,7 +39,6 @@ class StoreScope private constructor(val list: MutableList<Tuple5<Reducer<Any, A
 
     object NamedScope {
         inline infix fun <reified T : Any, reified A : Any> Reducer<T, A>.with(state: T): Pair<Reducer<T, A>, T> {
-            println("create named pair！")
             return Pair(this@with, state)
         }
     }
@@ -68,4 +67,8 @@ fun createStore(fn: StoreScope.() -> Unit): Store {
     val list = mutableListOf<Tuple5<Reducer<Any, Any>, Any, KClass<*>, KClass<*>, String>>()
     StoreScope.getInstance(list).fn()
     return list
+}
+
+fun registerErr():Nothing {
+   error("Please confirm that you have correctly registered in `createStore`!")
 }
