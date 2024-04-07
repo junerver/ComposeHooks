@@ -21,23 +21,30 @@ inline fun <reified A> useDispatch(alias: String? = null): Dispatch<A> =
         ?: useContext(context = ReduxContext).second[A::class] as? Dispatch<A> ?: registerErr()
 
 typealias DispatchAsync<A> = (block: suspend CoroutineScope.(Dispatch<A>) -> A) -> Unit
+private typealias DispatchCallback<A> = (Dispatch<A>) -> Unit
 
 /**
  * Get a dispatch function that supports asynchronous execution. This
  * function receives a suspend function whose return value is Action as a
  * parameter.
  *
- * @param block
- * @param A
- * @receiver
+ * @param alias
+ * @param onBefore
+ * @param onFinally
  */
 @Composable
-inline fun <reified A> useDispatchAsync(alias: String? = null): DispatchAsync<A> {
+inline fun <reified A> useDispatchAsync(
+    alias: String? = null,
+    noinline onBefore: DispatchCallback<A>? = null,
+    noinline onFinally: DispatchCallback<A>? = null,
+): DispatchAsync<A> {
     val dispatch: Dispatch<A> = useDispatch(alias)
     val asyncRun = useAsync()
     return { block ->
+        onBefore?.invoke(dispatch)
         asyncRun {
             dispatch(block(dispatch))
         }
+        onFinally?.invoke(dispatch)
     }
 }

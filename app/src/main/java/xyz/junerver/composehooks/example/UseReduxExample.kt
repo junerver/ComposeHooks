@@ -15,6 +15,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.Reducer
@@ -24,6 +25,8 @@ import xyz.junerver.compose.hooks.useredux.useDispatch
 import xyz.junerver.compose.hooks.useredux.useDispatchAsync
 import xyz.junerver.compose.hooks.useredux.useSelector
 import xyz.junerver.composehooks.MainActivity
+import xyz.junerver.composehooks.net.NetApi
+import xyz.junerver.composehooks.net.bean.UserInfo
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.composehooks.utils.NanoId
 
@@ -213,7 +216,7 @@ private fun SubSimpleDataDispatch() {
 }
 
 sealed interface NetFetchResult {
-    data class Success<T>(val data: T, val code: Int) : NetFetchResult
+    data class Success<T>(val data: T) : NetFetchResult
     data class Error(val msg: Throwable) : NetFetchResult
     data object Idle : NetFetchResult
     data object Loading : NetFetchResult
@@ -223,15 +226,13 @@ sealed interface NetFetchResult {
 @Composable
 fun UseReduxFetch() {
     val fetchResult: NetFetchResult = useSelector("fetch1")
-    val dispatchAsync = useDispatchAsync<NetFetchResult>("fetch1")
+    val dispatchFetch = useFetch<String>("fetch1")
     Column {
         Text(text = "result: $fetchResult")
         TButton(text = "fetch") {
-            dispatchAsync {
-                it(NetFetchResult.Loading)
+            dispatchFetch {
                 delay(2.seconds)
-                //网络请求结果
-                NetFetchResult.Success("success", 200)
+                error("fetch error")
             }
         }
     }
@@ -240,15 +241,29 @@ fun UseReduxFetch() {
 @Composable
 fun UseReduxFetch2() {
     val fetchResult: NetFetchResult = useSelector("fetch2")
-    val dispatchAsync = useDispatchAsync<NetFetchResult>("fetch2")
+    val dispatchFetch = useFetch<UserInfo>("fetch2")
     Column {
         Text(text = "result: $fetchResult")
         TButton(text = "fetch2") {
-            dispatchAsync {
-                it(NetFetchResult.Loading)
-                delay(2.seconds)
-                //网络请求结果
-                NetFetchResult.Success(SimpleData("Tony Stark", 53), 200)
+            dispatchFetch {
+                NetApi.SERVICE.userInfo("junerver")
+            }
+        }
+    }
+}
+
+
+typealias ReduxFetch<T> = (block: suspend CoroutineScope.() -> T) -> Unit
+
+@Composable
+inline fun <reified T> useFetch(alias: String): ReduxFetch<T> {
+    val dispatchAsync=  useDispatchAsync<NetFetchResult>(alias, onBefore = { it(NetFetchResult.Loading) })
+    return { block ->
+        dispatchAsync{
+            try {
+                NetFetchResult.Success(block())
+            } catch (t: Throwable) {
+                NetFetchResult.Error(t)
             }
         }
     }
