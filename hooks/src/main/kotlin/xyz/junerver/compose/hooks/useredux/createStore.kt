@@ -69,6 +69,6 @@ fun createStore(fn: StoreScope.() -> Unit): Store {
     return list
 }
 
-fun registerErr():Nothing {
-   error("Please confirm that you have correctly registered in `createStore`!")
+fun registerErr(): Nothing {
+    error("Please confirm that you have correctly registered in `createStore`!")
 }

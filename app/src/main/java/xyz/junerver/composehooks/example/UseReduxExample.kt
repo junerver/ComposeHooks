@@ -58,7 +58,7 @@ val fetchReducer: Reducer<NetFetchResult, NetFetchResult> = { _, action ->
 val store = createStore {
     simpleReducer with SimpleData("default", 18)
     todoReducer with emptyList()
-    arrayOf("fetch1","fetch2").forEach {
+    arrayOf("fetch1", "fetch2").forEach {
         named(it) {
             fetchReducer with NetFetchResult.Idle
         }
@@ -74,17 +74,23 @@ fun UseReduxExample() {
                 .padding(20.dp)
         ) {
             SimpleDataContainer()
-            Divider(modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 20.dp, bottom = 20.dp))
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 20.dp, bottom = 20.dp)
+            )
             TodosListContainer()
-            Divider(modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 20.dp, bottom = 20.dp))
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 20.dp, bottom = 20.dp)
+            )
             UseReduxFetch()
-            Divider(modifier = Modifier
-                .fillMaxWidth()
-                .padding(top = 20.dp, bottom = 20.dp))
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 20.dp, bottom = 20.dp)
+            )
             UseReduxFetch2()
         }
     }
@@ -222,7 +228,6 @@ sealed interface NetFetchResult {
     data object Loading : NetFetchResult
 }
 
-
 @Composable
 fun UseReduxFetch() {
     val fetchResult: NetFetchResult = useSelector("fetch1")
@@ -252,14 +257,14 @@ fun UseReduxFetch2() {
     }
 }
 
-
 typealias ReduxFetch<T> = (block: suspend CoroutineScope.() -> T) -> Unit
 
 @Composable
-inline fun <reified T> useFetch(alias: String): ReduxFetch<T> {
-    val dispatchAsync=  useDispatchAsync<NetFetchResult>(alias, onBefore = { it(NetFetchResult.Loading) })
+fun <T> useFetch(alias: String): ReduxFetch<T> {
+    val dispatchAsync =
+        useDispatchAsync<NetFetchResult>(alias, onBefore = { it(NetFetchResult.Loading) })
     return { block ->
-        dispatchAsync{
+        dispatchAsync {
             try {
                 NetFetchResult.Success(block())
             } catch (t: Throwable) {
