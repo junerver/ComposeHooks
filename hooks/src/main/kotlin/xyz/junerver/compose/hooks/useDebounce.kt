@@ -25,8 +25,8 @@ import kotlinx.coroutines.launch
 
 data class DebounceOptions internal constructor(
     var wait: Duration = 1.seconds, // 防抖间隔
-    var leading: Boolean = true, // true：第一次点击保障执行且不延时
-    var trailing: Boolean = true, // false 则只取消事件。true 则添加一次延时任务
+    var leading: Boolean = false, // 是否在延迟开始前调用函数
+    var trailing: Boolean = true, // 是否在延迟开始后调用函数
     var maxWait: Duration = 0.seconds, // 最大等待时长，防抖超过该时长则不再拦截
 ) {
     companion object : Options<DebounceOptions>(::DebounceOptions)

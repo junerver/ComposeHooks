@@ -5,7 +5,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 
 /**
- * Description:
+ * Description: DP <=> Pixels
  * @author Junerver
  * date: 2024/3/28-9:14
  * Email: junerver@gmail.com
@@ -13,3 +13,6 @@ import androidx.compose.ui.unit.Dp
  */
 inline val Dp.px: Float
     @Composable get() = with(LocalDensity.current) { this@px.toPx() }
+
+inline val Int.px2dp: Dp
+    @Composable get() = with(LocalDensity.current) { this@px2dp.toDp() }

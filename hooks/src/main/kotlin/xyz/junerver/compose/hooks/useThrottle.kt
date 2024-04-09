@@ -24,8 +24,8 @@ import kotlinx.coroutines.launch
  */
 data class ThrottleOptions internal constructor(
     var wait: Duration = 1.seconds, // 节流时长
-    var leading: Boolean = true, // true：第一个任务是不延时
-    var trailing: Boolean = true, // true：将最后一次点击添加到延时任务中
+    var leading: Boolean = true, // 是否在延迟开始前调用函数
+    var trailing: Boolean = true, // 是否在延迟开始后调用函数
 ) {
     companion object : Options<ThrottleOptions>(::ThrottleOptions)
 }
