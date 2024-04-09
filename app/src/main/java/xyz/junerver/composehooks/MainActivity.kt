@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.useredux.ReduxProvider
 import xyz.junerver.composehooks.example.store
 import xyz.junerver.composehooks.route.routes
+import xyz.junerver.composehooks.route.subRequestRoutes
 import xyz.junerver.composehooks.route.useNavigate
 import xyz.junerver.composehooks.route.useRoutes
 import xyz.junerver.composehooks.ui.theme.ComposeHooksTheme
@@ -35,7 +36,7 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background
                     ) {
-                        useRoutes(routes = routes)
+                        useRoutes(routes = routes + subRequestRoutes)
                     }
                 }
             }

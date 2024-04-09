@@ -2,6 +2,7 @@ package xyz.junerver.composehooks.route
 
 import androidx.compose.runtime.Composable
 import xyz.junerver.composehooks.HomeScreen
+import xyz.junerver.composehooks.example.RequestExampleList
 import xyz.junerver.composehooks.example.UseAsyncExample
 import xyz.junerver.composehooks.example.UseBooleanExample
 import xyz.junerver.composehooks.example.UseClipboardExample
@@ -23,7 +24,6 @@ import xyz.junerver.composehooks.example.UsePreviousExample
 import xyz.junerver.composehooks.example.UseReducerExample
 import xyz.junerver.composehooks.example.UseReduxExample
 import xyz.junerver.composehooks.example.UseRefExample
-import xyz.junerver.composehooks.example.UseRequestExample
 import xyz.junerver.composehooks.example.UseSensorExample
 import xyz.junerver.composehooks.example.UseStateExample
 import xyz.junerver.composehooks.example.UseThrottleExample
@@ -33,6 +33,18 @@ import xyz.junerver.composehooks.example.UseToggleExample
 import xyz.junerver.composehooks.example.UseUndoExample
 import xyz.junerver.composehooks.example.UseUpdateEffectExample
 import xyz.junerver.composehooks.example.UseUpdateExample
+import xyz.junerver.composehooks.example.request.AutoManual
+import xyz.junerver.composehooks.example.request.Cancel
+import xyz.junerver.composehooks.example.request.Debounce
+import xyz.junerver.composehooks.example.request.DepsRefresh
+import xyz.junerver.composehooks.example.request.ErrorRetry
+import xyz.junerver.composehooks.example.request.Lifecycle
+import xyz.junerver.composehooks.example.request.LoadingDelay
+import xyz.junerver.composehooks.example.request.Mutate
+import xyz.junerver.composehooks.example.request.Polling
+import xyz.junerver.composehooks.example.request.Ready
+import xyz.junerver.composehooks.example.request.Refresh
+import xyz.junerver.composehooks.example.request.Throttle
 
 /**
  * Description:
@@ -43,7 +55,7 @@ import xyz.junerver.composehooks.example.UseUpdateExample
  */
 val routes = mapOf<String, @Composable () -> Unit>(
     "/" to { HomeScreen() },
-    "useRequest" to { UseRequestExample() },
+    "useRequest" to { RequestExampleList() },
     "useAsync" to { UseAsyncExample() },
     "useBoolean" to { UseBooleanExample() },
     "useClipboard" to { UseClipboardExample() },
@@ -75,4 +87,20 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useUnmount" to { UseMountExample() },
     "useUpdate" to { UseUpdateExample() },
     "useUpdateEffect" to { UseUpdateEffectExample() }
+)
+
+val subRequestRoutes = mapOf<String, @Composable () -> Unit>(
+    "auto&manual" to { AutoManual() },
+    "lifecycle" to { Lifecycle() },
+    "refresh" to { Refresh() },
+    "mutate" to { Mutate() },
+    "cancel" to { Cancel() },
+    "loadingDelay" to { LoadingDelay() },
+    "polling" to { Polling() },
+    "ready" to { Ready() },
+    "depsRefresh" to { DepsRefresh() },
+    "debounce" to { Debounce() },
+    "throttle" to { Throttle() },
+    "cache&swr" to { TODO() },
+    "errorRetry" to { ErrorRetry() }
 )
