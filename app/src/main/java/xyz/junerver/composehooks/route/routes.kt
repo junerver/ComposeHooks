@@ -20,6 +20,7 @@ import xyz.junerver.composehooks.example.UseMountExample
 import xyz.junerver.composehooks.example.UseNetworkExample
 import xyz.junerver.composehooks.example.UseNowExample
 import xyz.junerver.composehooks.example.UseNumberExample
+import xyz.junerver.composehooks.example.UsePersistentExample
 import xyz.junerver.composehooks.example.UsePreviousExample
 import xyz.junerver.composehooks.example.UseReducerExample
 import xyz.junerver.composehooks.example.UseReduxExample
@@ -73,6 +74,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useNetwork" to { UseNetworkExample() },
     "useNow" to { UseNowExample() },
     "useNumber" to { UseNumberExample() },
+    "usePersistent" to { UsePersistentExample() },
     "usePrevious" to { UsePreviousExample() },
     "useReducer" to { UseReducerExample() },
     "useRedux" to { UseReduxExample() },
