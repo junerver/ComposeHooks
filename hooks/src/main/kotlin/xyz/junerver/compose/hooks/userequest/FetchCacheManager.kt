@@ -21,9 +21,9 @@ import xyz.junerver.kotlin.tuple
  * Email: junerver@gmail.com
  * Version: v1.0
  */
-typealias DataCache = Tuple2<CachedData<*>, Long>
+private typealias DataCache = Tuple2<CachedData<*>, Long>
 
-object FetchCacheManager : CoroutineScope {
+internal object FetchCacheManager : CoroutineScope {
 
     // 如果你看过协程的官方文档或视频。你应该会知道Job和SupervisorJob的一个区别是，Job的子协程发生异常被取消会同时取消Job的其它子协程，而SupervisorJob不会。
     override val coroutineContext: CoroutineContext

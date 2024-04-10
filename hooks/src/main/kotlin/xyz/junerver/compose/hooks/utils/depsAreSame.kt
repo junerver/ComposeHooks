@@ -9,7 +9,7 @@ import xyz.junerver.compose.hooks.DependencyList
  * Email: junerver@gmail.com
  * Version: v1.0
  */
-fun depsAreSame(oldDeps: DependencyList, deps: DependencyList): Boolean {
+internal fun depsAreSame(oldDeps: DependencyList, deps: DependencyList): Boolean {
     // 如果数组长度不同，说明不相同
     if (oldDeps.size != deps.size) {
         return false

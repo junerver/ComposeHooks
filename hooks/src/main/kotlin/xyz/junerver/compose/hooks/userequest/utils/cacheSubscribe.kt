@@ -7,7 +7,7 @@ package xyz.junerver.compose.hooks.userequest.utils
  * Email: junerver@gmail.com
  * Version: v1.0
  */
-typealias CachedDataChangeListener = (data: Data) -> Unit
+private typealias CachedDataChangeListener = (data: RestoreFetchStateData) -> Unit
 
 /**
  * 缓存回调，key-listener列表，同一个 cacheKey 可以有多个回调函数。
@@ -17,7 +17,7 @@ private val listeners: MutableMap<String, MutableList<CachedDataChangeListener>>
 /**
  * 用于触发缓存回调的网络请求数据缓存，同时缓存了 [loading]、[error]、[data]
  */
-data class Data(
+internal data class RestoreFetchStateData(
     val loading: Boolean? = null,
     val error: Throwable? = null,
     val data: Any? = null,
@@ -26,7 +26,7 @@ data class Data(
 /**
  * 触发初测在缓存回调map[listeners]中的回调函数
  */
-internal fun trigger(key: String, data: Data) {
+internal fun trigger(key: String, data: RestoreFetchStateData) {
     if (listeners.containsKey(key)) {
         listeners[key]?.forEach { item -> item(data) }
     }

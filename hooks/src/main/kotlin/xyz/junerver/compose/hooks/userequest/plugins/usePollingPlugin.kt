@@ -27,7 +27,7 @@ import xyz.junerver.kotlin.tuple
  * Email: junerver@gmail.com
  * Version: v1.0
  */
-class PollingPlugin<TData : Any> : Plugin<TData>() {
+private class PollingPlugin<TData : Any> : Plugin<TData>() {
     // 已经重试计数
     var currentRetryCount = 0
 
@@ -112,7 +112,7 @@ class PollingPlugin<TData : Any> : Plugin<TData>() {
 }
 
 @Composable
-fun <T : Any> usePollingPlugin(options: RequestOptions<T>): Plugin<T> {
+internal fun <T : Any> usePollingPlugin(options: RequestOptions<T>): Plugin<T> {
     if (options.pollingInterval == 0.milliseconds) {
         return useEmptyPlugin()
     }

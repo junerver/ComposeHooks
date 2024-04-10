@@ -22,7 +22,7 @@ import xyz.junerver.compose.hooks.userequest.PluginLifecycle
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
-import xyz.junerver.compose.hooks.userequest.utils.Data
+import xyz.junerver.compose.hooks.userequest.utils.RestoreFetchStateData
 import xyz.junerver.compose.hooks.userequest.utils.getCachePromise
 import xyz.junerver.compose.hooks.userequest.utils.setCachePromise
 import xyz.junerver.compose.hooks.userequest.utils.subscribe
@@ -38,7 +38,7 @@ import xyz.junerver.kotlin.tuple
  * Email: junerver@gmail.com
  * Version: v1.0
  */
-class CachePlugin<TData : Any> : Plugin<TData>() {
+private class CachePlugin<TData : Any> : Plugin<TData>() {
 
     lateinit var unSubscribeRef: Ref<(() -> Unit)?>
     lateinit var currentPromiseRef: Ref<Deferred<*>?>
@@ -90,7 +90,7 @@ class CachePlugin<TData : Any> : Plugin<TData>() {
                 override val onRequest: ((requestFn: SuspendNormalFunction<TData>, params: TParams) -> OnRequestReturn<TData>?)
                     get() = onRequest@{ requestFn, param ->
                         var servicePromise: Deferred<TData>? = getCachePromise(cacheKey)
-                        trigger(cacheKey, Data(loading = true))
+                        trigger(cacheKey, RestoreFetchStateData(loading = true))
 
                         // 如果已经发起过请求，则直接从缓存中返回之前请求的 Deferred
                         // 这样可以让同时发出的两个请求，共用同一个
@@ -127,7 +127,7 @@ class CachePlugin<TData : Any> : Plugin<TData>() {
                             unSubscribeRef.current?.invoke()
                             trigger(
                                 cacheKey,
-                                Data(
+                                RestoreFetchStateData(
                                     error = e,
                                     loading = false
                                 )
@@ -167,7 +167,7 @@ class CachePlugin<TData : Any> : Plugin<TData>() {
         }
     }
 
-    fun setFetchState(data: Data) {
+    fun setFetchState(data: RestoreFetchStateData) {
         fetchInstance.setState(
             buildMap {
                 if (data.loading.isNotNull) this[Keys.loading] = data.loading
@@ -179,7 +179,7 @@ class CachePlugin<TData : Any> : Plugin<TData>() {
 }
 
 @Composable
-fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
+internal fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
     val (cacheKey, cacheTime, customSetCache, customGetCache) = with(options) {
         tuple(cacheKey, cacheTime, setCache, getCache)
     }
@@ -194,7 +194,7 @@ fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
         }
         trigger(
             key,
-            Data(
+            RestoreFetchStateData(
                 data = cachedData.data,
                 loading = false,
                 error = null

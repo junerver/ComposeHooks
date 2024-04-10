@@ -32,7 +32,7 @@ data class DebounceOptions internal constructor(
     companion object : Options<DebounceOptions>(::DebounceOptions)
 }
 
-class Debounce(
+internal class Debounce(
     var fn: VoidFunction,
     private val scope: CoroutineScope,
     private val options: DebounceOptions = defaultOption(),

@@ -6,8 +6,8 @@ import androidx.compose.ui.text.AnnotatedString
 import xyz.junerver.kotlin.Tuple2
 import xyz.junerver.kotlin.tuple
 
-typealias CopyFn = (String) -> Unit
-typealias PasteFn = () -> String
+internal typealias CopyFn = (String) -> Unit
+internal typealias PasteFn = () -> String
 
 @Composable
 fun useClipboard(): Tuple2<CopyFn, PasteFn> {

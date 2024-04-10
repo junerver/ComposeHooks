@@ -18,7 +18,7 @@ import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
  * Email: junerver@gmail.com
  * Version: v1.0
  */
-class DebouncePlugin<TData : Any> : Plugin<TData>() {
+private class DebouncePlugin<TData : Any> : Plugin<TData>() {
     override val invoke: GenPluginLifecycleFn<TData>
         get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
             if (requestOptions.debounceOptions.wait > 0.seconds) {
@@ -44,7 +44,7 @@ class DebouncePlugin<TData : Any> : Plugin<TData>() {
 }
 
 @Composable
-fun <T : Any> useDebouncePlugin(options: RequestOptions<T>): Plugin<T> {
+internal fun <T : Any> useDebouncePlugin(options: RequestOptions<T>): Plugin<T> {
     if (options.debounceOptions.wait == 0.seconds) {
         return useEmptyPlugin()
     }

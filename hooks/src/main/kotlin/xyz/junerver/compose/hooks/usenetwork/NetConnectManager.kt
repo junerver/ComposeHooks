@@ -34,7 +34,7 @@ sealed class ConnectType(val value: Int) {
     }
 }
 
-object NetConnectManager {
+internal object NetConnectManager {
 
     private var mConnectivityManager: ConnectivityManager? = null
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -218,5 +218,5 @@ object NetConnectManager {
     }
 }
 
-typealias NetTypeChangeListener = (type: ConnectType) -> Unit
-typealias NetStatusChangeListener = (isAvailable: Boolean) -> Unit
+internal typealias NetTypeChangeListener = (type: ConnectType) -> Unit
+internal typealias NetStatusChangeListener = (isAvailable: Boolean) -> Unit

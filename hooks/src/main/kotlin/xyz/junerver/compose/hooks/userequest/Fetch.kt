@@ -15,7 +15,6 @@ import xyz.junerver.compose.hooks.SuspendVoidFunction
 import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.VoidFunction
 import xyz.junerver.compose.hooks.defaultOption
-import xyz.junerver.compose.hooks.userequest.plugins.AutoRunPlugin
 import xyz.junerver.compose.hooks.userequest.utils.awaitPlus
 
 /**
@@ -131,7 +130,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
         val (stopNow, returnNow) = onBeforeReturn
         val state = onBeforeReturn.asFetchStateMap()
         /**
-         * [AutoRunPlugin] 中的 [AutoRunPlugin.ready] 可以阻止请求
+         * [xyz.junerver.compose.hooks.userequest.plugins.AutoRunPlugin] 中的 [xyz.junerver.compose.hooks.userequest.plugins.AutoRunPlugin.ready] 可以阻止请求
          */
         if (stopNow!!) return@coroutineScope
         // 使用缓存插件可以直接返回缓存的内容，而不需要发起真实请求

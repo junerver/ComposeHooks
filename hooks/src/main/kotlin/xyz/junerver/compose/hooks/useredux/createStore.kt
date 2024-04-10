@@ -7,7 +7,7 @@ import xyz.junerver.kotlin.Tuple5
 /**
  * tuple: reducer \ initState \ state type \action type\ alias
  */
-typealias Store = List<
+internal typealias Store = List<
     Tuple5<
         Reducer<Any, Any>,
         Any,

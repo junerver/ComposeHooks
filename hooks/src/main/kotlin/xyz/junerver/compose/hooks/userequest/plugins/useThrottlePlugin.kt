@@ -18,7 +18,7 @@ import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
  * Email: junerver@gmail.com
  * Version: v1.0
  */
-class ThrottlePlugin<TData : Any> : Plugin<TData>() {
+private class ThrottlePlugin<TData : Any> : Plugin<TData>() {
 
     override val invoke: GenPluginLifecycleFn<TData>
         get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
@@ -46,7 +46,7 @@ class ThrottlePlugin<TData : Any> : Plugin<TData>() {
 }
 
 @Composable
-fun <T : Any> useThrottlePlugin(options: RequestOptions<T>): Plugin<T> {
+internal fun <T : Any> useThrottlePlugin(options: RequestOptions<T>): Plugin<T> {
     if (options.throttleOptions.wait == 0.seconds) {
         return useEmptyPlugin()
     }

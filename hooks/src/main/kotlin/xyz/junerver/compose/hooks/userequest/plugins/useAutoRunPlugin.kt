@@ -24,7 +24,7 @@ import xyz.junerver.kotlin.runIf
  * Version: v1.0
  */
 
-class AutoRunPlugin<TData : Any> : Plugin<TData>() {
+private class AutoRunPlugin<TData : Any> : Plugin<TData>() {
     /**
      * [ready]是动态值，可以通过外部副作用修改传递
      */
@@ -72,7 +72,7 @@ class AutoRunPlugin<TData : Any> : Plugin<TData>() {
  * 钩子应该返回两个值，一个是plugin自身，方便调用init函数，另一个是pluginreturn，用来调用周期得methods
  */
 @Composable
-fun <T : Any> useAutoRunPlugin(options: RequestOptions<T>): Plugin<T> {
+internal fun <T : Any> useAutoRunPlugin(options: RequestOptions<T>): Plugin<T> {
     val (manual, ready, defaultParams, refreshDeps, refreshDepsAction) = with(options) {
         (manual to ready) + defaultParams + refreshDeps + refreshDepsAction
     }

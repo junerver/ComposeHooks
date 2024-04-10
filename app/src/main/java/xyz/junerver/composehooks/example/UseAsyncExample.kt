@@ -6,7 +6,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
-import xyz.junerver.compose.hooks.AsyncRunFn
 import xyz.junerver.compose.hooks.useAsync
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.composehooks.ui.component.TButton
@@ -27,7 +26,7 @@ fun UseAsyncExample() {
         setState(state + 1)
     }
 
-    /** 如果不传递参数，则使用另一个重载，返回值是[AsyncRunFn] */
+    /** 如果不传递参数，则使用另一个重载，返回值是[xyz.junerver.compose.hooks.AsyncRunFn] */
     val asyncRun = useAsync()
 
     Surface {

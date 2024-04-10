@@ -19,14 +19,14 @@ data class UndoState<T>(
     var future: List<T> = emptyList(),
 )
 
-sealed interface UndoAction
-internal data object Undo : UndoAction
-internal data object Redo : UndoAction
-internal data class Set<S>(val payload: S) : UndoAction
-internal data class Reset<S>(val payload: S) : UndoAction
+private sealed interface UndoAction
+private data object Undo : UndoAction
+private data object Redo : UndoAction
+private data class Set<S>(val payload: S) : UndoAction
+private data class Reset<S>(val payload: S) : UndoAction
 
 @Suppress("UNCHECKED_CAST")
-fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoState<T> {
+private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoState<T> {
     val (past, present, future) = preState
     return when (action) {
         // 撤销

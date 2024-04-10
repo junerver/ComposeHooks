@@ -3,7 +3,6 @@ package xyz.junerver.compose.hooks
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import kotlinx.coroutines.CoroutineScope
 
 /**
  * Description:
@@ -14,5 +13,5 @@ import kotlinx.coroutines.CoroutineScope
  */
 @SuppressLint("ComposableNaming")
 @Composable
-fun useEffect(vararg deps: Any?, block: suspend CoroutineScope.() -> Unit) =
+fun useEffect(vararg deps: Any?, block: SuspendAsyncFn) =
     LaunchedEffect(keys = deps, block = block)

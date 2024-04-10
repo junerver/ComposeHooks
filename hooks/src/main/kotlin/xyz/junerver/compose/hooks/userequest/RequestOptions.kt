@@ -17,10 +17,10 @@ import xyz.junerver.compose.hooks.userequest.utils.CachedData
  * Email: junerver@gmail.com
  * Version: v1.0
  */
-typealias OnBeforeCallback = (TParams) -> Unit
-typealias OnSuccessCallback<TData> = (TData?, TParams) -> Unit
-typealias OnErrorCallback = (Throwable, TParams) -> Unit
-typealias OnFinallyCallback<TData> = (TParams, TData?, Throwable?) -> Unit
+internal typealias OnBeforeCallback = (TParams) -> Unit
+internal typealias OnSuccessCallback<TData> = (TData?, TParams) -> Unit
+internal typealias OnErrorCallback = (Throwable, TParams) -> Unit
+internal typealias OnFinallyCallback<TData> = (TParams, TData?, Throwable?) -> Unit
 
 data class RequestOptions<TData> internal constructor(
     /**

@@ -1,4 +1,4 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.utils
 
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.createType
@@ -27,7 +27,7 @@ import kotlin.reflect.full.isSubtypeOf
  *
  *
  */
-fun checkIsLegalParameters(fn: KFunction<*>, vararg params: Any?) {
+internal fun checkIsLegalParameters(fn: KFunction<*>, vararg params: Any?) {
     require(fn.parameters.size == params.size) {
         "Number of fn:${fn.name} parameters does not match. Expected: ${fn.parameters.size}, Actual: ${params.size}"
     }

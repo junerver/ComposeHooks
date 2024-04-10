@@ -16,7 +16,7 @@ import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.userequest.plugins.useAutoRunPlugin
 import xyz.junerver.kotlin.isNotNull
 
-object Keys {
+internal object Keys {
     const val loading = "loading"
     const val params = "params"
     const val data = "data"
@@ -34,7 +34,7 @@ object Keys {
  * Email: junerver@gmail.com
  * Version: v1.0
  */
-sealed interface Copyable<Self> {
+internal sealed interface Copyable<Self> {
     /**
      * [copy]函数是为了通过[reduce]实现类似js中解构赋值覆盖的效果，注意实现时必须是[that]覆盖[this]:
      * `params = that.params ?: this.params,`
@@ -46,7 +46,7 @@ sealed interface Copyable<Self> {
 /**
  * 可覆盖对象列表的覆盖实现
  */
-fun <T : Copyable<T>> List<T>.cover(): T? {
+internal fun <T : Copyable<T>> List<T>.cover(): T? {
     return this.takeIf { it.isNotEmpty() }?.reduce { acc, fetchState -> acc + fetchState }
 }
 
@@ -54,7 +54,7 @@ fun <T : Copyable<T>> List<T>.cover(): T? {
  * map中如果有这个key就取值，无论结果是否为null；
  * 没有这个key则取旧值
  */
-fun <T> Map<String, Any?>.getOrElse(key: String, default: T?) = if (this.containsKey(key)) {
+internal fun <T> Map<String, Any?>.getOrElse(key: String, default: T?) = if (this.containsKey(key)) {
     this[key] as? T
 } else {
     default
@@ -265,7 +265,7 @@ data class OnRequestReturn<TData>(val requestDeferred: Deferred<TData>? = null) 
  * 因为[Fetch]的相关操作要同样暴露给插件实例，所以创建一个接口，
  * 这样避免插件实例命名出错，对应调用更直白。
  */
-sealed interface IFetch<TData> {
+internal sealed interface IFetch<TData> {
 
     /**
      * 异步请求函数，调用者需要自己提供作用域，需要注意，取消也需要自己处理
@@ -400,11 +400,11 @@ internal fun <T : Any> useEmptyPlugin(): Plugin<T> {
 /**
  * 用于判断处理动作
  */
-sealed interface PluginLifecycleMethods
-data object OnBefore : PluginLifecycleMethods
-data object OnRequest : PluginLifecycleMethods
-data object OnSuccess : PluginLifecycleMethods
-data object OnError : PluginLifecycleMethods
-data object OnFinally : PluginLifecycleMethods
-data object OnCancel : PluginLifecycleMethods
-data object OnMutate : PluginLifecycleMethods
+internal sealed interface PluginLifecycleMethods
+internal data object OnBefore : PluginLifecycleMethods
+internal data object OnRequest : PluginLifecycleMethods
+internal data object OnSuccess : PluginLifecycleMethods
+internal data object OnError : PluginLifecycleMethods
+internal data object OnFinally : PluginLifecycleMethods
+internal data object OnCancel : PluginLifecycleMethods
+internal data object OnMutate : PluginLifecycleMethods

@@ -25,7 +25,7 @@ import xyz.junerver.kotlin.tuple
  * Email: junerver@gmail.com
  * Version: v1.0
  */
-class RetryPlugin<TData : Any> : Plugin<TData>() {
+private class RetryPlugin<TData : Any> : Plugin<TData>() {
     var count = 0
     var triggerByRetry = false // 触发retry标志
 
@@ -83,7 +83,7 @@ class RetryPlugin<TData : Any> : Plugin<TData>() {
 }
 
 @Composable
-fun <T : Any> useRetryPlugin(options: RequestOptions<T>): Plugin<T> {
+internal fun <T : Any> useRetryPlugin(options: RequestOptions<T>): Plugin<T> {
     if (options.retryCount == 0) {
         return useEmptyPlugin()
     }

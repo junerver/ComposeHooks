@@ -21,7 +21,6 @@ import xyz.junerver.compose.hooks.userequest.plugins.usePollingPlugin
 import xyz.junerver.compose.hooks.userequest.plugins.useRetryPlugin
 import xyz.junerver.compose.hooks.userequest.plugins.useThrottlePlugin
 import xyz.junerver.kotlin.Tuple7
-import xyz.junerver.kotlin.tuple
 
 /**
  * Description: 一个用来管理网络状态的Hook，它可以非常方便的接入到传统的 retrofit 网络请求模式中。
@@ -83,14 +82,14 @@ import xyz.junerver.kotlin.tuple
  * Email: junerver@gmail.com
  * Version: v1.0
  */
-typealias RunFn = VoidFunction
-typealias MutateFn<TData> = KFunction1<(TData?) -> TData, Unit>
-typealias RefreshFn = KFunction0<Unit>
-typealias CancelFn = KFunction0<Unit>
+private typealias RunFn = VoidFunction
+private typealias MutateFn<TData> = KFunction1<(TData?) -> TData, Unit>
+private typealias RefreshFn = KFunction0<Unit>
+private typealias CancelFn = KFunction0<Unit>
 
 @Composable
-inline fun <reified TData : Any> useRequest(
-    noinline requestFn: SuspendNormalFunction<TData>,
+fun <TData : Any> useRequest(
+    requestFn: SuspendNormalFunction<TData>,
     options: RequestOptions<TData> = defaultOption(),
     plugins: Array<@Composable (RequestOptions<TData>) -> Plugin<TData>> = emptyArray(),
 ): Tuple7<TData?, Boolean, Throwable?, RunFn, MutateFn<TData>, RefreshFn, CancelFn> {
@@ -121,7 +120,7 @@ inline fun <reified TData : Any> useRequest(
      * 这样做的好处是方便添加与变更次序，而不用每次覆写componentN函数
      */
     return with(fetch) {
-        tuple(
+        Tuple7(
             /**
              * 直接将[dataState.value]返回，避免拆包
              */
@@ -156,7 +155,7 @@ inline fun <reified TData : Any> useRequest(
 }
 
 @Composable
-fun <TData : Any> useRequestPluginsImpl(
+private fun <TData : Any> useRequestPluginsImpl(
     requestFn: SuspendNormalFunction<TData>,
     options: RequestOptions<TData> = defaultOption(),
     plugins: Array<Plugin<TData>> = emptyArray(),

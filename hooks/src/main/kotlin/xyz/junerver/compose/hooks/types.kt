@@ -3,6 +3,8 @@ package xyz.junerver.compose.hooks
 import kotlin.reflect.KFunction
 import kotlin.reflect.KFunction0
 import kotlin.reflect.full.callSuspend
+import kotlinx.coroutines.CoroutineScope
+import xyz.junerver.compose.hooks.utils.checkIsLegalParameters
 
 /**
  * Description:
@@ -13,16 +15,16 @@ import kotlin.reflect.full.callSuspend
  */
 
 // 原始函数模型 (TParams) -> TData
-typealias TParams = Array<Any?> // 原函数可变长度的参数
+internal typealias TParams = Array<Any?> // 原函数可变长度的参数
 
 // 对所有函数固定抽象
-typealias NormalFunction<TData> = (TParams) -> TData
-typealias SuspendNormalFunction<TData> = suspend (TParams) -> TData
-typealias VoidFunction = NormalFunction<Unit>
-typealias SuspendVoidFunction = SuspendNormalFunction<Unit>
+internal typealias NormalFunction<TData> = (TParams) -> TData
+internal typealias SuspendNormalFunction<TData> = suspend (TParams) -> TData
+internal typealias VoidFunction = NormalFunction<Unit>
+internal typealias SuspendVoidFunction = SuspendNormalFunction<Unit>
 
 // 最常规的函数 ()->Unit
-typealias NoParamsVoidFunction = KFunction0<Unit>
+internal typealias NoParamsVoidFunction = KFunction0<Unit>
 
 /**
  * 优化函数调用形式，将导出的函数伪装成普通函数的样子，无需对参数进行[arrayOf]，可能需要手动导包：
@@ -33,7 +35,7 @@ typealias NoParamsVoidFunction = KFunction0<Unit>
 operator fun <TData> NormalFunction<TData>.invoke(vararg params: Any?) = this(arrayOf(*params))
 operator fun VoidFunction.invoke(vararg params: Any?) = this(arrayOf(*params))
 
-typealias DependencyList = Array<out Any>
+internal typealias DependencyList = Array<out Any>
 
 /**
  * 用来将任意一个函数转换成 noop 函数。但是需要注意，如果这个函数是一个实例的函数，必须要传入对应的实例。
@@ -88,12 +90,13 @@ fun <T : Any> KFunction<T>.asSuspendNoopFn(instance: Any? = null): suspend (TPar
     return ::run
 }
 
-fun <T> synthesisParametersAndCheck(instance: Any?, params: TParams, fn: KFunction<T?>): TParams {
+internal fun <T> synthesisParametersAndCheck(instance: Any?, params: TParams, fn: KFunction<T?>): TParams {
     val finalParams = instance?.let { arrayOf(it, *params) } ?: params
     checkIsLegalParameters(fn, *finalParams)
     return finalParams
 }
 
-typealias PauseFn = KFunction0<Unit>
-typealias ResumeFn = KFunction0<Unit>
-typealias IsActive = Boolean
+internal typealias PauseFn = KFunction0<Unit>
+internal typealias ResumeFn = KFunction0<Unit>
+internal typealias IsActive = Boolean
+internal typealias SuspendAsyncFn = suspend CoroutineScope.() -> Unit

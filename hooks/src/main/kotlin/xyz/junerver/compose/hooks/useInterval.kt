@@ -35,7 +35,7 @@ data class IntervalOptions internal constructor(
     companion object : Options<IntervalOptions>(::IntervalOptions)
 }
 
-internal class Interval(private val options: IntervalOptions) {
+private class Interval(private val options: IntervalOptions) {
     /**
      * [ready]是动态值，可以通过外部副作用修改传递
      */

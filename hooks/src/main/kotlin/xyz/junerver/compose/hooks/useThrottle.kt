@@ -30,7 +30,7 @@ data class ThrottleOptions internal constructor(
     companion object : Options<ThrottleOptions>(::ThrottleOptions)
 }
 
-class Throttle(
+internal class Throttle(
     var fn: VoidFunction,
     private val scope: CoroutineScope,
     private val options: ThrottleOptions = defaultOption(),

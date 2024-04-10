@@ -24,7 +24,7 @@ import xyz.junerver.kotlin.tuple
  * Email: junerver@gmail.com
  * Version: v1.0
  */
-class LoadingDelayPlugin<TData : Any> : Plugin<TData>() {
+private class LoadingDelayPlugin<TData : Any> : Plugin<TData>() {
     /**
      * [ready]是动态值，可以通过外部副作用修改传递
      */
@@ -69,7 +69,7 @@ class LoadingDelayPlugin<TData : Any> : Plugin<TData>() {
 }
 
 @Composable
-fun <T : Any> useLoadingDelayPlugin(options: RequestOptions<T>): Plugin<T> {
+internal fun <T : Any> useLoadingDelayPlugin(options: RequestOptions<T>): Plugin<T> {
     val (loadingDelay, ready) = with(options) {
         loadingDelay to ready
     }
