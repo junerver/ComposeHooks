@@ -73,6 +73,6 @@ dependencies {
     implementation(libs.bundles.retrofit){
         exclude(group = "com.squareup.okhttp3",module = "okhttp")
     }
-
+    implementation("com.tencent:mmkv:1.3.4")
     implementation(projects.hooks)
 }

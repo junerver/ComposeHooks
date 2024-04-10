@@ -15,7 +15,7 @@ import xyz.junerver.kotlin.plus
 /**
  * pass in the key to get the persistent object
  */
-typealias PersistentGet = (String) -> Any?
+typealias PersistentGet = (String, Any) -> Any
 
 /**
  * Pass in the key, persist the object, and perform persistence
@@ -58,13 +58,13 @@ fun <T> usePersistent(key: String, defaultValue: T): PersistentHookReturn<T> {
     val unObserver = useRef(default = {})
     val update = useUpdate()
     useMount {
-       unObserver.current =  observer(key) { update() }
+        unObserver.current = observer(key) { update() }
     }
     useUnmount {
         unObserver.current()
     }
     return Tuple2(
-        first = get(key) as? T ?: defaultValue,
+        first = get(key, defaultValue as Any) as T ,
         second = { value ->
             set(key, value)
         }
@@ -87,11 +87,11 @@ private fun memorySavePersistent(key: String, value: Any?) {
     notifyDefaultPersistentObserver(key)
 }
 
-private fun memoryGetPersistent(key: String): Any? {
-    return memorySaveMap[key]
+private fun memoryGetPersistent(key: String, defaultValue: Any): Any {
+    return memorySaveMap[key] ?: defaultValue
 }
 
-private fun memoryAddObserver(key: String, observer: SavePersistentCallback): () -> Unit {
+fun memoryAddObserver(key: String, observer: SavePersistentCallback): () -> Unit {
     listener[key] ?: run { listener[key] = mutableListOf() }
     listener[key]!!.add(observer)
     return fun() {

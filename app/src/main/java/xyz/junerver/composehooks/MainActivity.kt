@@ -1,6 +1,7 @@
 package xyz.junerver.composehooks
 
 import android.os.Bundle
+import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
@@ -17,6 +18,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.tencent.mmkv.MMKV
+import xyz.junerver.compose.hooks.PersistentContext
+import xyz.junerver.compose.hooks.notifyDefaultPersistentObserver
 import xyz.junerver.compose.hooks.useredux.ReduxProvider
 import xyz.junerver.composehooks.example.store
 import xyz.junerver.composehooks.route.routes
@@ -25,6 +29,37 @@ import xyz.junerver.composehooks.route.useNavigate
 import xyz.junerver.composehooks.route.useRoutes
 import xyz.junerver.composehooks.ui.theme.ComposeHooksTheme
 
+val mmkv = MMKV.defaultMMKV()
+
+fun mmkvSave(key: String, value: Any?) {
+    when (value) {
+        is Int -> mmkv.encode(key, value)
+        is Long -> mmkv.encode(key, value)
+        is Double -> mmkv.encode(key, value)
+        is Float -> mmkv.encode(key, value)
+        is Boolean -> mmkv.encode(key, value)
+        is String -> mmkv.encode(key, value)
+        is ByteArray -> mmkv.encode(key, value)
+        is Parcelable -> mmkv.encode(key, value)
+    }
+    notifyDefaultPersistentObserver(key)
+}
+
+fun mmkvGet(key: String, value: Any): Any {
+    return when (value) {
+        is Int -> mmkv.decodeInt(key, value)
+        is Long -> mmkv.decodeLong(key, value)
+        is Double -> mmkv.decodeDouble(key, value)
+        is Float -> mmkv.decodeFloat(key, value)
+        is Boolean -> mmkv.decodeBool(key, value)
+        is String -> mmkv.decodeString(key, value)
+        is ByteArray -> mmkv.decodeBytes(key, value)
+        is Parcelable -> mmkv.decodeParcelable(key, value.javaClass)
+        else -> error("wrong type of default value！")
+    } as Any
+}
+
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,11 +67,18 @@ class MainActivity : ComponentActivity() {
             ComposeHooksTheme {
                 // provide store for all components
                 ReduxProvider(store = store) {
-                    Surface(
-                        modifier = Modifier.fillMaxSize(),
-                        color = MaterialTheme.colorScheme.background
+                    PersistentContext.Provider(
+                        value = PersistentContext.LocalCtx.current.copy(
+                            first = ::mmkvGet,
+                            second = ::mmkvSave
+                        )
                     ) {
-                        useRoutes(routes = routes + subRequestRoutes)
+                        Surface(
+                            modifier = Modifier.fillMaxSize(),
+                            color = MaterialTheme.colorScheme.background
+                        ) {
+                            useRoutes(routes = routes + subRequestRoutes)
+                        }
                     }
                 }
             }
