@@ -41,7 +41,7 @@ fun rememberDebounceFn(
 fun LaunchedDebounceEffect(
     vararg keys: Any?,
     options: DebounceOptions = defaultOption(),
-    block: () -> Unit,
+    block: SuspendAsyncFn,
 ) = useDebounceEffect(*keys, options = options, block = block)
 
 @Composable
@@ -83,7 +83,7 @@ fun rememberThrottleFn(
 fun LaunchedThrottleEffect(
     vararg keys: Any?,
     options: ThrottleOptions = defaultOption(),
-    block: () -> Unit,
+    block: SuspendAsyncFn,
 ) = useThrottleEffect(*keys, options = options, block = block)
 
 @Composable

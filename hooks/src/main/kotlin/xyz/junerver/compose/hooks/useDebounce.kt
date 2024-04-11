@@ -151,10 +151,15 @@ fun useDebounceFn(
 fun useDebounceEffect(
     vararg keys: Any?,
     options: DebounceOptions = defaultOption(),
-    block: () -> Unit,
+    block: SuspendAsyncFn,
 ) {
-    val debouncedBlock = useDebounceFn(fn = { block() }, options)
-    LaunchedEffect(*keys) {
-        debouncedBlock()
+    val debouncedBlock = useDebounceFn(fn = { params ->
+        (params[0] as CoroutineScope).launch {
+            this.block()
+        }
+    }, options)
+    val scope = rememberCoroutineScope()
+    useEffect(*keys) {
+        debouncedBlock(scope)
     }
 }

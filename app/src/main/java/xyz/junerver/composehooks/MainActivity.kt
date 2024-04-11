@@ -59,7 +59,6 @@ fun mmkvGet(key: String, value: Any): Any {
     } as Any
 }
 
-
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -121,10 +121,15 @@ fun useThrottleFn(
 fun useThrottleEffect(
     vararg keys: Any?,
     options: ThrottleOptions = defaultOption(),
-    block: () -> Unit,
+    block: SuspendAsyncFn,
 ) {
-    val throttledBlock = useThrottleFn(fn = { block() }, options)
-    LaunchedEffect(*keys) {
-        throttledBlock()
+    val throttledBlock = useThrottleFn(fn = { params ->
+        (params[0] as CoroutineScope).launch {
+            this.block()
+        }
+    }, options)
+    val scope = rememberCoroutineScope()
+    useEffect(*keys) {
+        throttledBlock(scope)
     }
 }

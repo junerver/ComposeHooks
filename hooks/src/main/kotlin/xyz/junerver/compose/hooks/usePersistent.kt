@@ -36,6 +36,7 @@ typealias PersistentObserver = (String, SavePersistentCallback) -> (() -> Unit)
  * Perform persistent save
  */
 typealias SaveToPersistent<T> = (T?) -> Unit
+
 /**
  * The final return value of the persistence hook is a tuple like [state,setState]
  */
@@ -52,6 +53,7 @@ val PersistentContext =
 @Composable
 fun <T> usePersistent(key: String, defaultValue: T): PersistentHookReturn<T> {
     val (get, set, observer) = useContext(context = PersistentContext)
+
     /**
      * By using forced recompose of components, cross-component persistence updates and refresh UI are achieved.
      */
@@ -64,7 +66,7 @@ fun <T> usePersistent(key: String, defaultValue: T): PersistentHookReturn<T> {
         unObserver.current()
     }
     return Tuple2(
-        first = get(key, defaultValue as Any) as T ,
+        first = get(key, defaultValue as Any) as T,
         second = { value ->
             set(key, value)
         }

@@ -22,11 +22,10 @@ import xyz.junerver.kotlin.hideKeyboard
  * Version: v1.0
  */
 
-
 @Composable
 fun UsePersistentExample() {
-    val (count, saveCount) = usePersistent(key = "count",-1)
-    val (token) = usePersistent(key = "token","")
+    val (count, saveCount) = usePersistent(key = "count", -1)
+    val (token) = usePersistent(key = "token", "")
     Surface {
         Column {
             TButton(text = "+1") {
@@ -42,12 +41,12 @@ fun UsePersistentExample() {
 
 @Composable
 private fun SubCount() {
-    val (count) = usePersistent(key = "count",-1)
-    val (_,saveToken) = usePersistent(key = "token","")
+    val (count) = usePersistent(key = "count", -1)
+    val (_, saveToken) = usePersistent(key = "token", "")
     val (state, setState) = useState("")
     Column {
         Text(text = "other component persistent: $count")
-        OutlinedTextField(value =state , onValueChange = {
+        OutlinedTextField(value = state, onValueChange = {
             setState(it)
         })
         TButton(text = "saveToken") {
@@ -57,5 +56,4 @@ private fun SubCount() {
             toast("now you can exit app,and reopen")
         }
     }
-
 }
