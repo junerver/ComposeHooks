@@ -38,7 +38,6 @@ fun UseThrottleExample() {
     val (stateEf, setStateEf) = useState(0)
     val (result, setResult) = useState("")
     useThrottleEffect(stateEf) {
-        println("block exe!")
         setResult("loading")
         val result = NetApi.SERVICE.userInfo("junerver")
         setResult(result.toString().subStringIf())

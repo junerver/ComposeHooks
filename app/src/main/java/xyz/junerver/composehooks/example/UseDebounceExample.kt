@@ -1,14 +1,22 @@
 package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useDebounce
+import xyz.junerver.compose.hooks.useDebounceEffect
 import xyz.junerver.compose.hooks.useDebounceFn
 import xyz.junerver.compose.hooks.useState
+import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.TButton
+import xyz.junerver.composehooks.utils.subStringIf
 
 /**
  * Description:
@@ -23,6 +31,16 @@ fun UseDebounceExample() {
 
     val (stateFn, setStateFn) = useState(0)
     val debouncedFn = useDebounceFn(fn = { setStateFn(stateFn + 1) })
+
+    // for debounceEffect
+    val (stateEf, setStateEf) = useState(0)
+    val (result, setResult) = useState("")
+    useDebounceEffect(stateEf) {
+        setResult("loading")
+        val result = NetApi.SERVICE.userInfo("junerver")
+        setResult(result.toString().subStringIf())
+    }
+
     Surface {
         Column {
             Text(text = "current: $state")
@@ -30,12 +48,26 @@ fun UseDebounceExample() {
             TButton(text = "+1") {
                 setState(state + 1)
             }
-
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            )
             Text(text = "current: $stateFn")
             TButton(text = "debounced +1") {
                 /** Manual import：`import xyz.junerver.compose.hooks.invoke` */
                 debouncedFn()
             }
+            Divider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            )
+            Text(text = "deps: $stateEf")
+            TButton(text = "+1 trigger effect execute") {
+                setStateEf(stateEf + 1)
+            }
+            Text(text = result)
         }
     }
 }
