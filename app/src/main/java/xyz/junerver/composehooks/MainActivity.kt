@@ -19,10 +19,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.tencent.mmkv.MMKV
-import xyz.junerver.compose.hooks.PersistentContext
 import xyz.junerver.compose.hooks.notifyDefaultPersistentObserver
 import xyz.junerver.compose.hooks.useredux.ReduxProvider
 import xyz.junerver.composehooks.example.store
+import xyz.junerver.composehooks.route.otherSubRoutes
 import xyz.junerver.composehooks.route.routes
 import xyz.junerver.composehooks.route.subRequestRoutes
 import xyz.junerver.composehooks.route.useNavigate
@@ -66,18 +66,11 @@ class MainActivity : ComponentActivity() {
             ComposeHooksTheme {
                 // provide store for all components
                 ReduxProvider(store = store) {
-                    PersistentContext.Provider(
-                        value = PersistentContext.LocalCtx.current.copy(
-                            first = ::mmkvGet,
-                            second = ::mmkvSave
-                        )
+                    Surface(
+                        modifier = Modifier.fillMaxSize(),
+                        color = MaterialTheme.colorScheme.background
                     ) {
-                        Surface(
-                            modifier = Modifier.fillMaxSize(),
-                            color = MaterialTheme.colorScheme.background
-                        ) {
-                            useRoutes(routes = routes + subRequestRoutes)
-                        }
+                        useRoutes(routes = routes + subRequestRoutes + otherSubRoutes)
                     }
                 }
             }

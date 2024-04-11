@@ -46,6 +46,7 @@ import xyz.junerver.composehooks.example.request.Polling
 import xyz.junerver.composehooks.example.request.Ready
 import xyz.junerver.composehooks.example.request.Refresh
 import xyz.junerver.composehooks.example.request.Throttle
+import xyz.junerver.composehooks.example.sub.PersistentSub
 
 /**
  * Description:
@@ -105,4 +106,8 @@ val subRequestRoutes = mapOf<String, @Composable () -> Unit>(
     "throttle" to { Throttle() },
     "cache&swr" to { TODO() },
     "errorRetry" to { ErrorRetry() }
+)
+
+val otherSubRoutes = mapOf<String, @Composable () -> Unit>(
+    "PersistentSub" to { PersistentSub() },
 )
