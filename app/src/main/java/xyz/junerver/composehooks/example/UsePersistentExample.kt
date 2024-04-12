@@ -35,8 +35,6 @@ import xyz.junerver.kotlin.hideKeyboard
 
 @Composable
 fun UsePersistentExample() {
-
-
     Surface {
         Column {
             DefaultPersistent()
@@ -104,7 +102,7 @@ private fun VsViewModel() {
         Text(text = "state from persistent: $vsvm")
         Text(text = "state from vm: $vmstate")
         OutlinedTextField(value = state, onValueChange = setState)
-        Row{
+        Row {
             TButton(text = "set state ") {
                 (this as ComponentActivity).hideKeyboard()
                 saveVsvm(state)
@@ -121,7 +119,6 @@ private fun VsViewModel() {
                 .padding(20.dp)
         )
         VsViewModelSub()
-
     }
 }
 

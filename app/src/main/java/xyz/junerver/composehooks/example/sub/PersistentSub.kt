@@ -19,14 +19,14 @@ import xyz.junerver.compose.hooks.usePersistent
  * Version: v1.0
  */
 @Composable
-fun PersistentSub(){
+fun PersistentSub() {
     val (vsvm, _) = usePersistent(key = "vsVm", "")
     val vm: PersistentVm = viewModel()
     val vmstate by vm.vmState
 
     Surface {
         Column {
-            Text(text = "PersistentSub component:",modifier = Modifier.padding(20.dp))
+            Text(text = "PersistentSub component:", modifier = Modifier.padding(20.dp))
             Text(text = "state from persistent: $vsvm")
             Text(text = "state from vm: $vmstate")
         }

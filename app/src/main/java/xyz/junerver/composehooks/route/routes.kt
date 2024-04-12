@@ -109,5 +109,5 @@ val subRequestRoutes = mapOf<String, @Composable () -> Unit>(
 )
 
 val otherSubRoutes = mapOf<String, @Composable () -> Unit>(
-    "PersistentSub" to { PersistentSub() },
+    "PersistentSub" to { PersistentSub() }
 )

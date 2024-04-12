@@ -12,5 +12,4 @@ import androidx.lifecycle.ViewModel
  */
 class PersistentVm : ViewModel() {
     val vmState = mutableStateOf("")
-
 }
