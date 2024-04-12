@@ -35,8 +35,8 @@ import xyz.junerver.kotlin.asBoolean
  *
  * For example, in a scenario of modifying user information, we will have
  * the following two interfaces:
- * 1. `[get] apiuserid` to obtain user information
- * 2. `[put] apiuserid` to modify user information.
+ * 1. `[get] api/user/id` to obtain user information
+ * 2. `[put] api/user/id` to modify user information.
  *
  * Generally speaking, interface 2 will be used after the submission is
  * successful. Only success or failure information will be returned, so
@@ -155,6 +155,12 @@ private fun AutoRollback() {
             }
 
             TButton(text = "rollback") {
+                /**
+                 * 在实际代码中，你应该将这个函数放到`useRequest(requestFn = changeName)` 的 onError 回调中。
+                 *
+                 * In actual code, you should put this function in the onError callback of
+                 * `useRequest(requestFn = changeName)`.
+                 */
                 triggerRollback()
             }
         }

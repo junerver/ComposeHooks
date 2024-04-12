@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlin.reflect.KFunction0
 import kotlin.reflect.KFunction1
+import xyz.junerver.compose.hooks.Ref
 import xyz.junerver.compose.hooks.defaultOption
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.userequest.Fetch
@@ -25,8 +26,8 @@ import xyz.junerver.kotlin.plus
  * This example demonstrates how to customize the plug-in to
  * extend [useRequest], record the previous [FetchState] during
  * [PluginLifecycle.onMutate], save the `rollback` function through
- * [useRef], and finally expose it to the caller, then after
- * executing [Fetch.mutate], you can restore the state at any time through
+ * [useRef], and finally expose it to the caller, then after executing
+ * [Fetch.mutate], you can restore the state at any time through
  * `rollback`.
  */
 @Composable
@@ -39,33 +40,38 @@ fun <TData : Any> useCustomPluginRequest(
         requestFn = requestFn,
         options = options,
         arrayOf({
-            val plugin = remember {
-                object : Plugin<TData>() {
-                    var pervState: FetchState<TData>? = null
-
-                    fun rollback() {
-                        pervState?.let { it1 -> fetchInstance.setState(it1.asMap()) }
-                    }
-
-                    override val invoke: GenPluginLifecycleFn<TData>
-                        get() = { fetch: Fetch<TData>, options: RequestOptions<TData> ->
-                            initFetch(fetch, options)
-                            object : PluginLifecycle<TData>() {
-                                override val onMutate: ((data: TData) -> Unit)
-                                    get() = {
-                                        pervState = fetch.fetchState
-                                    }
-                            }
-                        }
-                }
-            }
-            rollbackRef.current = {
-                plugin.rollback()
-            }
-            plugin
+            useRollbackPlugin(ref = rollbackRef)
         })
     )
     return tuple + {
         rollbackRef.current.invoke()
     }
+}
+
+@Composable
+private fun <TData : Any> useRollbackPlugin(ref: Ref<() -> Unit>): Plugin<TData> {
+    val plugin = remember {
+        object : Plugin<TData>() {
+            var pervState: FetchState<TData>? = null
+
+            fun rollback() {
+                pervState?.let { it1 -> fetchInstance.setState(it1.asMap()) }
+            }
+
+            override val invoke: GenPluginLifecycleFn<TData>
+                get() = { fetch: Fetch<TData>, options: RequestOptions<TData> ->
+                    initFetch(fetch, options)
+                    object : PluginLifecycle<TData>() {
+                        override val onMutate: ((data: TData) -> Unit)
+                            get() = {
+                                pervState = fetch.fetchState
+                            }
+                    }
+                }
+        }
+    }
+    ref.current = {
+        plugin.rollback()
+    }
+    return plugin
 }
