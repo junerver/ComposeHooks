@@ -82,10 +82,10 @@ import xyz.junerver.kotlin.Tuple7
  * Email: junerver@gmail.com
  * Version: v1.0
  */
-private typealias RunFn = VoidFunction
-private typealias MutateFn<TData> = KFunction1<(TData?) -> TData, Unit>
-private typealias RefreshFn = KFunction0<Unit>
-private typealias CancelFn = KFunction0<Unit>
+typealias RunFn = VoidFunction
+typealias MutateFn<TData> = KFunction1<(TData?) -> TData, Unit>
+typealias RefreshFn = KFunction0<Unit>
+typealias CancelFn = KFunction0<Unit>
 
 @Composable
 fun <TData : Any> useRequest(

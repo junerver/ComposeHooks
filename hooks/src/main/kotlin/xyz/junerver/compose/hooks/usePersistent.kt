@@ -15,27 +15,27 @@ import xyz.junerver.kotlin.plus
 /**
  * pass in the key to get the persistent object
  */
-typealias PersistentGet = (String, Any) -> Any
+private typealias PersistentGet = (String, Any) -> Any
 
 /**
  * Pass in the key, persist the object, and perform persistence
  */
-typealias PersistentSave = (String, Any?) -> Unit
+private typealias PersistentSave = (String, Any?) -> Unit
 
 /**
  * Callback function when performing persistence operation
  */
-typealias SavePersistentCallback = () -> Unit
+private typealias SavePersistentCallback = () -> Unit
 
 /**
  * observers that listen to persistent variables
  */
-typealias PersistentObserver = (String, SavePersistentCallback) -> (() -> Unit)
+private typealias PersistentObserver = (String, SavePersistentCallback) -> (() -> Unit)
 
 /**
  * Perform persistent save
  */
-typealias SaveToPersistent<T> = (T?) -> Unit
+private typealias SaveToPersistent<T> = (T?) -> Unit
 
 /**
  * The final return value of the persistence hook is a tuple like [state,setState]
