@@ -49,29 +49,23 @@ fun <TData : Any> useCustomPluginRequest(
 }
 
 @Composable
-private fun <TData : Any> useRollbackPlugin(ref: Ref<() -> Unit>): Plugin<TData> {
-    val plugin = remember {
-        object : Plugin<TData>() {
-            var pervState: FetchState<TData>? = null
+private fun <TData : Any> useRollbackPlugin(ref: Ref<() -> Unit>) = remember {
+    object : Plugin<TData>() {
+        var pervState: FetchState<TData>? = null
 
-            fun rollback() {
-                pervState?.let { it1 -> fetchInstance.setState(it1.asMap()) }
-            }
-
-            override val invoke: GenPluginLifecycleFn<TData>
-                get() = { fetch: Fetch<TData>, options: RequestOptions<TData> ->
-                    initFetch(fetch, options)
-                    object : PluginLifecycle<TData>() {
-                        override val onMutate: ((data: TData) -> Unit)
-                            get() = {
-                                pervState = fetch.fetchState
-                            }
-                    }
-                }
+        fun rollback() {
+            pervState?.let { it1 -> fetchInstance.setState(it1.asMap()) }
         }
-    }
-    ref.current = {
-        plugin.rollback()
-    }
-    return plugin
+
+        override val invoke: GenPluginLifecycleFn<TData>
+            get() = { fetch: Fetch<TData>, options: RequestOptions<TData> ->
+                initFetch(fetch, options)
+                object : PluginLifecycle<TData>() {
+                    override val onMutate: ((data: TData) -> Unit)
+                        get() = {
+                            pervState = fetch.fetchState
+                        }
+                }
+            }
+    }.also { ref.current = it::rollback }
 }

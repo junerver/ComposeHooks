@@ -359,7 +359,7 @@ abstract class Plugin<TData : Any> : IFetch<TData>, Serializable, CoroutineScope
 
     /**
      * 必须实现的[invoke]属性，该属性执行后返回[PluginLifecycle]，
-     * 它被调用的时机是实例化[Fetch]时，调用后存入[pluginImpls]。
+     * 它被调用的时机是实例化[Fetch]时，调用后存入[Fetch.pluginImpls]。
      * 调用时应该执行[initFetch]拿到相应实例，返回值是[PluginLifecycle]
      */
     abstract val invoke: GenPluginLifecycleFn<TData>
