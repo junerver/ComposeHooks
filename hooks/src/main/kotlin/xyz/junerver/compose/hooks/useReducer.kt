@@ -25,7 +25,7 @@ fun <S, A> useReducer(
     initialState: S,
 ): Tuple2<S, Dispatch<A>> {
     val (state, setState) = _useState(initialState)
-    return Pair(
+    return Tuple2(
         first = state, // state状态值
         second = { action: A -> setState(reducer(state, action)) } // dispatch函数
     )

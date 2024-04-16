@@ -5,15 +5,15 @@ import xyz.junerver.compose.hooks.Reducer
 import xyz.junerver.kotlin.Tuple5
 
 /**
- * tuple: reducer \ initState \ state type \action type\ alias
+ * tuple: reducer \ initialState \ state type \action type\ alias
  */
 internal typealias Store = List<
     Tuple5<
-        Reducer<Any, Any>,
-        Any,
+        Reducer<Any, Any>, // reducer
+        Any, // initialState
         KClass<*>, // state type
         KClass<*>, // action type
-        String
+        String // alias
         >
     >
 

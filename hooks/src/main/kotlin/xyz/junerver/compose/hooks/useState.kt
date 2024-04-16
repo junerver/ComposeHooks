@@ -55,7 +55,7 @@ fun <T> useState(default: T & Any): MutableState<T> {
 }
 
 @Composable
-inline fun <reified T> useState(vararg keys: Any, noinline factory: () -> T) = remember(keys = keys) {
+fun <T> useState(vararg keys: Any, factory: () -> T) = remember(keys = keys) {
     derivedStateOf(factory)
 }
 
