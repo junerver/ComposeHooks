@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import xyz.junerver.compose.hooks.Middleware
 import xyz.junerver.compose.hooks.Reducer
 import xyz.junerver.compose.hooks.useReducer
 import xyz.junerver.compose.hooks.useState
@@ -31,16 +32,23 @@ sealed interface SimpleAction {
     data object AgeIncrease : SimpleAction
 }
 
-val simpleReducer: Reducer<SimpleData, SimpleAction> = { prevState: SimpleData, action: SimpleAction ->
-    when (action) {
-        is SimpleAction.ChangeName -> prevState.copy(name = action.newName)
-        is SimpleAction.AgeIncrease -> prevState.copy(age = prevState.age + 1)
+val simpleReducer: Reducer<SimpleData, SimpleAction> =
+    { prevState: SimpleData, action: SimpleAction ->
+        when (action) {
+            is SimpleAction.ChangeName -> prevState.copy(name = action.newName)
+            is SimpleAction.AgeIncrease -> prevState.copy(age = prevState.age + 1)
+        }
     }
-}
 
 @Composable
 fun UseReducerExample() {
-    val (state, dispatch) = useReducer(simpleReducer, initialState = SimpleData("default", 18))
+    val (state, dispatch) = useReducer(
+        simpleReducer,
+        initialState = SimpleData("default", 18),
+        middlewares = arrayOf(
+            logMiddleware()
+        )
+    )
     val (input, setInput) = useState("")
     Surface {
         Column {
@@ -53,6 +61,16 @@ fun UseReducerExample() {
             TButton(text = "+1") {
                 dispatch(SimpleAction.AgeIncrease)
             }
+        }
+    }
+}
+
+// 示例日志中间件
+fun <S, A> logMiddleware(): Middleware<S, A> {
+    return { dispatch, state ->
+        { action ->
+            println("Action: $action, PrevState: $state")
+            dispatch(action)
         }
     }
 }

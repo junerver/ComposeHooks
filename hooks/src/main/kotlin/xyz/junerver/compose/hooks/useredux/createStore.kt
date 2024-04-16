@@ -1,21 +1,27 @@
 package xyz.junerver.compose.hooks.useredux
 
 import kotlin.reflect.KClass
+import xyz.junerver.compose.hooks.Middleware
 import xyz.junerver.compose.hooks.Reducer
+import xyz.junerver.kotlin.Tuple2
 import xyz.junerver.kotlin.Tuple5
 
 /**
  * tuple: reducer \ initialState \ state type \action type\ alias
  */
-internal typealias Store = List<
-    Tuple5<
-        Reducer<Any, Any>, // reducer
-        Any, // initialState
-        KClass<*>, // state type
-        KClass<*>, // action type
-        String // alias
+internal typealias Store =
+    Tuple2<
+        Array<Middleware<Any, Any>>,
+        List<
+            Tuple5<
+                Reducer<Any, Any>, // reducer
+                Any, // initialState
+                KClass<*>, // state type
+                KClass<*>, // action type
+                String // alias
+                >
+            >
         >
-    >
 
 class StoreScope private constructor(val list: MutableList<Tuple5<Reducer<Any, Any>, Any, KClass<*>, KClass<*>, String>>) {
     inline fun <reified T : Any, reified A : Any> add(
@@ -63,10 +69,13 @@ class StoreScope private constructor(val list: MutableList<Tuple5<Reducer<Any, A
  * @return
  * @receiver
  */
-fun createStore(fn: StoreScope.() -> Unit): Store {
+fun createStore(
+    middlewares: Array<Middleware<Any, Any>> = emptyArray(),
+    fn: StoreScope.() -> Unit,
+): Store {
     val list = mutableListOf<Tuple5<Reducer<Any, Any>, Any, KClass<*>, KClass<*>, String>>()
     StoreScope.getInstance(list).fn()
-    return list
+    return middlewares to list
 }
 
 fun registerErr(): Nothing {

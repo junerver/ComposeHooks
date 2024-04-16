@@ -19,14 +19,25 @@ typealias Reducer<S, A> = (prevState: S, action: A) -> S
 
 typealias Dispatch<A> = (A) -> Unit
 
+// 定义中间件类型
+typealias Middleware<S, A> = (dispatch: Dispatch<A>, state: S) -> Dispatch<A>
+
 @Composable
 fun <S, A> useReducer(
     reducer: Reducer<S, A>,
     initialState: S,
+    middlewares: Array<Middleware<S, A>> = emptyArray(),
 ): Tuple2<S, Dispatch<A>> {
     val (state, setState) = _useState(initialState)
-    return Tuple2(
-        first = state, // state状态值
-        second = { action: A -> setState(reducer(state, action)) } // dispatch函数
-    )
+    val dispatch = { action: A -> setState(reducer(state, action)) }
+
+    val enhancedDispatch: Dispatch<A> = { action ->
+        var nextDispatch: Dispatch<A> = dispatch
+        for (middleware in middlewares) {
+            nextDispatch = middleware(nextDispatch, state)
+        }
+        nextDispatch(action)
+    }
+
+    return Tuple2(state, enhancedDispatch)
 }

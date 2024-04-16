@@ -55,7 +55,7 @@ val fetchReducer: Reducer<NetFetchResult, NetFetchResult> = { _, action ->
  *
  * Create a state store object by using the [createStore] function
  */
-val store = createStore {
+val store = createStore(arrayOf(logMiddleware())) {
     simpleReducer with SimpleData("default", 18)
     todoReducer with emptyList()
     arrayOf("fetch1", "fetch2").forEach {
