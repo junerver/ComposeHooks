@@ -1,6 +1,5 @@
 package xyz.junerver.composehooks.example
 
-import androidx.activity.ComponentActivity
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.junerver.compose.hooks.PersistentContext
+import xyz.junerver.compose.hooks.useKeyboard
 import xyz.junerver.compose.hooks.usePersistent
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.composehooks.example.sub.PersistentVm
@@ -23,7 +23,6 @@ import xyz.junerver.composehooks.mmkvGet
 import xyz.junerver.composehooks.mmkvSave
 import xyz.junerver.composehooks.route.useNavigate
 import xyz.junerver.composehooks.ui.component.TButton
-import xyz.junerver.kotlin.hideKeyboard
 
 /**
  * Description:
@@ -74,6 +73,7 @@ private fun MMKVPersistent() {
             second = ::mmkvSave
         )
     ) {
+        val (hideKeyboard) = useKeyboard()
         val (token, saveToken) = usePersistent(key = "token", "")
         val (state, setState) = useState("")
         Column {
@@ -81,7 +81,7 @@ private fun MMKVPersistent() {
             Text(text = "token: $token")
             OutlinedTextField(value = state, onValueChange = setState)
             TButton(text = "saveToken") {
-                (this as ComponentActivity).hideKeyboard()
+                hideKeyboard()
                 saveToken(state)
                 setState("")
                 toast("now you can exit app,and reopen")
@@ -97,6 +97,7 @@ private fun VsViewModel() {
     val vm: PersistentVm = viewModel()
     var vmstate by vm.vmState
     val nav = useNavigate()
+    val (hideKeyboard) = useKeyboard()
 
     Column {
         Text(text = "state from persistent: $vsvm")
@@ -104,7 +105,7 @@ private fun VsViewModel() {
         OutlinedTextField(value = state, onValueChange = setState)
         Row {
             TButton(text = "set state ") {
-                (this as ComponentActivity).hideKeyboard()
+                hideKeyboard()
                 saveVsvm(state)
                 vmstate = state
                 setState("")
