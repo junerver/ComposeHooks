@@ -21,7 +21,7 @@ inline fun <reified A> useDispatch(alias: String? = null): Dispatch<A> =
         ?: useContext(context = ReduxContext).second[A::class] as? Dispatch<A> ?: registerErr()
 
 typealias DispatchAsync<A> = (block: suspend CoroutineScope.(Dispatch<A>) -> A) -> Unit
-private typealias DispatchCallback<A> = (Dispatch<A>) -> Unit
+internal typealias DispatchCallback<A> = (Dispatch<A>) -> Unit
 
 /**
  * Get a dispatch function that supports asynchronous execution. This

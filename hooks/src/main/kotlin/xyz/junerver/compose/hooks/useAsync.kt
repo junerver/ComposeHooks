@@ -24,7 +24,7 @@ fun useAsync(fn: SuspendAsyncFn): () -> Unit {
     return async
 }
 
-private typealias AsyncRunFn = (SuspendAsyncFn) -> Unit
+internal typealias AsyncRunFn = (SuspendAsyncFn) -> Unit
 
 /**
  * Use async
