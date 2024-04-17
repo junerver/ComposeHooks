@@ -59,6 +59,10 @@ fun mmkvGet(key: String, value: Any): Any {
     } as Any
 }
 
+fun mmkvClear(key: String) {
+    mmkv.remove(key)
+}
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

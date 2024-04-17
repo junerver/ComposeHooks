@@ -19,6 +19,7 @@ import xyz.junerver.compose.hooks.useKeyboard
 import xyz.junerver.compose.hooks.usePersistent
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.composehooks.example.sub.PersistentVm
+import xyz.junerver.composehooks.mmkvClear
 import xyz.junerver.composehooks.mmkvGet
 import xyz.junerver.composehooks.mmkvSave
 import xyz.junerver.composehooks.route.useNavigate
@@ -39,14 +40,14 @@ fun UsePersistentExample() {
             DefaultPersistent()
             Divider(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
+                  .fillMaxWidth()
+                  .padding(20.dp)
             )
             MMKVPersistent()
             Divider(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
+                  .fillMaxWidth()
+                  .padding(20.dp)
             )
             VsViewModel()
         }
@@ -67,10 +68,14 @@ private fun DefaultPersistent() {
 
 @Composable
 private fun MMKVPersistent() {
+    /**
+     * 使用持久化需要传递重写三个函数，分别是持久化的 get、set、clear
+     */
     PersistentContext.Provider(
         value = PersistentContext.LocalCtx.current.copy(
             first = ::mmkvGet,
-            second = ::mmkvSave
+            second = ::mmkvSave,
+            third = ::mmkvClear
         )
     ) {
         val (hideKeyboard) = useKeyboard()
@@ -116,8 +121,8 @@ private fun VsViewModel() {
         }
         Divider(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(20.dp)
+              .fillMaxWidth()
+              .padding(20.dp)
         )
         VsViewModelSub()
     }

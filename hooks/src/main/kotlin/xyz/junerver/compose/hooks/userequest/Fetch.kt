@@ -48,8 +48,6 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
 
     /**
      * 请求是否正在发起尚未响应结果。
-     * 注意这个状态只管***初次加载***，当有数据之后在请求，它永远是false，
-     * 这是为了避免刷新数据时再次loading
      */
     lateinit var loadingState: MutableState<Boolean>
     lateinit var setLoading: (Boolean) -> Unit

@@ -1,7 +1,6 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
-import xyz.junerver.kotlin.Tuple2
 import xyz.junerver.kotlin.Tuple3
 import xyz.junerver.kotlin.plus
 
@@ -23,14 +22,9 @@ private typealias PersistentGet = (String, Any) -> Any
 private typealias PersistentSave = (String, Any?) -> Unit
 
 /**
- * Callback function when performing persistence operation
+ * Perform clear persistent by pass key
  */
-private typealias SavePersistentCallback = () -> Unit
-
-/**
- * observers that listen to persistent variables
- */
-private typealias PersistentObserver = (String, SavePersistentCallback) -> (() -> Unit)
+private typealias PersistentClear = (String) -> Unit
 
 /**
  * Perform persistent save
@@ -40,7 +34,7 @@ private typealias SaveToPersistent<T> = (T?) -> Unit
 /**
  * The final return value of the persistence hook is a tuple like [state,setState]
  */
-typealias PersistentHookReturn<T> = Tuple2<T, SaveToPersistent<T>>
+typealias PersistentHookReturn<T> = Tuple3<T, SaveToPersistent<T>, PersistentClear>
 
 /**
  * By default, [memorySaveMap] is used for memory persistence.
@@ -48,37 +42,44 @@ typealias PersistentHookReturn<T> = Tuple2<T, SaveToPersistent<T>>
  * globally through [PersistentContext.Provider];
  */
 val PersistentContext =
-    createContext<Tuple3<PersistentGet, PersistentSave, PersistentObserver>>((::memoryGetPersistent to ::memorySavePersistent) + ::memoryAddObserver)
+    createContext<Tuple3<PersistentGet, PersistentSave, PersistentClear>>((::memoryGetPersistent to ::memorySavePersistent) + ::memoryClearPersistent)
 
 @Composable
 fun <T> usePersistent(key: String, defaultValue: T): PersistentHookReturn<T> {
-    val (get, set, observer) = useContext(context = PersistentContext)
+    val (get, set, clear) = useContext(context = PersistentContext)
 
     /**
-     * By using forced recompose of components, cross-component persistence updates and refresh UI are achieved.
+     * Register an observer callback for each component that uses this state,
+     * and notify the update component when this storage changes;
      */
     val unObserver = useRef(default = {})
     val update = useUpdate()
     useMount {
-        unObserver.current = observer(key) { update() }
+        unObserver.current = memoryAddObserver(key) { update() }
     }
     useUnmount {
         unObserver.current()
     }
-    return Tuple2(
+    return Tuple3(
         first = get(key, defaultValue as Any) as T,
         second = { value ->
             set(key, value)
-        }
+        },
+        third = clear
     )
 }
 
 private val memorySaveMap = mutableMapOf<String, Any?>()
 
+/**
+ * Callback function when performing persistence operation
+ */
+private typealias SavePersistentCallback = () -> Unit
+
 private val listener = mutableMapOf<String, MutableList<SavePersistentCallback>>()
 
 /**
- * 默认的监听
+ * you should call this function in your [PersistentSave] fun to notify state update
  */
 fun notifyDefaultPersistentObserver(key: String) {
     listener[key]?.takeIf { it.isNotEmpty() }?.forEach { it.invoke() }
@@ -93,7 +94,11 @@ private fun memoryGetPersistent(key: String, defaultValue: Any): Any {
     return memorySaveMap[key] ?: defaultValue
 }
 
-fun memoryAddObserver(key: String, observer: SavePersistentCallback): () -> Unit {
+private fun memoryClearPersistent(key: String) {
+    memorySaveMap.remove(key)
+}
+
+private fun memoryAddObserver(key: String, observer: SavePersistentCallback): () -> Unit {
     listener[key] ?: run { listener[key] = mutableListOf() }
     listener[key]!!.add(observer)
     return fun() {
