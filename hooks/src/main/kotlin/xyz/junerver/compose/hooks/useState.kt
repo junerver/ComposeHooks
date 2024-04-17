@@ -5,6 +5,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import org.jetbrains.annotations.Nullable
 
 /**
  * Description: 在compose中使用state需要写一点模板代码，虽然谈不上有多麻烦，但是还是能简化一下的；
@@ -63,26 +64,6 @@ fun <T> useState(vararg keys: Any, factory: () -> T) = remember(keys = keys) {
  * 这是一个可空的[useState]，如果对象的状态可能为空，应该使用它
  */
 @Composable
-fun <T> _useState(default: T) = remember {
+fun <T> _useState(@Nullable default: T) = remember {
     mutableStateOf(default)
 }
-
-@Deprecated("change fun name", ReplaceWith("useInt(default)"))
-@Composable
-fun useIntState(default: Int = 0) = useInt(default)
-
-@Deprecated("change fun name", ReplaceWith("useList(elements)"))
-@Composable
-fun <T> useListState(elements: Collection<T>) = useList(elements)
-
-@Deprecated("change fun name", ReplaceWith("useList(elements)"))
-@Composable
-fun <T> useListState(vararg elements: T) = useList(elements = elements)
-
-@Deprecated("change fun name", ReplaceWith("useMap(pairs)"))
-@Composable
-fun <K, V> useMapState(vararg pairs: Pair<K, V>) = useMap(pairs = pairs)
-
-@Deprecated("change fun name", ReplaceWith("useMap(pairs)"))
-@Composable
-fun <K, V> useMapState(pairs: Iterable<Pair<K, V>>) = useMap(pairs)

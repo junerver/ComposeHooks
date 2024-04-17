@@ -7,6 +7,8 @@ import android.hardware.SensorEvent
 import androidx.compose.runtime.Composable
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import org.jetbrains.annotations.NotNull
+import org.jetbrains.annotations.Nullable
 import xyz.junerver.compose.hooks.useredux.DispatchAsync
 import xyz.junerver.compose.hooks.useredux.DispatchCallback
 import xyz.junerver.compose.hooks.useredux.useDispatch
@@ -180,7 +182,7 @@ fun rememberSensor(
 fun <T> rememberState(default: T & Any) = useState(default)
 
 @Composable
-fun <T> _rememberState(default: T) = _useState(default)
+fun <T> _rememberState(@Nullable default: T) = _useState(default)
 
 //region useThrottle
 @Composable
