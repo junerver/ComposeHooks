@@ -34,6 +34,7 @@ import xyz.junerver.composehooks.example.UseToggleExample
 import xyz.junerver.composehooks.example.UseUndoExample
 import xyz.junerver.composehooks.example.UseUpdateEffectExample
 import xyz.junerver.composehooks.example.UseUpdateExample
+import xyz.junerver.composehooks.example.UseVibrateExample
 import xyz.junerver.composehooks.example.request.AutoManual
 import xyz.junerver.composehooks.example.request.Cancel
 import xyz.junerver.composehooks.example.request.Debounce
@@ -89,7 +90,8 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useUndo" to { UseUndoExample() },
     "useUnmount" to { UseMountExample() },
     "useUpdate" to { UseUpdateExample() },
-    "useUpdateEffect" to { UseUpdateEffectExample() }
+    "useUpdateEffect" to { UseUpdateEffectExample() },
+    "useVibrate" to { UseVibrateExample() },
 )
 
 val subRequestRoutes = mapOf<String, @Composable () -> Unit>(
