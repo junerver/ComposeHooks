@@ -21,7 +21,9 @@ import androidx.compose.ui.unit.dp
 import com.tencent.mmkv.MMKV
 import xyz.junerver.compose.hooks.notifyDefaultPersistentObserver
 import xyz.junerver.compose.hooks.useredux.ReduxProvider
-import xyz.junerver.composehooks.example.store
+import xyz.junerver.compose.hooks.useredux.plus
+import xyz.junerver.composehooks.example.fetchStore
+import xyz.junerver.composehooks.example.simpleStore
 import xyz.junerver.composehooks.route.otherSubRoutes
 import xyz.junerver.composehooks.route.routes
 import xyz.junerver.composehooks.route.subRequestRoutes
@@ -69,7 +71,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             ComposeHooksTheme {
                 // provide store for all components
-                ReduxProvider(store = store) {
+                ReduxProvider(store = simpleStore + fetchStore) {
                     Surface(
                         modifier = Modifier.fillMaxSize(),
                         color = MaterialTheme.colorScheme.background

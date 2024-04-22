@@ -18,6 +18,6 @@ fun useVibrate(): Tuple2<() -> Unit, () -> Unit> {
     val ctx = LocalContext.current
     return Tuple2(
         first = { ctx.vibrateShort() },
-        second = { ctx.vibrateLong() },
+        second = { ctx.vibrateLong() }
     )
 }

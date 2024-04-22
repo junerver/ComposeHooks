@@ -7,7 +7,6 @@ import android.hardware.SensorEvent
 import androidx.compose.runtime.Composable
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import org.jetbrains.annotations.NotNull
 import org.jetbrains.annotations.Nullable
 import xyz.junerver.compose.hooks.useredux.DispatchAsync
 import xyz.junerver.compose.hooks.useredux.DispatchCallback

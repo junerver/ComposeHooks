@@ -40,14 +40,14 @@ fun UsePersistentExample() {
             DefaultPersistent()
             Divider(
                 modifier = Modifier
-                  .fillMaxWidth()
-                  .padding(20.dp)
+                    .fillMaxWidth()
+                    .padding(20.dp)
             )
             MMKVPersistent()
             Divider(
                 modifier = Modifier
-                  .fillMaxWidth()
-                  .padding(20.dp)
+                    .fillMaxWidth()
+                    .padding(20.dp)
             )
             VsViewModel()
         }
@@ -121,8 +121,8 @@ private fun VsViewModel() {
         }
         Divider(
             modifier = Modifier
-              .fillMaxWidth()
-              .padding(20.dp)
+                .fillMaxWidth()
+                .padding(20.dp)
         )
         VsViewModelSub()
     }

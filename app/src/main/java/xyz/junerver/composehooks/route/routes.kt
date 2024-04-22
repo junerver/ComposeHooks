@@ -91,7 +91,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useUnmount" to { UseMountExample() },
     "useUpdate" to { UseUpdateExample() },
     "useUpdateEffect" to { UseUpdateEffectExample() },
-    "useVibrate" to { UseVibrateExample() },
+    "useVibrate" to { UseVibrateExample() }
 )
 
 val subRequestRoutes = mapOf<String, @Composable () -> Unit>(

@@ -32,11 +32,11 @@ fun ReduxProvider(store: Store, content: @Composable () -> Unit) {
     val dispatchMap: MutableMap<KClass<*>, Dispatch<Any>> = useMap()
     // alias - state\dispatch
     val aliasMap: MutableMap<String, Pair<Any, Dispatch<Any>>> = useMap()
-    store.second.forEach { entry ->
+    store.records.forEach { entry ->
         val (state, dispatch) = useReducer(
             reducer = entry.first,
             initialState = entry.second,
-            store.first
+            store.middlewares
         )
         stateMap[entry.third] = state
         dispatchMap[entry.fourth] = dispatch

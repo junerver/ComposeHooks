@@ -3,25 +3,38 @@ package xyz.junerver.compose.hooks.useredux
 import kotlin.reflect.KClass
 import xyz.junerver.compose.hooks.Middleware
 import xyz.junerver.compose.hooks.Reducer
-import xyz.junerver.kotlin.Tuple2
 import xyz.junerver.kotlin.Tuple5
 
-/**
- * tuple: reducer \ initialState \ state type \action type\ alias
- */
-internal typealias Store =
-    Tuple2<
-        Array<Middleware<Any, Any>>,
-        List<
-            Tuple5<
-                Reducer<Any, Any>, // reducer
-                Any, // initialState
-                KClass<*>, // state type
-                KClass<*>, // action type
-                String // alias
-                >
+data class Store(
+    val middlewares: Array<Middleware<Any, Any>>,
+    val records: List<
+        Tuple5<
+            Reducer<Any, Any>, // reducer
+            Any, // initialState
+            KClass<*>, // state type
+            KClass<*>, // action type
+            String // alias
             >
-        >
+        >,
+) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as Store
+
+        if (!middlewares.contentEquals(other.middlewares)) return false
+        if (records != other.records) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = middlewares.contentHashCode()
+        result = 31 * result + records.hashCode()
+        return result
+    }
+}
 
 class StoreScope private constructor(val list: MutableList<Tuple5<Reducer<Any, Any>, Any, KClass<*>, KClass<*>, String>>) {
     inline fun <reified T : Any, reified A : Any> add(
@@ -75,9 +88,13 @@ fun createStore(
 ): Store {
     val list = mutableListOf<Tuple5<Reducer<Any, Any>, Any, KClass<*>, KClass<*>, String>>()
     StoreScope.getInstance(list).fn()
-    return middlewares to list
+    return Store(middlewares, list)
 }
 
 fun registerErr(): Nothing {
     error("Please confirm that you have correctly registered in `createStore`!")
+}
+
+operator fun Store.plus(other: Store): Store {
+    return Store(this.middlewares + other.middlewares, this.records + other.records)
 }
