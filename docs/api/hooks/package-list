@@ -50,14 +50,21 @@ $dokka.location:xyz.junerver.compose.hooks.usenetwork/NetworkState/connectType/#
 $dokka.location:xyz.junerver.compose.hooks.usenetwork/NetworkState/isConnect/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usenetwork/-network-state/is-connect.html
 $dokka.location:xyz.junerver.compose.hooks.useredux////PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/index.html
 $dokka.location:xyz.junerver.compose.hooks.useredux//ReduxContext/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-redux-context.html
-$dokka.location:xyz.junerver.compose.hooks.useredux//ReduxProvider/#kotlin.Pair[kotlin.Array[kotlin.Function2[kotlin.Function1[kotlin.Any,kotlin.Unit],kotlin.Any,kotlin.Function1[kotlin.Any,kotlin.Unit]]],kotlin.collections.List[xyz.junerver.kotlin.Quintuple[kotlin.Function2[kotlin.Any,kotlin.Any,kotlin.Any],kotlin.Any,kotlin.reflect.KClass[*],kotlin.reflect.KClass[*],kotlin.String]]]#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-redux-provider.html
+$dokka.location:xyz.junerver.compose.hooks.useredux//ReduxProvider/#xyz.junerver.compose.hooks.useredux.Store#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-redux-provider.html
 $dokka.location:xyz.junerver.compose.hooks.useredux//createStore/#kotlin.Array[kotlin.Function2[kotlin.Function1[kotlin.Any,kotlin.Unit],kotlin.Any,kotlin.Function1[kotlin.Any,kotlin.Unit]]]#kotlin.Function1[xyz.junerver.compose.hooks.useredux.StoreScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/create-store.html
+$dokka.location:xyz.junerver.compose.hooks.useredux//plus/xyz.junerver.compose.hooks.useredux.Store#xyz.junerver.compose.hooks.useredux.Store/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/plus.html
 $dokka.location:xyz.junerver.compose.hooks.useredux//registerErr/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/register-err.html
 $dokka.location:xyz.junerver.compose.hooks.useredux//useDispatch/#kotlin.String?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/use-dispatch.html
 $dokka.location:xyz.junerver.compose.hooks.useredux//useDispatchAsync/#kotlin.String?#kotlin.Function1[kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),kotlin.Unit],kotlin.Unit]?#kotlin.Function1[kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),kotlin.Unit],kotlin.Unit]?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/use-dispatch-async.html
 $dokka.location:xyz.junerver.compose.hooks.useredux//useSelector/#kotlin.String?#kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/use-selector.html
 $dokka.location:xyz.junerver.compose.hooks.useredux//useSelector/#kotlin.String?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/use-selector.html
 $dokka.location:xyz.junerver.compose.hooks.useredux/DispatchAsync///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-dispatch-async/index.html
+$dokka.location:xyz.junerver.compose.hooks.useredux/Store///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store/index.html
+$dokka.location:xyz.junerver.compose.hooks.useredux/Store/Store/#kotlin.Array[kotlin.Function2[kotlin.Function1[kotlin.Any,kotlin.Unit],kotlin.Any,kotlin.Function1[kotlin.Any,kotlin.Unit]]]#kotlin.collections.List[xyz.junerver.kotlin.Quintuple[kotlin.Function2[kotlin.Any,kotlin.Any,kotlin.Any],kotlin.Any,kotlin.reflect.KClass[*],kotlin.reflect.KClass[*],kotlin.String]]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store/-store.html
+$dokka.location:xyz.junerver.compose.hooks.useredux/Store/equals/#kotlin.Any?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store/equals.html
+$dokka.location:xyz.junerver.compose.hooks.useredux/Store/hashCode/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store/hash-code.html
+$dokka.location:xyz.junerver.compose.hooks.useredux/Store/middlewares/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store/middlewares.html
+$dokka.location:xyz.junerver.compose.hooks.useredux/Store/records/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store/records.html
 $dokka.location:xyz.junerver.compose.hooks.useredux/StoreScope.Companion///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store-scope/-companion/index.html
 $dokka.location:xyz.junerver.compose.hooks.useredux/StoreScope.NamedScope///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store-scope/-named-scope/index.html
 $dokka.location:xyz.junerver.compose.hooks.useredux/StoreScope.NamedScope/with/kotlin.Function2[TypeParam(bounds=[kotlin.Any]),TypeParam(bounds=[kotlin.Any]),TypeParam(bounds=[kotlin.Any])]#TypeParam(bounds=[kotlin.Any])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useredux/-store-scope/-named-scope/with.html
@@ -189,6 +196,10 @@ $dokka.location:xyz.junerver.compose.hooks.userequest/RequestOptions/setCache/#/
 $dokka.location:xyz.junerver.compose.hooks.userequest/RequestOptions/staleTime/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-request-options/stale-time.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/RequestOptions/throttleOptions/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-request-options/throttle-options.html
 $dokka.location:xyz.junerver.compose.hooks.userequest/RunFn///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.userequest/-run-fn/index.html
+$dokka.location:xyz.junerver.compose.hooks.usevibration////PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usevibration/index.html
+$dokka.location:xyz.junerver.compose.hooks.usevibration//useVibrate/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usevibration/use-vibrate.html
+$dokka.location:xyz.junerver.compose.hooks.usevibration//vibrateLong/android.content.Context#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usevibration/vibrate-long.html
+$dokka.location:xyz.junerver.compose.hooks.usevibration//vibrateShort/android.content.Context#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usevibration/vibrate-short.html
 $dokka.location:xyz.junerver.compose.hooks////PointingToDeclaration/hooks/xyz.junerver.compose.hooks/index.html
 $dokka.location:xyz.junerver.compose.hooks//LaunchedDebounceEffect/#kotlin.Array[kotlin.Any?]#xyz.junerver.compose.hooks.DebounceOptions#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-launched-debounce-effect.html
 $dokka.location:xyz.junerver.compose.hooks//LaunchedThrottleEffect/#kotlin.Array[kotlin.Any?]#xyz.junerver.compose.hooks.ThrottleOptions#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-launched-throttle-effect.html
@@ -202,7 +213,6 @@ $dokka.location:xyz.junerver.compose.hooks//createContext/#TypeParam(bounds=[kot
 $dokka.location:xyz.junerver.compose.hooks//defaultOption/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/default-option.html
 $dokka.location:xyz.junerver.compose.hooks//invoke/kotlin.Function1[kotlin.Array[kotlin.Any?],TypeParam(bounds=[kotlin.Any?])]#kotlin.Array[kotlin.Any?]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/invoke.html
 $dokka.location:xyz.junerver.compose.hooks//invoke/kotlin.Function1[kotlin.Array[kotlin.Any?],kotlin.Unit]#kotlin.Array[kotlin.Any?]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/invoke.html
-$dokka.location:xyz.junerver.compose.hooks//memoryAddObserver/#kotlin.String#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/memory-add-observer.html
 $dokka.location:xyz.junerver.compose.hooks//notifyDefaultPersistentObserver/#kotlin.String/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/notify-default-persistent-observer.html
 $dokka.location:xyz.junerver.compose.hooks//optionsOf/#kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/options-of.html
 $dokka.location:xyz.junerver.compose.hooks//rememberAsync/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-async.html
@@ -359,4 +369,5 @@ xyz.junerver.compose.hooks.usenetwork
 xyz.junerver.compose.hooks.useredux
 xyz.junerver.compose.hooks.userequest
 xyz.junerver.compose.hooks.userequest.utils
+xyz.junerver.compose.hooks.usevibration
 
