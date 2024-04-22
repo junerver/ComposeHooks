@@ -5,17 +5,17 @@ import xyz.junerver.compose.hooks.Middleware
 import xyz.junerver.compose.hooks.Reducer
 import xyz.junerver.kotlin.Tuple5
 
+internal typealias StoreRecord = Tuple5<
+    Reducer<Any, Any>, // reducer
+    Any, // initialState
+    KClass<*>, // state type
+    KClass<*>, // action type
+    String // alias
+    >
+
 data class Store(
     val middlewares: Array<Middleware<Any, Any>>,
-    val records: List<
-        Tuple5<
-            Reducer<Any, Any>, // reducer
-            Any, // initialState
-            KClass<*>, // state type
-            KClass<*>, // action type
-            String // alias
-            >
-        >,
+    val records: List<StoreRecord>,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -36,7 +36,7 @@ data class Store(
     }
 }
 
-class StoreScope private constructor(val list: MutableList<Tuple5<Reducer<Any, Any>, Any, KClass<*>, KClass<*>, String>>) {
+class StoreScope private constructor(val list: MutableList<StoreRecord>) {
     inline fun <reified T : Any, reified A : Any> add(
         pair: Pair<Reducer<T, A>, T>,
         alias: String? = null,
@@ -70,8 +70,8 @@ class StoreScope private constructor(val list: MutableList<Tuple5<Reducer<Any, A
     }
 
     companion object {
-        internal fun getInstance(map: MutableList<Tuple5<Reducer<Any, Any>, Any, KClass<*>, KClass<*>, String>>) =
-            StoreScope(map)
+        internal fun getInstance(records: MutableList<StoreRecord>) =
+            StoreScope(records)
     }
 }
 
@@ -86,7 +86,7 @@ fun createStore(
     middlewares: Array<Middleware<Any, Any>> = emptyArray(),
     fn: StoreScope.() -> Unit,
 ): Store {
-    val list = mutableListOf<Tuple5<Reducer<Any, Any>, Any, KClass<*>, KClass<*>, String>>()
+    val list = mutableListOf<StoreRecord>()
     StoreScope.getInstance(list).fn()
     return Store(middlewares, list)
 }
