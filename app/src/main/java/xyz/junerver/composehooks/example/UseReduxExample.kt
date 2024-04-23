@@ -191,10 +191,10 @@ private fun SubSimpleDataDispatch() {
     val dispatch = useDispatch<SimpleAction>()
 
     /**
-     * 使用[useDispatchAsync]你可以活动一个异步的dispatch函数，它允许你在当前组件的协程中执行异步操作，
+     * 使用[useDispatchAsync]你可以获得一个异步的dispatch函数，它允许你在当前组件的协程中执行异步操作，
      * 异步函数的返回值是Action。
      *
-     * Using [useDispatchAsync] you can activate an asynchronous dispatch
+     * Using [useDispatchAsync] you can obtain an asynchronous dispatch
      * function, which allows you to perform asynchronous operations in the
      * coroutine of the current component. The return value of the asynchronous
      * function is Action.
