@@ -12,4 +12,4 @@ import androidx.compose.runtime.Composable
  */
 @SuppressLint("ComposableNaming")
 @Composable
-fun useMount(fn: () -> Unit) = useEffect(Unit) { fn() }
+fun useMount(fn: SuspendAsyncFn) = useEffect(Unit) { fn() }
