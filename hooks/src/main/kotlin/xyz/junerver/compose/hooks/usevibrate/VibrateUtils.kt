@@ -1,4 +1,4 @@
-package xyz.junerver.compose.hooks.usevibration
+package xyz.junerver.compose.hooks.usevibrate
 
 import android.content.Context
 import android.os.Build

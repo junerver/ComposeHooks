@@ -3,7 +3,7 @@ package xyz.junerver.composehooks.example
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import xyz.junerver.compose.hooks.usevibration.useVibrate
+import xyz.junerver.compose.hooks.usevibrate.useVibrate
 import xyz.junerver.composehooks.ui.component.TButton
 
 /**

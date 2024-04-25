@@ -1,4 +1,4 @@
-package xyz.junerver.compose.hooks.usevibration
+package xyz.junerver.compose.hooks.usevibrate
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
