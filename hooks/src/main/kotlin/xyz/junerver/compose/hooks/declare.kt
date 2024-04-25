@@ -134,7 +134,7 @@ fun <K, V> rememberMap(pairs: Iterable<Pair<K, V>>) = useMap(pairs)
 //endregion
 
 @Composable
-fun rememberMount(fn: () -> Unit) = useMount(fn)
+fun rememberMount(fn: SuspendAsyncFn) = useMount(fn)
 
 @Composable
 fun rememberNow(options: UseNowOptions = defaultOption()) = useNow(options)
