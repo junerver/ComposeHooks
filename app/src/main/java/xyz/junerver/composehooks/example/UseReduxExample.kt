@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -46,7 +47,7 @@ val todoReducer: Reducer<List<Todo>, TodoAction> = { prevState: List<Todo>, acti
         is DelTodo -> prevState.filter { it.id != action.id }
     }
 }
-val fetchReducer: Reducer<NetFetchResult, NetFetchResult> = { _, action ->
+val fetchReducer: Reducer<NetFetchResult<*>, NetFetchResult<*>> = { _, action ->
     action
 }
 
@@ -217,26 +218,26 @@ private fun SubSimpleDataDispatch() {
                     SimpleAction.ChangeName(input)
                 }
             }
-        }
-        TButton(text = "+1") {
-            dispatch(SimpleAction.AgeIncrease)
+            TButton(text = "+1") {
+                dispatch(SimpleAction.AgeIncrease)
+            }
         }
     }
 }
 
-sealed interface NetFetchResult {
-    data class Success<T>(val data: T) : NetFetchResult
-    data class Error(val msg: Throwable) : NetFetchResult
-    data object Idle : NetFetchResult
-    data object Loading : NetFetchResult
+sealed interface NetFetchResult<out T> {
+    data class Success<T>(val data: T) : NetFetchResult<T>
+    data class Error(val msg: Throwable) : NetFetchResult<Nothing>
+    data object Idle : NetFetchResult<Nothing>
+    data object Loading : NetFetchResult<Nothing>
 }
 
 @Composable
 fun UseReduxFetch() {
-    val fetchResult: NetFetchResult = useSelector("fetch1")
+    val fetchResult: NetFetchResult<String> = useSelector("fetch1")
     val dispatchFetch = useFetch<String>("fetch1")
     Column {
-        Text(text = "result: $fetchResult")
+        Text(text = "delay 2 seconds, throw error\nresult: $fetchResult")
         TButton(text = "fetch") {
             dispatchFetch {
                 delay(2.seconds)
@@ -248,13 +249,30 @@ fun UseReduxFetch() {
 
 @Composable
 fun UseReduxFetch2() {
-    val fetchResult: NetFetchResult = useSelector("fetch2")
+    val fetchResult: NetFetchResult<UserInfo> = useSelector("fetch2")
     val dispatchFetch = useFetch<UserInfo>("fetch2")
     Column {
-        Text(text = "result: $fetchResult")
         TButton(text = "fetch2") {
             dispatchFetch {
-                NetApi.SERVICE.userInfo("junerver")
+                if (Random.nextDouble() > 0.5) {
+                    NetApi.SERVICE.userInfo("junerver")
+                } else {
+                    error("custom err!")
+                }
+            }
+        }
+        when (fetchResult) {
+            is NetFetchResult.Error -> {
+                Text("err: ${fetchResult.msg}")
+            }
+            NetFetchResult.Idle -> {
+                Text(text = "idel")
+            }
+            NetFetchResult.Loading -> {
+                Text(text = "loading")
+            }
+            is NetFetchResult.Success -> {
+                Text(text = "succ: ${fetchResult.data}")
             }
         }
     }
@@ -265,7 +283,7 @@ typealias ReduxFetch<T> = (block: suspend CoroutineScope.() -> T) -> Unit
 @Composable
 fun <T> useFetch(alias: String): ReduxFetch<T> {
     val dispatchAsync =
-        useDispatchAsync<NetFetchResult>(alias, onBefore = { it(NetFetchResult.Loading) })
+        useDispatchAsync<NetFetchResult<T>>(alias, onBefore = { it(NetFetchResult.Loading) })
     return { block ->
         dispatchAsync {
             try {
