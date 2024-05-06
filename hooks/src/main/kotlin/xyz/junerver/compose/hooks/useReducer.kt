@@ -28,7 +28,8 @@ fun <S, A> useReducer(
     middlewares: Array<Middleware<S, A>> = emptyArray(),
 ): Tuple2<S, Dispatch<A>> {
     val (state, setState) = _useState(initialState)
-    val dispatch = { action: A -> setState(reducer(state, action)) }
+    val stateRef = useLatestRef(value = state)
+    val dispatch = { action: A -> setState(reducer(stateRef.current, action)) }
 
     val enhancedDispatch: Dispatch<A> = { action ->
         var nextDispatch: Dispatch<A> = dispatch
