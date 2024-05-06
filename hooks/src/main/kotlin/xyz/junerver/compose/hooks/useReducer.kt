@@ -14,12 +14,11 @@ import xyz.junerver.kotlin.Tuple2
  * update: 2024/3/19 13:48
  * action类型从 Any 修改为泛型 A
  */
-// reducer 函数类型抽象
+
 typealias Reducer<S, A> = (prevState: S, action: A) -> S
 
 typealias Dispatch<A> = (A) -> Unit
 
-// 定义中间件类型
 typealias Middleware<S, A> = (dispatch: Dispatch<A>, state: S) -> Dispatch<A>
 
 @Composable

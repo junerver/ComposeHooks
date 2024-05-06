@@ -3,6 +3,7 @@ package xyz.junerver.compose.hooks.useredux
 import kotlin.reflect.KClass
 import xyz.junerver.compose.hooks.Middleware
 import xyz.junerver.compose.hooks.Reducer
+import xyz.junerver.kotlin.Tuple2
 import xyz.junerver.kotlin.Tuple5
 
 internal typealias StoreRecord = Tuple5<
@@ -38,7 +39,7 @@ data class Store(
 
 class StoreScope private constructor(val list: MutableList<StoreRecord>) {
     inline fun <reified T : Any, reified A : Any> add(
-        pair: Pair<Reducer<T, A>, T>,
+        pair: Tuple2<Reducer<T, A>, T>,
         alias: String? = null,
     ) {
         list.add(
@@ -53,18 +54,18 @@ class StoreScope private constructor(val list: MutableList<StoreRecord>) {
     }
 
     inline infix fun <reified T : Any, reified A : Any> Reducer<T, A>.with(state: T) {
-        add(Pair(this@with, state))
+        add(Tuple2(this@with, state))
     }
 
     object NamedScope {
-        inline infix fun <reified T : Any, reified A : Any> Reducer<T, A>.with(state: T): Pair<Reducer<T, A>, T> {
-            return Pair(this@with, state)
+        inline infix fun <reified T : Any, reified A : Any> Reducer<T, A>.with(state: T): Tuple2<Reducer<T, A>, T> {
+            return Tuple2(this@with, state)
         }
     }
 
     inline fun <reified T : Any, reified A : Any> named(
         alias: String,
-        fn: NamedScope.() -> Pair<Reducer<T, A>, T>,
+        fn: NamedScope.() -> Tuple2<Reducer<T, A>, T>,
     ) {
         add(NamedScope.fn(), alias)
     }

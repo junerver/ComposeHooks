@@ -44,7 +44,7 @@ private class Interval(private val options: IntervalOptions) {
     /**
      * 调用[intervalFn]的组件所在协程作用域
      */
-    internal var scope: CoroutineScope by Delegates.notNull()
+    var scope: CoroutineScope by Delegates.notNull()
 
     /**
      * 外部需要重复执行的函数

@@ -8,7 +8,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 /**
- * Use async
+ * This hook function accepts a suspend function as a parameter and returns
+ * an function(use to execute suspend function). When you call the execution function,
+ * the suspend function will be executed within the coroutine scope of the current component.
  *
  * @param fn
  * @return
@@ -27,7 +29,16 @@ fun useAsync(fn: SuspendAsyncFn): () -> Unit {
 internal typealias AsyncRunFn = (SuspendAsyncFn) -> Unit
 
 /**
- * Use async
+ * This is a hook function that simplifies the use of coroutine scope.
+ * It holds the coroutine scope through an object to achieve a usage similar
+ * to the [run] function. Equivalent to `scope.launch { }`
+ * ```
+ * val asyncRun = useAsync()
+ * asyncRun {
+ *   // do something
+ * }
+ *
+ * ```
  *
  * @return
  */

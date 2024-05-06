@@ -55,13 +55,29 @@ fun <T> useState(default: T & Any): MutableState<T> {
     } as MutableState<T>
 }
 
+/**
+ * 用于方便的创建派生状态，派生状态不同于普通的[MutableState]，他是一个只读的状态，
+ * 它只会在依赖发生变化时重新计算改变状态，在其他的框架中也称之为计算属性或者计算状态。
+ *
+ *  Used to conveniently create derived states. Derived state is different from
+ *  ordinary [MutableState]. It is a read-only state. It will only recalculate
+ *  the changed state when dependencies change. It is also called a
+ *  *Computed Properties* in other frameworks.
+ *
+ * @param T  Derived object type
+ * @param keys  Dependencies, calculations will be reinitiated when they change, changing the derived state
+ * @param factory  Function used to generate derived objects
+ * @receiver
+ */
 @Composable
 fun <T> useState(vararg keys: Any, factory: () -> T) = remember(keys = keys) {
     derivedStateOf(factory)
 }
 
 /**
- * 这是一个可空的[useState]，如果对象的状态可能为空，应该使用它
+ * 这是一个可空的[useState]，如果对象的状态可能为空，应该使用它。
+ *
+ * This is a nullable [useState] and should be used if the object's state may be null.
  */
 @Composable
 fun <T> _useState(@Nullable default: T) = remember {

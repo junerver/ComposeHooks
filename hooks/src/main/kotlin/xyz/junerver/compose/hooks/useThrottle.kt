@@ -17,15 +17,17 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
- * Description:
+ * Throttle options
  *
- * @author Junerver date: 2024/1/30-11:02 Email: junerver@gmail.com
- *     Version: v1.0
+ * @property wait time to delay
+ * @property leading Specify invoking on the leading edge of the timeout.
+ * @property trailing Specify invoking on the trailing edge of the timeout.
+ * @constructor Create empty Throttle options
  */
 data class ThrottleOptions internal constructor(
-    var wait: Duration = 1.seconds, // 节流时长
-    var leading: Boolean = true, // 是否在延迟开始前调用函数
-    var trailing: Boolean = true, // 是否在延迟开始后调用函数
+    var wait: Duration = 1.seconds,
+    var leading: Boolean = true,
+    var trailing: Boolean = true,
 ) {
     companion object : Options<ThrottleOptions>(::ThrottleOptions)
 }
@@ -35,14 +37,11 @@ internal class Throttle(
     private val scope: CoroutineScope,
     private val options: ThrottleOptions = defaultOption(),
 ) : VoidFunction {
-    // 调用计数
+
     private var calledCount = 0
-
-    // 任务 -- 是否结束边缘
     private val trailingJobs: MutableList<Job> = arrayListOf()
-
-    // 执行成功时间
     private var latestInvokedTime = 0L
+
     private fun clearTrailing() {
         if (trailingJobs.isNotEmpty()) {
             trailingJobs.forEach {
@@ -58,12 +57,10 @@ internal class Throttle(
             (System.currentTimeMillis() - latestInvokedTime).toDuration(DurationUnit.MILLISECONDS)
 
         fun task(isDelay: Boolean, isTrailing: Boolean = false) {
-            // 尾随任务不自动运行
             scope.launch(start = if (isTrailing) CoroutineStart.LAZY else CoroutineStart.DEFAULT) {
                 if (isDelay) delay(wait)
                 fn(p1)
                 if (!isTrailing && trailingJobs.isNotEmpty()) {
-                    // 非尾随任务执行完毕后清空尾随任务
                     trailingJobs.last().apply {
                         start()
                         join()
@@ -79,11 +76,8 @@ internal class Throttle(
             task(isDelay = !(calledCount == 0 && leading))
             latestInvokedTime = System.currentTimeMillis()
         } else {
-            // 有常规任务
             if (trailing) {
-                // 移除全部尾任务
                 clearTrailing()
-                // 追加一个结束边缘,结束边缘不clear
                 task(isDelay = true, isTrailing = true)
             }
         }

@@ -15,19 +15,22 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import xyz.junerver.kotlin.Tuple2
 
 /**
- * Description:
+ * Debounce options
  *
- * @author Junerver date: 2024/1/29-14:46 Email: junerver@gmail.com
- *     Version: v1.0
+ * @property wait time to delay
+ * @property leading Specify invoking on the leading edge of the timeout.
+ * @property trailing Specify invoking on the trailing edge of the timeout.
+ * @property maxWait The maximum time func is allowed to be delayed before it’s invoked.
+ * @constructor Create empty Debounce options
  */
-
 data class DebounceOptions internal constructor(
-    var wait: Duration = 1.seconds, // 防抖间隔
-    var leading: Boolean = false, // 是否在延迟开始前调用函数
-    var trailing: Boolean = true, // 是否在延迟开始后调用函数
-    var maxWait: Duration = 0.seconds, // 最大等待时长，防抖超过该时长则不再拦截
+    var wait: Duration = 1.seconds,
+    var leading: Boolean = false,
+    var trailing: Boolean = true,
+    var maxWait: Duration = 0.seconds,
 ) {
     companion object : Options<DebounceOptions>(::DebounceOptions)
 }
@@ -37,23 +40,15 @@ internal class Debounce(
     private val scope: CoroutineScope,
     private val options: DebounceOptions = defaultOption(),
 ) : VoidFunction {
-    // 调用计数
+
     private var calledCount = 0
-
-    // 任务 - 是否保障执行
-    private val jobs: MutableList<Pair<Job, Boolean>> = arrayListOf()
-
-    // 执行成功时间
+    private val jobs: MutableList<Tuple2<Job, Boolean>> = arrayListOf()
     private var latestInvokedTime = System.currentTimeMillis()
-
-    // 点击调用时间
     private var latestCalledTime = System.currentTimeMillis()
 
-    /** 移除队列中非保障任务 */
     private fun clear() {
         if (jobs.isNotEmpty()) {
             jobs.removeIf {
-                // 不需要保障执行的，则取消任务
                 if (!it.second) {
                     it.first.cancel()
                 }
@@ -64,11 +59,8 @@ internal class Debounce(
 
     override fun invoke(p1: TParams) {
         val (wait, leading, trailing, maxWait) = options
-
-        /** 可以被取消的计划任务： [guarantee] 保障执行，该任务添加后保障执行，不会被抖动取消， [isDelay] 是否延时 */
         fun task(guarantee: Boolean, isDelay: Boolean) {
             if (guarantee) {
-                // 如果是保障性任务立即修改成功调用的时间，避免连续创建保障性任务
                 latestInvokedTime = System.currentTimeMillis()
             }
             scope.launch {
@@ -78,53 +70,39 @@ internal class Debounce(
             }.also { jobs.add(it to guarantee) }
         }
 
-        // 等待超时 || 首次&&leading直接执行
         val currentTime = System.currentTimeMillis()
-        // 总计等待（当前时间-上次成功）
         val waitTime = (currentTime - latestInvokedTime).toDuration(DurationUnit.MILLISECONDS)
-        // 调用间隔(毫秒)
         val interval = (currentTime - latestCalledTime).toDuration(DurationUnit.MILLISECONDS)
-        // 是否为超时
         val isMaxWait = maxWait in 1.milliseconds..waitTime
         if (isMaxWait || (calledCount == 0 && leading)) {
-            // 超时、leading的首次调用则保障任务执行且不在延时
             task(guarantee = isMaxWait, isDelay = false)
         } else {
             if (calledCount > 0 && interval < wait) {
-                // 后续调用，且间隔时间小于设定的wait，清除之前的任务
                 clear()
-                // 是结束边缘则添加
                 if (trailing) {
                     task(guarantee = false, isDelay = true)
                 }
             } else {
-                // 1. ==0，但是非leading
-                // 2. >0 && 满足间隔
                 task(guarantee = false, isDelay = true)
             }
         }
-        // 保存本次调用时间
         calledCount++
         latestCalledTime = System.currentTimeMillis()
     }
 }
 
-/** 使用 [useDebounceFn] 实现的 */
 @Composable
 fun <S> useDebounce(
     value: S,
     options: DebounceOptions = defaultOption(),
 ): S {
     val (debounced, setDebounced) = _useState(value)
-    // 最简单的创建 noop 函数的方法就是使用 匿名函数 lambda。
     val debouncedSet = useDebounceFn(fn = {
         setDebounced(value)
     }, options)
     LaunchedEffect(key1 = value, block = {
-        // 外部状态变更时，调用debounced后的setState函数
         debouncedSet()
     })
-    // 对外只暴露状态的值，避免外部修改状态。
     return debounced
 }
 

@@ -240,7 +240,7 @@ $dokka.location:xyz.junerver.compose.hooks//rememberList/#kotlin.collections.Col
 $dokka.location:xyz.junerver.compose.hooks//rememberLong/#kotlin.Long/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-long.html
 $dokka.location:xyz.junerver.compose.hooks//rememberMap/#kotlin.Array[kotlin.Pair[TypeParam(bounds=[kotlin.Any?]),TypeParam(bounds=[kotlin.Any?])]]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-map.html
 $dokka.location:xyz.junerver.compose.hooks//rememberMap/#kotlin.collections.Iterable[kotlin.Pair[TypeParam(bounds=[kotlin.Any?]),TypeParam(bounds=[kotlin.Any?])]]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-map.html
-$dokka.location:xyz.junerver.compose.hooks//rememberMount/#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-mount.html
+$dokka.location:xyz.junerver.compose.hooks//rememberMount/#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-mount.html
 $dokka.location:xyz.junerver.compose.hooks//rememberNow/#xyz.junerver.compose.hooks.UseNowOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-now.html
 $dokka.location:xyz.junerver.compose.hooks//rememberPersistent/#kotlin.String#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-persistent.html
 $dokka.location:xyz.junerver.compose.hooks//rememberPrevious/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-previous.html
@@ -353,6 +353,7 @@ $dokka.location:xyz.junerver.compose.hooks/TimestampOptions///PointingToDeclarat
 $dokka.location:xyz.junerver.compose.hooks/TimestampOptions/callback/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-timestamp-options/callback.html
 $dokka.location:xyz.junerver.compose.hooks/TimestampOptions/interval/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-timestamp-options/interval.html
 $dokka.location:xyz.junerver.compose.hooks/TimestampOptions/offset/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-timestamp-options/offset.html
+$dokka.location:xyz.junerver.compose.hooks/ToggleFn///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-toggle-fn/index.html
 $dokka.location:xyz.junerver.compose.hooks/UndoState///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-undo-state/index.html
 $dokka.location:xyz.junerver.compose.hooks/UndoState/UndoState/#kotlin.collections.List[TypeParam(bounds=[kotlin.Any?])]#TypeParam(bounds=[kotlin.Any?])#kotlin.collections.List[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-undo-state/-undo-state.html
 $dokka.location:xyz.junerver.compose.hooks/UndoState/future/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-undo-state/future.html

@@ -77,9 +77,6 @@ inline fun <reified T : Any> useEventSubscribe(noinline subscriber: (T) -> Unit)
 }
 
 @Composable
-inline fun <reified T : Any> useEventPublish(): (T) -> Unit {
-    val postRef = useCreation {
-        { event: T -> EventManager.post(event) }
-    }
-    return postRef.current
-}
+inline fun <reified T : Any> useEventPublish(): (T) -> Unit = useCreation {
+    { event: T -> EventManager.post(event) }
+}.current

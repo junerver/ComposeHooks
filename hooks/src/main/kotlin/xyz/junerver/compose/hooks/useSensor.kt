@@ -10,12 +10,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.getSystemService
 
-/**
- * Description:
- *
- * @author Junerver date: 2024/3/15-13:06 Email: junerver@gmail.com
- *     Version: v1.0
- */
 @SuppressLint("ComposableNaming")
 @Composable
 fun useSensor(

@@ -5,7 +5,7 @@ import xyz.junerver.kotlin.Tuple5
 import xyz.junerver.kotlin.tuple
 
 /**
- * Description:
+ * Description: A hook to conveniently manage Boolean state
  * @author Junerver
  * date: 2024/1/26-13:38
  * Email: junerver@gmail.com
@@ -15,9 +15,9 @@ import xyz.junerver.kotlin.tuple
 fun useBoolean(default: Boolean = false): Tuple5<Boolean, () -> Unit, (Boolean) -> Unit, () -> Unit, () -> Unit> {
     val (state, setState) = _useState(default)
     return tuple(
-        first = state, // boolean状态
-        second = { setState(!state) }, // toggle函数
-        third = { b: Boolean -> setState(b) }, // set函数
+        first = state, // boolean state
+        second = { setState(!state) }, // toggle fun
+        third = { b: Boolean -> setState(b) }, // set fun
         fourth = { setState(true) }, // setTrue
         fifth = { setState(false) } // setFalse
     )

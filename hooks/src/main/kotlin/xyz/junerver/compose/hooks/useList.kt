@@ -14,17 +14,11 @@ import androidx.compose.runtime.toMutableStateList
  * Version: v1.0
  */
 @Composable
-fun <T> useList(elements: Collection<T>): SnapshotStateList<T> {
-    val list = remember {
-        elements.toMutableStateList()
-    }
-    return list
+fun <T> useList(elements: Collection<T>): SnapshotStateList<T> = remember {
+    elements.toMutableStateList()
 }
 
 @Composable
-fun <T> useList(vararg elements: T): SnapshotStateList<T> {
-    val list = remember {
-        mutableStateListOf(*elements)
-    }
-    return list
+fun <T> useList(vararg elements: T): SnapshotStateList<T> = remember {
+    mutableStateListOf(*elements)
 }

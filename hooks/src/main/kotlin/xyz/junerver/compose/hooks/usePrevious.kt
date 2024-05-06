@@ -14,7 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 fun <T> usePrevious(present: T): T? {
     val (state, set) = useUndo(initialPresent = present)
     LaunchedEffect(key1 = present) {
-        set(present) // 保存当前值
+        set(present)
     }
-    return state.past.lastOrNull() // 没有过去值就返回null
+    return state.past.lastOrNull()
 }

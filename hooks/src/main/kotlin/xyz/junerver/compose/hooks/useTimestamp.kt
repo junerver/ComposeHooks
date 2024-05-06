@@ -10,9 +10,9 @@ import xyz.junerver.kotlin.tuple
 
 /**
  * Description: [useTimestamp]和[useTimestampRef]的配置项
- * @param interval 时间戳变化的间隔
- * @param offset 时间戳的偏移量
- * @param callback 回调函数
+ * @param interval the interval between timestamp changes
+ * @param offset timestamp offset
+ * @param callback callback
  *
  * @author Junerver
  * date: 2024/3/14-10:18

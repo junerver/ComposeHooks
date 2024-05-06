@@ -14,17 +14,11 @@ import androidx.compose.runtime.toMutableStateMap
  * Version: v1.0
  */
 @Composable
-fun <K, V> useMap(vararg pairs: Pair<K, V>): SnapshotStateMap<K, V> {
-    val map = remember {
-        mutableStateMapOf(*pairs)
-    }
-    return map
+fun <K, V> useMap(vararg pairs: Pair<K, V>): SnapshotStateMap<K, V> = remember {
+    mutableStateMapOf(*pairs)
 }
 
 @Composable
-fun <K, V> useMap(pairs: Iterable<Pair<K, V>>): SnapshotStateMap<K, V> {
-    val map = remember {
-        pairs.toMutableStateMap()
-    }
-    return map
+fun <K, V> useMap(pairs: Iterable<Pair<K, V>>): SnapshotStateMap<K, V> = remember {
+    pairs.toMutableStateMap()
 }

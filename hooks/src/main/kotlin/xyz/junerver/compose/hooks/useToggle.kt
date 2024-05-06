@@ -4,6 +4,9 @@ import androidx.compose.runtime.Composable
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
+import xyz.junerver.kotlin.Tuple2
+
+typealias ToggleFn = () -> Unit
 
 /**
  * 用于在两个状态值间切换的 Hook。
@@ -12,8 +15,7 @@ import arrow.core.right
 fun <T> useToggle(
     defaultValue: T? = null,
     reverseValue: T? = null,
-): Pair<T?, () -> Unit> {
-    // 默认是左值（false）
+): Tuple2<T?, ToggleFn> {
     val (isLeft, toggle) = useBoolean(true)
     return (if (isLeft) defaultValue else reverseValue) to toggle
 }
@@ -26,8 +28,7 @@ fun <T> useToggle(
 fun <L, R> useToggleEither(
     defaultValue: L? = null,
     reverseValue: R? = null,
-): Pair<Either<L?, R?>, () -> Unit> {
-    // 默认是左值
+): Tuple2<Either<L?, R?>, ToggleFn> {
     val (isLeft, toggle) = useBoolean(true)
     return (if (isLeft) defaultValue.left() else reverseValue.right()) to toggle
 }
@@ -39,7 +40,7 @@ fun <L, R> useToggleEither(
 fun useToggleVisible(
     isVisible: Boolean = false,
     content: @Composable () -> Unit,
-): Pair<@Composable () -> Unit, () -> Unit> {
+): Tuple2<@Composable () -> Unit, ToggleFn> {
     val empty: @Composable () -> Unit = {}
     return useToggleVisible(isVisible, content, empty)
 }
@@ -49,7 +50,7 @@ fun useToggleVisible(
     isFirst: Boolean = true,
     content1: @Composable () -> Unit,
     content2: @Composable () -> Unit,
-): Pair<@Composable () -> Unit, () -> Unit> {
+): Tuple2<@Composable () -> Unit, ToggleFn> {
     val (visible, toggle) = useBoolean(isFirst)
     return (if (visible) content1 else content2) to toggle
 }
