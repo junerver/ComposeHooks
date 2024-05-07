@@ -65,30 +65,11 @@
   <div class="breadcrumbs"><a href="../../../index.html">hooks</a><span class="delimiter">/</span><a href="../index.html">xyz.junerver.compose.hooks</a><span class="delimiter">/</span><span class="current">Ref</span></div>
   <div class="cover ">
     <h1 class="cover"><span><span>Ref</span></span></h1>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="index.html">Ref</a><span class="token operator">&lt;</span><a href="index.html">T</a><span class="token operator">&gt;</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">var </span>current<span class="token operator">: </span><a href="index.html">T</a></span></span><span class="token punctuation">)</span></div><p class="paragraph">Description: <a href="../use-ref.html">useRef</a>可以方便的创建一个不受重组影响的对象引用。另外，它不同于rememberUpdatedState ，修改<a href="current.html">Ref.current</a>不会引发组件重组，它可以很好的用于保存现场，或者不需要引发重组的幕后变量。</p><span class="kdoc-tag"><h4 class="">Author</h4><p class="paragraph">Junerver date: 2024/2/7-12:03 Email: junerver@gmail.com Version: v1.0</p></span></div></div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">sealed </span><span class="token keyword">interface </span><a href="index.html">Ref</a><span class="token operator">&lt;</span><a href="index.html">T</a><span class="token operator">&gt;</span></div><p class="paragraph">Read-only Ref interface</p><h4 class="">Parameters</h4><div class="table"><div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>T</span></span></u></div></span></div><div></div></div></div></div><h4 class="">Inheritors</h4><div class="table"><div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><a href="../-mutable-ref/index.html">MutableRef</a></div></span></div><div></div></div></div></div></div></div>
   </div>
   <div class="tabbedcontent">
-    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
+    <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button><button class="section-tab" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION,EXTENSION_PROPERTY,EXTENSION_FUNCTION">Members &amp; Extensions</button></div>
     <div class="tabs-section-body">
-      <div data-togglable="CONSTRUCTOR">
-        <h2 class="">Constructors</h2>
-        <div class="table"><a data-name="-1504715977%2FConstructors%2F1917587792" anchor-label="Ref" id="-1504715977%2FConstructors%2F1917587792" data-filterable-set=":hooks:dokkaHtml/release"></a>
-          <div class="table-row" data-togglable="CONSTRUCTOR" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release">
-            <div class="main-subrow keyValue ">
-              <div class=""><span class="inline-flex">
-                  <div><a href="-ref.html"><span><span>Ref</span></span></a></div>
-<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1504715977%2FConstructors%2F1917587792"></span>
-                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
-                  </span></span></div>
-              <div>
-                <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">constructor</span><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">current<span class="token operator">: </span><a href="index.html">T</a></span></span><span class="token punctuation">)</span></div></div></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
       <div data-togglable="PROPERTY">
         <h2 class="">Properties</h2>
         <div class="table"><a data-name="925136161%2FProperties%2F1917587792" anchor-label="current" id="925136161%2FProperties%2F1917587792" data-filterable-set=":hooks:dokkaHtml/release"></a>
@@ -101,7 +82,56 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">var </span><a href="current.html">current</a><span class="token operator">: </span><a href="index.html">T</a></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">val </span><a href="current.html">current</a><span class="token operator">: </span><a href="index.html">T</a></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-togglable="FUNCTION">
+        <h2 class="">Functions</h2>
+        <div class="table"><a data-name="1554422593%2FFunctions%2F1917587792" anchor-label="observe" id="1554422593%2FFunctions%2F1917587792" data-filterable-set=":hooks:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="observe.html"><span><span>observe</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="1554422593%2FFunctions%2F1917587792"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="observe.html"><span class="token function">observe</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">observer<span class="token operator">: </span><span data-unresolved-link="xyz.junerver.compose.hooks/Observer///PointingToDeclaration/">Observer</span><span class="token operator">&lt;</span><a href="index.html">T</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="75749233%2FFunctions%2F1917587792" anchor-label="observeAsState" id="75749233%2FFunctions%2F1917587792" data-filterable-set=":hooks:dokkaHtml/release"></a>
+          <div class="table-row" data-togglable="EXTENSION_FUNCTION" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="../observe-as-state.html"><span>observe</span><wbr></wbr><span>As</span><wbr></wbr><span><span>State</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="75749233%2FFunctions%2F1917587792"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="../observe-as-state.html">T</a><span class="token operator">&gt; </span><a href="index.html">Ref</a><span class="token operator">&lt;</span><a href="../observe-as-state.html">T</a><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="../observe-as-state.html"><span class="token function">observeAsState</span></a><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/State.html">State</a><span class="token operator">&lt;</span><a href="../observe-as-state.html">T</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Observe Ref as State</p></div></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+<a data-name="-1621631751%2FFunctions%2F1917587792" anchor-label="removeObserver" id="-1621631751%2FFunctions%2F1917587792" data-filterable-set=":hooks:dokkaHtml/release"></a>
+          <div class="table-row" data-filterable-current=":hooks:dokkaHtml/release" data-filterable-set=":hooks:dokkaHtml/release">
+            <div class="main-subrow keyValue ">
+              <div class=""><span class="inline-flex">
+                  <div><a href="remove-observer.html"><span>remove</span><wbr></wbr><span><span>Observer</span></span></a></div>
+<span class="anchor-wrapper"><span class="anchor-icon" pointing-to="-1621631751%2FFunctions%2F1917587792"></span>
+                    <div class="copy-popup-wrapper "><span class="copy-popup-icon"></span><span>Link copied to clipboard</span></div>
+                  </span></span></div>
+              <div>
+                <div class="title">
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/release"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">fun </span><a href="remove-observer.html"><span class="token function">removeObserver</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">observer<span class="token operator">: </span><span data-unresolved-link="xyz.junerver.compose.hooks/Observer///PointingToDeclaration/">Observer</span><span class="token operator">&lt;</span><a href="index.html">T</a><span class="token operator">&gt;</span></span></span><span class="token punctuation">)</span></div></div></div>
                 </div>
               </div>
             </div>

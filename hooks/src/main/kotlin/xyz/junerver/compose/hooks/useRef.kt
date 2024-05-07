@@ -54,10 +54,10 @@ class MutableRef<T>(initialValue: T) : Ref<T> {
  *
  * @param T
  */
-interface Ref<T> {
+sealed interface Ref<T> {
     val current: T
-    fun observe(observer: Observer<T>){}
-    fun removeObserver(observer: Observer<T>){}
+    fun observe(observer: Observer<T>) {}
+    fun removeObserver(observer: Observer<T>) {}
 }
 
 @Composable
