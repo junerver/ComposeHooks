@@ -22,8 +22,9 @@ private typealias Observer<T> = (T) -> Unit
  * Mutable ref
  *
  * @param T
- * @property current
- * @constructor Create Mutable ref
+ * @constructor
+ *
+ * @param initialValue
  */
 class MutableRef<T>(initialValue: T) : Ref<T> {
     override var current: T by Delegates.observable(initialValue) { _, _, newValue ->
@@ -32,12 +33,12 @@ class MutableRef<T>(initialValue: T) : Ref<T> {
 
     private val mObservers = mutableListOf<Observer<T>>()
 
-    internal fun observe(observer: Observer<T>) {
+    override fun observe(observer: Observer<T>) {
         observer.invoke(current)
         mObservers.add(observer)
     }
 
-    internal fun removeObserver(observer: Observer<T>) {
+    override fun removeObserver(observer: Observer<T>) {
         mObservers.remove(observer)
     }
 
@@ -55,6 +56,8 @@ class MutableRef<T>(initialValue: T) : Ref<T> {
  */
 interface Ref<T> {
     val current: T
+    fun observe(observer: Observer<T>){}
+    fun removeObserver(observer: Observer<T>){}
 }
 
 @Composable
@@ -69,7 +72,7 @@ fun <T> useRef(default: T): MutableRef<T> = remember {
  * @return
  */
 @Composable
-fun <T> MutableRef<T>.observeAsState(): State<T> {
+fun <T> Ref<T>.observeAsState(): State<T> {
     val state = _useState(default = this.current)
     DisposableEffect(Unit) {
         val observer = { it: T -> state.value = it }

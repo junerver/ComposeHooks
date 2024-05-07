@@ -10,7 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import xyz.junerver.compose.hooks.MutableRef
+import xyz.junerver.compose.hooks.Ref
 import xyz.junerver.compose.hooks.observeAsState
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUpdate
@@ -44,13 +44,20 @@ fun UseRefExample() {
                     .fillMaxWidth()
                     .padding(20.dp)
             )
-            SubRef(mutableRef = countRef)
+            SubRef(ref = countRef)
+            SubRef(ref = countRef)
+            SubRef(ref = countRef)
         }
     }
 }
 
+/**
+ * Sub ref
+ *
+ * @param ref Refs exposed to subcomponents should be read-only [Ref] to avoid modifications by subcomponents [Ref.current]
+ */
 @Composable
-private fun SubRef(mutableRef: MutableRef<Int>) {
-    val refState by mutableRef.observeAsState()
+private fun SubRef(ref: Ref<Int>) {
+    val refState by ref.observeAsState()
     Text(text = "parent's Ref is : $refState")
 }
