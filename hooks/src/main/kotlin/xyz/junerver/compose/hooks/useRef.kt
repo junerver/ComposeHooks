@@ -12,9 +12,27 @@ import androidx.compose.runtime.remember
  * Version: v1.0
  */
 
-data class Ref<T>(var current: T)
+/**
+ * Mutable ref
+ *
+ * @param T
+ * @property current
+ * @constructor Create Mutable ref
+ */
+data class MutableRef<T>(override var current: T) : Ref<T>
+
+/**
+ * Read-only Ref interface
+ *
+ * @param T
+ */
+interface Ref<T> {
+    val current: T
+}
 
 @Composable
-fun <T> useRef(default: T): Ref<T> = remember {
-    Ref(default)
+fun <T> useRef(default: T): MutableRef<T> = remember {
+    MutableRef(default)
 }
+
+

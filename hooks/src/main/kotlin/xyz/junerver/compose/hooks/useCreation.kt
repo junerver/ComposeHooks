@@ -22,5 +22,5 @@ import androidx.compose.runtime.remember
  */
 @Composable
 fun <T> useCreation(vararg keys: Any?, factory: () -> T): Ref<T> = remember(keys = keys) {
-    Ref(factory())
+    MutableRef(factory())
 }

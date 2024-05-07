@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlin.reflect.KFunction0
 import kotlin.reflect.KFunction1
-import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.MutableRef
 import xyz.junerver.compose.hooks.defaultOption
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.userequest.Fetch
@@ -49,7 +49,7 @@ fun <TData : Any> useCustomPluginRequest(
 }
 
 @Composable
-private fun <TData : Any> useRollbackPlugin(ref: Ref<() -> Unit>) = remember {
+private fun <TData : Any> useRollbackPlugin(ref: MutableRef<() -> Unit>) = remember {
     object : Plugin<TData>() {
         var pervState: FetchState<TData>? = null
 

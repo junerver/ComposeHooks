@@ -5,7 +5,7 @@ import androidx.compose.runtime.remember
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.MutableRef
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.useCreation
@@ -40,8 +40,8 @@ import xyz.junerver.kotlin.tuple
  */
 private class CachePlugin<TData : Any> : Plugin<TData>() {
 
-    lateinit var unSubscribeRef: Ref<(() -> Unit)?>
-    lateinit var currentPromiseRef: Ref<Deferred<*>?>
+    lateinit var unSubscribeRef: MutableRef<(() -> Unit)?>
+    lateinit var currentPromiseRef: MutableRef<Deferred<*>?>
 
     private var staleTime: Long = 0
     val currentTime: Long
