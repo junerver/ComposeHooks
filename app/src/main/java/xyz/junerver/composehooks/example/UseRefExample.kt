@@ -1,9 +1,17 @@
 package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import xyz.junerver.compose.hooks.MutableRef
+import xyz.junerver.compose.hooks.observeAsState
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUpdate
 import xyz.junerver.composehooks.ui.component.TButton
@@ -31,6 +39,18 @@ fun UseRefExample() {
             TButton(text = "toast ref") {
                 toast("ref.current: ${countRef.current}")
             }
+            HorizontalDivider(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(20.dp)
+            )
+            SubRef(mutableRef = countRef)
         }
     }
+}
+
+@Composable
+private fun SubRef(mutableRef: MutableRef<Int>) {
+    val refState by mutableRef.observeAsState()
+    Text(text = "parent's Ref is : $refState")
 }

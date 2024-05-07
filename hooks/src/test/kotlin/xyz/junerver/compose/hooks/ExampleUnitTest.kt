@@ -1,6 +1,6 @@
 package xyz.junerver.compose.hooks
 
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
@@ -12,5 +12,15 @@ class ExampleUnitTest {
     @Test
     fun addition_isCorrect() {
         assertEquals(4, 2 + 2)
+    }
+
+    @Test
+    fun testRef() {
+        var out = ""
+        val ref = MutableRef("init")
+        ref.observe { out = it }
+        assertEquals("init", out)
+        ref.current = "hello"
+        assertEquals("hello", out)
     }
 }

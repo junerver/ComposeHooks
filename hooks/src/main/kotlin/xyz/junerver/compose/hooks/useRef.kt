@@ -1,7 +1,11 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import kotlin.properties.Delegates
 
 /**
  * Description: [useRef]可以方便的创建一个不受重组影响的对象引用。另外，它不同于[rememberUpdatedState]
@@ -12,6 +16,8 @@ import androidx.compose.runtime.remember
  * Version: v1.0
  */
 
+private typealias Observer<T> = (T) -> Unit
+
 /**
  * Mutable ref
  *
@@ -19,7 +25,28 @@ import androidx.compose.runtime.remember
  * @property current
  * @constructor Create Mutable ref
  */
-data class MutableRef<T>(override var current: T) : Ref<T>
+class MutableRef<T>(initialValue: T) : Ref<T> {
+    override var current: T by Delegates.observable(initialValue) { _, _, newValue ->
+        mObservers.takeIf { it.isEmpty() } ?: notify(newValue)
+    }
+
+    private val mObservers = mutableListOf<Observer<T>>()
+
+    internal fun observe(observer: Observer<T>) {
+        observer.invoke(current)
+        mObservers.add(observer)
+    }
+
+    internal fun removeObserver(observer: Observer<T>) {
+        mObservers.remove(observer)
+    }
+
+    private fun notify(newValue: T) {
+        mObservers.forEach {
+            it.invoke(newValue)
+        }
+    }
+}
 
 /**
  * Read-only Ref interface
@@ -33,4 +60,23 @@ interface Ref<T> {
 @Composable
 fun <T> useRef(default: T): MutableRef<T> = remember {
     MutableRef(default)
+}
+
+/**
+ * Observe Ref as State
+ *
+ * @param T
+ * @return
+ */
+@Composable
+fun <T> MutableRef<T>.observeAsState(): State<T> {
+    val state = _useState(default = this.current)
+    DisposableEffect(Unit) {
+        val observer = { it: T -> state.value = it }
+        observe(observer)
+        onDispose {
+            removeObserver(observer)
+        }
+    }
+    return state
 }
