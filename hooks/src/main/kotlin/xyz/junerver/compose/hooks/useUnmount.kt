@@ -13,8 +13,8 @@ import androidx.compose.runtime.DisposableEffect
  */
 @SuppressLint("ComposableNaming")
 @Composable
-fun useUnmount(fn: () -> Unit) = DisposableEffect(Unit) {
+fun useUnmount(block: () -> Unit) = DisposableEffect(Unit) {
     onDispose {
-        fn()
+        block()
     }
 }

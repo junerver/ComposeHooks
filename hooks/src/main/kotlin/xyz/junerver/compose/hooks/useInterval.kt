@@ -81,12 +81,12 @@ private class Interval(private val options: IntervalOptions) {
 @Composable
 fun useInterval(
     options: IntervalOptions = defaultOption(),
-    fn: () -> Unit,
+    block: () -> Unit,
 ): Tuple3<PauseFn, ResumeFn, IsActive> {
     val (_, _, ready) = options
     val interval = remember {
         Interval(options).apply {
-            this.intervalFn = fn
+            this.intervalFn = block
         }
     }.apply {
         this.scope = rememberCoroutineScope()

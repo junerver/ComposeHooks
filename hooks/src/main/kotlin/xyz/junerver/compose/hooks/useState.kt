@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -70,7 +71,7 @@ fun <T> useState(default: T & Any): MutableState<T> {
  * @receiver
  */
 @Composable
-fun <T> useState(vararg keys: Any, factory: () -> T) = remember(keys = keys) {
+fun <T> useState(vararg keys: Any, factory: () -> T): State<T> = remember(keys = keys) {
     derivedStateOf(factory)
 }
 
@@ -80,6 +81,6 @@ fun <T> useState(vararg keys: Any, factory: () -> T) = remember(keys = keys) {
  * This is a nullable [useState] and should be used if the object's state may be null.
  */
 @Composable
-fun <T> _useState(@Nullable default: T) = remember {
+fun <T> _useState(@Nullable default: T): MutableState<T> = remember {
     mutableStateOf(default)
 }

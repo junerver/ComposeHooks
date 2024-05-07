@@ -34,7 +34,7 @@ private typealias SaveToPersistent<T> = (T?) -> Unit
 /**
  * The final return value of the persistence hook is a tuple like [state,setState]
  */
-typealias PersistentHookReturn<T> = Tuple3<T, SaveToPersistent<T>, PersistentClear>
+private typealias PersistentHookReturn<T> = Tuple3<T, SaveToPersistent<T>, PersistentClear>
 
 /**
  * By default, [memorySaveMap] is used for memory persistence.

@@ -34,5 +34,3 @@ interface Ref<T> {
 fun <T> useRef(default: T): MutableRef<T> = remember {
     MutableRef(default)
 }
-
-

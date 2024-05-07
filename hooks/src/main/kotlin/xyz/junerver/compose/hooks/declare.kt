@@ -108,8 +108,8 @@ inline fun <reified T : Any> rememberEventPublish(): (T) -> Unit = useEventPubli
 @Composable
 fun rememberInterval(
     options: IntervalOptions = defaultOption(),
-    fn: () -> Unit,
-) = useInterval(options, fn)
+    block: () -> Unit,
+) = useInterval(options, block)
 
 @Composable
 fun rememberKeyboard() = useKeyboard()
@@ -203,7 +203,7 @@ fun LaunchedThrottleEffect(
 //endregion
 
 @Composable
-fun rememberTimeout(delay: Duration = 1.seconds, fn: () -> Unit) = useTimeout(delay, fn)
+fun rememberTimeout(delay: Duration = 1.seconds, block: () -> Unit) = useTimeout(delay, block)
 
 @Composable
 fun rememberTimestamp(
@@ -241,7 +241,7 @@ fun rememberToggleVisible(
 fun <T> rememberUndo(initialPresent: T) = useUndo(initialPresent)
 
 @Composable
-fun rememberUnmount(fn: () -> Unit) = useUnmount(fn)
+fun rememberUnmount(block: () -> Unit) = useUnmount(block)
 
 @Composable
 fun rememberUpdate(): () -> Unit = useUpdate()

@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberUpdatedState
 
 /**
@@ -19,4 +20,4 @@ import androidx.compose.runtime.rememberUpdatedState
 fun <T> useLatestRef(value: T): Ref<T> = useRef(default = value).apply { current = value }
 
 @Composable
-fun <T> useLatestState(value: T) = rememberUpdatedState(value)
+fun <T> useLatestState(value: T): State<T> = rememberUpdatedState(value)

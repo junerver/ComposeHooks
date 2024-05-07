@@ -37,7 +37,6 @@ class UseDebounceTest {
                 Button(onClick = { debounceAdd() }) {
                     Text(text = "debounce+1")
                 }
-
             }
         }
         val buttonNode = composeTestRule.onNodeWithText("debounce+1")
