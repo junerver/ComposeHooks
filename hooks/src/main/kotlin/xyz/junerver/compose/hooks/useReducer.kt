@@ -30,14 +30,16 @@ fun <S, A> useReducer(
     val (state, setState) = _useState(initialState)
     val stateRef = useLatestRef(value = state)
     val dispatch = { action: A -> setState(reducer(stateRef.current, action)) }
-
-    val enhancedDispatch: Dispatch<A> = { action ->
-        var nextDispatch: Dispatch<A> = dispatch
-        for (middleware in middlewares) {
-            nextDispatch = middleware(nextDispatch, state)
+    val enhancedDispatch: Dispatch<A> = if (middlewares.isNotEmpty()) {
+        { action ->
+            var nextDispatch: Dispatch<A> = dispatch
+            for (middleware in middlewares) {
+                nextDispatch = middleware(nextDispatch, state)
+            }
+            nextDispatch(action)
         }
-        nextDispatch(action)
+    } else {
+        dispatch
     }
-
     return Tuple2(state, enhancedDispatch)
 }

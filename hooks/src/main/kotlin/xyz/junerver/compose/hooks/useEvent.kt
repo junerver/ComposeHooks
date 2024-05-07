@@ -46,9 +46,7 @@ object EventManager {
     val subscriberMap = mutableMapOf<KClass<*>, MutableList<(Any) -> Unit>>()
 
     inline fun <reified T : Any> register(noinline subscriber: (T) -> Unit): () -> Unit {
-        if (!subscriberMap.containsKey(T::class)) {
-            subscriberMap[T::class] = mutableListOf()
-        }
+        subscriberMap[T::class] ?: run { subscriberMap[T::class] = mutableListOf() }
         subscriberMap[T::class]?.add(subscriber as (Any) -> Unit)
         return {
             subscriberMap[T::class]?.remove(subscriber)
@@ -62,6 +60,14 @@ object EventManager {
     }
 }
 
+/**
+ * Register a subscriber. Note that this subscription function will be removed from
+ * the subscription list after the component is uninstalled.
+ *
+ * @param T
+ * @param subscriber
+ * @receiver
+ */
 @Composable
 inline fun <reified T : Any> useEventSubscribe(noinline subscriber: (T) -> Unit) {
     val latest by useLatestState(subscriber)
@@ -76,6 +82,12 @@ inline fun <reified T : Any> useEventSubscribe(noinline subscriber: (T) -> Unit)
     }
 }
 
+/**
+ * This hook returns a publish function, use that fun to post a event.
+ *
+ * @param T
+ * @return
+ */
 @Composable
 inline fun <reified T : Any> useEventPublish(): (T) -> Unit = useCreation {
     { event: T -> EventManager.post(event) }
