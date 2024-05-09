@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
@@ -26,6 +27,7 @@ private typealias Observer<T> = (T) -> Unit
  *
  * @param initialValue
  */
+@Stable
 class MutableRef<T>(initialValue: T) : Ref<T> {
     override var current: T by Delegates.observable(initialValue) { _, _, newValue ->
         mObservers.takeIf { it.isEmpty() } ?: notify(newValue)
@@ -54,6 +56,7 @@ class MutableRef<T>(initialValue: T) : Ref<T> {
  *
  * @param T
  */
+@Stable
 sealed interface Ref<T> {
     val current: T
     fun observe(observer: Observer<T>) {}

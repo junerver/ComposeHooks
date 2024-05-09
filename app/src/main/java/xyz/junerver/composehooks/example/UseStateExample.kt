@@ -41,6 +41,7 @@ fun UseStateExample() {
      *  Compose's recompose optimization will be triggered, resulting in state loss.
      */
     val (state, setState) = useState("")
+
     Surface {
         Column {
             Text(text = "this is a simple controlled component:")
@@ -123,9 +124,10 @@ private fun UseStateQuestionTwo() {
 @Composable
 private fun useAddIncorrect(default: Int): Tuple2<Int, () -> Unit> {
     val (state, setState) = useState(default)
+
     // This kind of code will cause closure problems,
     fun add() {
-        setState(state + 1) //The value of state is always default
+        setState(state + 1) // The value of state is always default
     }
     return tuple(
         first = state,
@@ -136,6 +138,7 @@ private fun useAddIncorrect(default: Int): Tuple2<Int, () -> Unit> {
 @Composable
 private fun useAddCorrect(default: Int): Tuple2<Int, () -> Unit> {
     var state by _useState(default)
+
     // Using the `by` delegate can avoid most closure problems
     fun add() {
         state += 1

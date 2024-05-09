@@ -43,4 +43,8 @@ class FormInstance {
             setState(it.value)
         }
     }
+
+    fun setFieldsValue(vararg pairs: Pair<String, Any>) {
+        setFieldsValue(mapOf(pairs = pairs))
+    }
 }
