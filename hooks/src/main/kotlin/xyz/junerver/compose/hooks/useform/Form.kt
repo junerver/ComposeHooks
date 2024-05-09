@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks.useform
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
 import java.util.regex.Pattern
 import kotlin.reflect.KClass
 import xyz.junerver.compose.hooks.Ref
@@ -103,7 +104,7 @@ class FormScope private constructor(
                 }
             }.all { it }
             set(isValidate)
-            ref.current.isValidated = isValidate
+            ref.current.fieldValidatedMap[name] = isValidate
         }
         content(tuple(fieldState, validate, errMsg.values.toList()))
     }
@@ -114,10 +115,19 @@ class FormScope private constructor(
     }
 }
 
+@Stable
 data class FormRef(
-    var form: MutableMap<String, MutableState<Any>> = mutableMapOf(),
-    var isValidated: Boolean = false,
-)
+    val form: MutableMap<String, MutableState<Any>> = mutableMapOf(),
+    val fieldValidatedMap: MutableMap<String, Boolean> = mutableMapOf(),
+){
+    /**
+     * Is all fields in the form are verified successfully
+     */
+    val isValidated : Boolean
+        get() {
+           return fieldValidatedMap.isEmpty() || fieldValidatedMap.entries.map { it.value }.all { it }
+        }
+}
 
 @Composable
 fun Form(formInstance: FormInstance = useForm(), children: @Composable FormScope.() -> Unit) {
