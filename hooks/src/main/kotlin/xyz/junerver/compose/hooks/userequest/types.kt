@@ -14,8 +14,10 @@ import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.userequest.plugins.useAutoRunPlugin
+import xyz.junerver.compose.hooks.userequest.plugins.useDebouncePlugin
 import xyz.junerver.kotlin.isNotNull
 
+@Suppress("ConstPropertyName")
 internal object Keys {
     const val loading = "loading"
     const val params = "params"
@@ -35,10 +37,6 @@ internal object Keys {
  * Version: v1.0
  */
 internal sealed interface Copyable<Self> {
-    /**
-     * [copy]函数是为了通过[reduce]实现类似js中解构赋值覆盖的效果，注意实现时必须是[that]覆盖[this]:
-     * `params = that.params ?: this.params,`
-     */
     fun copy(that: Self?): Self
     operator fun plus(that: Self?) = this.copy(that)
 }
@@ -54,6 +52,7 @@ internal fun <T : Copyable<T>> List<T>.cover(): T? {
  * map中如果有这个key就取值，无论结果是否为null；
  * 没有这个key则取旧值
  */
+@Suppress("UNCHECKED_CAST")
 internal fun <T> Map<String, Any?>.getOrElse(key: String, default: T?) = if (this.containsKey(key)) {
     this[key] as? T
 } else {
@@ -247,7 +246,7 @@ data class OnBeforeReturn<TData>(
 /**
  * 插件生命周期[PluginLifecycle.onRequest]的返回值类型，
  * [Fetch._runAsync]会在调用[Fetch.requestFn]请求发生前回调所有插件的[PluginLifecycle.onRequest]函数。
- * 插件可以通过[Fetch.requestFn]拿到原始的请求函数，通过返回值[requestDeferred]来[async]闭包的[await]，
+ * 插件可以通过[Fetch.requestFn]拿到原始的请求函数，通过返回值[requestDeferred]来`async`闭包的`await`，
  * 来改变实际请求。
  */
 data class OnRequestReturn<TData>(val requestDeferred: Deferred<TData>? = null) :
@@ -325,10 +324,10 @@ abstract class PluginLifecycle<TData> {
 typealias GenPluginLifecycleFn<TData> = (Fetch<TData>, RequestOptions<TData>) -> PluginLifecycle<TData>
 
 /**
- * 插件函数[useXXXPlugin]的返回值是真实的插件[Plugin]对象，
+ * 插件函数 `useXXXPlugin` 的返回值是真实的插件[Plugin]对象，
  * 可以通过在[useRequestPluginsImpl]中调用[onInit]函数，用来初始化 [Fetch.fetchState]状态。
  * 插件对象自身实现了协程作用域[CoroutineScope]，持有[Fetch]的实例、请求[RequestOptions]配置等内容。
- * 按需实现[IFetch]对应[Fetch]中的各个函数调用，就可以在插件函数[useXXXPlugin]中需要使用副作用函数时，间接回调[Fetch]实例。
+ * 按需实现[IFetch]对应[Fetch]中的各个函数调用，就可以在插件函数`useXXXPlugin`中需要使用副作用函数时，间接回调[Fetch]实例。
  * 具体用例可以参考：[useAutoRunPlugin]
  */
 abstract class Plugin<TData : Any> : IFetch<TData>, Serializable, CoroutineScope {

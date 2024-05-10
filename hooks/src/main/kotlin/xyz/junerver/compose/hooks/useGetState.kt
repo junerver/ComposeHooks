@@ -12,7 +12,7 @@ import xyz.junerver.kotlin.Tuple3
  * there will be a problem of state loss.
  *
  * Now you can use [useGetState] to solve these problems and get the latest value
- * through [getter] to avoid closure problems. The [setter] function also supports fast update.
+ * through `getter` to avoid closure problems. The `setter` function also supports fast update.
  *
  * @author Junerver
  * date: 2024/5/10-9:31

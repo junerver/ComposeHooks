@@ -12,6 +12,7 @@ import kotlinx.coroutines.Deferred
 
 private val cachePromise: MutableMap<String, Deferred<*>> = mutableMapOf()
 
+@Suppress("UNCHECKED_CAST")
 internal fun <T> getCachePromise(cacheKey: String) = cachePromise[cacheKey] as? Deferred<T>
 
 internal fun setCachePromise(cacheKey: String, promise: Deferred<*>) {

@@ -10,6 +10,7 @@ import kotlin.random.Random
  * Email: junerver@gmail.com
  * Version: v1.0
  */
+@Suppress("UNUSED_VARIABLE")
 @Composable
 fun useUpdate(): () -> Unit {
     val (state, setState) = useGetState(0.0)

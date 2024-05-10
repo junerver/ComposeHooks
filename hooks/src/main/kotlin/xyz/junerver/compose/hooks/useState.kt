@@ -45,6 +45,7 @@ import org.jetbrains.annotations.Nullable
  * Email: junerver@gmail.com
  * Version: v1.0
  */
+@Suppress("UNCHECKED_CAST")
 @Composable
 fun <T> useState(default: T & Any): MutableState<T> {
     return when (default) {

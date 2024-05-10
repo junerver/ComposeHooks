@@ -33,6 +33,7 @@ class FormScope private constructor(
         val fieldState = _useState<T?>(default = null)
         val (validate, _, set) = useBoolean()
         val errMsg = useMap<KClass<*>, String>()
+        @Suppress("UNCHECKED_CAST")
         ref.current.form[name] = fieldState as MutableState<Any>
 
         useEffect(fieldState.value) {
@@ -46,6 +47,7 @@ class FormScope private constructor(
                 return false
             }
 
+            @Suppress("RedundantNullableReturnType")
             val fieldValue: Any? = fieldState.value
             val isValidate =
                 validators.validateField(fieldValue, pass = Validator::pass, fail = Validator::fail)

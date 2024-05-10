@@ -38,6 +38,8 @@ data class Store(
 }
 
 class StoreScope private constructor(val list: MutableList<StoreRecord>) {
+
+    @Suppress("UNCHECKED_CAST")
     inline fun <reified T : Any, reified A : Any> add(
         pair: Tuple2<Reducer<T, A>, T>,
         alias: String? = null,

@@ -64,22 +64,12 @@ internal object FetchCacheManager : CoroutineScope {
         cache[key] = tuple(cachedData, currentTime + cacheTime)
     }
 
+    @Suppress("UNCHECKED_CAST")
     fun <T> getCache(key: String): CachedData<T>? {
         return if (isCacheValid(key)) {
             cache[key]!!.first as CachedData<T>
         } else {
             null
-        }
-    }
-
-    fun clearCache(vararg cacheKeys: String) {
-        if (cacheKeys.isEmpty()) {
-            // 无参数全部清空
-            cache.clear()
-        } else {
-            cache.entries.removeIf {
-                cacheKeys.contains(it.key)
-            }
         }
     }
 }

@@ -83,8 +83,6 @@ fun List<Validator>.validateField(
             is CustomValidator -> fieldValue.validate(it) {
                 it.validator(this)
             }
-
-            else -> true
         }
     }.all { it }
 }

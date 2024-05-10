@@ -31,14 +31,15 @@ typealias CancelFn = KFunction0<Unit>
  * Description: 一个用来管理网络状态的Hook，它可以非常方便的接入到传统的 retrofit 网络请求模式中。
  * 你几乎不需要做任何额外工作，就可以简单高效的在 Compose 中使用网络请求，并将请求数据作为状态，直接驱动UI。
  *
- * 重要：如果你使用例如 [GsonConverterFactory] 来反序列化你的响应，必须将反序列化后的对象设置成[Parcelable]!
+ * 重要：如果你使用例如 `GsonConverterFactory` 来反序列化你的响应，必须将反序列化后的对象设置成[Parcelable]!
  *
- * [noop] 是所有函数的抽象，我们最终通过函数拿到的手动执行函数也是[noop]类型的，调用时要传递的是[arrayOf]的参数。
+ * [SuspendNormalFunction] 是所有函数的抽象，我们最终通过函数拿到的手动执行函数也是[SuspendNormalFunction]类型的，
+ * 调用时要传递的是[arrayOf]的参数。
  *
  * 我还额外提供了两个方便的转换函数
  * [asNoopFn]、[asSuspendNoopFn]，这两个函数可以把任意的Kotlin函数转换成[useRequest]需要的函数。
  * 需要注意区分，如果是挂起函数就需要调用[asSuspendNoopFn]，否则就使用
- * [asNoopFn]，通过这个函数我们可以简化普通函数到[noop]的包装过程。
+ * [asNoopFn]，通过这个函数我们可以简化普通函数到[SuspendNormalFunction]的包装过程。
  *
  * 示例代码：
  *
@@ -85,8 +86,10 @@ typealias CancelFn = KFunction0<Unit>
  * @param options
  *     请求的配置项，参考[RequestOptions]，以及[ahooks-useRequest](https://ahooks.gitee.io/zh-CN/hooks/use-request/index).
  * @param plugins 自定义的插件，这是一个数组，请通过arrayOf传入
- * @author Junerver date: 2024/1/25-8:11 Email: junerver@gmail.com Version:
- *     v1.0
+ * @author Junerver
+ * date: 2024/1/25-8:11
+ * Email: junerver@gmail.com
+ * Version: v1.0
  */
 @Composable
 fun <TData : Any> useRequest(
@@ -120,19 +123,19 @@ fun <TData : Any> useRequest(
     /** 这样做的好处是方便添加与变更次序，而不用每次覆写componentN函数 */
     return with(fetch) {
         Tuple7(
-            /** 直接将[dataState.value]返回，避免拆包 */
+            /** 直接将`dataState.value`返回，避免拆包 */
             first = dataState.value,
-            /** 返回[loadingState] */
+            /** 返回`loadingState` */
             second = loadingState.value,
-            /** 返回原函数执行出错的异常[errorState] */
+            /** 返回原函数执行出错的异常`errorState` */
             third = errorState.value,
-            /** 如果函数手动执行，则通过返回的[run]函数，进行执行。 如果配置了防抖、节流会按照优先防抖、其次节流的策略返回对应的函数。 */
+            /** 如果函数手动执行，则通过返回的`run`函数，进行执行。 如果配置了防抖、节流会按照优先防抖、其次节流的策略返回对应的函数。 */
             fourth = run,
-            /** [mutate] 函数，用于直接修改当前状态值，目前缺少回溯 */
+            /** `mutate` 函数，用于直接修改当前状态值，目前缺少回溯 */
             fifth = ::mutate,
-            /** [refresh] 函数 */
+            /** `refresh` 函数 */
             sixth = ::refresh,
-            /** [cancel] 函数 */
+            /** `cancel` 函数 */
             seventh = ::cancel
         )
     }

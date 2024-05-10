@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package xyz.junerver.compose.hooks.utils
 
 import xyz.junerver.compose.hooks.DependencyList

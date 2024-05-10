@@ -45,6 +45,7 @@ import kotlin.reflect.KClass
 object EventManager {
     val subscriberMap = mutableMapOf<KClass<*>, MutableList<(Any) -> Unit>>()
 
+    @Suppress("UNCHECKED_CAST")
     inline fun <reified T : Any> register(noinline subscriber: (T) -> Unit): () -> Unit {
         subscriberMap[T::class] ?: run { subscriberMap[T::class] = mutableListOf() }
         subscriberMap[T::class]?.add(subscriber as (Any) -> Unit)

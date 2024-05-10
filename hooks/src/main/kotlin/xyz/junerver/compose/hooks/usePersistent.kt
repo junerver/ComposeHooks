@@ -39,11 +39,12 @@ private typealias PersistentHookReturn<T> = Tuple3<T, SaveToPersistent<T>, Persi
 /**
  * By default, [memorySaveMap] is used for memory persistence.
  * [usePersistent] is a lightweight encapsulation, you need to provide your own persistence solution
- * globally through [PersistentContext.Provider];
+ * globally through `PersistentContext.Provider`;
  */
 val PersistentContext =
     createContext<Tuple3<PersistentGet, PersistentSave, PersistentClear>>((::memoryGetPersistent to ::memorySavePersistent) + ::memoryClearPersistent)
 
+@Suppress("UNCHECKED_CAST")
 @Composable
 fun <T> usePersistent(key: String, defaultValue: T): PersistentHookReturn<T> {
     val (get, set, clear) = useContext(context = PersistentContext)

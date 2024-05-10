@@ -13,6 +13,7 @@ import xyz.junerver.compose.hooks.useContext
  * @param A
  * @return
  */
+@Suppress("UNCHECKED_CAST")
 @Composable
 inline fun <reified A> useDispatch(alias: String? = null): Dispatch<A> =
     alias?.let {

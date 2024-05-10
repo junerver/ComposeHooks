@@ -85,12 +85,12 @@ data class RequestOptions<TData> internal constructor(
      */
     var ready: Boolean = true,
     /**
-     * 通过设置 options.[refreshDeps]，在依赖变化时， [useRequest] 会自动调用 [refresh] 方法，实现刷新（重复上一次请求）的效果。
+     * 通过设置 options.[refreshDeps]，在依赖变化时， [useRequest] 会自动调用 [Fetch.refresh] 方法，实现刷新（重复上一次请求）的效果。
      * 如果设置 options.[manual] = true，则 [refreshDeps] 不再生效
      */
     var refreshDeps: Array<Any?> = emptyArray(),
     /**
-     * 如果存在依赖刷新Action函数，则不执行默认的[refresh]函数，改为执行[refreshDepsAction]
+     * 如果存在依赖刷新Action函数，则不执行默认的[Fetch.refresh]函数，改为执行[refreshDepsAction]
      */
     var refreshDepsAction: (() -> Unit)? = null,
     /**
@@ -114,7 +114,7 @@ data class RequestOptions<TData> internal constructor(
     var getCache: ((params: TParams) -> CachedData<TData>)? = null,
 
     /**
-     * 通过设置 options.[loadingDelay] ，可以延迟 [loading] 变成 true 的时间，有效防止闪烁。
+     * 通过设置 options.[loadingDelay] ，可以延迟 [FetchState.loading] 变成 true 的时间，有效防止闪烁。
      * 例如当一个接口正常会较快返回，我们如果常规使用会出现闪烁。从请求发起后，极快的从 false -> true ->false;
      * 我们可以设置一个大于这个返回时长的[loadingDelay]，例如[50.milliseconds]，这样在50ms内返回的接口，
      * 不会引起闪烁。这种闪烁其实还有一种变形场景，例如一个接口会极快返回，我们不希望用户继续快速点击，我们期望

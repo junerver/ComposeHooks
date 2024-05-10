@@ -1,7 +1,6 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import xyz.junerver.kotlin.Tuple2
 import xyz.junerver.kotlin.tuple
@@ -13,7 +12,6 @@ import xyz.junerver.kotlin.tuple
  * Email: junerver@gmail.com
  * Version: v1.0
  */
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun useKeyboard(): Tuple2<() -> Unit, () -> Unit> {
     val keyboardController = LocalSoftwareKeyboardController.current

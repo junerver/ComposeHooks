@@ -13,7 +13,6 @@ import xyz.junerver.kotlin.tuple
  */
 
 data class UndoState<T>(
-    // 过去的状态
     var past: List<T> = emptyList(),
     var present: T,
     var future: List<T> = emptyList(),
@@ -29,27 +28,19 @@ private data class Reset<S>(val payload: S) : UndoAction
 private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoState<T> {
     val (past, present, future) = preState
     return when (action) {
-        // 撤销
         Undo -> {
             if (past.isEmpty()) return preState
-            // 取出过去操作中的最后一个操作作为新的present
             val newPresent = past[past.size - 1]
-            // 将最后一个操作从past中移除
             val newPast = past.dropLast(1)
             preState.copy(
-                // 将新的present和新的past设置到state中
                 past = newPast,
                 present = newPresent,
-                // 将旧的present放入到future数组的头部
                 future = listOf(present) + future
             )
         }
-        // 重做
         Redo -> {
             if (future.isEmpty()) return preState
-            // 取出第一个future
             val newPresent = future[0]
-            // 将第一个future从future中删除 slice 函数可以用于剪裁\复制数组
             val newFuture = future.drop(1)
             preState.copy(
                 past = past + listOf(present),
@@ -82,11 +73,8 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
 @Composable
 fun <T> useUndo(initialPresent: T): Tuple7<UndoState<T>, (T) -> Unit, (T) -> Unit, () -> Unit, () -> Unit, Boolean, Boolean> {
     val (state, dispatch) = useReducer(::undoReducer, UndoState(present = initialPresent))
-    // 是否可以撤销
     val canUndo = state.past.isNotEmpty()
-    // 是否可以重做
     val canRedo = state.future.isNotEmpty()
-    // undo相关的四个函数
     val undo = { dispatch(Undo) }
     val redo = { dispatch(Redo) }
     val set = { newPresent: T -> dispatch(Set(newPresent)) }
