@@ -92,8 +92,8 @@ fun createStore(
     return Store(middlewares, list)
 }
 
-fun registerErr(): Nothing {
-    error("Please confirm that you have correctly registered in `createStore`!")
+fun registerErr(target: String): Nothing {
+    error("Please confirm $target that you have correctly registered in `createStore`!")
 }
 
 operator fun Store.plus(other: Store): Store {

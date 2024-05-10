@@ -12,10 +12,10 @@ import xyz.junerver.compose.hooks.useContext
 @Composable
 inline fun <reified T> useSelector(alias: String? = null): T =
     alias?.let {
-        useContext(context = ReduxContext).third[alias]!!.first as? T ?: registerErr()
+        useContext(context = ReduxContext).third[alias]?.first as? T ?: registerErr("alias:<$alias>")
     } ?: useContext(
         context = ReduxContext
-    ).first[T::class] as? T ?: registerErr()
+    ).first[T::class] as? T ?: registerErr("type:<${T::class.qualifiedName}>")
 
 /**
  * Use selector, by pass [block], you can also select part of state
