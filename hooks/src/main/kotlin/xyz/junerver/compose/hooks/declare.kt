@@ -16,6 +16,7 @@ import xyz.junerver.compose.hooks.useredux.useSelector
 import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
+import xyz.junerver.compose.hooks.usevibrate.useVibrate
 import xyz.junerver.kotlin.Tuple2
 
 /** 更符合 Compose 的函数命名方式 */
@@ -103,6 +104,15 @@ inline fun <reified T : Any> rememberEventSubscribe(noinline subscriber: (T) -> 
 
 @Composable
 inline fun <reified T : Any> rememberEventPublish(): (T) -> Unit = useEventPublish()
+//endregion
+
+//region useGetState
+@Composable
+fun <T> rememberGetState(default: T & Any) = useGetState(default = default)
+
+@Composable
+fun <T> _rememberGetState(default: T) = _useGetState(default = default)
+
 //endregion
 
 @Composable
@@ -244,8 +254,14 @@ fun <T> rememberUndo(initialPresent: T) = useUndo(initialPresent)
 fun rememberUnmount(block: () -> Unit) = useUnmount(block)
 
 @Composable
+fun rememberUnmountedRef() = useUnmountedRef()
+
+@Composable
 fun rememberUpdate(): () -> Unit = useUpdate()
 
 @Composable
 fun rememberUpdateEffect(vararg keys: Any?, block: SuspendAsyncFn) =
     useUpdateEffect(*keys, block = block)
+
+@Composable
+fun rememberVibrate() = useVibrate()
