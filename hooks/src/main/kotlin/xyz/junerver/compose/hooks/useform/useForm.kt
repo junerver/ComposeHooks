@@ -20,7 +20,7 @@ class FormInstance {
     /**
      * after Form Mount ref will assignment
      */
-    lateinit var formRef: Ref<FormRef>
+    internal lateinit var formRef: Ref<FormRef>
 
     fun getAllFields(): Map<String, Any?> {
         if (!this::formRef.isInitialized) error("FormInstance must be passed to Form before it can be used")
