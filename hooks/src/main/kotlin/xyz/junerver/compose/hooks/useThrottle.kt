@@ -87,7 +87,7 @@ internal class Throttle(
 
 @Composable
 fun <S> useThrottle(value: S, options: ThrottleOptions = defaultOption()): S {
-    val (throttled, setThrottled) = _useState(value)
+    val (throttled, setThrottled) = _useGetState(value)
     val throttledSet = useThrottleFn(fn = {
         setThrottled(value)
     }, options)

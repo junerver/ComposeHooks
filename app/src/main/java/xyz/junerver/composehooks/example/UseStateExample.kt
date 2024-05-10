@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import xyz.junerver.compose.hooks._useState
+import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.composehooks.ui.component.TButton
@@ -40,7 +41,7 @@ fun UseStateExample() {
      * 2. When you call the set function quickly(millisecond level),
      *  Compose's recompose optimization will be triggered, resulting in state loss.
      */
-    val (state, setState) = useState("")
+        val (state, setState) = useState("")
 
     Surface {
         Column {
@@ -49,7 +50,7 @@ fun UseStateExample() {
             Text(text = "input：$state")
             Spacer(modifier = Modifier.height(20.dp))
             UseStateQuestionOne()
-            val (num, add) = useAddIncorrect(default = 0)
+            val (num, add) = useAddCorrect3(default = 0)
             Text(text = "current: $num")
             TButton(text = "+1") {
                 add()
@@ -70,8 +71,7 @@ fun UseStateExample() {
 private fun UseStateQuestionOne() {
     val (state, setState) = useState("state")
 
-    val (state2, setState2) = useState("stateRef")
-    val state2Ref = useLatestRef(state2)
+    val (state2, setState2, getState) = useGetState("stateRef")
 
     var byState by useState("by delegate")
 
@@ -84,7 +84,7 @@ private fun UseStateQuestionOne() {
             // by delegate, it will not cause closure problems
             byState += "."
             // useState + useLatestRef ,Can avoid closure problems
-            setState2("${state2Ref.current}.")
+            setState2("${getState()}.")
         }
     }
     Column {
@@ -159,5 +159,23 @@ private fun useAddCorrect2(default: Int): Tuple2<Int, () -> Unit> {
     return tuple(
         first = state,
         second = add
+    )
+}
+
+/**
+ * You can use [useGetState] to get the Ref of state using tuple's third [get] fun
+ *
+ * @param default
+ * @return
+ */
+@Composable
+private fun useAddCorrect3(default: Int): Tuple2<Int, () -> Unit> {
+    val (state, setState, getState) = useGetState(default)
+    fun add() {
+        setState(getState() + 1)
+    }
+    return tuple(
+        first = state,
+        second = ::add
     )
 }

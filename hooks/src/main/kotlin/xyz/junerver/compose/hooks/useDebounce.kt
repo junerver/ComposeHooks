@@ -96,7 +96,7 @@ fun <S> useDebounce(
     value: S,
     options: DebounceOptions = defaultOption(),
 ): S {
-    val (debounced, setDebounced) = _useState(value)
+    val (debounced, setDebounced) = _useGetState(value)
     val debouncedSet = useDebounceFn(fn = {
         setDebounced(value)
     }, options)

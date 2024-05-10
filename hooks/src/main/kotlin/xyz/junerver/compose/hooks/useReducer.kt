@@ -1,6 +1,8 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import xyz.junerver.kotlin.Tuple2
 
 /**
@@ -27,9 +29,8 @@ fun <S, A> useReducer(
     initialState: S,
     middlewares: Array<Middleware<S, A>> = emptyArray(),
 ): Tuple2<S, Dispatch<A>> {
-    val (state, setState) = _useState(initialState)
-    val stateRef = useLatestRef(value = state)
-    val dispatch = { action: A -> setState(reducer(stateRef.current, action)) }
+    var state by _useState(initialState)
+    val dispatch = { action: A -> state = reducer(state, action) }
     val enhancedDispatch: Dispatch<A> = if (middlewares.isNotEmpty()) {
         { action ->
             var nextDispatch: Dispatch<A> = dispatch

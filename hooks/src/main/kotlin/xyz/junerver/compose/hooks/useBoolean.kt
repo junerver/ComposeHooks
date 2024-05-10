@@ -13,10 +13,10 @@ import xyz.junerver.kotlin.tuple
  */
 @Composable
 fun useBoolean(default: Boolean = false): Tuple5<Boolean, () -> Unit, (Boolean) -> Unit, () -> Unit, () -> Unit> {
-    val (state, setState) = _useState(default)
+    val (state, setState, getState) = _useGetState(default)
     return tuple(
         first = state, // boolean state
-        second = { setState(!state) }, // toggle fun
+        second = { setState(!getState()) }, // toggle fun
         third = { b: Boolean -> setState(b) }, // set fun
         fourth = { setState(true) }, // setTrue
         fifth = { setState(false) } // setFalse
