@@ -1,9 +1,5 @@
 $dokka.format:html-v1
 $dokka.linkExtension:html
-$dokka.location:xyz.junerver.compose.hooks.ext////PointingToDeclaration/hooks/xyz.junerver.compose.hooks.ext/index.html
-$dokka.location:xyz.junerver.compose.hooks.ext//px/androidx.compose.ui.unit.Dp#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.ext/px.html
-$dokka.location:xyz.junerver.compose.hooks.ext//px2dp/kotlin.Int#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.ext/px2dp.html
-$dokka.location:xyz.junerver.compose.hooks.ext//toColor/kotlin.String#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.ext/to-color.html
 $dokka.location:xyz.junerver.compose.hooks.useform////PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useform/index.html
 $dokka.location:xyz.junerver.compose.hooks.useform//Form/#xyz.junerver.compose.hooks.useform.FormInstance#kotlin.Function1[xyz.junerver.compose.hooks.useform.FormScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useform/-form.html
 $dokka.location:xyz.junerver.compose.hooks.useform//useForm/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useform/use-form.html
@@ -384,7 +380,6 @@ $dokka.location:xyz.junerver.compose.hooks/UseNowOptions/UseNowOptions/#kotlin.t
 $dokka.location:xyz.junerver.compose.hooks/UseNowOptions/format/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-use-now-options/format.html
 $dokka.location:xyz.junerver.compose.hooks/UseNowOptions/interval/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-use-now-options/interval.html
 xyz.junerver.compose.hooks
-xyz.junerver.compose.hooks.ext
 xyz.junerver.compose.hooks.useform
 xyz.junerver.compose.hooks.usenetwork
 xyz.junerver.compose.hooks.useredux
