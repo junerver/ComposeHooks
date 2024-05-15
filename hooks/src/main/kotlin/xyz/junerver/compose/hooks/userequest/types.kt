@@ -389,7 +389,7 @@ internal class EmptyPlugin<TData : Any> : Plugin<TData>() {
  * 返回一个空插件，避免直接使用[EmptyPlugin]实例
  */
 @Composable
-internal fun <T : Any> useEmptyPlugin(): Plugin<T> {
+fun <T : Any> useEmptyPlugin(): Plugin<T> {
     val emptyPluginRef = useCreation {
         EmptyPlugin<T>()
     }

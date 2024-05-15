@@ -30,11 +30,15 @@ import xyz.junerver.kotlin.plus
  * [Fetch.mutate], you can restore the state at any time through
  * `rollback`.
  */
+
+// You can copy the aliases in the source code to be consistent with me, or you can use the original type directly
+typealias TParams = Array<Any?>
+
 @Composable
 fun <TData : Any> useCustomPluginRequest(
-    requestFn: suspend (Array<Any?>) -> TData,
+    requestFn: suspend (TParams) -> TData,
     options: RequestOptions<TData> = defaultOption(),
-): Tuple8<TData?, Boolean, Throwable?, (Array<Any?>) -> Unit, KFunction1<(TData?) -> TData, Unit>, KFunction0<Unit>, KFunction0<Unit>, () -> Unit> {
+): Tuple8<TData?, Boolean, Throwable?, (TParams) -> Unit, KFunction1<(TData?) -> TData, Unit>, KFunction0<Unit>, KFunction0<Unit>, () -> Unit> {
     val rollbackRef = useRef(default = { })
     val tuple = useRequest(
         requestFn = requestFn,
