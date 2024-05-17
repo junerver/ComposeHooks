@@ -122,6 +122,13 @@ fun rememberInterval(
 ) = useInterval(options, block)
 
 @Composable
+fun rememberInterval(
+    options: IntervalOptions = defaultOption(),
+    ready: Boolean,
+    block: () -> Unit,
+) = useInterval(options, ready, block)
+
+@Composable
 fun rememberKeyboard() = useKeyboard()
 
 @Composable
