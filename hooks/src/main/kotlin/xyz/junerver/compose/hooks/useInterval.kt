@@ -1,7 +1,9 @@
 package xyz.junerver.compose.hooks
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlin.properties.Delegates
@@ -15,65 +17,63 @@ import kotlinx.coroutines.launch
 import xyz.junerver.kotlin.Tuple3
 import xyz.junerver.kotlin.tuple
 
+// /
+// / Description: 一个间隔固定时间执行的interval函数。
+// /
+// / 效果与参数类似 RxJava 的`Observable.interval(0, 3, TimeUnit.SECONDS)`
+// / @author Junerver
+// / date: 2024/2/1-10:53
+// / Email: junerver@gmail.com
+// / Version: v1.0
+// / Version: v1.1  2024/5/17
+// /
+
 /**
- * Description: 一个间隔固定时间执行的interval函数。
+ * Interval options
  *
- * 效果与参数类似 RxJava 的`Observable.interval(0, 3, TimeUnit.SECONDS)`
- * @author Junerver
- * date: 2024/2/1-10:53
- * Email: junerver@gmail.com
- * Version: v1.0
+ * @property initialDelay 初始调用延时
+ * @property period 调用间隔
+ * @constructor Create empty Interval options
  */
 data class IntervalOptions internal constructor(
-    // 初始调用延时
     var initialDelay: Duration = 0.seconds,
-    // 调用间隔
     var period: Duration = 5.seconds,
-    // 是否就绪，默认就绪，如果为 false，需要通过run函数手动启动
-    var ready: Boolean = true,
 ) {
     companion object : Options<IntervalOptions>(::IntervalOptions)
 }
 
 private class Interval(private val options: IntervalOptions) {
-    /**
-     * [ready]是动态值，可以通过外部副作用修改传递
-     */
+
     var ready = true
-
-    /**
-     * 调用[intervalFn]的组件所在协程作用域
-     */
     var scope: CoroutineScope by Delegates.notNull()
-
-    /**
-     * 外部需要重复执行的函数
-     */
+    var isActiveState: MutableState<Boolean>? = null
     lateinit var intervalFn: () -> Unit
-
-    // 保存正在重复执行的job
     private lateinit var intervalJob: Job
 
     fun isRunning() = this::intervalJob.isInitialized && intervalJob.isActive
 
-    fun run() {
+    fun resume() {
         if (ready) {
             scope.launch {
+                if (isRunning()) return@launch
                 launch {
                     delay(options.initialDelay)
                     while (isActive) {
                         intervalFn()
                         delay(options.period)
                     }
-                }.also { intervalJob = it }
+                }.also {
+                    intervalJob = it
+                    isActiveState?.value = true
+                }
             }
         }
     }
 
-    fun cancel() {
+    fun pause() {
         if (this::intervalJob.isInitialized && intervalJob.isActive) {
-            // 结束任务
             intervalJob.cancel()
+            isActiveState?.value = false
         }
     }
 }
@@ -82,30 +82,47 @@ private class Interval(private val options: IntervalOptions) {
 fun useInterval(
     options: IntervalOptions = defaultOption(),
     block: () -> Unit,
-): Tuple3<PauseFn, ResumeFn, IsActive> {
-    val (_, _, ready) = options
+): Tuple3<ResumeFn, PauseFn, IsActive> {
+    val latestFn by useLatestState(value = block)
+    val isActiveState = useState(default = false)
     val interval = remember {
         Interval(options).apply {
-            this.intervalFn = block
+            this.isActiveState = isActiveState
         }
     }.apply {
+        this.intervalFn = latestFn
         this.scope = rememberCoroutineScope()
-        this.ready = ready
-    }
-    LaunchedEffect(key1 = ready) {
-        // 只作为ready 使用，一旦ready后再次变更不处理
-        if (ready && !interval.isRunning()) {
-            interval.run()
-        }
-        if (!ready && interval.isRunning()) {
-            interval.cancel()
-        }
     }
     return with(interval) {
         tuple(
-            first = ::run,
-            second = ::cancel,
-            third = interval.isRunning()
+            first = ::resume,
+            second = ::pause,
+            third = isActiveState.value
         )
+    }
+}
+
+@SuppressLint("ComposableNaming")
+@Composable
+fun useInterval(
+    options: IntervalOptions = defaultOption(),
+    ready: Boolean,
+    block: () -> Unit,
+) {
+    val latestFn by useLatestState(value = block)
+    val interval = remember {
+        Interval(options)
+    }.apply {
+        this.intervalFn = latestFn
+        this.scope = rememberCoroutineScope()
+        this.ready = ready
+    }
+    useEffect(ready) {
+        if (ready && !interval.isRunning()) {
+            interval.resume()
+        }
+        if (!ready && interval.isRunning()) {
+            interval.pause()
+        }
     }
 }
