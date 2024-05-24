@@ -12,10 +12,13 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.optionsOf
+import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
+import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.net.WebService
 import xyz.junerver.composehooks.net.asRequestFn
 import xyz.junerver.composehooks.ui.component.TButton
@@ -68,11 +71,14 @@ fun Auto() {
     }
 }
 
+@Preview
 @Composable
 fun Manual() {
     val (repoInfo, loading, error, request) = useRequest(
-        requestFn = WebService::repoInfo.asRequestFn(),
-        optionsOf {
+        requestFn = {
+            NetApi.SERVICE.repoInfo(it[0] as String, it[1] as String)
+        },
+        RequestOptions.optionOf {
             manual = true
             defaultParams =
                 arrayOf(
@@ -90,9 +96,9 @@ fun Manual() {
                      * 一般来说，手动请求的时候需要设置参数，但是如果你已经设置了默认参数[defaultParams]，你可以不传递,
                      * 但是你可能需要手动导入[invoke].
                      *
-                     * Generally , parameters need to be set when making a manual request,
-                     * but if you have set [defaultParams], you do not need to pass them,
-                     * but you may need to manually import [invoke]
+                     * Generally , parameters need to be set when making a manual request, but
+                     * if you have set [defaultParams], you do not need to pass them, but you
+                     * may need to manually import [invoke]
                      */
                     request()
                 }

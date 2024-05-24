@@ -7,7 +7,6 @@ import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.DebounceOptions
 import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.ThrottleOptions
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 
 /**
@@ -73,8 +72,8 @@ data class RequestOptions<TData> internal constructor(
     /**
      * 通过配置自动参数为wait = 0，默认不开启防抖或者节流
      */
-    var debounceOptions: DebounceOptions = optionsOf { wait = 0.seconds },
-    var throttleOptions: ThrottleOptions = optionsOf { wait = 0.seconds },
+    var debounceOptions: DebounceOptions = DebounceOptions.optionOf { wait = 0.seconds },
+    var throttleOptions: ThrottleOptions = ThrottleOptions.optionOf { wait = 0.seconds },
     /**
      * 通过设置 options.ready，可以控制请求是否发出。当其值为 false 时，请求永远都不会发出。
      *
