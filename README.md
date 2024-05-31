@@ -144,6 +144,16 @@ For hooks like `useRequest`, its return value can deconstruct many objects and f
 
 Editor - Inlay Hints - Types - Kotlin
 
+## ProGuard
+If you are using ProGuard you might need to add the following option:
+
+```
+-keep class xyz.junerver.composehooks.** { *; }
+-keepclassmembers class xyz.junerver.composehooks.** { *; }
+-dontwarn xyz.junerver.composehooks.**
+```
+
+
 ## Documentation
 
 - [Easily manage network requests with useRequest](https://junerver.xyz/2024/03/06/%E5%9C%A8Compose%E4%B8%AD%E4%BD%BF%E7%94%A8useRequest%E8%BD%BB%E6%9D%BE%E7%AE%A1%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/)

@@ -143,6 +143,15 @@ implementation("xyz.junerver.compose:hooks:<latest_release>")
 
 Editor - Inlay Hints - Types - Kotlin
 
+## 混淆
+如果你的项目需要使用 ProGuard，请加入下面的混淆规则:
+
+```
+-keep class xyz.junerver.composehooks.** { *; }
+-keepclassmembers class xyz.junerver.composehooks.** { *; }
+-dontwarn xyz.junerver.composehooks.**
+```
+
 ## 文档
 
 - [在Compose中使用useRequest轻松管理网络请求](https://junerver.xyz/2024/03/06/%E5%9C%A8Compose%E4%B8%AD%E4%BD%BF%E7%94%A8useRequest%E8%BD%BB%E6%9D%BE%E7%AE%A1%E7%90%86%E7%BD%91%E7%BB%9C%E8%AF%B7%E6%B1%82/)
