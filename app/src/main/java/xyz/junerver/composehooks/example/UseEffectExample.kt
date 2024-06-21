@@ -5,7 +5,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
 import xyz.junerver.compose.hooks.useEffect
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.composehooks.ui.component.TButton
 
 /**
@@ -22,7 +22,7 @@ fun UseEffectExample() {
         // just like [useMount]
     }
 
-    val (state, setState) = useState(0)
+    val (state, setState) = useGetState(0)
     useEffect(state) {
         // when deps change this block will executed
         ctx.toast("useEffect deps change")

@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.junerver.compose.hooks.PersistentContext
+import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useKeyboard
 import xyz.junerver.compose.hooks.usePersistent
 import xyz.junerver.compose.hooks.useState
@@ -80,7 +81,7 @@ private fun MMKVPersistent() {
     ) {
         val (hideKeyboard) = useKeyboard()
         val (token, saveToken) = usePersistent(key = "token", "")
-        val (state, setState) = useState("")
+        val (state, setState) = useGetState("")
         Column {
             Text(text = "MMKVPersistent : exit app will NOT lose state")
             Text(text = "token: $token")
@@ -98,7 +99,7 @@ private fun MMKVPersistent() {
 @Composable
 private fun VsViewModel() {
     val (vsvm, saveVsvm) = usePersistent(key = "vsVm", "")
-    val (state, setState) = useState("")
+    val (state, setState) = useGetState("")
     val vm: PersistentVm = viewModel()
     var vmstate by vm.vmState
     val nav = useNavigate()

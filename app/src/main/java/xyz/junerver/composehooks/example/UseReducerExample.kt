@@ -23,8 +23,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.Middleware
 import xyz.junerver.compose.hooks.Reducer
+import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useReducer
-import xyz.junerver.compose.hooks.useState
 import xyz.junerver.composehooks.ui.component.TButton
 
 /**
@@ -61,7 +61,7 @@ fun UseReducerExample() {
             logMiddleware()
         )
     )
-    val (input, setInput) = useState("")
+    val (input, setInput) = useGetState("")
     Surface {
         Column {
             Text(text = "User: $state")

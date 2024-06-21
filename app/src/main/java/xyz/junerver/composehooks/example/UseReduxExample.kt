@@ -20,7 +20,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.Reducer
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useredux.createStore
 import xyz.junerver.compose.hooks.useredux.useDispatch
 import xyz.junerver.compose.hooks.useredux.useDispatchAsync
@@ -133,7 +133,7 @@ private fun Header() {
      * through [useDispatch]
      */
     val dispatch = useDispatch<TodoAction>()
-    val (input, setInput) = useState("")
+    val (input, setInput) = useGetState("")
     Row {
         OutlinedTextField(
             value = input,
@@ -188,7 +188,7 @@ private fun SubSimpleDataStateText2() {
 
 @Composable
 private fun SubSimpleDataDispatch() {
-    val (input, setInput) = useState("")
+    val (input, setInput) = useGetState("")
     val dispatch = useDispatch<SimpleAction>()
 
     /**

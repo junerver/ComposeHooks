@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.useUndo
 import xyz.junerver.composehooks.ui.component.TButton
@@ -24,7 +25,7 @@ import xyz.junerver.composehooks.ui.component.TButton
 @Composable
 fun UseUndoExample() {
     val (state, set, reset, undo, redo, canUndo, canRedo) = useUndo(initialPresent = "")
-    val (input, setInput) = useState("")
+    val (input, setInput) = useGetState("")
     Surface {
         Column {
             OutlinedTextField(value = input, onValueChange = setInput)

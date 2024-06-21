@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.optionsOf
+import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.usePrevious
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.userequest.useRequest
@@ -77,7 +78,7 @@ fun Mutate() {
 
 @Composable
 private fun ManualMutateRollback() {
-    val (input, setInput) = useState("")
+    val (input, setInput) = useGetState("")
     val (userInfo, loading, _, _, mutate) = useRequest(
         requestFn = WebService::userInfo.asRequestFn(),
         optionsOf {
@@ -130,7 +131,7 @@ private fun ManualMutateRollback() {
 
 @Composable
 private fun AutoRollback() {
-    val (input, setInput) = useState("")
+    val (input, setInput) = useGetState("")
     val (userInfo, loading, _, _, mutate, _, _, triggerRollback) = useCustomPluginRequest(
         requestFn = WebService::userInfo.asRequestFn(),
         optionsOf {

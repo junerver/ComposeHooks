@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.ReactContext
 import xyz.junerver.compose.hooks.createContext
 import xyz.junerver.compose.hooks.useContext
+import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useReducer
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.composehooks.ui.component.TButton
@@ -76,7 +77,7 @@ fun ChildOne() {
 @Composable
 fun ChildTwo() {
     val (_, changName, ageIncrease) = useContext(context = SimpleContext)
-    val (state, setState) = useState("")
+    val (state, setState) = useGetState("")
 
     Column {
         OutlinedTextField(value = state, onValueChange = setState)

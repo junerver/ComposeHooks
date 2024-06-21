@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.usePrevious
 import xyz.junerver.compose.hooks.useState
 
@@ -21,7 +22,7 @@ import xyz.junerver.compose.hooks.useState
  */
 @Composable
 fun UsePreviousExample() {
-    val (input, setInput) = useState("")
+    val (input, setInput) = useGetState("")
     val previous = usePrevious(present = input)
     Surface {
         Column {
