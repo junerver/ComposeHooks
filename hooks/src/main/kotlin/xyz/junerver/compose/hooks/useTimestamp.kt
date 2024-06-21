@@ -8,16 +8,20 @@ import kotlin.time.Duration.Companion.milliseconds
 import xyz.junerver.kotlin.Tuple4
 import xyz.junerver.kotlin.tuple
 
+/*
+  Description:
+  @author Junerver
+  date: 2024/3/14-10:18
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 /**
  * Description: [useTimestamp]和[useTimestampRef]的配置项
+ *
  * @param interval the interval between timestamp changes
  * @param offset timestamp offset
  * @param callback callback
- *
- * @author Junerver
- * date: 2024/3/14-10:18
- * Email: junerver@gmail.com
- * Version: v1.0
  */
 data class TimestampOptions internal constructor(
     var interval: Duration = 1.0.milliseconds,

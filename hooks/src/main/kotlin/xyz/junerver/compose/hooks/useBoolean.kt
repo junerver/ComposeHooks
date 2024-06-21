@@ -4,13 +4,14 @@ import androidx.compose.runtime.Composable
 import xyz.junerver.kotlin.Tuple5
 import xyz.junerver.kotlin.tuple
 
-/**
- * Description: A hook to conveniently manage Boolean state
- * @author Junerver
- * date: 2024/1/26-13:38
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description: A hook to conveniently manage Boolean state
+  @author Junerver
+  date: 2024/1/26-13:38
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 @Composable
 fun useBoolean(default: Boolean = false): Tuple5<Boolean, () -> Unit, (Boolean) -> Unit, () -> Unit, () -> Unit> {
     val (state, setState, getState) = _useGetState(default)

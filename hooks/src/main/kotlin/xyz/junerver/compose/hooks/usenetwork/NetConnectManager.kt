@@ -11,13 +11,13 @@ import android.os.Build
 import android.os.Handler
 import android.os.Looper
 
-/**
- * Description:原作者：[青杉](https://juejin.cn/user/3175045310722119/posts)，
- * 文章博客：[Android 监听网络状态变化（无切换中间态版）](https://juejin.cn/post/7324345717908717587)
- * @author 青杉
- * date: 2024/2/6-16:37
- * Version: v1.0
- */
+/*
+ Description:原作者：[青杉](https://juejin.cn/user/3175045310722119/posts)，
+ 文章博客：[Android 监听网络状态变化（无切换中间态版）](https://juejin.cn/post/7324345717908717587)
+ @author 青杉
+ date: 2024/2/6-16:37
+ Version: v1.0
+*/
 sealed class ConnectType(val value: Int) {
     data object Mobile : ConnectType(0)
     data object Wifi : ConnectType(1)

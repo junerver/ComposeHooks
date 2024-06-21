@@ -4,13 +4,14 @@ import androidx.compose.runtime.Composable
 import xyz.junerver.compose.hooks.Ref
 import xyz.junerver.compose.hooks.useCreation
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/25-10:06
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  @author Junerver
+  date: 2024/3/25-10:06
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 @Composable
 fun useForm(): FormInstance {
     return useCreation { FormInstance() }.current

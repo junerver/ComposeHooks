@@ -13,12 +13,13 @@ import xyz.junerver.compose.hooks.useMap
 import xyz.junerver.kotlin.Tuple3
 import xyz.junerver.kotlin.tuple
 
-/**
- * Description: Headless Form Component
- *
- * @author Junerver date: 2024/3/25-8:11 Email: junerver@gmail.com Version:
- *     v1.0
- */
+/*
+  Description: Headless Form Component
+  @author Junerver
+  date: 2024/3/25-8:11
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 
 class FormScope private constructor(
     private val ref: Ref<FormRef>,

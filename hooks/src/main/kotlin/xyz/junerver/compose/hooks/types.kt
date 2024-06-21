@@ -6,13 +6,13 @@ import kotlin.reflect.full.callSuspend
 import kotlinx.coroutines.CoroutineScope
 import xyz.junerver.compose.hooks.utils.checkIsLegalParameters
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/2/2-8:02
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  @author Junerver
+  date: 2024/2/2-8:02
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 
 // 原始函数模型 (TParams) -> TData
 internal typealias TParams = Array<Any?> // 原函数可变长度的参数

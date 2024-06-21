@@ -9,13 +9,13 @@ import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.ThrottleOptions
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 
-/**
- * Description: 请求参数
- * @author Junerver
- * date: 2024/1/31-9:58
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description: 请求参数
+  @author Junerver
+  date: 2024/1/31-9:58
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 internal typealias OnBeforeCallback = (TParams) -> Unit
 internal typealias OnSuccessCallback<TData> = (TData?, TParams) -> Unit
 internal typealias OnErrorCallback = (Throwable, TParams) -> Unit

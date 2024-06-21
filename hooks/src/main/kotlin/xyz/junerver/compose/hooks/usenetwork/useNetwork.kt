@@ -7,13 +7,14 @@ import androidx.compose.ui.platform.LocalContext
 import xyz.junerver.compose.hooks.createContext
 import xyz.junerver.compose.hooks.useContext
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/2/6-16:38
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  @author Junerver
+  date: 2024/2/6-16:38
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 data class NetworkState(
     val isConnect: Boolean = false,
     val connectType: ConnectType = ConnectType.None,

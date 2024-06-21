@@ -4,13 +4,13 @@ import kotlin.reflect.KFunction
 import kotlin.reflect.full.createType
 import kotlin.reflect.full.isSubtypeOf
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/1/31-10:38
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  @author Junerver
+  date: 2024/1/31-10:38
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 
 /**
  * 用于检测包装函数是否合法，例如：

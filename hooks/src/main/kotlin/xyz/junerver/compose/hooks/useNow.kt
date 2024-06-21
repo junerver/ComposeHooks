@@ -7,13 +7,14 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.kotlin.tuple
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/14-11:41
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  @author Junerver
+  date: 2024/3/14-11:41
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 data class UseNowOptions(
     var interval: Duration = 1.seconds,
     var format: ((Long) -> String)? = null,

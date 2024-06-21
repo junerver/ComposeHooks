@@ -6,18 +6,23 @@ import androidx.compose.runtime.setValue
 import org.jetbrains.annotations.Nullable
 import xyz.junerver.kotlin.Tuple3
 
+/*
+  Description: Better `useState`
+  @author Junerver
+  date: 2024/5/10-9:31
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 /**
- * Description: Using destructuring declarations on [useState] can cause closure problems.
- * Using [useLatestRef] is a solution, but if you call the set function quickly(millisecond level),
- * there will be a problem of state loss.
+ * Description: Using destructuring declarations on [useState] can cause
+ * closure problems. Using [useLatestRef] is a solution, but if you call
+ * the set function quickly(millisecond level), there will be a problem of
+ * state loss.
  *
- * Now you can use [useGetState] to solve these problems and get the latest value
- * through `getter` to avoid closure problems. The `setter` function also supports fast update.
- *
- * @author Junerver
- * date: 2024/5/10-9:31
- * Email: junerver@gmail.com
- * Version: v1.0
+ * Now you can use [useGetState] to solve these problems and get the latest
+ * value through `getter` to avoid closure problems. The `setter` function
+ * also supports fast update.
  */
 @Composable
 fun <T> useGetState(default: T & Any): Tuple3<T, (T & Any) -> Unit, () -> T> {
@@ -32,8 +37,8 @@ fun <T> useGetState(default: T & Any): Tuple3<T, (T & Any) -> Unit, () -> T> {
 /**
  * A nullable version of [useGetState]
  *
- * @param T
  * @param default
+ * @param T
  * @return
  */
 @Composable

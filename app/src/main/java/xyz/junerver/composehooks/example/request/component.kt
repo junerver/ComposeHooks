@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -21,18 +21,18 @@ import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.kotlin.asBoolean
 import xyz.junerver.kotlin.runIf
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/13-15:04
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  @author Junerver
+  date: 2024/3/13-15:04
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 
 @Composable
 fun DividerSpacer() {
     Column {
-        Divider(modifier = Modifier.fillMaxWidth())
+        HorizontalDivider(modifier = Modifier.fillMaxWidth())
         Spacer(modifier = Modifier.height(20.dp))
     }
 }

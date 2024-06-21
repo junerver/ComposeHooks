@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,13 +24,14 @@ import xyz.junerver.composehooks.net.asRequestFn
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.kotlin.asBoolean
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/12-8:36
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  @author Junerver
+  date: 2024/3/12-8:36
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 @Composable
 fun AutoManual() {
     Surface {
@@ -40,7 +41,7 @@ fun AutoManual() {
         ) {
             Auto()
             Spacer(modifier = Modifier.height(10.dp))
-            Divider(modifier = Modifier.fillMaxWidth())
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
             Manual()
         }
     }

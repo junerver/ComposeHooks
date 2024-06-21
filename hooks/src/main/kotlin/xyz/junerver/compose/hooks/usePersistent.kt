@@ -4,13 +4,14 @@ import androidx.compose.runtime.Composable
 import xyz.junerver.kotlin.Tuple3
 import xyz.junerver.kotlin.plus
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/4/9-16:59
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  @author Junerver
+  date: 2024/4/9-16:59
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 /**
  * pass in the key to get the persistent object
  */

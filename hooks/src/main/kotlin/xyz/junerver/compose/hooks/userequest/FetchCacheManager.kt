@@ -14,13 +14,13 @@ import xyz.junerver.compose.hooks.userequest.utils.CachedData
 import xyz.junerver.kotlin.Tuple2
 import xyz.junerver.kotlin.tuple
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/2/4-10:28
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  @author Junerver
+  date: 2024/2/4-10:28
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 private typealias DataCache = Tuple2<CachedData<*>, Long>
 
 internal object FetchCacheManager : CoroutineScope {

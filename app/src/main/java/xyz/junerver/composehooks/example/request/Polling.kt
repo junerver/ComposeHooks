@@ -21,13 +21,14 @@ import xyz.junerver.composehooks.net.WebService
 import xyz.junerver.composehooks.net.asRequestFn
 import xyz.junerver.kotlin.asBoolean
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/13-10:59
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  @author Junerver
+  date: 2024/3/13-10:59
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 @Composable
 fun Polling() {
     val (showTips, _, set) = useBoolean(false)
@@ -42,7 +43,12 @@ fun Polling() {
             DividerSpacer()
             Sub(true)
             DividerSpacer()
-            if (showTips) Text(text = "!!! now push 'home' and wait a moment then back to app", color = Color.Magenta)
+            if (showTips) {
+                Text(
+                    text = "!!! now push 'home' and wait a moment then back to app",
+                    color = Color.Magenta
+                )
+            }
         }
     }
 }
@@ -53,7 +59,7 @@ fun Sub(isPollingWhenHidden: Boolean = false) {
     val countRef = useRef(default = 0)
     val update = useUpdate()
     val post = useEventPublish<Int>()
-    val (userInfo, loading, _, _, _, refresh) = useRequest(
+    val (userInfo, loading) = useRequest(
         requestFn = WebService::userInfo.asRequestFn(),
         optionsOf {
             defaultParams = arrayOf("junerver")

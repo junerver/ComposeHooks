@@ -4,13 +4,14 @@ package xyz.junerver.compose.hooks.utils
 
 import xyz.junerver.compose.hooks.DependencyList
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/2/7-14:15
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  @author Junerver
+  date: 2024/2/7-14:15
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 internal fun depsAreSame(oldDeps: DependencyList, deps: DependencyList): Boolean {
     // 如果数组长度不同，说明不相同
     if (oldDeps.size != deps.size) {

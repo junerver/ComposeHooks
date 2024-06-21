@@ -5,17 +5,19 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import xyz.junerver.kotlin.Tuple2
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/1/26-14:21
- * Email: junerver@gmail.com
- * Version: v1.1
- * update: 2024/3/11 10:57
- * 删除了模板代码，Action 使用 sealed 似乎是更好的决定
- * update: 2024/3/19 13:48
- * action类型从 Any 修改为泛型 A
- */
+/*
+  Description:
+  @author Junerver
+  date: 2024/1/26-14:21
+  Email: junerver@gmail.com
+  Version: v1.2
+
+  update: 2024/3/11 10:57
+  删除了模板代码，Action 使用 sealed 似乎是更好的决定
+
+  update: 2024/3/19 13:48
+  action类型从 Any 修改为泛型 A
+*/
 
 typealias Reducer<S, A> = (prevState: S, action: A) -> S
 

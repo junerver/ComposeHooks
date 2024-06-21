@@ -4,13 +4,13 @@ import androidx.compose.runtime.Composable
 import xyz.junerver.kotlin.Tuple7
 import xyz.junerver.kotlin.tuple
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/1/26-14:21
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+   Description:
+   @author Junerver
+   date: 2024/1/26-14:21
+   Email: junerver@gmail.com
+   Version: v1.0
+*/
 
 data class UndoState<T>(
     var past: List<T> = emptyList(),

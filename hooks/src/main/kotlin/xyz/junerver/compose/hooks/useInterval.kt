@@ -17,23 +17,23 @@ import kotlinx.coroutines.launch
 import xyz.junerver.kotlin.Tuple3
 import xyz.junerver.kotlin.tuple
 
-// /
-// / Description: 一个间隔固定时间执行的interval函数。
-// /
-// / 效果与参数类似 RxJava 的`Observable.interval(0, 3, TimeUnit.SECONDS)`
-// / @author Junerver
-// / date: 2024/2/1-10:53
-// / Email: junerver@gmail.com
-// / Version: v1.0
-// / Version: v1.1  2024/5/17
-// /
+/*
+  Description: 一个间隔固定时间执行的interval函数。
+  效果与参数类似 RxJava 的`Observable.interval(0, 3, TimeUnit.SECONDS)`
+
+  @author Junerver
+  date: 2024/2/1-10:53
+  Email: junerver@gmail.com
+  Version: v1.0
+  Version: v1.1  2024/5/17
+*/
 
 /**
  * Interval options
  *
+ * @constructor Create empty Interval options
  * @property initialDelay 初始调用延时
  * @property period 调用间隔
- * @constructor Create empty Interval options
  */
 data class IntervalOptions internal constructor(
     var initialDelay: Duration = 0.seconds,
