@@ -13,13 +13,14 @@ import xyz.junerver.compose.hooks.useTimestampRef
 import xyz.junerver.composehooks.example.request.DividerSpacer
 import xyz.junerver.composehooks.ui.component.TButton
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/14-10:24
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+
+  @author Junerver
+  date: 2024/3/14-10:24
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UseTimestampExample() {
     Surface {
@@ -33,7 +34,7 @@ fun UseTimestampExample() {
 
 @Composable
 fun SubState() {
-    val (timestamp, pause, resume) = useTimestamp(
+    val (timestamp, pause, resume, isActive) = useTimestamp(
         optionsOf {
             interval = 1.seconds
             callback = {
@@ -44,10 +45,10 @@ fun SubState() {
     Column {
         Text(text = "TimestampState: $timestamp")
         Row {
-            TButton(text = "pause") {
+            TButton(text = "pause", enabled = isActive) {
                 pause()
             }
-            TButton(text = "resume") {
+            TButton(text = "resume", enabled = !isActive) {
                 resume()
             }
         }
@@ -56,11 +57,12 @@ fun SubState() {
 
 @Composable
 fun SubRef() {
-    val (timestamp) = useTimestampRef(
+    val (timestamp, _, resume) = useTimestampRef(
         optionsOf {
             interval = 1.seconds
         }
     )
+    resume()
     Column {
         Text(text = "TimestampRef: ${timestamp.current}")
         Row {
