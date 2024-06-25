@@ -1,18 +1,18 @@
 [versions]
 agp = "8.3.2"
-kotlin = "1.9.0"
+kotlin = "2.0.0"
 coreKtx = "1.13.1"
 junit = "4.13.2"
-junitVersion = "1.1.5"
-espressoCore = "3.5.1"
-lifecycleRuntimeKtx = "2.7.0"
+junitVersion = "1.2.0"
+espressoCore = "3.6.0"
+lifecycleRuntimeKtx = "2.8.2"
 activityCompose = "1.9.0"
-composeBom = "2024.05.00"
-appcompat = "1.6.1"
+composeBom = "2024.06.00"
+appcompat = "1.7.0"
 material = "1.12.0"
 navigationCompose = "2.7.7"
 retrofitVersion = "2.10.0"
-lifecycleRuntimeCompose = "2.7.0"
+lifecycleRuntimeCompose = "2.8.2"
 
 
 [libraries]
@@ -44,7 +44,7 @@ gson = { group = "com.google.code.gson", name = "gson", version = "2.10.1" }
 retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofitVersion" }
 retrofit-converter-scalars = { group = "com.squareup.retrofit2", name = "converter-scalars", version.ref = "retrofitVersion" }
 retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofitVersion" }
-okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version = "4.10.0" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version = "4.12.0" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeCompose" }
 
 [plugins]
@@ -54,6 +54,7 @@ androidLibrary = { id = "com.android.library", version.ref = "agp" }
 mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.25.2" }
 kotlinter = { id = "org.jmailen.kotlinter", version = "3.15.0" }
 dokka = { id = "org.jetbrains.dokka", version = "1.9.20" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 
 [bundles]
 retrofit = [
