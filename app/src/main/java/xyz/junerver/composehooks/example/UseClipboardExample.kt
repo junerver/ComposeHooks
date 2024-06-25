@@ -8,15 +8,13 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import xyz.junerver.compose.hooks.useClipboard
 import xyz.junerver.compose.hooks.useGetState
-import xyz.junerver.compose.hooks.useState
 
-/**
- * Description:
- *
- * @author Junerver @date: 2024/4/2-11:15
- * @email: junerver@gmail.com
- * @version: v1.0
- */
+/*
+  Description:
+  @author Junerver @date: 2024/4/2-11:15
+  @email: junerver@gmail.com
+  @version: v1.0
+*/
 @Composable
 fun UseClipboardExample() {
     Surface {

@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package xyz.junerver.compose.hooks
 
 import kotlin.reflect.KFunction

@@ -18,7 +18,6 @@ import xyz.junerver.compose.hooks.PersistentContext
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useKeyboard
 import xyz.junerver.compose.hooks.usePersistent
-import xyz.junerver.compose.hooks.useState
 import xyz.junerver.composehooks.example.sub.PersistentVm
 import xyz.junerver.composehooks.mmkvClear
 import xyz.junerver.composehooks.mmkvGet

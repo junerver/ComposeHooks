@@ -3,7 +3,6 @@ package xyz.junerver.composehooks.example
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -15,7 +14,6 @@ import xyz.junerver.compose.hooks.useDebounce
 import xyz.junerver.compose.hooks.useDebounceEffect
 import xyz.junerver.compose.hooks.useDebounceFn
 import xyz.junerver.compose.hooks.useGetState
-import xyz.junerver.compose.hooks.useState
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.composehooks.utils.subStringIf

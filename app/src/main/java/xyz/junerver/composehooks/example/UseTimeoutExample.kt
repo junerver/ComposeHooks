@@ -23,7 +23,7 @@ import xyz.junerver.composehooks.ui.component.TButton
 
 @Composable
 fun UseTimeoutExample() {
-    val (state, setState,getState) = useGetState(10)
+    val (state, setState, getState) = useGetState(10)
     val update = useUpdate()
     /**
      * When the component is mounted, the closure block function is executed with a delay of 1s(default).
