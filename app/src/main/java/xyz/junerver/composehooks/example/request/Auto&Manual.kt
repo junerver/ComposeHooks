@@ -111,11 +111,11 @@ fun Manual() {
             if (loading) {
                 Text(text = "user info loading ...")
             }
-            if (repoInfo.asBoolean()) {
-                Text(text = repoInfo.toString())
-            }
             if (error.asBoolean()) {
                 Text(text = "error: ${error.message}")
+            }
+            if (repoInfo.asBoolean()) {
+                Text(text = repoInfo.toString())
             }
         }
     }
