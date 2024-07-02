@@ -1,5 +1,6 @@
 package xyz.junerver.compose.hooks.usenetwork
 
+import android.annotation.SuppressLint
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -10,6 +11,7 @@ import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import androidx.core.content.getSystemService
 
 /*
   Description:原作者：[青杉](https://juejin.cn/user/3175045310722119/posts)，
@@ -18,6 +20,7 @@ import android.os.Looper
   Date: 2024/2/6-16:37
   Version: v1.0
 */
+@SuppressLint("WrongCommentType")
 sealed class ConnectType(val value: Int) {
     data object Mobile : ConnectType(0)
     data object Wifi : ConnectType(1)
@@ -46,11 +49,13 @@ internal object NetConnectManager {
     /**
      * 初始化
      */
+    @SuppressLint("ObsoleteSdkInt")
     fun init(context: Context): NetConnectManager {
-        mConnectivityManager = context.getSystemService(ConnectivityManager::class.java)
+        mConnectivityManager = context.getSystemService()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             mConnectivityManager?.registerDefaultNetworkCallback(DefaultNetConnectCallback())
         } else {
+            @Suppress("DEPRECATION")
             context.registerReceiver(
                 NetConnectReceiver(),
                 IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
@@ -189,6 +194,7 @@ internal object NetConnectManager {
 
     private class NetConnectReceiver : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
+            @Suppress("DEPRECATION")
             val activityNetworkInfo =
                 context?.getSystemService(ConnectivityManager::class.java)?.allNetworkInfo?.firstOrNull {
                     (it.type == ConnectType.Mobile.value || it.type == ConnectType.Wifi.value) && it.isConnected
@@ -198,6 +204,7 @@ internal object NetConnectManager {
                     mIsNetAvailable = true
                     mNetStateListener.forEach { it(true) }
                 }
+                @Suppress("DEPRECATION")
                 ConnectType.convert2Type(activityNetworkInfo.type).let { connectType ->
                     if (connectType != mCurrentConnectType) {
                         mCurrentConnectType = connectType
