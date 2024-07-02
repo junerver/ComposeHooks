@@ -44,7 +44,6 @@ val PersistentContext =
 internal val InternalMemoryPersistentContext =
     createContext<Tuple3<PersistentGet, PersistentSave, PersistentClear>>((::memoryGetPersistent to ::memorySavePersistent) + ::memoryClearPersistent)
 
-
 /**
  * Use persistent
  *

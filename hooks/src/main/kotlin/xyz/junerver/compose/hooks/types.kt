@@ -101,4 +101,10 @@ internal fun <T> synthesisParametersAndCheck(instance: Any?, params: TParams, fn
 internal typealias PauseFn = KFunction0<Unit>
 internal typealias ResumeFn = KFunction0<Unit>
 internal typealias IsActive = Boolean
+
+internal typealias ToggleFn = () -> Unit
+
+internal typealias SetValueFn<T> = (T) -> Unit
+internal typealias GetValueFn<T> = () -> T
+
 internal typealias SuspendAsyncFn = suspend CoroutineScope.() -> Unit

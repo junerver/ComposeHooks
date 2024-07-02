@@ -70,8 +70,14 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
     }
 }
 
+internal typealias ResetValueFn<T> = (T) -> Unit
+internal typealias RedoFn = () -> Unit
+internal typealias UndoFn = () -> Unit
+internal typealias CanUndo = Boolean
+internal typealias CanRedo = Boolean
+
 @Composable
-fun <T> useUndo(initialPresent: T): Tuple7<UndoState<T>, (T) -> Unit, (T) -> Unit, () -> Unit, () -> Unit, Boolean, Boolean> {
+fun <T> useUndo(initialPresent: T): Tuple7<UndoState<T>, SetValueFn<T>, ResetValueFn<T>, UndoFn, RedoFn, CanUndo, CanRedo> {
     val (state, dispatch) = useReducer(::undoReducer, UndoState(present = initialPresent))
     val canUndo = state.past.isNotEmpty()
     val canRedo = state.future.isNotEmpty()

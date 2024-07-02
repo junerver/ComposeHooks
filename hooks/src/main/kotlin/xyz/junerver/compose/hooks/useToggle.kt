@@ -6,8 +6,6 @@ import arrow.core.left
 import arrow.core.right
 import xyz.junerver.kotlin.Tuple2
 
-typealias ToggleFn = () -> Unit
-
 /**
  * 用于在两个状态值间切换的 Hook。
  */

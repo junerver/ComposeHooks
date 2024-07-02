@@ -25,7 +25,7 @@ import xyz.junerver.kotlin.Tuple3
  * also supports fast update.
  */
 @Composable
-fun <T> useGetState(default: T & Any): Tuple3<T, (T & Any) -> Unit, () -> T> {
+fun <T> useGetState(default: T & Any): Tuple3<T, SetValueFn<T & Any>, GetValueFn<T>> {
     var state: T & Any by useState(default)
     return Tuple3(
         first = state, // state
@@ -42,7 +42,7 @@ fun <T> useGetState(default: T & Any): Tuple3<T, (T & Any) -> Unit, () -> T> {
  * @return
  */
 @Composable
-fun <T> _useGetState(@Nullable default: T): Tuple3<T, (T) -> Unit, () -> T> {
+fun <T> _useGetState(@Nullable default: T): Tuple3<T, SetValueFn<T>, GetValueFn<T>> {
     var state: T by _useState(default)
     return Tuple3(
         first = state,

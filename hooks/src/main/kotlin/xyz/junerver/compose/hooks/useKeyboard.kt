@@ -12,9 +12,11 @@ import xyz.junerver.kotlin.tuple
   Email: junerver@gmail.com
   Version: v1.0
 */
+internal typealias HideKeyboardFn = () -> Unit
+internal typealias ShowKeyboardFn = () -> Unit
 
 @Composable
-fun useKeyboard(): Tuple2<() -> Unit, () -> Unit> {
+fun useKeyboard(): Tuple2<HideKeyboardFn, ShowKeyboardFn> {
     val keyboardController = LocalSoftwareKeyboardController.current
     return tuple(
         first = { keyboardController?.hide() },

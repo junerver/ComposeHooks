@@ -11,10 +11,12 @@ import xyz.junerver.kotlin.tuple
   Email: junerver@gmail.com
   Version: v1.0
 */
+internal typealias SetTrueFn = () -> Unit
+internal typealias SetFalseFn = () -> Unit
 
 @Composable
-fun useBoolean(default: Boolean = false): Tuple5<Boolean, () -> Unit, (Boolean) -> Unit, () -> Unit, () -> Unit> {
-    val (state, setState, getState) = _useGetState(default)
+fun useBoolean(default: Boolean = false): Tuple5<Boolean, ToggleFn, SetValueFn<Boolean>, SetTrueFn, SetFalseFn> {
+    val (state, setState, getState) = useGetState(default)
     return tuple(
         first = state, // boolean state
         second = { setState(!getState()) }, // toggle fun
