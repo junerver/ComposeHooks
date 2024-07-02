@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.Debounce
+import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
 import xyz.junerver.compose.hooks.userequest.Plugin
@@ -48,8 +49,8 @@ internal fun <T : Any> useDebouncePlugin(options: RequestOptions<T>): Plugin<T> 
     if (options.debounceOptions.wait == 0.seconds) {
         return useEmptyPlugin()
     }
-    val debouncePlugin = remember {
+    val debouncePlugin = useCreation {
         DebouncePlugin<T>()
-    }
+    }.current
     return debouncePlugin
 }

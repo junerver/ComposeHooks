@@ -10,6 +10,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.useBackToFrontEffect
+import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useFrontToBackEffect
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
@@ -116,9 +117,9 @@ internal fun <T : Any> usePollingPlugin(options: RequestOptions<T>): Plugin<T> {
     if (options.pollingInterval == 0.milliseconds) {
         return useEmptyPlugin()
     }
-    val pollingPlugin = remember {
+    val pollingPlugin = useCreation {
         PollingPlugin<T>()
-    }
+    }.current
     if (!options.pollingWhenHidden) {
         useBackToFrontEffect {
             pollingPlugin.refresh()

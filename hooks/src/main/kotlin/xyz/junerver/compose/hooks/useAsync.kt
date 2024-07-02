@@ -20,9 +20,9 @@ import kotlinx.coroutines.launch
 fun useAsync(fn: SuspendAsyncFn): () -> Unit {
     val latestFn by useLatestState(value = fn)
     val scope = rememberCoroutineScope()
-    val async = remember {
+    val async = useCreation {
         Async(latestFn, scope)
-    }.apply { this.fn = latestFn }
+    }.apply { this.current.fn = latestFn }.current
     return async
 }
 
@@ -45,9 +45,9 @@ internal typealias AsyncRunFn = (SuspendAsyncFn) -> Unit
 @Composable
 fun useAsync(): AsyncRunFn {
     val scope = rememberCoroutineScope()
-    val async = remember {
+    val async = useCreation {
         AsyncRun(scope)
-    }
+    }.current
     return async
 }
 

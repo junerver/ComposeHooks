@@ -118,9 +118,9 @@ fun useDebounceFn(
 ): VoidFunction {
     val latestFn by useLatestState(value = fn)
     val scope = rememberCoroutineScope()
-    val debounced = remember {
+    val debounced = useCreation {
         Debounce(latestFn, scope, options)
-    }.apply { this.fn = latestFn }
+    }.apply { this.current.fn = latestFn }.current
     return debounced
 }
 

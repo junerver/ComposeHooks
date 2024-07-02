@@ -85,14 +85,14 @@ fun useInterval(
 ): Tuple3<ResumeFn, PauseFn, IsActive> {
     val latestFn by useLatestState(value = block)
     val isActiveState = useState(default = false)
-    val interval = remember {
+    val interval = useCreation {
         Interval(options).apply {
             this.isActiveState = isActiveState
         }
     }.apply {
-        this.intervalFn = latestFn
-        this.scope = rememberCoroutineScope()
-    }
+        this.current.intervalFn = latestFn
+        this.current.scope = rememberCoroutineScope()
+    }.current
     return with(interval) {
         tuple(
             first = ::resume,
@@ -110,13 +110,13 @@ fun useInterval(
     block: () -> Unit,
 ) {
     val latestFn by useLatestState(value = block)
-    val interval = remember {
+    val interval = useCreation {
         Interval(options)
     }.apply {
-        this.intervalFn = latestFn
-        this.scope = rememberCoroutineScope()
-        this.ready = ready
-    }
+        this.current.intervalFn = latestFn
+        this.current.scope = rememberCoroutineScope()
+        this.current.ready = ready
+    }.current
     useEffect(ready) {
         if (ready && !interval.isRunning()) {
             interval.resume()

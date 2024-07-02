@@ -1,7 +1,6 @@
 package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import kotlin.math.pow
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
@@ -9,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.TParams
+import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
 import xyz.junerver.compose.hooks.userequest.OnBeforeReturn
@@ -87,8 +87,8 @@ internal fun <T : Any> useRetryPlugin(options: RequestOptions<T>): Plugin<T> {
     if (options.retryCount == 0) {
         return useEmptyPlugin()
     }
-    val retryPlugin = remember {
+    val retryPlugin = useCreation {
         RetryPlugin<T>()
-    }
+    }.current
     return retryPlugin
 }

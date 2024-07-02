@@ -104,9 +104,9 @@ fun useThrottleFn(
 ): VoidFunction {
     val latestFn by useLatestState(value = fn)
     val scope = rememberCoroutineScope()
-    val throttled = remember {
+    val throttled = useCreation {
         Throttle(latestFn, scope, options)
-    }.apply { this.fn = latestFn }
+    }.apply { this.current.fn = latestFn }.current
     return throttled
 }
 

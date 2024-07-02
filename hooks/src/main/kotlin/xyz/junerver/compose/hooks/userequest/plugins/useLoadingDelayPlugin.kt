@@ -6,6 +6,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.TParams
+import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
 import xyz.junerver.compose.hooks.userequest.Keys
@@ -77,10 +78,10 @@ internal fun <T : Any> useLoadingDelayPlugin(options: RequestOptions<T>): Plugin
         return useEmptyPlugin()
     }
 
-    val loadingDelayPlugin = remember {
+    val loadingDelayPlugin = useCreation {
         LoadingDelayPlugin<T>()
     }.apply {
-        this.ready = ready
-    }
+        this.current.ready = ready
+    }.current
     return loadingDelayPlugin
 }

@@ -1,9 +1,9 @@
 package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.Throttle
+import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
 import xyz.junerver.compose.hooks.userequest.Plugin
@@ -50,8 +50,8 @@ internal fun <T : Any> useThrottlePlugin(options: RequestOptions<T>): Plugin<T> 
     if (options.throttleOptions.wait == 0.seconds) {
         return useEmptyPlugin()
     }
-    val throttlePlugin = remember {
+    val throttlePlugin = useCreation {
         ThrottlePlugin<T>()
-    }
+    }.current
     return throttlePlugin
 }

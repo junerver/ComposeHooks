@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks.TParams
+import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.FetchState
@@ -78,11 +79,11 @@ internal fun <T : Any> useAutoRunPlugin(options: RequestOptions<T>): Plugin<T> {
     }
     val hasAutoRun = useRef(default = false)
     hasAutoRun.current = false
-    val autoRunPlugin = remember {
+    val autoRunPlugin = useCreation {
         AutoRunPlugin<T>()
     }.apply {
-        this.ready = ready
-    }
+        this.current.ready = ready
+    }.current
     /**
      * 这里会因为旋转屏幕重组时再次调用[Fetch.run]函数
      */

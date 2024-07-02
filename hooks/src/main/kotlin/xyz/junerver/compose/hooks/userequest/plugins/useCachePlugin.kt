@@ -214,14 +214,14 @@ internal fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
     val unSubscribeRef = useRef<(() -> Unit)?>(null)
     val currentPromiseRef = useRef<Deferred<*>?>(null)
 
-    val cachePlugin = remember {
+    val cachePlugin = useCreation {
         CachePlugin<T>().apply {
             this.setCache = ::setCache
             this.getCache = ::getCache
             this.unSubscribeRef = unSubscribeRef
             this.currentPromiseRef = currentPromiseRef
         }
-    }
+    }.current
 
     useCreation {
         val cacheData = getCache(cacheKey)
