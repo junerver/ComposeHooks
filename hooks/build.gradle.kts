@@ -54,6 +54,7 @@ dependencies {
 
     // Compose
     api(libs.androidx.ui)
+    api(libs.androidx.foundation)
     implementation(libs.androidx.lifecycle.runtime.compose)
 
     // Kotlin and extension

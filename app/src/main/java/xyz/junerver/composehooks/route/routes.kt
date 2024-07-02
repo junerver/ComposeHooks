@@ -9,6 +9,7 @@ import xyz.junerver.composehooks.example.UseClipboardExample
 import xyz.junerver.composehooks.example.UseContextExample
 import xyz.junerver.composehooks.example.UseCreationExample
 import xyz.junerver.composehooks.example.UseDebounceExample
+import xyz.junerver.composehooks.example.UseDeviceInfoExample
 import xyz.junerver.composehooks.example.UseEffectExample
 import xyz.junerver.composehooks.example.UseEventExample
 import xyz.junerver.composehooks.example.UseFormExample
@@ -66,6 +67,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useContext" to { UseContextExample() },
     "useCreation" to { UseCreationExample() },
     "useDebounce" to { UseDebounceExample() },
+    "useDeviceInfo" to { UseDeviceInfoExample() },
     "useEffect" to { UseEffectExample() },
     "useEvent" to { UseEventExample() },
     "useForm" to { UseFormExample() },
