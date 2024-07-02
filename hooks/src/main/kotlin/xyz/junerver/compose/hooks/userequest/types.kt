@@ -17,6 +17,14 @@ import xyz.junerver.compose.hooks.userequest.plugins.useAutoRunPlugin
 import xyz.junerver.compose.hooks.userequest.plugins.useDebouncePlugin
 import xyz.junerver.kotlin.isNotNull
 
+/*
+  Description: Types
+  Author: Junerver
+  Date: 2024/2/6-9:05
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 @Suppress("ConstPropertyName")
 internal object Keys {
     const val loading = "loading"
@@ -31,10 +39,9 @@ internal object Keys {
 
 /**
  * Description: 可拷贝覆盖对象的预期实现
- * @author Junerver
- * date: 2024/2/6-9:05
- * Email: junerver@gmail.com
- * Version: v1.0
+ *
+ * @param Self
+ * @constructor Create empty Copyable
  */
 internal sealed interface Copyable<Self> {
     fun copy(that: Self?): Self
@@ -48,7 +55,7 @@ internal fun <T : Copyable<T>> List<T>.cover(): T? {
     return this.takeIf { it.isNotEmpty() }?.reduce { acc, fetchState -> acc + fetchState }
 }
 
-/***
+/**
  * map中如果有这个key就取值，无论结果是否为null；
  * 没有这个key则取旧值
  */

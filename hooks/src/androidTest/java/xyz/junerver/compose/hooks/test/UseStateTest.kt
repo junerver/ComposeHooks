@@ -20,12 +20,14 @@ import org.junit.Rule
 import org.junit.Test
 import xyz.junerver.compose.hooks.useState
 
-/**
- * Description:
- *
- * @author Junerver date: 2024/3/15-15:15 Email: junerver@gmail.com
- *     Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/15-15:15
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 @SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class UseStateTest {
 

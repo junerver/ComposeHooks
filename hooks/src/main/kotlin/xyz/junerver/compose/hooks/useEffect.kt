@@ -6,8 +6,8 @@ import androidx.compose.runtime.LaunchedEffect
 
 /*
   Description: Alias for [LaunchedEffect]
-  @author Junerver
-  date: 2024/3/4-8:20
+  Author: Junerver
+  Date: 2024/3/4-8:20
   Email: junerver@gmail.com
   Version: v1.0
 */

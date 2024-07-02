@@ -18,12 +18,13 @@ import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.composehooks.utils.subStringIf
 
-/**
- * Description:
- *
- * @author Junerver date: 2024/3/8-14:13 Email: junerver@gmail.com Version:
- *     v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/8-14:13
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UseDebounceExample() {
     val (state, setState) = useGetState(0)

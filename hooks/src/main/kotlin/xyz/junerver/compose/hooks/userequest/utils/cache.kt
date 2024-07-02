@@ -2,13 +2,13 @@ package xyz.junerver.compose.hooks.userequest.utils
 
 import xyz.junerver.compose.hooks.TParams
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/2/23-8:46
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/2/23-8:46
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 data class CachedData<TData>(
     val data: TData,
     val params: TParams,

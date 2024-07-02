@@ -9,13 +9,13 @@ import kotlin.random.Random
 import xyz.junerver.compose.hooks.useMap
 import xyz.junerver.composehooks.ui.component.TButton
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/8-14:47
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/8-14:47
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UseMapExample() {
     val mapState = useMap(

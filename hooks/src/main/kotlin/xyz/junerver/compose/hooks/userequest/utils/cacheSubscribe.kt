@@ -1,12 +1,13 @@
 package xyz.junerver.compose.hooks.userequest.utils
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/2/23-9:36
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/2/23-9:36
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 private typealias CachedDataChangeListener = (data: RestoreFetchStateData) -> Unit
 
 /**

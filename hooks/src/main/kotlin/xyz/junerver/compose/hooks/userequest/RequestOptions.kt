@@ -11,8 +11,8 @@ import xyz.junerver.compose.hooks.userequest.utils.CachedData
 
 /*
   Description: 请求参数
-  @author Junerver
-  date: 2024/1/31-9:58
+  Author: Junerver
+  Date: 2024/1/31-9:58
   Email: junerver@gmail.com
   Version: v1.0
 */

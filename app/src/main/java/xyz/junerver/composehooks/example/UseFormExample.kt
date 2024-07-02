@@ -25,12 +25,13 @@ import xyz.junerver.compose.hooks.useform.useForm
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.kotlin.asBoolean
 
-/**
- * Description:
- *
- * @author Junerver date: 2024/3/25-8:48 Email: junerver@gmail.com Version:
- *     v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/25-8:48
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UseFormExample() {
     val form = useForm()

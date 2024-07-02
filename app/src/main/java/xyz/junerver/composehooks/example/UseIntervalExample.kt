@@ -38,13 +38,13 @@ import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useInterval
 import xyz.junerver.composehooks.ui.component.TButton
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/8-13:05
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/8-13:05
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UseIntervalExample() {
     Surface {

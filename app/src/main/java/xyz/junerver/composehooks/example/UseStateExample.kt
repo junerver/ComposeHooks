@@ -25,13 +25,13 @@ import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.kotlin.Tuple2
 import xyz.junerver.kotlin.tuple
 
-/**
- * Description: [useState]can make controlled components easier to create
- * @author Junerver
- * date: 2024/3/8-14:29
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description: [useState]can make controlled components easier to create
+  Author: Junerver
+  Date: 2024/3/8-14:29
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UseStateExample() {
     /**

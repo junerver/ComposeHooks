@@ -18,13 +18,13 @@ import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 import xyz.junerver.kotlin.tuple
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/2/20-10:26
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/2/20-10:26
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 private class RetryPlugin<TData : Any> : Plugin<TData>() {
     var count = 0
     var triggerByRetry = false // 触发retry标志

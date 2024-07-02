@@ -31,13 +31,13 @@ import xyz.junerver.kotlin.asBoolean
 import xyz.junerver.kotlin.isNotNull
 import xyz.junerver.kotlin.tuple
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/2/23-8:38
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/2/23-8:38
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 private class CachePlugin<TData : Any> : Plugin<TData>() {
 
     lateinit var unSubscribeRef: MutableRef<(() -> Unit)?>

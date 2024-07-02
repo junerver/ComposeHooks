@@ -17,13 +17,13 @@ import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 import xyz.junerver.kotlin.asBoolean
 import xyz.junerver.kotlin.tuple
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/2/19-15:46
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/2/19-15:46
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 private class LoadingDelayPlugin<TData : Any> : Plugin<TData>() {
     /**
      * [ready]是动态值，可以通过外部副作用修改传递

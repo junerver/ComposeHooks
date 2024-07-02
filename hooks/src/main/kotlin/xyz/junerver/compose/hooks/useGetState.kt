@@ -8,8 +8,8 @@ import xyz.junerver.kotlin.Tuple3
 
 /*
   Description: Better `useState`
-  @author Junerver
-  date: 2024/5/10-9:31
+  Author: Junerver
+  Date: 2024/5/10-9:31
   Email: junerver@gmail.com
   Version: v1.0
 */

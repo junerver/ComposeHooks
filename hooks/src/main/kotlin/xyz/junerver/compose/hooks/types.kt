@@ -9,9 +9,9 @@ import kotlinx.coroutines.CoroutineScope
 import xyz.junerver.compose.hooks.utils.checkIsLegalParameters
 
 /*
-  Description:
-  @author Junerver
-  date: 2024/2/2-8:02
+  Description: Types
+  Author: Junerver
+  Date: 2024/2/2-8:02
   Email: junerver@gmail.com
   Version: v1.0
 */

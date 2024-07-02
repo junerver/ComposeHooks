@@ -11,9 +11,10 @@ import xyz.junerver.compose.hooks.useGetState
 
 /*
   Description:
-  @author Junerver @date: 2024/4/2-11:15
-  @email: junerver@gmail.com
-  @version: v1.0
+  Author: Junerver
+  Date: 2024/4/2-11:15
+  Email: junerver@gmail.com
+  Version: v1.0
 */
 @Composable
 fun UseClipboardExample() {

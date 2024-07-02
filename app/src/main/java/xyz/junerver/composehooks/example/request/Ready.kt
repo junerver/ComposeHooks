@@ -16,17 +16,16 @@ import xyz.junerver.composehooks.net.WebService
 import xyz.junerver.composehooks.net.asRequestFn
 import xyz.junerver.kotlin.asBoolean
 
-/**
- * Description:
- * 通过使用 Ready 你可以轻松的创建链式请求
- *
- * By using Ready you can easily create chained requests
- *
- * @author Junerver
- * date: 2024/3/13-14:11
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description: 通过使用 Ready 你可以轻松的创建链式请求
+  By using Ready you can easily create chained requests
+
+  Author: Junerver
+  Date: 2024/3/13-14:11
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 @Composable
 fun Ready() {
     val (userInfo, userLoading) = useRequest(

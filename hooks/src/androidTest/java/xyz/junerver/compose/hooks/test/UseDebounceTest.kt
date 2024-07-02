@@ -15,12 +15,14 @@ import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useDebounceFn
 import xyz.junerver.compose.hooks.useState
 
-/**
- * Description:
- *
- * @author Junerver date: 2024/3/18-15:00 Email: junerver@gmail.com
- *     Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/18-15:00
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 class UseDebounceTest {
     @get:Rule
     val composeTestRule = createComposeRule()

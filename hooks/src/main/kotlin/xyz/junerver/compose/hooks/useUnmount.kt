@@ -6,8 +6,8 @@ import androidx.compose.runtime.DisposableEffect
 
 /*
   Description: 组件卸载时执行
-  @author Junerver
-  date: 2024/1/26-13:29
+  Author: Junerver
+  Date: 2024/1/26-13:29
   Email: junerver@gmail.com
   Version: v1.0
 */

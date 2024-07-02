@@ -13,8 +13,8 @@ import androidx.compose.runtime.remember
 
 /*
   Description: Some performance improvements can be achieved by using corresponding number State
-  @author Junerver
-  date: 2024/3/7-15:31
+  Author: Junerver
+  Date: 2024/3/7-15:31
   Email: junerver@gmail.com
   Version: v1.0
 */

@@ -8,8 +8,8 @@ import androidx.compose.runtime.toMutableStateMap
 
 /*
   Description: More convenient to use dynamic Map state
-  @author Junerver
-  date: 2024/3/7-15:02
+  Author: Junerver
+  Date: 2024/3/7-15:02
   Email: junerver@gmail.com
   Version: v1.0
 */

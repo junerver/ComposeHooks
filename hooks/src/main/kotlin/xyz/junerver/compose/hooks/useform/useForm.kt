@@ -6,8 +6,8 @@ import xyz.junerver.compose.hooks.useCreation
 
 /*
   Description:
-  @author Junerver
-  date: 2024/3/25-10:06
+  Author: Junerver
+  Date: 2024/3/25-10:06
   Email: junerver@gmail.com
   Version: v1.0
 */

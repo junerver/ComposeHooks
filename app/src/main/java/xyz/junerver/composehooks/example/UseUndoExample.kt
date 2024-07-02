@@ -14,13 +14,13 @@ import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useUndo
 import xyz.junerver.composehooks.ui.component.TButton
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/11-9:33
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/11-9:33
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UseUndoExample() {
     val (state, set, reset, undo, redo, canUndo, canRedo) = useUndo(initialPresent = "")

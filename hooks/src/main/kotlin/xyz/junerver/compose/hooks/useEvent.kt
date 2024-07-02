@@ -6,8 +6,8 @@ import kotlin.reflect.KClass
 
 /*
   Description: More convenient communication between components, just like using EventBus
-  @author Junerver
-  date: 2024/3/13-8:11
+  Author: Junerver
+  Date: 2024/3/13-8:11
   Email: junerver@gmail.com
   Version: v1.0
 */

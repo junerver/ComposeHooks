@@ -10,13 +10,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/8-9:24
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/8-9:24
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 typealias Component = @Composable () -> Unit
 
 private val LocalNavHostController: ProvidableCompositionLocal<NavHostController> =

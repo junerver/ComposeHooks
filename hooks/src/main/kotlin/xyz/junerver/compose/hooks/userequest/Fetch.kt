@@ -18,9 +18,9 @@ import xyz.junerver.compose.hooks.defaultOption
 import xyz.junerver.compose.hooks.userequest.utils.awaitPlus
 
 /*
-  Description:插件化的 Fetch
-  @author Junerver
-  date: 2024/2/6-11:45
+  Description: 插件化的 Fetch
+  Author: Junerver
+  Date: 2024/2/6-11:45
   Email: junerver@gmail.com
   Version: v1.0
 */

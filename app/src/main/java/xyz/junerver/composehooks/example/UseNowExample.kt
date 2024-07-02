@@ -9,13 +9,13 @@ import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useNow
 import xyz.junerver.composehooks.example.request.DividerSpacer
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/14-12:08
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/14-12:08
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UseNowExample() {
     val now = useNow()

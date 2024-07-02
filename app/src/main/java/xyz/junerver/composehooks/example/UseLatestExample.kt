@@ -18,13 +18,13 @@ import xyz.junerver.compose.hooks.useInterval
 import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.useState
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/8-13:38
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/8-13:38
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UseLatestExample() {
     Surface {

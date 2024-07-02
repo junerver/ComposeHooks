@@ -6,8 +6,8 @@ import kotlin.reflect.full.isSubtypeOf
 
 /*
   Description:
-  @author Junerver
-  date: 2024/1/31-10:38
+  Author: Junerver
+  Date: 2024/1/31-10:38
   Email: junerver@gmail.com
   Version: v1.0
 */

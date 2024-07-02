@@ -9,8 +9,8 @@ import xyz.junerver.kotlin.tuple
 
 /*
   Description:
-  @author Junerver
-  date: 2024/3/14-11:41
+  Author: Junerver
+  Date: 2024/3/14-11:41
   Email: junerver@gmail.com
   Version: v1.0
 */

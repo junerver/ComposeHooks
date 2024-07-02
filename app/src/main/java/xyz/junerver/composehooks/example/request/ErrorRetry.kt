@@ -19,13 +19,13 @@ import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.kotlin.asBoolean
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/13-14:28
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/13-14:28
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 
 @Parcelize
 data class MockInfo(

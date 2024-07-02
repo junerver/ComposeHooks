@@ -13,13 +13,14 @@ import xyz.junerver.composehooks.acc_token
 import xyz.junerver.composehooks.net.bean.RepoInfo
 import xyz.junerver.composehooks.net.bean.UserInfo
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/12-8:54
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/12-8:54
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 object NetApi {
 
     private val mRetrofit: Retrofit

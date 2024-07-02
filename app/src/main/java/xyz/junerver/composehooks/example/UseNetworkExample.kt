@@ -7,13 +7,13 @@ import androidx.compose.runtime.Composable
 import xyz.junerver.compose.hooks.usenetwork.NetworkProvider
 import xyz.junerver.compose.hooks.usenetwork.rememberNetwork
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/8-14:06
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/8-14:06
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UseNetworkExample() {
     NetworkProvider {

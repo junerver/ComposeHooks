@@ -5,8 +5,8 @@ import androidx.compose.runtime.remember
 
 /*
   Description:
-  @author Junerver
-  date: 2024/2/7-14:20
+  Author: Junerver
+  Date: 2024/2/7-14:20
   Email: junerver@gmail.com
   Version: v1.0
 */

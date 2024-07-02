@@ -16,8 +16,8 @@ import xyz.junerver.kotlin.tuple
 
 /*
   Description:
-  @author Junerver
-  date: 2024/2/4-10:28
+  Author: Junerver
+  Date: 2024/2/4-10:28
   Email: junerver@gmail.com
   Version: v1.0
 */

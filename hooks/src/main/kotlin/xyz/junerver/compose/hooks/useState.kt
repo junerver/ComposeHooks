@@ -8,6 +8,14 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import org.jetbrains.annotations.Nullable
 
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/2/29-9:00
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 /**
  * Description: 在compose中使用state需要写一点模板代码，虽然谈不上有多麻烦，但是还是能简化一下的；
  * 返回值是[MutableState]，可以解构后使用。如果是可空对象需要显示声明：
@@ -40,10 +48,6 @@ import org.jetbrains.annotations.Nullable
  *
  * In this case, you can fall back to using the `by` delegate to get the state object
  *
- * @author Junerver
- * date: 2024/2/29-9:00
- * Email: junerver@gmail.com
- * Version: v1.0
  */
 @Suppress("UNCHECKED_CAST")
 @Composable

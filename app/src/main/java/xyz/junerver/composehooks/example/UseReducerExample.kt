@@ -27,13 +27,13 @@ import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useReducer
 import xyz.junerver.composehooks.ui.component.TButton
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/11-9:56
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/11-9:56
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 data class SimpleData(
     val name: String,
     val age: Int,

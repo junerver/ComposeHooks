@@ -8,8 +8,8 @@ import androidx.compose.runtime.compositionLocalOf
 
 /*
   Description: 这段代码完全借鉴自[pavi2410/useCompose](https://github.com/pavi2410/useCompose/blob/main/app/src/main/java/me/pavi2410/useCompose/demo/screens/ContextExample.kt)
-  @author pavi2410
-  date: 2024/3/5-9:44
+  Author: pavi2410
+  Date: 2024/3/5-9:44
   Email: junerver@gmail.com
   Version: v1.0
 */

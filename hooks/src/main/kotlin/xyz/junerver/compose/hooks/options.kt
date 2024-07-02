@@ -8,8 +8,8 @@ import xyz.junerver.kotlin.tuple
 
 /*
   Description:
-  @author Junerver
-  date: 2024/2/1-8:08
+  Author: Junerver
+  Date: 2024/2/1-8:08
   Email: junerver@gmail.com
   Version: v1.0
 */

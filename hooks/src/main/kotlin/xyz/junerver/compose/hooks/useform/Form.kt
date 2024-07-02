@@ -15,8 +15,8 @@ import xyz.junerver.kotlin.tuple
 
 /*
   Description: Headless Form Component
-  @author Junerver
-  date: 2024/3/25-8:11
+  Author: Junerver
+  Date: 2024/3/25-8:11
   Email: junerver@gmail.com
   Version: v1.0
 */

@@ -13,13 +13,13 @@ import xyz.junerver.compose.hooks.useToggleEither
 import xyz.junerver.compose.hooks.useToggleVisible
 import xyz.junerver.composehooks.ui.component.TButton
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/11-9:19
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/11-9:19
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UseToggleExample() {
     val (state, toggle) = useToggle("hello", "world")

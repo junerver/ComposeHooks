@@ -21,6 +21,14 @@ import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.composehooks.utils.subStringIf
 import xyz.junerver.kotlin.asBoolean
 
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/12-14:30
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 /**
  * Description: 例如一个修改用户信息的场景，我们会有如下的两个接口：
  * 1. `[get] api/user/id` 获取到用户信息
@@ -57,8 +65,6 @@ import xyz.junerver.kotlin.asBoolean
  * (local modification data source), only two requests are sent and only
  * one response from interface 1 is waited.
  *
- * @author Junerver date: 2024/3/12-14:30 Email: junerver@gmail.com
- *     Version: v1.0
  */
 @Composable
 fun Mutate() {

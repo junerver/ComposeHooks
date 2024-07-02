@@ -8,13 +8,13 @@ import androidx.compose.runtime.Composable
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.composehooks.ui.component.TButton
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/8-10:08
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/8-10:08
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UseBooleanExample() {
     val (state, toggle, _, setTrue, setFalse) = useBoolean(true)

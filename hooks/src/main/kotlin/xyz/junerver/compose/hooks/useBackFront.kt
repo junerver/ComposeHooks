@@ -6,8 +6,8 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 
 /*
   Description:
-  @author Junerver
-  date: 2024/3/14-15:10
+  Author: Junerver
+  Date: 2024/3/14-15:10
   Email: junerver@gmail.com
   Version: v1.0
 */

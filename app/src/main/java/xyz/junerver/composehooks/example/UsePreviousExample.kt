@@ -12,13 +12,13 @@ import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.usePrevious
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/11-9:50
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/11-9:50
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UsePreviousExample() {
     val (input, setInput) = useGetState("")

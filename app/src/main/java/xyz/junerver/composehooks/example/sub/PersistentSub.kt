@@ -11,13 +11,14 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.junerver.compose.hooks.usePersistent
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/4/11-11:34
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/4/11-11:34
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 @Composable
 fun PersistentSub() {
     val (vsvm, _) = usePersistent(key = "vsVm", "")

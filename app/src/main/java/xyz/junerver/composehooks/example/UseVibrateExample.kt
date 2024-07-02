@@ -6,13 +6,13 @@ import androidx.compose.runtime.Composable
 import xyz.junerver.compose.hooks.usevibrate.useVibrate
 import xyz.junerver.composehooks.ui.component.TButton
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/4/19-16:41
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/4/19-16:41
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UseVibrateExample() {
     val (s, l) = useVibrate()

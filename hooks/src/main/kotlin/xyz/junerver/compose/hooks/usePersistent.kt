@@ -9,7 +9,7 @@ import xyz.junerver.kotlin.plus
   persistence by default. You can pass in the corresponding function yourself
   to customize the persistence solution.
 
-  Author Junerver
+  Author: Junerver
   Date: 2024/4/9-16:59
   Email: junerver@gmail.com
   Version: v1.0

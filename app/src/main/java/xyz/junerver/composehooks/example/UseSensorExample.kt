@@ -11,12 +11,13 @@ import androidx.compose.runtime.setValue
 import xyz.junerver.compose.hooks.useSensor
 import xyz.junerver.compose.hooks.useState
 
-/**
- * Description:
- *
- * @author Junerver date: 2024/3/15-13:17 Email: junerver@gmail.com
- *     Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/15-13:17
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UseSensorExample() {
     var sensorData by useState(default = arrayOf(0f, 0f, 0f))

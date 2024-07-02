@@ -16,13 +16,13 @@ import xyz.junerver.kotlin.asBoolean
 import xyz.junerver.kotlin.plus
 import xyz.junerver.kotlin.runIf
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/2/6-10:35
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/2/6-10:35
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 
 private class AutoRunPlugin<TData : Any> : Plugin<TData>() {
     /**

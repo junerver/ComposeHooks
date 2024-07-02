@@ -2,13 +2,13 @@ package xyz.junerver.compose.hooks.userequest.utils
 
 import kotlinx.coroutines.Deferred
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/2/23-10:09
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/2/23-10:09
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 
 private val cachePromise: MutableMap<String, Deferred<*>> = mutableMapOf()
 

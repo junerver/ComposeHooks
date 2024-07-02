@@ -6,8 +6,8 @@ import androidx.compose.runtime.rememberUpdatedState
 
 /*
   Description: Hook that returns the latest value can avoid closure problems when using destructuring.
-  @author Junerver
-  date: 2024/2/21-8:45
+  Author: Junerver
+  Date: 2024/2/21-8:45
   Email: junerver@gmail.com
   Version: v1.0
 */

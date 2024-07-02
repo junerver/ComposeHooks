@@ -18,8 +18,8 @@ import xyz.junerver.kotlin.asBoolean
 
 /**
  * Description:
- * @author Junerver
- * date: 2024/3/12-15:05
+ * Author: Junerver
+ * Date: 2024/3/12-15:05
  * Email: junerver@gmail.com
  * Version: v1.0
  */

@@ -5,8 +5,8 @@ import androidx.compose.runtime.LaunchedEffect
 
 /*
   Description: Hook that saves the last state.
-  @author Junerver
-  date: 2024/2/1-14:55
+  Author: Junerver
+  Date: 2024/2/1-14:55
   Email: junerver@gmail.com
   Version: v1.0
 */

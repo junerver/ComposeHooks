@@ -51,13 +51,14 @@ import xyz.junerver.composehooks.example.request.Refresh
 import xyz.junerver.composehooks.example.request.Throttle
 import xyz.junerver.composehooks.example.sub.PersistentSub
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/8-8:50
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/8-8:50
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 val routes = mapOf<String, @Composable () -> Unit>(
     "/" to { HomeScreen() },
     "useRequest" to { RequestExampleList() },

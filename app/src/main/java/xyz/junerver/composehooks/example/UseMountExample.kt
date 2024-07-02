@@ -11,13 +11,13 @@ import xyz.junerver.compose.hooks.useUnmount
 import xyz.junerver.compose.hooks.useUpdate
 import xyz.junerver.composehooks.ui.component.TButton
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/8-11:41
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/8-11:41
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UseMountExample() {
     val update = useUpdate()

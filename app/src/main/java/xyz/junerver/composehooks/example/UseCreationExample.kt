@@ -10,13 +10,13 @@ import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUpdate
 import xyz.junerver.composehooks.ui.component.TButton
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/11-11:36
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/11-11:36
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 data class Subject(val flag: String) {
     init {
         Log.d("UseCreationExample", "Subject is be instantiated：$flag")

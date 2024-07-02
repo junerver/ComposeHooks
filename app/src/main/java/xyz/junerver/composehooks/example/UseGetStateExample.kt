@@ -13,13 +13,13 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import xyz.junerver.compose.hooks.useGetState
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/5/10-10:10
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/5/10-10:10
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UseGetStateExample() {
     Surface {

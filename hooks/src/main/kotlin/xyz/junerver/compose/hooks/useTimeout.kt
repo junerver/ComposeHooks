@@ -8,8 +8,8 @@ import kotlinx.coroutines.delay
 
 /*
   Description: 定时一段时间后执行的任务
-  @author Junerver
-  date: 2024/2/1-15:08
+  Author: Junerver
+  Date: 2024/2/1-15:08
   Email: junerver@gmail.com
   Version: v1.0
 */

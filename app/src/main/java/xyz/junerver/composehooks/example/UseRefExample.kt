@@ -16,13 +16,13 @@ import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUpdate
 import xyz.junerver.composehooks.ui.component.TButton
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/8-11:16
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/8-11:16
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 @Composable
 fun UseRefExample() {
     val countRef = useRef(0)

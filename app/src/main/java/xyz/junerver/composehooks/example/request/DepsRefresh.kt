@@ -13,13 +13,12 @@ import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.kotlin.asBoolean
 
 /**
- * Description:
- * 当你某个请求发起后需要刷新另一个请求时这会很有用
+ * Description: 当你某个请求发起后需要刷新另一个请求时这会很有用
  *
  * This is useful when you need to refresh a request after another request has been initiated.
  *
- * @author Junerver
- * date: 2024/3/13-14:27
+ * Author: Junerver
+ * Date: 2024/3/13-14:27
  * Email: junerver@gmail.com
  * Version: v1.0
  */

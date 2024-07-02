@@ -17,15 +17,15 @@ import xyz.junerver.compose.hooks.useReducer
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.kotlin.tuple
 
-/**
- * Description: 使用[useContext]可以避免复杂的状态提升，状态由父组件通过[ReactContext.Provider]提供，子组件无论嵌套多少级，都可以使用[useContext]轻松获取上下文
- *
- * Using [useContext] can avoid complex state promotion. The state is provided by the parent component through [ReactContext.Provider]. No matter how many levels of nesting the child component has, you can use [useContext] to easily obtain the context.
- * @author Junerver
- * date: 2024/3/11-11:47
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description: 使用[useContext]可以避免复杂的状态提升，状态由父组件通过[ReactContext.Provider]提供，子组件无论嵌套多少级，都可以使用[useContext]轻松获取上下文
+
+  Using [useContext] can avoid complex state promotion. The state is provided by the parent component through [ReactContext.Provider]. No matter how many levels of nesting the child component has, you can use [useContext] to easily obtain the context.
+  Author: Junerver
+  Date: 2024/3/11-11:47
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 val initialState = SimpleData("default", 18)
 
 /**

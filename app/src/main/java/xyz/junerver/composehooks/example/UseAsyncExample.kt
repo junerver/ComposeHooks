@@ -12,8 +12,8 @@ import xyz.junerver.composehooks.ui.component.TButton
 
 /*
   Description:
-  @author Junerver
-  date: 2024/4/2-8:19
+  Author: Junerver
+  Date: 2024/4/2-8:19
   email:junerver@gmail.com
   version: v1.0
 */

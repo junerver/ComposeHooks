@@ -23,8 +23,8 @@ import xyz.junerver.kotlin.runIf
 
 /*
   Description:
-  @author Junerver
-  date: 2024/3/13-15:04
+  Author: Junerver
+  Date: 2024/3/13-15:04
   Email: junerver@gmail.com
   Version: v1.0
 */

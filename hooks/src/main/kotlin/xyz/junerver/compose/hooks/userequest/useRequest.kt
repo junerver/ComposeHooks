@@ -26,6 +26,13 @@ typealias RunFn = VoidFunction
 typealias MutateFn<TData> = KFunction1<(TData?) -> TData, Unit>
 typealias RefreshFn = KFunction0<Unit>
 typealias CancelFn = KFunction0<Unit>
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/1/25-8:11
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 
 /**
  * Description: 一个用来管理网络状态的Hook，它可以非常方便的接入到传统的 retrofit 网络请求模式中。
@@ -86,10 +93,7 @@ typealias CancelFn = KFunction0<Unit>
  * @param options
  *     请求的配置项，参考[RequestOptions]，以及[ahooks-useRequest](https://ahooks.gitee.io/zh-CN/hooks/use-request/index).
  * @param plugins 自定义的插件，这是一个数组，请通过arrayOf传入
- * @author Junerver
- * date: 2024/1/25-8:11
- * Email: junerver@gmail.com
- * Version: v1.0
+ *
  */
 @Composable
 fun <TData : Any> useRequest(

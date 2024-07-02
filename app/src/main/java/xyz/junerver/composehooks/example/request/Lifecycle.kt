@@ -15,7 +15,7 @@ import xyz.junerver.composehooks.net.asRequestFn
 
 /*
   Description:
-  Author Junerver
+  Author: Junerver
   Date: 2024/3/12-10:43
   Email: junerver@gmail.com
   Version: v1.0

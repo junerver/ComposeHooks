@@ -11,13 +11,13 @@ import xyz.junerver.compose.hooks.userequest.PluginLifecycle
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/2/19-13:38
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/2/19-13:38
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
 private class ThrottlePlugin<TData : Any> : Plugin<TData>() {
 
     override val invoke: GenPluginLifecycleFn<TData>

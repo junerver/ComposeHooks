@@ -10,13 +10,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 
-/**
- * Description:
- * @author Junerver
- * date: 2024/3/8-10:13
- * Email: junerver@gmail.com
- * Version: v1.0
- */
+/*
+  Description:
+  Author: Junerver
+  Date: 2024/3/8-10:13
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
 @Composable
 fun TButton(
     text: String,

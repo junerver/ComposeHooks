@@ -6,8 +6,8 @@ import xyz.junerver.kotlin.tuple
 
 /*
   Description: A hook to conveniently manage Boolean state
-  @author Junerver
-  date: 2024/1/26-13:38
+  Author: Junerver
+  Date: 2024/1/26-13:38
   Email: junerver@gmail.com
   Version: v1.0
 */

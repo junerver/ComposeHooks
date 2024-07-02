@@ -7,8 +7,8 @@ import xyz.junerver.kotlin.tuple
 
 /*
   Description: This hook function is used to conveniently call the soft keyboard controller.
-  @author Junerver
-  date: 2024/4/16-10:14
+  Author: Junerver
+  Date: 2024/4/16-10:14
   Email: junerver@gmail.com
   Version: v1.0
 */

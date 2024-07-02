@@ -6,8 +6,8 @@ import xyz.junerver.compose.hooks.DependencyList
 
 /*
   Description:
-  @author Junerver
-  date: 2024/2/7-14:15
+  Author: Junerver
+  Date: 2024/2/7-14:15
   Email: junerver@gmail.com
   Version: v1.0
 */
