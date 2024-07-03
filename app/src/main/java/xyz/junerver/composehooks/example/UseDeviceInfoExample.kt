@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -14,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.useDisableScreenshot
 import xyz.junerver.compose.hooks.useFlashlight
 import xyz.junerver.compose.hooks.useGetState
+import xyz.junerver.compose.hooks.useScreenBrightness
 import xyz.junerver.compose.hooks.useWakeLock
 import xyz.junerver.compose.hooks.useWindowFlags
 import xyz.junerver.compose.hooks.usedeviceinfo.useBatteryInfo
@@ -38,6 +40,8 @@ fun UseDeviceInfoExample() {
     val (turnOn, turnOff) = useFlashlight()
     val (req, release, isActive) = useWakeLock()
     val (addFlags, clearFlags, isFlagsAdded) = useWindowFlags(key = "secure&wakelock", flags = WindowManager.LayoutParams.FLAG_SECURE or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    val (setBrightness, initValue) = useScreenBrightness()
+    val (sliderValue, setSliderValue) = useGetState(default = initValue)
     Surface {
         Column {
             Text(text = buildInfo.toString(), modifier = Modifier.padding(bottom = 20.dp))
@@ -53,8 +57,15 @@ fun UseDeviceInfoExample() {
                     turnOff()
                 }
             })
-            Spacer(modifier = Modifier.height(20.dp))
 
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(text = "Control screen brightness")
+            Slider(value = sliderValue, onValueChange = {
+                setSliderValue(it)
+                setBrightness(it)
+            })
+
+            Spacer(modifier = Modifier.height(20.dp))
             Text(text = "Is allow screenshots: ${!isDisable}")
             TButton(text = if (isDisable) "Enable" else "Disable") {
                 if (isDisable) {
