@@ -1,0 +1,24 @@
+package xyz.junerver.compose.hooks
+
+import android.view.WindowManager
+import androidx.compose.runtime.Composable
+import xyz.junerver.kotlin.Tuple3
+
+/*
+  Description: Provides a way to prevent devices from dimming or locking the screen
+  when an application needs to keep running.
+
+  Author: Junerver
+  Date: 2024/7/3-11:13
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
+internal typealias RequestFn = () -> Unit
+internal typealias ReleaseFn = () -> Unit
+
+@Composable
+fun useWakeLock(): Tuple3<RequestFn, ReleaseFn, IsActive> = useWindowFlags(
+    key = "HOOK_INTERNAL_WAKE_LOCK",
+    flags = WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+)
