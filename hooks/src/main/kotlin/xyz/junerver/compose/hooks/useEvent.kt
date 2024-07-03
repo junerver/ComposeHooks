@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import kotlin.reflect.KClass
 
 /*
@@ -99,6 +100,6 @@ inline fun <reified T : Any> useEventSubscribe(noinline subscriber: (T) -> Unit)
  * @return
  */
 @Composable
-inline fun <reified T : Any> useEventPublish(): (T) -> Unit = useCreation {
+inline fun <reified T : Any> useEventPublish(): (T) -> Unit = remember {
     { event: T -> EventManager.post(event) }
-}.current
+}

@@ -2,16 +2,17 @@ package xyz.junerver.compose.hooks.userequest
 
 import android.os.Parcelable
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlin.reflect.KFunction0
 import kotlin.reflect.KFunction1
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.VoidFunction
+import xyz.junerver.compose.hooks._useState
 import xyz.junerver.compose.hooks.asNoopFn
 import xyz.junerver.compose.hooks.asSuspendNoopFn
 import xyz.junerver.compose.hooks.defaultOption
+import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.useUnmount
 import xyz.junerver.compose.hooks.userequest.plugins.useAutoRunPlugin
 import xyz.junerver.compose.hooks.userequest.plugins.useCachePlugin
@@ -151,18 +152,13 @@ private fun <TData : Any> useRequestPluginsImpl(
     options: RequestOptions<TData> = defaultOption(),
     plugins: Array<Plugin<TData>> = emptyArray(),
 ): Fetch<TData> {
-    // 为了驱动组件更新，必须要持有真实的状态
-    // 请求的数据状态
-    val dataState = remember { mutableStateOf<TData?>(null) }
+    val dataState = _useState<TData?>(null)
     val (_, setData) = dataState
-    // 是否处于首次请求中的状态
-    val loadingState = remember { mutableStateOf(false) }
+    val loadingState = useState(false)
     val (_, setLoading) = loadingState
-    // 请求出错后的保存错误的状态
-    val errorState = remember { mutableStateOf<Throwable?>(null) }
+    val errorState = _useState<Throwable?>(null)
     val (_, setError) = errorState
 
-    // Fetch 对象用于持有请求的状态
     val fetch = remember {
         Fetch(options).apply {
             this.dataState = dataState
@@ -173,15 +169,12 @@ private fun <TData : Any> useRequestPluginsImpl(
             this.setError = setError
             this.requestFn = requestFn
 
-            // initState，主要负责初始的loading状态
             this.fetchState = plugins.mapNotNull {
                 it.onInit?.invoke(options)
             }.cover() ?: FetchState()
-            // 此时插件被装在，并且获得相应实例
             this.pluginImpls = plugins.map { it.invoke(this, options) }.toTypedArray()
         }
     }.apply {
-        // 作用域必须在每次重组后更新，否则会导致请求无法发出
         this.scope = rememberCoroutineScope()
     }
 

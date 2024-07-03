@@ -7,6 +7,7 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.getSystemService
 
@@ -18,11 +19,11 @@ fun useSensor(
     onSensorChangedFn: (SensorEvent) -> Unit = { _ -> },
 ) {
     val ctx = LocalContext.current
-    val sensorManagerRef = useCreation {
+    val sensorManager = remember {
         ctx.getSystemService<SensorManager>()
     }
     DisposableEffect(Unit) {
-        val sensor = sensorManagerRef.current?.getDefaultSensor(sensorType)
+        val sensor = sensorManager?.getDefaultSensor(sensorType)
         val listener = object : SensorEventListener {
             override fun onSensorChanged(p0: SensorEvent?) {
                 p0?.let { onSensorChangedFn(it) }
@@ -34,9 +35,9 @@ fun useSensor(
                 }
             }
         }
-        sensorManagerRef.current?.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_UI)
+        sensorManager?.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_UI)
         onDispose {
-            sensorManagerRef.current?.unregisterListener(listener)
+            sensorManager?.unregisterListener(listener)
         }
     }
 }

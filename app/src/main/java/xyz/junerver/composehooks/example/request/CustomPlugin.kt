@@ -2,17 +2,19 @@ package xyz.junerver.composehooks.example.request
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import kotlin.reflect.KFunction0
-import kotlin.reflect.KFunction1
 import xyz.junerver.compose.hooks.MutableRef
 import xyz.junerver.compose.hooks.defaultOption
 import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.userequest.CancelFn
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.FetchState
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
+import xyz.junerver.compose.hooks.userequest.MutateFn
 import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.PluginLifecycle
+import xyz.junerver.compose.hooks.userequest.RefreshFn
 import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.userequest.RunFn
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.kotlin.Tuple8
 import xyz.junerver.kotlin.plus
@@ -33,12 +35,13 @@ import xyz.junerver.kotlin.plus
 
 // You can copy the aliases in the source code to be consistent with me, or you can use the original type directly
 typealias TParams = Array<Any?>
+typealias RollbackFn = () -> Unit
 
 @Composable
 fun <TData : Any> useCustomPluginRequest(
     requestFn: suspend (TParams) -> TData,
     options: RequestOptions<TData> = defaultOption(),
-): Tuple8<TData?, Boolean, Throwable?, (TParams) -> Unit, KFunction1<(TData?) -> TData, Unit>, KFunction0<Unit>, KFunction0<Unit>, () -> Unit> {
+): Tuple8<TData?, Boolean, Throwable?, RunFn, MutateFn<TData>, RefreshFn, CancelFn, RollbackFn> {
     val rollbackRef = useRef(default = { })
     val tuple = useRequest(
         requestFn = requestFn,

@@ -1,8 +1,8 @@
 package xyz.junerver.compose.hooks.useform
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks.Ref
-import xyz.junerver.compose.hooks.useCreation
 
 /*
   Description:
@@ -14,7 +14,7 @@ import xyz.junerver.compose.hooks.useCreation
 
 @Composable
 fun useForm(): FormInstance {
-    return useCreation { FormInstance() }.current
+    return remember { FormInstance() }
 }
 
 class FormInstance {
