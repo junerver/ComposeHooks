@@ -12,6 +12,16 @@ import kotlinx.coroutines.launch
  * an function(use to execute suspend function). When you call the execution function,
  * the suspend function will be executed within the coroutine scope of the current component.
  *
+ * ```kotlin
+ * // Declare an suspend lambda like a normal lambda
+ * val async = useAsync {
+ *     delay(1.seconds)
+ *     setState(state + 1)
+ * }
+ * // easy to use
+ * async()
+ * ```
+ *
  * @param fn
  * @return
  * @receiver

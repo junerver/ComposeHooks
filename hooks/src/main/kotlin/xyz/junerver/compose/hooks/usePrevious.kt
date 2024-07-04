@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 
 /*
-  Description: Hook that saves the last state.
+  Description: Hook that saves the previous state.
   Author: Junerver
   Date: 2024/2/1-14:55
   Email: junerver@gmail.com
