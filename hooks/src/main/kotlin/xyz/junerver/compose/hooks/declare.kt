@@ -225,7 +225,14 @@ fun rememberTimeout(delay: Duration = 1.seconds, block: () -> Unit) = useTimeout
 @Composable
 fun rememberTimestamp(
     options: TimestampOptions = defaultOption(),
-) = useTimestamp(options)
+    autoResume: Boolean = true,
+) = useTimestamp(options, autoResume)
+
+@Composable
+fun rememberTimestampRef(
+    options: TimestampOptions = defaultOption(),
+    autoResume: Boolean = true,
+) = useTimestampRef(options, autoResume)
 
 //region useToggle
 @Composable

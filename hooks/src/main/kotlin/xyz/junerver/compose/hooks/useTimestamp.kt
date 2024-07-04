@@ -31,9 +31,17 @@ data class TimestampOptions internal constructor(
     companion object : Options<TimestampOptions>(::TimestampOptions)
 }
 
+/**
+ * Use timestamp
+ *
+ * @param options
+ * @param autoResume If automatically execute resume when entering the component
+ * @return
+ */
 @Composable
 fun useTimestamp(
     options: TimestampOptions = defaultOption(),
+    autoResume: Boolean = true,
 ): Tuple4<Long, PauseFn, ResumeFn, IsActive> {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
     var timestamp by useState(default = System.currentTimeMillis())
@@ -45,6 +53,9 @@ fun useTimestamp(
         timestamp = System.currentTimeMillis() + offset
         callback?.invoke(timestamp)
     }
+    useMount {
+        if (autoResume) resume()
+    }
     return tuple(
         first = timestamp,
         second = pause,
@@ -53,9 +64,17 @@ fun useTimestamp(
     )
 }
 
+/**
+ * Use timestamp ref
+ *
+ * @param options
+ * @param autoResume If automatically execute resume when entering the component
+ * @return
+ */
 @Composable
 fun useTimestampRef(
     options: TimestampOptions = defaultOption(),
+    autoResume: Boolean = true,
 ): Tuple4<Ref<Long>, PauseFn, ResumeFn, IsActive> {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
     val timestampRef = useRef(default = System.currentTimeMillis())
@@ -66,6 +85,9 @@ fun useTimestampRef(
     ) {
         timestampRef.current = System.currentTimeMillis() + offset
         callback?.invoke(timestampRef.current)
+    }
+    useMount {
+        if (autoResume) resume()
     }
     return tuple(
         first = timestampRef,
