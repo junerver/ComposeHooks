@@ -20,7 +20,7 @@ fun useUnmountedRef(): Ref<Boolean> {
     DisposableEffect(Unit) {
         unmountedRef.current = false
         onDispose {
-            unmountedRef.current = false
+            unmountedRef.current = true
         }
     }
     return unmountedRef
