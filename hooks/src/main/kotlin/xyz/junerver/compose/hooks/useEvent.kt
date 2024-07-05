@@ -64,7 +64,7 @@ object EventManager {
         }
     }
 
-    inline fun <reified T : Any> post(event: T) {
+    inline fun <reified T> post(event: T) {
         if (subscriberMap.containsKey(T::class)) {
             subscriberMap[T::class]?.forEach { it.invoke(event) }
         }
@@ -80,7 +80,7 @@ object EventManager {
  * @receiver
  */
 @Composable
-inline fun <reified T : Any> useEventSubscribe(noinline subscriber: (T) -> Unit) {
+inline fun <reified T> useEventSubscribe(noinline subscriber: (T) -> Unit) {
     val latest by useLatestState(subscriber)
     val unSubscribeRef = useRef<(() -> Unit)?>(null)
 
@@ -100,6 +100,6 @@ inline fun <reified T : Any> useEventSubscribe(noinline subscriber: (T) -> Unit)
  * @return
  */
 @Composable
-inline fun <reified T : Any> useEventPublish(): (T) -> Unit = remember {
+inline fun <reified T> useEventPublish(): (T) -> Unit = remember {
     { event: T -> EventManager.post(event) }
 }

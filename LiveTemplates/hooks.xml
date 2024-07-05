@@ -14,7 +14,7 @@
             <option name="KOTLIN" value="true" />
         </context>
     </template>
-    <template name="us" value="val ($state$, set$State$) = useState($default$)" description="useState" toReformat="false" toShortenFQNames="true">
+    <template name="us" value="val ($state$, set$State$, get$State$) = useGetState($default$)" description="useGetState" toReformat="false" toShortenFQNames="true">
         <variable name="state" expression="" defaultValue="&quot;state&quot;" alwaysStopAt="true" />
         <variable name="State" expression="" defaultValue="capitalize(state)" alwaysStopAt="true" />
         <variable name="default" expression="" defaultValue="" alwaysStopAt="true" />
