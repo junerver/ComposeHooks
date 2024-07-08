@@ -5,14 +5,15 @@ coreKtx = "1.13.1"
 junit = "4.13.2"
 junitVersion = "1.2.1"
 espressoCore = "3.6.1"
-lifecycleRuntimeKtx = "2.8.2"
+kotlinxDatetime = "0.6.0"
 activityCompose = "1.9.0"
 composeBom = "2024.06.00"
 appcompat = "1.7.0"
 material = "1.12.0"
 navigationCompose = "2.7.7"
 retrofitVersion = "2.11.0"
-lifecycleRuntimeCompose = "2.8.2"
+lifecycleRuntimeKtx = "2.8.3"
+lifecycleRuntimeCompose = "2.8.3"
 
 
 [libraries]
@@ -33,6 +34,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-ui-test = { group = "androidx.compose.ui", name = "ui-test" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
 kotlin-bom = { group = "org.jetbrains.kotlin", name = "kotlin-bom", version.ref = "kotlin" }

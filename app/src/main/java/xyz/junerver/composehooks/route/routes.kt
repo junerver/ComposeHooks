@@ -7,6 +7,7 @@ import xyz.junerver.composehooks.example.UseAsyncExample
 import xyz.junerver.composehooks.example.UseBooleanExample
 import xyz.junerver.composehooks.example.UseClipboardExample
 import xyz.junerver.composehooks.example.UseContextExample
+import xyz.junerver.composehooks.example.UseCountdownExample
 import xyz.junerver.composehooks.example.UseCounterExample
 import xyz.junerver.composehooks.example.UseCreationExample
 import xyz.junerver.composehooks.example.UseDebounceExample
@@ -67,6 +68,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useBoolean" to { UseBooleanExample() },
     "useClipboard" to { UseClipboardExample() },
     "useContext" to { UseContextExample() },
+    "useCountdown" to { UseCountdownExample() },
     "useCounter" to { UseCounterExample() },
     "useCreation" to { UseCreationExample() },
     "useDebounce" to { UseDebounceExample() },

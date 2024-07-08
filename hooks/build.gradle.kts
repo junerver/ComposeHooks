@@ -61,4 +61,5 @@ dependencies {
     implementation(platform(libs.kotlin.bom))
     implementation(libs.kotlin.reflect)
     api(libs.ktx)
+    api(libs.kotlinx.datetime)
 }
