@@ -51,14 +51,14 @@ import org.jetbrains.annotations.Nullable
  */
 @Suppress("UNCHECKED_CAST")
 @Composable
-fun <T> useState(default: T & Any): MutableState<T> {
+fun <T> useState(default: T & Any): MutableState<T & Any> {
     return when (default) {
         is Int -> useInt(default)
         is Float -> useFloat(default)
         is Double -> useDouble(default)
         is Long -> useLong(default)
         else -> _useState(default)
-    } as MutableState<T>
+    } as MutableState<T & Any>
 }
 
 /**
