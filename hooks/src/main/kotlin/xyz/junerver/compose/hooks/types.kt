@@ -105,6 +105,7 @@ internal typealias IsActive = Boolean
 internal typealias ToggleFn = () -> Unit
 
 internal typealias SetValueFn<T> = (T) -> Unit
+internal typealias ResetFn = () -> Unit
 internal typealias GetValueFn<T> = () -> T
 
 internal typealias SuspendAsyncFn = suspend CoroutineScope.() -> Unit
