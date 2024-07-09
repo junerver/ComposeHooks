@@ -31,6 +31,7 @@ import xyz.junerver.composehooks.example.UsePreviousExample
 import xyz.junerver.composehooks.example.UseReducerExample
 import xyz.junerver.composehooks.example.UseReduxExample
 import xyz.junerver.composehooks.example.UseRefExample
+import xyz.junerver.composehooks.example.UseResetStateExample
 import xyz.junerver.composehooks.example.UseSensorExample
 import xyz.junerver.composehooks.example.UseStateExample
 import xyz.junerver.composehooks.example.UseThrottleExample
@@ -94,6 +95,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useReducer" to { UseReducerExample() },
     "useRedux" to { UseReduxExample() },
     "useRef" to { UseRefExample() },
+    "useResetState" to { UseResetStateExample() },
     "useSensor" to { UseSensorExample() },
     "useState" to { UseStateExample() },
     "useThrottle" to { UseThrottleExample() },
