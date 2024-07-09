@@ -37,8 +37,6 @@ internal typealias NoParamsVoidFunction = KFunction0<Unit>
 operator fun <TData> NormalFunction<TData>.invoke(vararg params: Any?) = this(arrayOf(*params))
 operator fun VoidFunction.invoke(vararg params: Any?) = this(arrayOf(*params))
 
-internal typealias DependencyList = Array<out Any>
-
 /**
  * 用来将任意一个函数转换成 noop 函数。但是需要注意，如果这个函数是一个实例的函数，必须要传入对应的实例。
  *

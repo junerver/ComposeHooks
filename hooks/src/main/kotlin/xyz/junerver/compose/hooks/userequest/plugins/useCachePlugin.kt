@@ -5,6 +5,7 @@ import androidx.compose.runtime.remember
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.datetime.Clock
 import xyz.junerver.compose.hooks.MutableRef
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.TParams
@@ -45,7 +46,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
 
     private var staleTime: Long = 0
     val currentTime: Long
-        get() = System.currentTimeMillis()
+        get() = Clock.System.now().toEpochMilliseconds()
     lateinit var setCache: (key: String, cachedData: CachedData<TData>) -> Unit
     lateinit var getCache: (String, TParams) -> CachedData<TData>?
 

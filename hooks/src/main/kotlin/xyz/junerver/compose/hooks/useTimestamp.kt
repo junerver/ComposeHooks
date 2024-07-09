@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.datetime.Clock
 import xyz.junerver.kotlin.Tuple4
 import xyz.junerver.kotlin.tuple
 
@@ -25,7 +26,7 @@ import xyz.junerver.kotlin.tuple
  */
 data class TimestampOptions internal constructor(
     var interval: Duration = 1.0.milliseconds,
-    var offset: Long = 0,
+    var offset: Duration = 0.milliseconds,
     var callback: ((Long) -> Unit)? = null,
 ) {
     companion object : Options<TimestampOptions>(::TimestampOptions)
@@ -44,20 +45,20 @@ fun useTimestamp(
     autoResume: Boolean = true,
 ): Tuple4<Long, PauseFn, ResumeFn, IsActive> {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
-    var timestamp by useState(default = System.currentTimeMillis())
+    var timestamp by useState(default = Clock.System.now())
     val (resume, pause, isActive) = useInterval(
         optionsOf {
             period = interval
         }
     ) {
-        timestamp = System.currentTimeMillis() + offset
-        callback?.invoke(timestamp)
+        timestamp = Clock.System.now() + offset
+        callback?.invoke(timestamp.toEpochMilliseconds())
     }
     useMount {
         if (autoResume) resume()
     }
     return tuple(
-        first = timestamp,
+        first = timestamp.toEpochMilliseconds(),
         second = pause,
         third = resume,
         fourth = isActive
@@ -77,13 +78,13 @@ fun useTimestampRef(
     autoResume: Boolean = true,
 ): Tuple4<Ref<Long>, PauseFn, ResumeFn, IsActive> {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
-    val timestampRef = useRef(default = System.currentTimeMillis())
+    val timestampRef = useRef(default = Clock.System.now().toEpochMilliseconds())
     val (resume, pause, isActive) = useInterval(
         optionsOf {
             period = interval
         }
     ) {
-        timestampRef.current = System.currentTimeMillis() + offset
+        timestampRef.current = (Clock.System.now() + offset).toEpochMilliseconds()
         callback?.invoke(timestampRef.current)
     }
     useMount {

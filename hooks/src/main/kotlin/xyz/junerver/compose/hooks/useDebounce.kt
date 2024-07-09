@@ -9,12 +9,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import xyz.junerver.kotlin.Tuple2
 
 /**
@@ -43,8 +42,8 @@ internal class Debounce(
 
     private var calledCount = 0
     private val jobs: MutableList<Tuple2<Job, Boolean>> = arrayListOf()
-    private var latestInvokedTime = System.currentTimeMillis()
-    private var latestCalledTime = System.currentTimeMillis()
+    private var latestInvokedTime = Clock.System.now()
+    private var latestCalledTime = Clock.System.now()
 
     private fun clear() {
         if (jobs.isNotEmpty()) {
@@ -61,18 +60,18 @@ internal class Debounce(
         val (wait, leading, trailing, maxWait) = options
         fun task(guarantee: Boolean, isDelay: Boolean) {
             if (guarantee) {
-                latestInvokedTime = System.currentTimeMillis()
+                latestInvokedTime = Clock.System.now()
             }
             scope.launch {
                 if (isDelay) delay(wait)
                 fn(p1)
-                latestInvokedTime = System.currentTimeMillis()
+                latestInvokedTime = Clock.System.now()
             }.also { jobs.add(it to guarantee) }
         }
 
-        val currentTime = System.currentTimeMillis()
-        val waitTime = (currentTime - latestInvokedTime).toDuration(DurationUnit.MILLISECONDS)
-        val interval = (currentTime - latestCalledTime).toDuration(DurationUnit.MILLISECONDS)
+        val currentTime = Clock.System.now()
+        val waitTime = currentTime - latestInvokedTime
+        val interval = currentTime - latestCalledTime
         val isMaxWait = maxWait in 1.milliseconds..waitTime
         if (isMaxWait || (calledCount == 0 && leading)) {
             task(guarantee = isMaxWait, isDelay = false)
@@ -87,7 +86,7 @@ internal class Debounce(
             }
         }
         calledCount++
-        latestCalledTime = System.currentTimeMillis()
+        latestCalledTime = Clock.System.now()
     }
 }
 

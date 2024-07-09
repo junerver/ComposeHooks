@@ -8,13 +8,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.DurationUnit
-import kotlin.time.toDuration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 
 /**
  * Throttle options
@@ -40,7 +40,7 @@ internal class Throttle(
 
     private var calledCount = 0
     private val trailingJobs: MutableList<Job> = arrayListOf()
-    private var latestInvokedTime = 0L
+    private var latestInvokedTime = Instant.fromEpochMilliseconds(0L)
 
     private fun clearTrailing() {
         if (trailingJobs.isNotEmpty()) {
@@ -53,8 +53,7 @@ internal class Throttle(
 
     override fun invoke(p1: TParams) {
         val (wait, leading, trailing) = options
-        val waitTime =
-            (System.currentTimeMillis() - latestInvokedTime).toDuration(DurationUnit.MILLISECONDS)
+        val waitTime = Clock.System.now() - latestInvokedTime
 
         fun task(isDelay: Boolean, isTrailing: Boolean = false) {
             scope.launch(start = if (isTrailing) CoroutineStart.LAZY else CoroutineStart.DEFAULT) {
@@ -74,7 +73,7 @@ internal class Throttle(
         }
         if (waitTime > wait) {
             task(isDelay = !(calledCount == 0 && leading))
-            latestInvokedTime = System.currentTimeMillis()
+            latestInvokedTime = Clock.System.now()
         } else {
             if (trailing) {
                 clearTrailing()

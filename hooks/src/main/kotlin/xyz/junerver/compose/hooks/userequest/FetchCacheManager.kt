@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Clock
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 import xyz.junerver.kotlin.Tuple2
 import xyz.junerver.kotlin.tuple
@@ -46,7 +47,7 @@ internal object FetchCacheManager : CoroutineScope {
     }
 
     private val currentTime: Long
-        get() = System.currentTimeMillis()
+        get() = Clock.System.now().toEpochMilliseconds()
 
     /**
      * 缓存是否有效
