@@ -54,6 +54,8 @@ $dokka.location:xyz.junerver.compose.hooks.useform/Required/Required/#kotlin.Str
 $dokka.location:xyz.junerver.compose.hooks.useform/Required/message/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useform/-required/message.html
 $dokka.location:xyz.junerver.compose.hooks.useform/Validator///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useform/-validator/index.html
 $dokka.location:xyz.junerver.compose.hooks.useform/Validator/message/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useform/-validator/message.html
+$dokka.location:xyz.junerver.compose.hooks.useidle////PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useidle/index.html
+$dokka.location:xyz.junerver.compose.hooks.useidle//useIdle/#kotlin.time.Duration/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.useidle/use-idle.html
 $dokka.location:xyz.junerver.compose.hooks.usenetwork////PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usenetwork/index.html
 $dokka.location:xyz.junerver.compose.hooks.usenetwork//NetworkContext/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usenetwork/-network-context.html
 $dokka.location:xyz.junerver.compose.hooks.usenetwork//NetworkProvider/#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usenetwork/-network-provider.html
@@ -223,6 +225,22 @@ $dokka.location:xyz.junerver.compose.hooks.usevibrate////PointingToDeclaration/
 $dokka.location:xyz.junerver.compose.hooks.usevibrate//useVibrate/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usevibrate/use-vibrate.html
 $dokka.location:xyz.junerver.compose.hooks.usevibrate//vibrateLong/android.content.Context#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usevibrate/vibrate-long.html
 $dokka.location:xyz.junerver.compose.hooks.usevibrate//vibrateShort/android.content.Context#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.usevibrate/vibrate-short.html
+$dokka.location:xyz.junerver.compose.hooks.utils////PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/index.html
+$dokka.location:xyz.junerver.compose.hooks.utils//CHINESE_ABBREVIATED/kotlinx.datetime.format.DayOfWeekNames.Companion#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/-c-h-i-n-e-s-e_-a-b-b-r-e-v-i-a-t-e-d.html
+$dokka.location:xyz.junerver.compose.hooks.utils//CHINESE_FULL/kotlinx.datetime.format.DayOfWeekNames.Companion#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/-c-h-i-n-e-s-e_-f-u-l-l.html
+$dokka.location:xyz.junerver.compose.hooks.utils//toLocalDateTime/xyz.junerver.compose.hooks.utils.Timestamp#kotlinx.datetime.TimeZone/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/to-local-date-time.html
+$dokka.location:xyz.junerver.compose.hooks.utils//tsMs/kotlin.Long#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/ts-ms.html
+$dokka.location:xyz.junerver.compose.hooks.utils//tsS/kotlin.Long#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/ts-s.html
+$dokka.location:xyz.junerver.compose.hooks.utils/Timestamp.Companion///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/-timestamp/-companion/index.html
+$dokka.location:xyz.junerver.compose.hooks.utils/Timestamp.Companion/now/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/-timestamp/-companion/now.html
+$dokka.location:xyz.junerver.compose.hooks.utils/Timestamp///PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/-timestamp/index.html
+$dokka.location:xyz.junerver.compose.hooks.utils/Timestamp/Timestamp/#kotlin.Long/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/-timestamp/-timestamp.html
+$dokka.location:xyz.junerver.compose.hooks.utils/Timestamp/asTimestampMilliseconds/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/-timestamp/as-timestamp-milliseconds.html
+$dokka.location:xyz.junerver.compose.hooks.utils/Timestamp/asTimestampSeconds/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/-timestamp/as-timestamp-seconds.html
+$dokka.location:xyz.junerver.compose.hooks.utils/Timestamp/compareTo/#xyz.junerver.compose.hooks.utils.Timestamp/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/-timestamp/compare-to.html
+$dokka.location:xyz.junerver.compose.hooks.utils/Timestamp/minus/#xyz.junerver.compose.hooks.utils.Timestamp/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/-timestamp/minus.html
+$dokka.location:xyz.junerver.compose.hooks.utils/Timestamp/plus/#xyz.junerver.compose.hooks.utils.Timestamp/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/-timestamp/plus.html
+$dokka.location:xyz.junerver.compose.hooks.utils/Timestamp/value/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks.utils/-timestamp/value.html
 $dokka.location:xyz.junerver.compose.hooks////PointingToDeclaration/hooks/xyz.junerver.compose.hooks/index.html
 $dokka.location:xyz.junerver.compose.hooks//LaunchedDebounceEffect/#kotlin.Array[kotlin.Any?]#xyz.junerver.compose.hooks.DebounceOptions#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-launched-debounce-effect.html
 $dokka.location:xyz.junerver.compose.hooks//LaunchedThrottleEffect/#kotlin.Array[kotlin.Any?]#xyz.junerver.compose.hooks.ThrottleOptions#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-launched-throttle-effect.html
@@ -236,6 +254,8 @@ $dokka.location:xyz.junerver.compose.hooks//asSuspendNoopFn/kotlin.reflect.KFunc
 $dokka.location:xyz.junerver.compose.hooks//checkCompanionObject/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/check-companion-object.html
 $dokka.location:xyz.junerver.compose.hooks//createContext/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/create-context.html
 $dokka.location:xyz.junerver.compose.hooks//defaultOption/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/default-option.html
+$dokka.location:xyz.junerver.compose.hooks//invoke/kotlin.Function1[arrow.core.Either[kotlin.Int,kotlin.Function1[kotlin.Int,kotlin.Int]],kotlin.Unit]#kotlin.Function1[kotlin.Int,kotlin.Int]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/invoke.html
+$dokka.location:xyz.junerver.compose.hooks//invoke/kotlin.Function1[arrow.core.Either[kotlin.Int,kotlin.Function1[kotlin.Int,kotlin.Int]],kotlin.Unit]#kotlin.Int/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/invoke.html
 $dokka.location:xyz.junerver.compose.hooks//invoke/kotlin.Function1[kotlin.Array[kotlin.Any?],TypeParam(bounds=[kotlin.Any?])]#kotlin.Array[kotlin.Any?]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/invoke.html
 $dokka.location:xyz.junerver.compose.hooks//invoke/kotlin.Function1[kotlin.Array[kotlin.Any?],kotlin.Unit]#kotlin.Array[kotlin.Any?]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/invoke.html
 $dokka.location:xyz.junerver.compose.hooks//notifyDefaultPersistentObserver/#kotlin.String/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/notify-default-persistent-observer.html
@@ -243,18 +263,25 @@ $dokka.location:xyz.junerver.compose.hooks//observeAsState/xyz.junerver.compose.
 $dokka.location:xyz.junerver.compose.hooks//optionsOf/#kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/options-of.html
 $dokka.location:xyz.junerver.compose.hooks//rememberAsync/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-async.html
 $dokka.location:xyz.junerver.compose.hooks//rememberAsync/#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-async.html
+$dokka.location:xyz.junerver.compose.hooks//rememberAutoReset/#TypeParam(bounds=[kotlin.Any?])#kotlin.time.Duration/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-auto-reset.html
 $dokka.location:xyz.junerver.compose.hooks//rememberBackToFrontEffect/#kotlin.Array[kotlin.Any?]#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-back-to-front-effect.html
+$dokka.location:xyz.junerver.compose.hooks//rememberBatteryInfo/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-battery-info.html
 $dokka.location:xyz.junerver.compose.hooks//rememberBoolean/#kotlin.Boolean/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-boolean.html
+$dokka.location:xyz.junerver.compose.hooks//rememberBuildInfo/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-build-info.html
 $dokka.location:xyz.junerver.compose.hooks//rememberClipboard/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-clipboard.html
 $dokka.location:xyz.junerver.compose.hooks//rememberContext/#xyz.junerver.compose.hooks.ReactContext[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-context.html
+$dokka.location:xyz.junerver.compose.hooks//rememberCountdown/#xyz.junerver.compose.hooks.CountdownOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-countdown.html
+$dokka.location:xyz.junerver.compose.hooks//rememberCounter/#kotlin.Int#xyz.junerver.compose.hooks.CounterOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-counter.html
 $dokka.location:xyz.junerver.compose.hooks//rememberCreation/#kotlin.Array[kotlin.Any?]#kotlin.Function0[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-creation.html
 $dokka.location:xyz.junerver.compose.hooks//rememberDebounce/#TypeParam(bounds=[kotlin.Any?])#xyz.junerver.compose.hooks.DebounceOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-debounce.html
 $dokka.location:xyz.junerver.compose.hooks//rememberDebounceFn/#kotlin.Function1[kotlin.Array[kotlin.Any?],kotlin.Unit]#xyz.junerver.compose.hooks.DebounceOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-debounce-fn.html
+$dokka.location:xyz.junerver.compose.hooks//rememberDisableScreenshot/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-disable-screenshot.html
 $dokka.location:xyz.junerver.compose.hooks//rememberDispatch/#kotlin.String?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-dispatch.html
 $dokka.location:xyz.junerver.compose.hooks//rememberDispatchAsync/#kotlin.String?#kotlin.Function1[kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),kotlin.Unit],kotlin.Unit]?#kotlin.Function1[kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),kotlin.Unit],kotlin.Unit]?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-dispatch-async.html
 $dokka.location:xyz.junerver.compose.hooks//rememberDouble/#kotlin.Double/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-double.html
 $dokka.location:xyz.junerver.compose.hooks//rememberEventPublish/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-event-publish.html
-$dokka.location:xyz.junerver.compose.hooks//rememberEventSubscribe/#kotlin.Function1[TypeParam(bounds=[kotlin.Any]),kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-event-subscribe.html
+$dokka.location:xyz.junerver.compose.hooks//rememberEventSubscribe/#kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-event-subscribe.html
+$dokka.location:xyz.junerver.compose.hooks//rememberFlashlight/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-flashlight.html
 $dokka.location:xyz.junerver.compose.hooks//rememberFloat/#kotlin.Float/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-float.html
 $dokka.location:xyz.junerver.compose.hooks//rememberFrontToBackEffect/#kotlin.Array[kotlin.Any?]#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-front-to-back-effect.html
 $dokka.location:xyz.junerver.compose.hooks//rememberGetState/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-get-state.html
@@ -275,6 +302,9 @@ $dokka.location:xyz.junerver.compose.hooks//rememberPrevious/#TypeParam(bounds=[
 $dokka.location:xyz.junerver.compose.hooks//rememberReducer/#kotlin.Function2[TypeParam(bounds=[kotlin.Any?]),TypeParam(bounds=[kotlin.Any?]),TypeParam(bounds=[kotlin.Any?])]#TypeParam(bounds=[kotlin.Any?])#kotlin.Array[kotlin.Function2[kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),kotlin.Unit],TypeParam(bounds=[kotlin.Any?]),kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),kotlin.Unit]]]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-reducer.html
 $dokka.location:xyz.junerver.compose.hooks//rememberRef/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-ref.html
 $dokka.location:xyz.junerver.compose.hooks//rememberRequest/#kotlin.coroutines.SuspendFunction1[kotlin.Array[kotlin.Any?],TypeParam(bounds=[kotlin.Any])]#xyz.junerver.compose.hooks.userequest.RequestOptions[TypeParam(bounds=[kotlin.Any])]#kotlin.Array[kotlin.Function1[xyz.junerver.compose.hooks.userequest.RequestOptions[TypeParam(bounds=[kotlin.Any])],xyz.junerver.compose.hooks.userequest.Plugin[TypeParam(bounds=[kotlin.Any])]]]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-request.html
+$dokka.location:xyz.junerver.compose.hooks//rememberResetState/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-reset-state.html
+$dokka.location:xyz.junerver.compose.hooks//rememberScreenBrightness/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-screen-brightness.html
+$dokka.location:xyz.junerver.compose.hooks//rememberScreenInfo/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-screen-info.html
 $dokka.location:xyz.junerver.compose.hooks//rememberSelector/#kotlin.String?#kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-selector.html
 $dokka.location:xyz.junerver.compose.hooks//rememberSelector/#kotlin.String?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-selector.html
 $dokka.location:xyz.junerver.compose.hooks//rememberSensor/#kotlin.Int#kotlin.Function2[android.hardware.Sensor,kotlin.Int,kotlin.Unit]#kotlin.Function1[android.hardware.SensorEvent,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-sensor.html
@@ -282,7 +312,8 @@ $dokka.location:xyz.junerver.compose.hooks//rememberState/#TypeParam(bounds=[kot
 $dokka.location:xyz.junerver.compose.hooks//rememberThrottle/#TypeParam(bounds=[kotlin.Any?])#xyz.junerver.compose.hooks.ThrottleOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-throttle.html
 $dokka.location:xyz.junerver.compose.hooks//rememberThrottleFn/#kotlin.Function1[kotlin.Array[kotlin.Any?],kotlin.Unit]#xyz.junerver.compose.hooks.ThrottleOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-throttle-fn.html
 $dokka.location:xyz.junerver.compose.hooks//rememberTimeout/#kotlin.time.Duration#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-timeout.html
-$dokka.location:xyz.junerver.compose.hooks//rememberTimestamp/#xyz.junerver.compose.hooks.TimestampOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-timestamp.html
+$dokka.location:xyz.junerver.compose.hooks//rememberTimestamp/#xyz.junerver.compose.hooks.TimestampOptions#kotlin.Boolean/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-timestamp.html
+$dokka.location:xyz.junerver.compose.hooks//rememberTimestampRef/#xyz.junerver.compose.hooks.TimestampOptions#kotlin.Boolean/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-timestamp-ref.html
 $dokka.location:xyz.junerver.compose.hooks//rememberToggle/#TypeParam(bounds=[kotlin.Any?])?#TypeParam(bounds=[kotlin.Any?])?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-toggle.html
 $dokka.location:xyz.junerver.compose.hooks//rememberToggleEither/#TypeParam(bounds=[kotlin.Any?])?#TypeParam(bounds=[kotlin.Any?])?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-toggle-either.html
 $dokka.location:xyz.junerver.compose.hooks//rememberToggleVisible/#kotlin.Boolean#kotlin.Function0[kotlin.Unit]#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-toggle-visible.html
@@ -293,12 +324,17 @@ $dokka.location:xyz.junerver.compose.hooks//rememberUnmountedRef/#/PointingToDec
 $dokka.location:xyz.junerver.compose.hooks//rememberUpdate/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-update.html
 $dokka.location:xyz.junerver.compose.hooks//rememberUpdateEffect/#kotlin.Array[kotlin.Any?]#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-update-effect.html
 $dokka.location:xyz.junerver.compose.hooks//rememberVibrate/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-vibrate.html
+$dokka.location:xyz.junerver.compose.hooks//rememberWakeLock/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-wake-lock.html
+$dokka.location:xyz.junerver.compose.hooks//rememberWindowFlags/#kotlin.String#kotlin.Int/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/remember-window-flags.html
 $dokka.location:xyz.junerver.compose.hooks//useAsync/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-async.html
 $dokka.location:xyz.junerver.compose.hooks//useAsync/#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-async.html
+$dokka.location:xyz.junerver.compose.hooks//useAutoReset/#TypeParam(bounds=[kotlin.Any?])#kotlin.time.Duration/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-auto-reset.html
 $dokka.location:xyz.junerver.compose.hooks//useBackToFrontEffect/#kotlin.Array[kotlin.Any?]#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-back-to-front-effect.html
 $dokka.location:xyz.junerver.compose.hooks//useBoolean/#kotlin.Boolean/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-boolean.html
 $dokka.location:xyz.junerver.compose.hooks//useClipboard/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-clipboard.html
 $dokka.location:xyz.junerver.compose.hooks//useContext/#xyz.junerver.compose.hooks.ReactContext[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-context.html
+$dokka.location:xyz.junerver.compose.hooks//useCountdown/#xyz.junerver.compose.hooks.CountdownOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-countdown.html
+$dokka.location:xyz.junerver.compose.hooks//useCounter/#kotlin.Int#xyz.junerver.compose.hooks.CounterOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-counter.html
 $dokka.location:xyz.junerver.compose.hooks//useCreation/#kotlin.Array[kotlin.Any?]#kotlin.Function0[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-creation.html
 $dokka.location:xyz.junerver.compose.hooks//useDebounce/#TypeParam(bounds=[kotlin.Any?])#xyz.junerver.compose.hooks.DebounceOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-debounce.html
 $dokka.location:xyz.junerver.compose.hooks//useDebounceEffect/#kotlin.Array[kotlin.Any?]#xyz.junerver.compose.hooks.DebounceOptions#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-debounce-effect.html
@@ -307,7 +343,7 @@ $dokka.location:xyz.junerver.compose.hooks//useDisableScreenshot/#/PointingToDec
 $dokka.location:xyz.junerver.compose.hooks//useDouble/#kotlin.Double/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-double.html
 $dokka.location:xyz.junerver.compose.hooks//useEffect/#kotlin.Array[kotlin.Any?]#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-effect.html
 $dokka.location:xyz.junerver.compose.hooks//useEventPublish/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-event-publish.html
-$dokka.location:xyz.junerver.compose.hooks//useEventSubscribe/#kotlin.Function1[TypeParam(bounds=[kotlin.Any]),kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-event-subscribe.html
+$dokka.location:xyz.junerver.compose.hooks//useEventSubscribe/#kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-event-subscribe.html
 $dokka.location:xyz.junerver.compose.hooks//useFlashlight/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-flashlight.html
 $dokka.location:xyz.junerver.compose.hooks//useFloat/#kotlin.Float/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-float.html
 $dokka.location:xyz.junerver.compose.hooks//useFrontToBackEffect/#kotlin.Array[kotlin.Any?]#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-front-to-back-effect.html
@@ -329,6 +365,8 @@ $dokka.location:xyz.junerver.compose.hooks//usePersistent/#kotlin.String#TypePar
 $dokka.location:xyz.junerver.compose.hooks//usePrevious/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-previous.html
 $dokka.location:xyz.junerver.compose.hooks//useReducer/#kotlin.Function2[TypeParam(bounds=[kotlin.Any?]),TypeParam(bounds=[kotlin.Any?]),TypeParam(bounds=[kotlin.Any?])]#TypeParam(bounds=[kotlin.Any?])#kotlin.Array[kotlin.Function2[kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),kotlin.Unit],TypeParam(bounds=[kotlin.Any?]),kotlin.Function1[TypeParam(bounds=[kotlin.Any?]),kotlin.Unit]]]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-reducer.html
 $dokka.location:xyz.junerver.compose.hooks//useRef/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-ref.html
+$dokka.location:xyz.junerver.compose.hooks//useResetState/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-reset-state.html
+$dokka.location:xyz.junerver.compose.hooks//useScreenBrightness/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-screen-brightness.html
 $dokka.location:xyz.junerver.compose.hooks//useSensor/#kotlin.Int#kotlin.Function2[android.hardware.Sensor,kotlin.Int,kotlin.Unit]#kotlin.Function1[android.hardware.SensorEvent,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-sensor.html
 $dokka.location:xyz.junerver.compose.hooks//useState/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-state.html
 $dokka.location:xyz.junerver.compose.hooks//useState/#kotlin.Array[kotlin.Any]#kotlin.Function0[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-state.html
@@ -336,8 +374,8 @@ $dokka.location:xyz.junerver.compose.hooks//useThrottle/#TypeParam(bounds=[kotli
 $dokka.location:xyz.junerver.compose.hooks//useThrottleEffect/#kotlin.Array[kotlin.Any?]#xyz.junerver.compose.hooks.ThrottleOptions#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-throttle-effect.html
 $dokka.location:xyz.junerver.compose.hooks//useThrottleFn/#kotlin.Function1[kotlin.Array[kotlin.Any?],kotlin.Unit]#xyz.junerver.compose.hooks.ThrottleOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-throttle-fn.html
 $dokka.location:xyz.junerver.compose.hooks//useTimeout/#kotlin.time.Duration#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-timeout.html
-$dokka.location:xyz.junerver.compose.hooks//useTimestamp/#xyz.junerver.compose.hooks.TimestampOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-timestamp.html
-$dokka.location:xyz.junerver.compose.hooks//useTimestampRef/#xyz.junerver.compose.hooks.TimestampOptions/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-timestamp-ref.html
+$dokka.location:xyz.junerver.compose.hooks//useTimestamp/#xyz.junerver.compose.hooks.TimestampOptions#kotlin.Boolean/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-timestamp.html
+$dokka.location:xyz.junerver.compose.hooks//useTimestampRef/#xyz.junerver.compose.hooks.TimestampOptions#kotlin.Boolean/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-timestamp-ref.html
 $dokka.location:xyz.junerver.compose.hooks//useToggle/#TypeParam(bounds=[kotlin.Any?])?#TypeParam(bounds=[kotlin.Any?])?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-toggle.html
 $dokka.location:xyz.junerver.compose.hooks//useToggleEither/#TypeParam(bounds=[kotlin.Any?])?#TypeParam(bounds=[kotlin.Any?])?/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-toggle-either.html
 $dokka.location:xyz.junerver.compose.hooks//useToggleVisible/#kotlin.Boolean#kotlin.Function0[kotlin.Unit]#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-toggle-visible.html
@@ -347,6 +385,18 @@ $dokka.location:xyz.junerver.compose.hooks//useUnmount/#kotlin.Function0[kotlin.
 $dokka.location:xyz.junerver.compose.hooks//useUnmountedRef/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-unmounted-ref.html
 $dokka.location:xyz.junerver.compose.hooks//useUpdate/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-update.html
 $dokka.location:xyz.junerver.compose.hooks//useUpdateEffect/#kotlin.Array[kotlin.Any?]#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-update-effect.html
+$dokka.location:xyz.junerver.compose.hooks//useWakeLock/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-wake-lock.html
+$dokka.location:xyz.junerver.compose.hooks//useWindowFlags/#kotlin.String#kotlin.Int/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/use-window-flags.html
+$dokka.location:xyz.junerver.compose.hooks/CountdownOptions.Companion///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-countdown-options/-companion/index.html
+$dokka.location:xyz.junerver.compose.hooks/CountdownOptions///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-countdown-options/index.html
+$dokka.location:xyz.junerver.compose.hooks/CountdownOptions/interval/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-countdown-options/interval.html
+$dokka.location:xyz.junerver.compose.hooks/CountdownOptions/leftTime/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-countdown-options/left-time.html
+$dokka.location:xyz.junerver.compose.hooks/CountdownOptions/onEnd/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-countdown-options/on-end.html
+$dokka.location:xyz.junerver.compose.hooks/CountdownOptions/targetDate/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-countdown-options/target-date.html
+$dokka.location:xyz.junerver.compose.hooks/CounterOptions.Companion///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-counter-options/-companion/index.html
+$dokka.location:xyz.junerver.compose.hooks/CounterOptions///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-counter-options/index.html
+$dokka.location:xyz.junerver.compose.hooks/CounterOptions/max/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-counter-options/max.html
+$dokka.location:xyz.junerver.compose.hooks/CounterOptions/min/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-counter-options/min.html
 $dokka.location:xyz.junerver.compose.hooks/DebounceOptions.Companion///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-debounce-options/-companion/index.html
 $dokka.location:xyz.junerver.compose.hooks/DebounceOptions///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-debounce-options/index.html
 $dokka.location:xyz.junerver.compose.hooks/DebounceOptions/leading/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-debounce-options/leading.html
@@ -355,9 +405,16 @@ $dokka.location:xyz.junerver.compose.hooks/DebounceOptions/trailing/#/PointingTo
 $dokka.location:xyz.junerver.compose.hooks/DebounceOptions/wait/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-debounce-options/wait.html
 $dokka.location:xyz.junerver.compose.hooks/Dispatch///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-dispatch/index.html
 $dokka.location:xyz.junerver.compose.hooks/EventManager///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-event-manager/index.html
-$dokka.location:xyz.junerver.compose.hooks/EventManager/post/#TypeParam(bounds=[kotlin.Any])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-event-manager/post.html
+$dokka.location:xyz.junerver.compose.hooks/EventManager/post/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-event-manager/post.html
 $dokka.location:xyz.junerver.compose.hooks/EventManager/register/#kotlin.Function1[TypeParam(bounds=[kotlin.Any]),kotlin.Unit]/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-event-manager/register.html
 $dokka.location:xyz.junerver.compose.hooks/EventManager/subscriberMap/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-event-manager/subscriber-map.html
+$dokka.location:xyz.junerver.compose.hooks/FormattedRes///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-formatted-res/index.html
+$dokka.location:xyz.junerver.compose.hooks/FormattedRes/FormattedRes/#kotlin.Int#kotlin.Int#kotlin.Int#kotlin.Int#kotlin.Int/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-formatted-res/-formatted-res.html
+$dokka.location:xyz.junerver.compose.hooks/FormattedRes/days/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-formatted-res/days.html
+$dokka.location:xyz.junerver.compose.hooks/FormattedRes/hours/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-formatted-res/hours.html
+$dokka.location:xyz.junerver.compose.hooks/FormattedRes/milliseconds/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-formatted-res/milliseconds.html
+$dokka.location:xyz.junerver.compose.hooks/FormattedRes/minutes/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-formatted-res/minutes.html
+$dokka.location:xyz.junerver.compose.hooks/FormattedRes/seconds/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-formatted-res/seconds.html
 $dokka.location:xyz.junerver.compose.hooks/IntervalOptions.Companion///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-interval-options/-companion/index.html
 $dokka.location:xyz.junerver.compose.hooks/IntervalOptions///PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-interval-options/index.html
 $dokka.location:xyz.junerver.compose.hooks/IntervalOptions/initialDelay/#/PointingToDeclaration/hooks/xyz.junerver.compose.hooks/-interval-options/initial-delay.html
@@ -404,9 +461,11 @@ $dokka.location:xyz.junerver.compose.hooks/UseNowOptions/interval/#/PointingToDe
 xyz.junerver.compose.hooks
 xyz.junerver.compose.hooks.usedeviceinfo
 xyz.junerver.compose.hooks.useform
+xyz.junerver.compose.hooks.useidle
 xyz.junerver.compose.hooks.usenetwork
 xyz.junerver.compose.hooks.useredux
 xyz.junerver.compose.hooks.userequest
 xyz.junerver.compose.hooks.userequest.utils
 xyz.junerver.compose.hooks.usevibrate
+xyz.junerver.compose.hooks.utils
 
