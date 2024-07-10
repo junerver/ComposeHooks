@@ -1,4 +1,4 @@
-package xyz.junerver.compose.hooks.utils
+package xyz.junerver.composehooks.utils
 
 import androidx.compose.runtime.Stable
 import kotlinx.datetime.Clock

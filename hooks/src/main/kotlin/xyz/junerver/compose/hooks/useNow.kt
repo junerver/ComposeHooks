@@ -5,11 +5,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.datetime.Instant
 import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
 import kotlinx.datetime.format.char
-import xyz.junerver.compose.hooks.utils.toLocalDateTime
-import xyz.junerver.compose.hooks.utils.tsMs
+import kotlinx.datetime.toLocalDateTime
 import xyz.junerver.kotlin.tuple
 
 /*
@@ -51,7 +52,10 @@ fun useNow(options: UseNowOptions = defaultOption()): String {
         }
     )
     val date by useState(time) {
-        format?.invoke(time) ?: time.tsMs.toLocalDateTime().format(sdfRef)
+        format?.invoke(time) ?: time.toLocalDateTime().format(sdfRef)
     }
     return date
 }
+
+internal fun Long.toLocalDateTime(timeZone: TimeZone = TimeZone.currentSystemDefault()) =
+    Instant.fromEpochMilliseconds(this).toLocalDateTime(timeZone)
