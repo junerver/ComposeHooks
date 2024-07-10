@@ -5,9 +5,18 @@ package xyz.junerver.compose.hooks
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import androidx.compose.runtime.Composable
+import arrow.core.Either
+import arrow.core.Tuple4
+import arrow.core.Tuple5
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import org.jetbrains.annotations.Nullable
+import xyz.junerver.compose.hooks.usedeviceinfo.BatteryInfo
+import xyz.junerver.compose.hooks.usedeviceinfo.BuildInfo
+import xyz.junerver.compose.hooks.usedeviceinfo.ScreenInfo
+import xyz.junerver.compose.hooks.usedeviceinfo.useBatteryInfo
+import xyz.junerver.compose.hooks.usedeviceinfo.useBuildInfo
+import xyz.junerver.compose.hooks.usedeviceinfo.useScreenInfo
 import xyz.junerver.compose.hooks.useredux.DispatchAsync
 import xyz.junerver.compose.hooks.useredux.DispatchCallback
 import xyz.junerver.compose.hooks.useredux.useDispatch
@@ -18,8 +27,20 @@ import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.compose.hooks.usevibrate.useVibrate
 import xyz.junerver.kotlin.Tuple2
+import xyz.junerver.kotlin.Tuple3
 
 /** 更符合 Compose 的函数命名方式 */
+
+//region useDeviceInfo
+@Composable
+fun rememberBatteryInfo(): BatteryInfo = useBatteryInfo()
+
+@Composable
+fun rememberBuildInfo(): BuildInfo = useBuildInfo()
+
+@Composable
+fun rememberScreenInfo(): ScreenInfo = useScreenInfo()
+//endregion
 
 //region useRedux
 @Composable
@@ -56,6 +77,9 @@ fun rememberAsync(): AsyncRunFn = useAsync()
 //endregion
 
 @Composable
+fun <T> rememberAutoReset(default: T & Any, interval: Duration) = useAutoReset(default, interval)
+
+@Composable
 fun rememberBackToFrontEffect(vararg keys: Any?, effect: () -> Unit) =
     useBackToFrontEffect(*keys, effect = effect)
 
@@ -71,6 +95,17 @@ fun rememberClipboard(): Tuple2<CopyFn, PasteFn> = useClipboard()
 
 @Composable
 fun <T> rememberContext(context: ReactContext<T>) = useContext(context)
+
+@Composable
+fun rememberCountdown(options: CountdownOptions): Tuple2<Duration, FormattedRes> =
+    useCountdown(options)
+
+@Composable
+fun rememberCounter(
+    initialValue: Int = 0,
+    options: CounterOptions,
+): Tuple5<Int, IncFn, DecFn, SetValueFn<Either<Int, (Int) -> Int>>, ResetFn> =
+    useCounter(initialValue, options)
 
 @Composable
 fun <T> rememberCreation(vararg keys: Any?, factory: () -> T) =
@@ -97,6 +132,9 @@ fun LaunchedDebounceEffect(
 ) = useDebounceEffect(*keys, options = options, block = block)
 //endregion
 
+@Composable
+fun rememberDisableScreenshot(): Tuple3<DisableFn, EnableFn, IsDisabled> = useDisableScreenshot()
+
 //region useEvent
 @Composable
 inline fun <reified T> rememberEventSubscribe(noinline subscriber: (T) -> Unit) =
@@ -105,6 +143,9 @@ inline fun <reified T> rememberEventSubscribe(noinline subscriber: (T) -> Unit) 
 @Composable
 inline fun <reified T> rememberEventPublish(): (T) -> Unit = useEventPublish()
 //endregion
+
+@Composable
+fun rememberFlashlight(): Tuple2<TurnOnFn, TurnOffFn> = useFlashlight()
 
 //region useGetState
 @Composable
@@ -186,6 +227,13 @@ fun <S, A> rememberReducer(
 
 @Composable
 fun <T> rememberRef(default: T) = useRef(default)
+
+@Composable
+fun <T> rememberResetState(default: T & Any): Tuple4<T, SetValueFn<T & Any>, GetValueFn<T>, ResetFn> =
+    useResetState(default)
+
+@Composable
+fun rememberScreenBrightness(): Tuple2<SetValueFn<Float>, Float> = useScreenBrightness()
 
 @Composable
 fun rememberSensor(
@@ -279,3 +327,10 @@ fun rememberUpdateEffect(vararg keys: Any?, block: SuspendAsyncFn) =
 
 @Composable
 fun rememberVibrate() = useVibrate()
+
+@Composable
+fun rememberWakeLock(): Tuple3<RequestFn, ReleaseFn, IsActive> = useWakeLock()
+
+@Composable
+fun rememberWindowFlags(key: String, flags: Int): Tuple3<AddFlagsFn, ClearFlagsFn, IsFlagsAdded> =
+    useWindowFlags(key, flags)
