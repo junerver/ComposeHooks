@@ -45,6 +45,7 @@ fun UseFormExample() {
     Surface {
         Column {
             Form(form) {
+                val canSubmit by form._isValidated()
                 FormItem<String>(name = "name") { (state, validate, msgs) ->
                     var string by state
                     ItemRow(title = "name") {
@@ -56,17 +57,21 @@ fun UseFormExample() {
                     var age by state
                     ItemRow(title = "* age") {
                         Row {
-                            TButton(text = "1") {
-                                age = 1
+                            TButton(text = "1", enabled = age != 1) {
+//                                age = 1
+                                form.setFieldValue("age" to 1)
                             }
-                            TButton(text = "3") {
-                                age = 3
+                            TButton(text = "3", enabled = age != 3) {
+//                                age = 3
+                                form.setFieldValue("age" to 3)
                             }
-                            TButton(text = "5") {
-                                age = 5
+                            TButton(text = "5", enabled = age != 5) {
+//                                age = 5
+                                form.setFieldValue("age" to 5)
                             }
-                            TButton(text = "null") {
-                                age = null
+                            TButton(text = "null", enabled = age != null) {
+//                                age = null
+                                form.setFieldValue("age" to null)
                             }
                             Text(text = "$validate  ${msgs.joinToString("、")}")
                         }
@@ -130,9 +135,9 @@ fun UseFormExample() {
                     }
                     Spacer(modifier = Modifier.height(18.dp))
                 }
-            }
-            TButton(text = "submit") {
-                toast(form.getAllFields().toString() + "isValidated :" + form.isValidated())
+                TButton(text = "submit", enabled = canSubmit) {
+                    toast(form.getAllFields().toString() + "\nisValidated :" + form.isValidated())
+                }
             }
         }
     }

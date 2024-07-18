@@ -23,7 +23,7 @@ import xyz.junerver.composehooks.ui.component.TButton
 @Composable
 fun UseCounterExample() {
     val (current, inc, dec, set, reset) = useCounter(
-        initialValue = 100, //即使配置了100也不会超出选项的上下限
+        initialValue = 100, // 即使配置了100也不会超出选项的上下限
         options = optionsOf {
             min = 1
             max = 10
