@@ -34,7 +34,7 @@ import xyz.junerver.kotlin.asBoolean
 */
 @Composable
 fun UseFormExample() {
-    val form = useForm()
+    val form = Form.useForm()
     useMount {
         form.setFieldsValue(
             "name" to "default",
@@ -135,8 +135,13 @@ fun UseFormExample() {
                     }
                     Spacer(modifier = Modifier.height(18.dp))
                 }
-                TButton(text = "submit", enabled = canSubmit) {
-                    toast(form.getAllFields().toString() + "\nisValidated :" + form.isValidated())
+                Row {
+                    TButton(text = "submit", enabled = canSubmit) {
+                        toast(form.getAllFields().toString() + "\nisValidated :" + form.isValidated())
+                    }
+                    TButton(text = "reset") {
+                        form.resetFields()
+                    }
                 }
             }
         }

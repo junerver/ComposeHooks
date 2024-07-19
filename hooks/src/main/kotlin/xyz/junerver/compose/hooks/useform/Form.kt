@@ -106,7 +106,7 @@ internal data class FormRef(
 }
 
 @Composable
-fun Form(formInstance: FormInstance = useForm(), children: @Composable FormScope.() -> Unit) {
+fun Form(formInstance: FormInstance = Form.useForm(), children: @Composable FormScope.() -> Unit) {
     val formRef = useCreation { FormRef() }
     formInstance.apply { this.formRef = formRef }
     FormScope.getInstance(formRef).children()

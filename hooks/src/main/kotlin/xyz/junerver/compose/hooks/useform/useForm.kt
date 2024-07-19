@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.kotlin.then
 
 /*
   Description:
@@ -12,11 +13,19 @@ import xyz.junerver.compose.hooks.Ref
   Email: junerver@gmail.com
   Version: v1.0
 */
+typealias Form = Unit
 
 @Composable
-fun useForm(): FormInstance {
+fun Form.useForm(): FormInstance {
     return remember { FormInstance() }
 }
+
+@Deprecated(
+    "Please use namespace `Form`, just like`Form.useForm()`",
+    ReplaceWith("Form.useForm()", "xyz.junerver.compose.hooks.useform.Form")
+)
+@Composable
+fun useForm(): FormInstance = Form.useForm()
 
 class FormInstance {
     /** after Form Mount ref will assignment */
@@ -50,6 +59,12 @@ class FormInstance {
         setFieldsValue(mapOf(pairs = pairs))
     }
 
+    /**
+     * Set field value
+     *
+     * @param name
+     * @param value
+     */
     fun setFieldValue(name: String, value: Any?) {
         checkRef()
         formMap.keys.find { it == name }?.let { key ->
@@ -62,9 +77,32 @@ class FormInstance {
         setFieldValue(pair.first, pair.second)
     }
 
+    /**
+     * Get field error
+     *
+     * @param name
+     * @return
+     */
     fun getFieldError(name: String): List<String> {
         checkRef()
         return formRef.current.fieldErrorMsgsMap[name] ?: emptyList()
+    }
+
+    /**
+     * Reset fields
+     *
+     * @param value
+     */
+    fun resetFields(value: Map<String, Any> = emptyMap()) {
+        formMap.forEach { (_, state) ->
+            state.value = null
+        }.then {
+            setFieldsValue(value)
+        }
+    }
+
+    fun resetFields(vararg pairs: Pair<String, Any>) {
+        resetFields(mapOf(pairs = pairs))
     }
 
     private fun checkRef() {
