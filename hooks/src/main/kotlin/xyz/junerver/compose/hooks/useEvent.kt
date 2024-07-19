@@ -54,6 +54,7 @@ import kotlin.reflect.KClass
  */
 object EventManager {
     val subscriberMap = mutableMapOf<KClass<*>, MutableList<(Any) -> Unit>>()
+    private val aliasSubscriberMap = mutableMapOf<String, MutableList<(Any?) -> Unit>>()
 
     @Suppress("UNCHECKED_CAST")
     inline fun <reified T : Any> register(noinline subscriber: (T) -> Unit): () -> Unit {
@@ -64,9 +65,24 @@ object EventManager {
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
+    internal fun <T> register(alias: String, subscriber: (T?) -> Unit): () -> Unit {
+        aliasSubscriberMap[alias] ?: run { aliasSubscriberMap[alias] = mutableListOf() }
+        aliasSubscriberMap[alias]?.add(subscriber as (Any?) -> Unit)
+        return {
+            aliasSubscriberMap[alias]?.remove(subscriber)
+        }
+    }
+
     inline fun <reified T> post(event: T) {
         if (subscriberMap.containsKey(T::class)) {
             subscriberMap[T::class]?.forEach { it.invoke(event) }
+        }
+    }
+
+    internal fun <T> post(alias: String, event: T) {
+        if (aliasSubscriberMap.containsKey(alias)) {
+            aliasSubscriberMap[alias]?.forEach { it.invoke(event) }
         }
     }
 }
@@ -93,6 +109,20 @@ inline fun <reified T> useEventSubscribe(noinline subscriber: (T) -> Unit) {
     }
 }
 
+@Composable
+internal fun <T> useEventSubscribe(alias: String, subscriber: (T?) -> Unit) {
+    val latest by useLatestState(subscriber)
+    val unSubscribeRef = useRef<(() -> Unit)?>(null)
+
+    useMount {
+        unSubscribeRef.current = EventManager.register(alias, latest)
+    }
+
+    useUnmount {
+        unSubscribeRef.current?.invoke()
+    }
+}
+
 /**
  * This hook returns a publish function, use that fun to post a event.
  *
@@ -102,4 +132,9 @@ inline fun <reified T> useEventSubscribe(noinline subscriber: (T) -> Unit) {
 @Composable
 inline fun <reified T> useEventPublish(): (T) -> Unit = remember {
     { event: T -> EventManager.post(event) }
+}
+
+@Composable
+internal fun <T> useEventPublish(alias: String): (T) -> Unit = remember {
+    { event: T -> EventManager.post(alias, event) }
 }

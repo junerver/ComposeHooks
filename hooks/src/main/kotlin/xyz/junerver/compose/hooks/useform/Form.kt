@@ -13,6 +13,7 @@ import xyz.junerver.compose.hooks._useState
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
+import xyz.junerver.compose.hooks.useEventPublish
 import xyz.junerver.compose.hooks.useMap
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.kotlin.Tuple3
@@ -28,6 +29,7 @@ import xyz.junerver.kotlin.tuple
 
 class FormScope private constructor(
     private val ref: Ref<FormRef>,
+    private val formInstance: FormInstance,
 ) {
 
     @Composable
@@ -42,9 +44,10 @@ class FormScope private constructor(
         val currentFormRef: FormRef = ref.current
         @Suppress("UNCHECKED_CAST")
         currentFormRef.form[name] = fieldState as MutableState<Any?>
-
+        val publish = useEventPublish<T?>("HOOK_INTERNAL_FORM_FIELD_${formInstance}_$name")
         useEffect(fieldState.value) {
             currentFormRef.opCount.longValue += 1
+            publish(fieldState.value as T?)
             fun Validator.pass(): Boolean {
                 errMsg.remove(this::class)
                 return true
@@ -84,8 +87,8 @@ class FormScope private constructor(
     }
 
     companion object {
-        internal fun getInstance(ref: Ref<FormRef>) =
-            FormScope(ref)
+        internal fun getInstance(ref: Ref<FormRef>, formInstance: FormInstance) =
+            FormScope(ref, formInstance)
     }
 }
 
@@ -109,5 +112,5 @@ internal data class FormRef(
 fun Form(formInstance: FormInstance = Form.useForm(), children: @Composable FormScope.() -> Unit) {
     val formRef = useCreation { FormRef() }
     formInstance.apply { this.formRef = formRef }
-    FormScope.getInstance(formRef).children()
+    FormScope.getInstance(formRef, formInstance).children()
 }

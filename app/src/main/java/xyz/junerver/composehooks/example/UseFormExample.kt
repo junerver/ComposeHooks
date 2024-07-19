@@ -22,6 +22,7 @@ import xyz.junerver.compose.hooks.useform.Mobile
 import xyz.junerver.compose.hooks.useform.Phone
 import xyz.junerver.compose.hooks.useform.Required
 import xyz.junerver.compose.hooks.useform.useForm
+import xyz.junerver.compose.hooks.useform.useWatch
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.kotlin.asBoolean
 
@@ -41,6 +42,7 @@ fun UseFormExample() {
             "mobile" to "111"
         )
     }
+    val name by Form.useWatch<String>(fieldName = "name", formInstance = form)
 
     Surface {
         Column {
@@ -144,6 +146,7 @@ fun UseFormExample() {
                     }
                 }
             }
+            Text(text = "by use `Form.useWatch(fieldName,formInstance)`can watch a field\nname: $name")
         }
     }
 }
