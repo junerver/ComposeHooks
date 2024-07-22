@@ -6,6 +6,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks.Ref
 import xyz.junerver.compose.hooks._useState
+import xyz.junerver.compose.hooks.useContext
 import xyz.junerver.compose.hooks.useEventSubscribe
 import xyz.junerver.kotlin.then
 
@@ -49,6 +50,16 @@ fun <T> Form.useWatch(fieldName: String, formInstance: FormInstance): State<T?> 
     }
     return state
 }
+
+/**
+ * 方便子组件获取到 [FormInstance]
+ *
+ * Convenient for sub-components to obtain [FormInstance]
+ *
+ * @return
+ */
+@Composable
+fun Form.useFormInstance(): FormInstance = useContext(context = FormContext)
 
 class FormInstance {
     /** after Form Mount ref will assignment */

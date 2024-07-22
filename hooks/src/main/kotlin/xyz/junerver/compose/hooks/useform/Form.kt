@@ -10,6 +10,7 @@ import androidx.compose.runtime.mutableLongStateOf
 import kotlin.reflect.KClass
 import xyz.junerver.compose.hooks.Ref
 import xyz.junerver.compose.hooks._useState
+import xyz.junerver.compose.hooks.createContext
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
@@ -108,9 +109,13 @@ internal data class FormRef(
         }
 }
 
+internal val FormContext = createContext(FormInstance())
+
 @Composable
 fun Form(formInstance: FormInstance = Form.useForm(), children: @Composable FormScope.() -> Unit) {
     val formRef = useCreation { FormRef() }
     formInstance.apply { this.formRef = formRef }
-    FormScope.getInstance(formRef, formInstance).children()
+    FormContext.Provider(formInstance) {
+        FormScope.getInstance(formRef, formInstance).children()
+    }
 }

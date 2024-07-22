@@ -34,7 +34,7 @@ import xyz.junerver.kotlin.tuple
 */
 @Composable
 fun UseStateExample() {
-    /**
+    /*
      * Important note: While this method is convenient, it also has two flaws:
      * 1. It causes closure problems. When we use state in a closure function,
      *    closure problems will occur, need to use [useLatestRef] to avoid.
@@ -101,7 +101,7 @@ private fun UseStateQuestionOne() {
 private fun UseStateQuestionTwo() {
     val directState = useState(default = "direct")
 
-    /** useLatestRef 可以避免闭包问题 */
+    /* useLatestRef 可以避免闭包问题 */
     val (state, setState) = useState("stateRef")
     val stateRef = useLatestRef(state)
 

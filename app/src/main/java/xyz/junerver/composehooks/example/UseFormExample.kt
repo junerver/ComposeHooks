@@ -18,10 +18,12 @@ import xyz.junerver.compose.hooks.useMount
 import xyz.junerver.compose.hooks.useform.CustomValidator
 import xyz.junerver.compose.hooks.useform.Email
 import xyz.junerver.compose.hooks.useform.Form
+import xyz.junerver.compose.hooks.useform.FormScope
 import xyz.junerver.compose.hooks.useform.Mobile
 import xyz.junerver.compose.hooks.useform.Phone
 import xyz.junerver.compose.hooks.useform.Required
 import xyz.junerver.compose.hooks.useform.useForm
+import xyz.junerver.compose.hooks.useform.useFormInstance
 import xyz.junerver.compose.hooks.useform.useWatch
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.kotlin.asBoolean
@@ -47,7 +49,6 @@ fun UseFormExample() {
     Surface {
         Column {
             Form(form) {
-                val canSubmit by form._isValidated()
                 FormItem<String>(name = "name") { (state, validate, msgs) ->
                     var string by state
                     ItemRow(title = "name") {
@@ -137,14 +138,7 @@ fun UseFormExample() {
                     }
                     Spacer(modifier = Modifier.height(18.dp))
                 }
-                Row {
-                    TButton(text = "submit", enabled = canSubmit) {
-                        toast(form.getAllFields().toString() + "\nisValidated :" + form.isValidated())
-                    }
-                    TButton(text = "reset") {
-                        form.resetFields()
-                    }
-                }
+                Sub()
             }
             Text(text = "by use `Form.useWatch(fieldName,formInstance)`can watch a field\nname: $name")
         }
@@ -157,6 +151,23 @@ private fun ItemRow(title: String, content: @Composable () -> Unit) {
         Text(text = "$title :")
         Box {
             content()
+        }
+    }
+}
+
+@Composable
+private fun FormScope.Sub() {
+    val formInstance = Form.useFormInstance()
+    val canSubmit by formInstance._isValidated()
+    Row {
+        TButton(text = "submit", enabled = canSubmit) {
+            toast(
+                formInstance.getAllFields()
+                    .toString() + "\nisValidated :" + formInstance.isValidated()
+            )
+        }
+        TButton(text = "reset") {
+            formInstance.resetFields()
         }
     }
 }
