@@ -14,6 +14,7 @@ navigationCompose = "2.7.7"
 retrofitVersion = "2.11.0"
 lifecycleRuntimeKtx = "2.8.3"
 lifecycleRuntimeCompose = "2.8.3"
+biometric = "1.2.0-alpha05"
 
 
 [libraries]
@@ -34,6 +35,7 @@ androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit
 androidx-ui-test = { group = "androidx.compose.ui", name = "ui-test" }
 androidx-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+androidx-biometric = { module = "androidx.biometric:biometric", version.ref = "biometric" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 

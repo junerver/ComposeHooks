@@ -53,8 +53,8 @@ fun UseStateExample() {
             Spacer(modifier = Modifier.height(20.dp))
             HorizontalDivider(
                 modifier = Modifier
-                  .fillMaxWidth()
-                  .padding(20.dp)
+                    .fillMaxWidth()
+                    .padding(20.dp)
             )
             Spacer(modifier = Modifier.height(20.dp))
             UseStateQuestionTwo()
@@ -129,7 +129,6 @@ private fun UseStateQuestionTwo() {
 
 @Composable
 private fun HowToAvoidClosureProblems() {
-
     val (num, add) = useAddIncorrect(default = 0)
 //    val (num, add) = useAddCorrect1(default = 0)
 //    val (num, add) = useAddCorrect2(default = 0)

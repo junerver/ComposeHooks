@@ -151,7 +151,6 @@ private fun <TData : Any> useRequestPluginsImpl(
     options: RequestOptions<TData> = defaultOption(),
     plugins: Array<Plugin<TData>> = emptyArray(),
 ): Fetch<TData> {
-
     val (dataState, setData) = _useSetState<TData?>(null)
     val (loadingState, setLoading) = _useSetState(false)
     val (errorState, setError) = _useSetState<Throwable?>(null)

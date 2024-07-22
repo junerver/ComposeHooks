@@ -38,7 +38,9 @@ dependencies {
     androidTestImplementation(platform(libs.androidx.compose.bom))
 
     implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.biometric)
     implementation(libs.material)
 
     // Testing dependencies

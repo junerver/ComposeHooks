@@ -5,6 +5,7 @@ import xyz.junerver.composehooks.HomeScreen
 import xyz.junerver.composehooks.example.RequestExampleList
 import xyz.junerver.composehooks.example.UseAsyncExample
 import xyz.junerver.composehooks.example.UseAutoResetExample
+import xyz.junerver.composehooks.example.UseBiometricExample
 import xyz.junerver.composehooks.example.UseBooleanExample
 import xyz.junerver.composehooks.example.UseClipboardExample
 import xyz.junerver.composehooks.example.UseContextExample
@@ -79,6 +80,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useDeviceInfo" to { UseDeviceInfoExample() },
     "useEffect" to { UseEffectExample() },
     "useEvent" to { UseEventExample() },
+    "useFingerprint" to { UseBiometricExample() },
     "useForm" to { UseFormExample() },
     "useGetState" to { UseGetStateExample() },
     "useIdle" to { UseIdleExample() },
