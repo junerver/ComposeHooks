@@ -34,8 +34,8 @@ tasks.dokkaHtml  {
 
 
 dependencies {
-    api(platform(libs.androidx.compose.bom))
-    androidTestImplementation(platform(libs.androidx.compose.bom))
+    api(platform(libs.compose.bom))
+    androidTestImplementation(platform(libs.compose.bom))
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
@@ -49,14 +49,14 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
 
     // Compose testing dependencies
-    androidTestImplementation(libs.androidx.ui.test)
-    androidTestImplementation(libs.androidx.ui.test.junit4)
-    androidTestImplementation(libs.androidx.material3)
-    debugImplementation(libs.androidx.ui.test.manifest)
+    androidTestImplementation(libs.compose.ui.test)
+    androidTestImplementation(libs.compose.ui.test.junit4)
+    androidTestImplementation(libs.compose.material3)
+    debugImplementation(libs.compose.ui.test.manifest)
 
     // Compose
-    api(libs.androidx.ui)
-    api(libs.androidx.foundation)
+    api(libs.compose.ui)
+    api(libs.compose.foundation)
     implementation(libs.androidx.lifecycle.runtime.compose)
 
     // Kotlin and extension
