@@ -47,7 +47,8 @@ class FormScope private constructor(
         val publish = useEventPublish<T?>("HOOK_INTERNAL_FORM_FIELD_${formInstance}_$name")
         useEffect(fieldState.value) {
             currentFormRef.opCount.longValue += 1
-            publish(fieldState.value as T?)
+            @Suppress("UNCHECKED_CAST")
+            publish(fieldState.value as? T)
             fun Validator.pass(): Boolean {
                 errMsg.remove(this::class)
                 return true
@@ -58,7 +59,6 @@ class FormScope private constructor(
                 return false
             }
 
-            @Suppress("RedundantNullableReturnType")
             val fieldValue: Any? = fieldState.value
             val isValidate =
                 validators.validateField(fieldValue, pass = Validator::pass, fail = Validator::fail)
@@ -66,7 +66,7 @@ class FormScope private constructor(
             currentFormRef.fieldValidatedMap[name] = isValidate
         }
         useEffect(errMsg) {
-            currentFormRef.fieldErrorMsgsMap[name] = errMsg.values.toList()
+            currentFormRef.fieldErrorMessagesMap[name] = errMsg.values.toList()
         }
         content(tuple(fieldState, validate, errMsg.values.toList()))
     }
@@ -98,7 +98,7 @@ internal data class FormRef(
     val fieldValidatedMap: MutableMap<String, Boolean> = mutableMapOf(),
 ) {
     internal val opCount: MutableLongState = mutableLongStateOf(0L)
-    internal val fieldErrorMsgsMap: MutableMap<String, List<String>> = mutableMapOf()
+    internal val fieldErrorMessagesMap: MutableMap<String, List<String>> = mutableMapOf()
 
     /** Is all fields in the form are verified successfully */
     val isValidated: Boolean

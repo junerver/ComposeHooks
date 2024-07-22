@@ -8,11 +8,9 @@ import kotlin.reflect.KFunction0
 import kotlin.reflect.KFunction1
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.VoidFunction
-import xyz.junerver.compose.hooks._useState
 import xyz.junerver.compose.hooks.asNoopFn
 import xyz.junerver.compose.hooks.asSuspendNoopFn
 import xyz.junerver.compose.hooks.defaultOption
-import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.useUnmount
 import xyz.junerver.compose.hooks.userequest.plugins.useAutoRunPlugin
 import xyz.junerver.compose.hooks.userequest.plugins.useCachePlugin
@@ -21,6 +19,7 @@ import xyz.junerver.compose.hooks.userequest.plugins.useLoadingDelayPlugin
 import xyz.junerver.compose.hooks.userequest.plugins.usePollingPlugin
 import xyz.junerver.compose.hooks.userequest.plugins.useRetryPlugin
 import xyz.junerver.compose.hooks.userequest.plugins.useThrottlePlugin
+import xyz.junerver.compose.hooks.utils._useSetState
 import xyz.junerver.kotlin.Tuple7
 
 typealias RunFn = VoidFunction
@@ -41,7 +40,8 @@ typealias CancelFn = KFunction0<Unit>
  *
  * 重要：如果你使用例如 `GsonConverterFactory` 来反序列化你的响应，必须将反序列化后的对象设置成[Parcelable]!
  *
- * [SuspendNormalFunction] 是所有函数的抽象，我们最终通过函数拿到的手动执行函数也是[SuspendNormalFunction]类型的，
+ * [SuspendNormalFunction]
+ * 是所有函数的抽象，我们最终通过函数拿到的手动执行函数也是[SuspendNormalFunction]类型的，
  * 调用时要传递的是[arrayOf]的参数。
  *
  * 我还额外提供了两个方便的转换函数
@@ -90,11 +90,10 @@ typealias CancelFn = KFunction0<Unit>
  * Kotlin，它可以 更高效的提示我们解构赋值后拿到的相关状态、函数的类型。
  *
  * @param requestFn 经过抽象后的请求函数：suspend (TParams) ->
- *     TData，如果你不喜欢使用[asSuspendNoopFn]，也可以使用匿名 [suspend]闭包。
+ *    TData，如果你不喜欢使用[asSuspendNoopFn]，也可以使用匿名 [suspend]闭包。
  * @param options
- *     请求的配置项，参考[RequestOptions]，以及[ahooks-useRequest](https://ahooks.gitee.io/zh-CN/hooks/use-request/index).
+ *    请求的配置项，参考[RequestOptions]，以及[ahooks-useRequest](https://ahooks.gitee.io/zh-CN/hooks/use-request/index).
  * @param plugins 自定义的插件，这是一个数组，请通过arrayOf传入
- *
  */
 @Composable
 fun <TData : Any> useRequest(
@@ -152,12 +151,10 @@ private fun <TData : Any> useRequestPluginsImpl(
     options: RequestOptions<TData> = defaultOption(),
     plugins: Array<Plugin<TData>> = emptyArray(),
 ): Fetch<TData> {
-    val dataState = _useState<TData?>(null)
-    val (_, setData) = dataState
-    val loadingState = useState(false)
-    val (_, setLoading) = loadingState
-    val errorState = _useState<Throwable?>(null)
-    val (_, setError) = errorState
+
+    val (dataState, setData) = _useSetState<TData?>(null)
+    val (loadingState, setLoading) = _useSetState(false)
+    val (errorState, setError) = _useSetState<Throwable?>(null)
 
     val fetch = remember {
         Fetch(options).apply {

@@ -1,6 +1,6 @@
 package xyz.junerver.compose.hooks.userequest
 
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import java.io.Serializable
 import kotlin.properties.Delegates
 import kotlin.reflect.KFunction
@@ -44,19 +44,19 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
     /**
      * 请求结果的封装，最终类型会通过泛型[TData]对外暴露成正确的类型
      */
-    lateinit var dataState: MutableState<TData?>
+    lateinit var dataState: State<TData?>
     lateinit var setData: (TData?) -> Unit
 
     /**
      * 请求是否正在发起尚未响应结果。
      */
-    lateinit var loadingState: MutableState<Boolean>
+    lateinit var loadingState: State<Boolean>
     lateinit var setLoading: (Boolean) -> Unit
 
     /**
      * 对[useRequest]中的[requestFn]函数进行try-catch
      */
-    lateinit var errorState: MutableState<Throwable?>
+    lateinit var errorState: State<Throwable?>
     lateinit var setError: (Throwable?) -> Unit
 
     /**

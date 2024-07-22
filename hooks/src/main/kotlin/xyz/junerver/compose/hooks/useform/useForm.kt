@@ -33,7 +33,8 @@ fun useForm(): FormInstance = Form.useForm()
 /**
  * 使用这个 Hook 你可以在 [FormScope] 外直接获取一个字段的内容**状态**
  *
- * Using this Hook you can directly obtain the content [State] of a field outside [FormScope]
+ * Using this Hook you can directly obtain the content [State] of a field
+ * outside [FormScope]
  *
  * @param fieldName
  * @param formInstance
@@ -72,8 +73,7 @@ class FormInstance {
     fun setFieldsValue(value: Map<String, Any>) {
         checkRef()
         value.filterKeys { formMap.keys.contains(it) }.forEach {
-            val (_, setState) = formMap[it.key]!!
-            setState(it.value)
+            formMap[it.key]!!.value = it.value
         }
     }
 
@@ -90,8 +90,7 @@ class FormInstance {
     fun setFieldValue(name: String, value: Any?) {
         checkRef()
         formMap.keys.find { it == name }?.let { key ->
-            val (_, setState) = formMap[key]!!
-            setState(value)
+            formMap[key]!!.value = value
         }
     }
 
@@ -107,7 +106,7 @@ class FormInstance {
      */
     fun getFieldError(name: String): List<String> {
         checkRef()
-        return formRef.current.fieldErrorMsgsMap[name] ?: emptyList()
+        return formRef.current.fieldErrorMessagesMap[name] ?: emptyList()
     }
 
     /**
