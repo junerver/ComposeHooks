@@ -106,6 +106,7 @@ internal data class FormRef(
 ) {
     // Counter that records data changes in the form
     internal val formOperationCount: MutableLongState = mutableLongStateOf(0L)
+
     // Record the error message of each field verification failure in the form
     internal val formFieldErrorMessagesMap: MutableMap<String, List<String>> = mutableMapOf()
 

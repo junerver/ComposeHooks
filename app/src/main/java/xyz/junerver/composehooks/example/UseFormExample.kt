@@ -9,6 +9,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -18,6 +19,7 @@ import xyz.junerver.compose.hooks.useMount
 import xyz.junerver.compose.hooks.useform.CustomValidator
 import xyz.junerver.compose.hooks.useform.Email
 import xyz.junerver.compose.hooks.useform.Form
+import xyz.junerver.compose.hooks.useform.FormInstance
 import xyz.junerver.compose.hooks.useform.FormScope
 import xyz.junerver.compose.hooks.useform.Mobile
 import xyz.junerver.compose.hooks.useform.Phone
@@ -157,7 +159,9 @@ private fun ItemRow(title: String, content: @Composable () -> Unit) {
 
 @Composable
 private fun FormScope.Sub() {
-    val formInstance = Form.useFormInstance()
+    val formInstance: FormInstance = Form.useFormInstance()
+
+    /** [FormScope._isValidated] 可以获得表单的校验状态[State] */
     val canSubmit by formInstance._isValidated()
     Row {
         TButton(text = "submit", enabled = canSubmit) {
@@ -168,6 +172,15 @@ private fun FormScope.Sub() {
         }
         TButton(text = "reset") {
             formInstance.resetFields()
+        }
+
+        TButton(text = "reset with values") {
+            formInstance.resetFields(
+                "name" to "Junerver",
+                "age" to 5,
+                "mobile" to "13566667777",
+                "email" to "composehook@gmail.com"
+            )
         }
     }
 }
