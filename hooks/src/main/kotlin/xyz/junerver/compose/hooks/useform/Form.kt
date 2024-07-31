@@ -1,12 +1,9 @@
 package xyz.junerver.compose.hooks.useform
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableLongState
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableLongStateOf
 import kotlin.reflect.KClass
 import xyz.junerver.compose.hooks.Ref
 import xyz.junerver.compose.hooks._useState
@@ -28,11 +25,45 @@ import xyz.junerver.kotlin.tuple
   Version: v1.0
 */
 
+internal val FormContext = createContext(FormInstance())
+
+/**
+ * Headless Form Component
+ *
+ * @param formInstance
+ * @param children
+ * @receiver
+ */
+@Composable
+fun Form(formInstance: FormInstance = Form.useForm(), children: @Composable FormScope.() -> Unit) {
+    val formRef = useCreation { FormRef() }
+    formInstance.apply { this.formRef = formRef }
+    FormContext.Provider(formInstance) {
+        FormScope.getInstance(formRef, formInstance).children()
+    }
+}
+
+/**
+ * Form Component scope
+ *
+ * @constructor Create empty Form scope
+ * @property formRefRef
+ * @property formInstance
+ */
 class FormScope private constructor(
     private val formRefRef: Ref<FormRef>,
     private val formInstance: FormInstance,
 ) {
 
+    /**
+     * FormItem Component
+     *
+     * @param name
+     * @param validators
+     * @param content
+     * @param T
+     * @receiver
+     */
     @Composable
     fun <T : Any> FormItem(
         name: String,
@@ -90,41 +121,5 @@ class FormScope private constructor(
     companion object {
         internal fun getInstance(ref: Ref<FormRef>, formInstance: FormInstance) =
             FormScope(ref, formInstance)
-    }
-}
-
-@Stable
-internal data class FormRef(
-    /**
-     * Corresponds to the data map in a [Form] component
-     */
-    val formFieldMap: MutableMap<String, MutableState<Any?>> = mutableMapOf(),
-    /**
-     * A map corresponding to whether each field in a [Form] component passes the verification
-     */
-    val formFieldValidationMap: MutableMap<String, Boolean> = mutableMapOf(),
-) {
-    // Counter that records data changes in the form
-    internal val formOperationCount: MutableLongState = mutableLongStateOf(0L)
-
-    // Record the error message of each field verification failure in the form
-    internal val formFieldErrorMessagesMap: MutableMap<String, List<String>> = mutableMapOf()
-
-    /** Is all fields in the form are verified successfully */
-    val isValidated: Boolean
-        get() {
-            return formFieldValidationMap.isEmpty() || formFieldValidationMap.entries.map { it.value }
-                .all { it }
-        }
-}
-
-internal val FormContext = createContext(FormInstance())
-
-@Composable
-fun Form(formInstance: FormInstance = Form.useForm(), children: @Composable FormScope.() -> Unit) {
-    val formRef = useCreation { FormRef() }
-    formInstance.apply { this.formRef = formRef }
-    FormContext.Provider(formInstance) {
-        FormScope.getInstance(formRef, formInstance).children()
     }
 }
