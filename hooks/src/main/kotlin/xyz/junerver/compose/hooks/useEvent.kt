@@ -5,6 +5,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.reflect.KClass
 import org.jetbrains.annotations.NotNull
 
@@ -57,13 +59,14 @@ import org.jetbrains.annotations.NotNull
  */
 internal object EventManager {
     // 对外使用的事件订阅模式不允许传递 null
-    private val subscriberMap = mutableMapOf<KClass<*>, MutableList<(Any) -> Unit>>()
-    private val aliasSubscriberMap = mutableMapOf<String, MutableList<(Any?) -> Unit>>()
+    private val subscriberMap = ConcurrentHashMap<KClass<*>, CopyOnWriteArrayList<(Any) -> Unit>>()
+    private val aliasSubscriberMap =
+        ConcurrentHashMap<String, CopyOnWriteArrayList<(Any?) -> Unit>>()
 
     @Suppress("UNCHECKED_CAST")
     internal fun <T : Any> register(clazz: KClass<*>, subscriber: (T) -> Unit): () -> Unit {
-        subscriberMap[clazz] ?: run { subscriberMap[clazz] = mutableListOf() }
-        subscriberMap[clazz]?.add(subscriber as (Any) -> Unit)
+        subscriberMap.computeIfAbsent(clazz) { CopyOnWriteArrayList() }
+            .add(subscriber as (Any) -> Unit)
         return {
             subscriberMap[clazz]?.remove(subscriber)
         }
@@ -71,23 +74,19 @@ internal object EventManager {
 
     @Suppress("UNCHECKED_CAST")
     internal fun <T> register(alias: String, subscriber: (T?) -> Unit): () -> Unit {
-        aliasSubscriberMap[alias] ?: run { aliasSubscriberMap[alias] = mutableListOf() }
-        aliasSubscriberMap[alias]?.add(subscriber as (Any?) -> Unit)
+        aliasSubscriberMap.computeIfAbsent(alias) { CopyOnWriteArrayList() }
+            .add(subscriber as (Any?) -> Unit)
         return {
             aliasSubscriberMap[alias]?.remove(subscriber)
         }
     }
 
     internal fun <T> post(event: T & Any, clazz: KClass<*>) {
-        if (subscriberMap.containsKey(clazz)) {
-            subscriberMap[clazz]?.forEach { it.invoke(event) }
-        }
+        subscriberMap[clazz]?.forEach { it.invoke(event) }
     }
 
     internal fun <T> post(alias: String, event: T) {
-        if (aliasSubscriberMap.containsKey(alias)) {
-            aliasSubscriberMap[alias]?.forEach { it.invoke(event) }
-        }
+        aliasSubscriberMap[alias]?.forEach { it.invoke(event) }
     }
 }
 
