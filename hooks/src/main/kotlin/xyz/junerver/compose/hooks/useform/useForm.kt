@@ -64,12 +64,12 @@ fun Form.useFormInstance(): FormInstance = useContext(context = FormContext)
 class FormInstance {
     /** after Form Mount ref will assignment */
     internal lateinit var formRef: Ref<FormRef>
-    private val formMap: MutableMap<String, MutableState<Any?>>
-        get() = formRef.current.form
+    private val currentFormFieldMap: MutableMap<String, MutableState<Any?>>
+        get() = formRef.current.formFieldMap
 
     fun getAllFields(): Map<String, Any?> {
         checkRef()
-        return formMap.entries.associate {
+        return currentFormFieldMap.entries.associate {
             it.key to it.value.value
         }
     }
@@ -83,8 +83,8 @@ class FormInstance {
      */
     fun setFieldsValue(value: Map<String, Any>) {
         checkRef()
-        value.filterKeys { formMap.keys.contains(it) }.forEach {
-            formMap[it.key]!!.value = it.value
+        value.filterKeys { currentFormFieldMap.keys.contains(it) }.forEach {
+            currentFormFieldMap[it.key]!!.value = it.value
         }
     }
 
@@ -100,8 +100,8 @@ class FormInstance {
      */
     fun setFieldValue(name: String, value: Any?) {
         checkRef()
-        formMap.keys.find { it == name }?.let { key ->
-            formMap[key]!!.value = value
+        currentFormFieldMap.keys.find { it == name }?.let { key ->
+            currentFormFieldMap[key]!!.value = value
         }
     }
 
@@ -117,7 +117,7 @@ class FormInstance {
      */
     fun getFieldError(name: String): List<String> {
         checkRef()
-        return formRef.current.fieldErrorMessagesMap[name] ?: emptyList()
+        return formRef.current.formFieldErrorMessagesMap[name] ?: emptyList()
     }
 
     /**
@@ -126,7 +126,7 @@ class FormInstance {
      * @param value
      */
     fun resetFields(value: Map<String, Any> = emptyMap()) {
-        formMap.forEach { (_, state) ->
+        currentFormFieldMap.forEach { (_, state) ->
             state.value = null
         }.then {
             setFieldsValue(value)

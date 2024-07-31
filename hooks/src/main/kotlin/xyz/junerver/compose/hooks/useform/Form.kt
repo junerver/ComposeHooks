@@ -29,7 +29,7 @@ import xyz.junerver.kotlin.tuple
 */
 
 class FormScope private constructor(
-    private val ref: Ref<FormRef>,
+    private val formRefRef: Ref<FormRef>,
     private val formInstance: FormInstance,
 ) {
 
@@ -42,12 +42,12 @@ class FormScope private constructor(
         val fieldState = _useState<T?>(default = null)
         val (validate, _, set) = useBoolean()
         val errMsg = useMap<KClass<*>, String>()
-        val currentFormRef: FormRef = ref.current
+        val currentFormRef: FormRef = formRefRef.current
         @Suppress("UNCHECKED_CAST")
-        currentFormRef.form[name] = fieldState as MutableState<Any?>
+        currentFormRef.formFieldMap[name] = fieldState as MutableState<Any?>
         val publish = useEventPublish<T?>("HOOK_INTERNAL_FORM_FIELD_${formInstance}_$name")
         useEffect(fieldState.value) {
-            currentFormRef.opCount.longValue += 1
+            currentFormRef.formOperationCount.longValue += 1
             @Suppress("UNCHECKED_CAST")
             publish(fieldState.value as? T)
             fun Validator.pass(): Boolean {
@@ -64,10 +64,10 @@ class FormScope private constructor(
             val isValidate =
                 validators.validateField(fieldValue, pass = Validator::pass, fail = Validator::fail)
             set(isValidate)
-            currentFormRef.fieldValidatedMap[name] = isValidate
+            currentFormRef.formFieldValidationMap[name] = isValidate
         }
         useEffect(errMsg) {
-            currentFormRef.fieldErrorMessagesMap[name] = errMsg.values.toList()
+            currentFormRef.formFieldErrorMessagesMap[name] = errMsg.values.toList()
         }
         content(tuple(fieldState, validate, errMsg.values.toList()))
     }
@@ -81,7 +81,7 @@ class FormScope private constructor(
      */
     @Composable
     fun FormInstance._isValidated(): State<Boolean> {
-        val counter by formRef.current.opCount
+        val counter by formRef.current.formOperationCount
         return useState(counter) {
             isValidated()
         }
@@ -95,16 +95,24 @@ class FormScope private constructor(
 
 @Stable
 internal data class FormRef(
-    val form: MutableMap<String, MutableState<Any?>> = mutableMapOf(),
-    val fieldValidatedMap: MutableMap<String, Boolean> = mutableMapOf(),
+    /**
+     * Corresponds to the data map in a [Form] component
+     */
+    val formFieldMap: MutableMap<String, MutableState<Any?>> = mutableMapOf(),
+    /**
+     * A map corresponding to whether each field in a [Form] component passes the verification
+     */
+    val formFieldValidationMap: MutableMap<String, Boolean> = mutableMapOf(),
 ) {
-    internal val opCount: MutableLongState = mutableLongStateOf(0L)
-    internal val fieldErrorMessagesMap: MutableMap<String, List<String>> = mutableMapOf()
+    // Counter that records data changes in the form
+    internal val formOperationCount: MutableLongState = mutableLongStateOf(0L)
+    // Record the error message of each field verification failure in the form
+    internal val formFieldErrorMessagesMap: MutableMap<String, List<String>> = mutableMapOf()
 
     /** Is all fields in the form are verified successfully */
     val isValidated: Boolean
         get() {
-            return fieldValidatedMap.isEmpty() || fieldValidatedMap.entries.map { it.value }
+            return formFieldValidationMap.isEmpty() || formFieldValidationMap.entries.map { it.value }
                 .all { it }
         }
 }
