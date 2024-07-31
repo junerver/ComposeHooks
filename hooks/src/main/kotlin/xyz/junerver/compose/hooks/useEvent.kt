@@ -1,9 +1,12 @@
 package xyz.junerver.compose.hooks
 
+import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import kotlin.reflect.KClass
+import org.jetbrains.annotations.NotNull
 
 /*
   Description: More convenient communication between components, just like using EventBus
@@ -52,16 +55,17 @@ import kotlin.reflect.KClass
  * Call the post function at the appropriate time and pass your event
  * object.
  */
-object EventManager {
-    val subscriberMap = mutableMapOf<KClass<*>, MutableList<(Any) -> Unit>>()
+internal object EventManager {
+    // 对外使用的事件订阅模式不允许传递 null
+    private val subscriberMap = mutableMapOf<KClass<*>, MutableList<(Any) -> Unit>>()
     private val aliasSubscriberMap = mutableMapOf<String, MutableList<(Any?) -> Unit>>()
 
     @Suppress("UNCHECKED_CAST")
-    inline fun <reified T : Any> register(noinline subscriber: (T) -> Unit): () -> Unit {
-        subscriberMap[T::class] ?: run { subscriberMap[T::class] = mutableListOf() }
-        subscriberMap[T::class]?.add(subscriber as (Any) -> Unit)
+    internal fun <T : Any> register(clazz: KClass<*>, subscriber: (T) -> Unit): () -> Unit {
+        subscriberMap[clazz] ?: run { subscriberMap[clazz] = mutableListOf() }
+        subscriberMap[clazz]?.add(subscriber as (Any) -> Unit)
         return {
-            subscriberMap[T::class]?.remove(subscriber)
+            subscriberMap[clazz]?.remove(subscriber)
         }
     }
 
@@ -74,9 +78,9 @@ object EventManager {
         }
     }
 
-    inline fun <reified T> post(event: T) {
-        if (subscriberMap.containsKey(T::class)) {
-            subscriberMap[T::class]?.forEach { it.invoke(event) }
+    internal fun <T> post(event: T & Any, clazz: KClass<*>) {
+        if (subscriberMap.containsKey(clazz)) {
+            subscriberMap[clazz]?.forEach { it.invoke(event) }
         }
     }
 
@@ -88,6 +92,30 @@ object EventManager {
 }
 
 /**
+ * Delegate post
+ *
+ * @param event
+ * @param clazz
+ * @param T
+ */
+@InternalComposeApi
+fun <T> delegatePost(event: T & Any, clazz: KClass<*>) {
+    EventManager.post(event, clazz)
+}
+
+/**
+ * Delegate register
+ *
+ * @param clazz
+ * @param subscriber
+ * @param T
+ * @receiver
+ */
+@InternalComposeApi
+fun <T> delegateRegister(clazz: KClass<*>, subscriber: (T) -> Unit) =
+    EventManager.register(clazz, subscriber)
+
+/**
  * Register a subscriber. Note that this subscription function will be
  * removed from the subscription list after the component is uninstalled.
  *
@@ -95,13 +123,14 @@ object EventManager {
  * @param T
  * @receiver
  */
+@OptIn(InternalComposeApi::class)
 @Composable
-inline fun <reified T> useEventSubscribe(noinline subscriber: (T) -> Unit) {
+inline fun <reified T : Any> useEventSubscribe(noinline subscriber: (T) -> Unit) {
     val latest by useLatestState(subscriber)
     val unSubscribeRef = useRef<(() -> Unit)?>(null)
 
     useMount {
-        unSubscribeRef.current = EventManager.register(latest)
+        unSubscribeRef.current = delegateRegister(T::class, latest)
     }
 
     useUnmount {
@@ -109,6 +138,27 @@ inline fun <reified T> useEventSubscribe(noinline subscriber: (T) -> Unit) {
     }
 }
 
+/**
+ * This hook returns a publish function, use that fun to post a event.
+ *
+ * @param T
+ * @return
+ */
+@OptIn(InternalComposeApi::class)
+@Composable
+inline fun <reified T : Any> useEventPublish(): (@NotNull T) -> Unit = remember {
+    { event: T -> delegatePost(event, T::class) }
+}
+
+/**
+ * 仅在库内部使用的事件订阅
+ *
+ * @param alias
+ * @param subscriber
+ * @param T
+ * @receiver
+ */
+@SuppressLint("ComposableNaming")
 @Composable
 internal fun <T> useEventSubscribe(alias: String, subscriber: (T?) -> Unit) {
     val latest by useLatestState(subscriber)
@@ -124,16 +174,11 @@ internal fun <T> useEventSubscribe(alias: String, subscriber: (T?) -> Unit) {
 }
 
 /**
- * This hook returns a publish function, use that fun to post a event.
+ * 仅在库内部使用的事件发布
  *
  * @param T
  * @return
  */
-@Composable
-inline fun <reified T> useEventPublish(): (T) -> Unit = remember {
-    { event: T -> EventManager.post(event) }
-}
-
 @Composable
 internal fun <T> useEventPublish(alias: String): (T) -> Unit = remember {
     { event: T -> EventManager.post(alias, event) }

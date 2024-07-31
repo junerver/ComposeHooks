@@ -137,11 +137,11 @@ fun rememberDisableScreenshot(): Tuple3<DisableFn, EnableFn, IsDisabled> = useDi
 
 //region useEvent
 @Composable
-inline fun <reified T> rememberEventSubscribe(noinline subscriber: (T) -> Unit) =
+inline fun <reified T : Any> rememberEventSubscribe(noinline subscriber: (T) -> Unit) =
     useEventSubscribe(subscriber)
 
 @Composable
-inline fun <reified T> rememberEventPublish(): (T) -> Unit = useEventPublish()
+inline fun <reified T : Any> rememberEventPublish(): (T) -> Unit = useEventPublish()
 //endregion
 
 @Composable
