@@ -13,3 +13,5 @@ internal const val KEY_PREFIX = "HOOK_INTERNAL_"
 internal const val CACHE_KEY_PREFIX = "${KEY_PREFIX}USE_CACHE_PLUGIN_"
 
 internal const val FORM_KEY_PREFIX = "${KEY_PREFIX}FORM_FIELD_"
+
+internal const val PERSISTENT_KEY_PREFIX = "${KEY_PREFIX}USE_PERSISTENT_"

@@ -41,7 +41,7 @@ import xyz.junerver.kotlin.asBoolean
 data class MockArticle(
     val time: Long,
     val data: String,
-) : Parcelable{
+) : Parcelable {
     override fun toString(): String {
         return "last request time=$time\n\ndata=$data"
     }
@@ -50,7 +50,7 @@ data class MockArticle(
 suspend fun mockRequestArticle(): MockArticle {
     delay(1000)
     if (coroutineContext.isActive) {
-        return MockArticle(Clock.System.now().toEpochMilliseconds(),NanoId.generate(200))
+        return MockArticle(Clock.System.now().toEpochMilliseconds(), NanoId.generate(200))
     } else {
         error("coroutine cancelled")
     }

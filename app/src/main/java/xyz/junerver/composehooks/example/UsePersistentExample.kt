@@ -91,8 +91,15 @@ private fun MMKVPersistent() {
                 setState("")
                 toast("now you can exit app,and reopen")
             }
+            MMKVPersistentSub()
         }
     }
+}
+
+@Composable
+private fun MMKVPersistentSub() {
+    val (token) = usePersistent(key = "token", "")
+    Text(text = "sub component token: $token")
 }
 
 @Composable

@@ -86,35 +86,28 @@ fun <T> usePersistent(
 private val memorySaveMap = mutableMapOf<String, Any?>()
 
 /** Callback function when performing persistence operation */
-private typealias SavePersistentCallback = () -> Unit
-
-private val listener = mutableMapOf<String, MutableList<SavePersistentCallback>>()
+private typealias SavePersistentCallback = (Unit) -> Unit
 
 /**
  * you should call this function in your [PersistentSave] fun to notify
  * state update
  */
 fun notifyDefaultPersistentObserver(key: String) {
-    listener[key]?.takeIf { it.isNotEmpty() }?.forEach { it.invoke() }
+    EventManager.post("${PERSISTENT_KEY_PREFIX}$key", Unit)
 }
 
 private fun memorySavePersistent(key: String, value: Any?) {
-    memorySaveMap[key] = value
+    memorySaveMap["${PERSISTENT_KEY_PREFIX}$key"] = value
     notifyDefaultPersistentObserver(key)
 }
 
 private fun memoryGetPersistent(key: String, defaultValue: Any): Any {
-    return memorySaveMap[key] ?: defaultValue
+    return memorySaveMap["${PERSISTENT_KEY_PREFIX}$key"] ?: defaultValue
 }
 
 private fun memoryClearPersistent(key: String) {
-    memorySaveMap.remove(key)
+    memorySaveMap.remove("${PERSISTENT_KEY_PREFIX}$key")
 }
 
-private fun memoryAddObserver(key: String, observer: SavePersistentCallback): () -> Unit {
-    listener[key] ?: run { listener[key] = mutableListOf() }
-    listener[key]!!.add(observer)
-    return fun() {
-        listener[key]?.remove(observer)
-    }
-}
+private fun memoryAddObserver(key: String, observer: SavePersistentCallback): () -> Unit =
+    EventManager.register("${PERSISTENT_KEY_PREFIX}$key", observer)
