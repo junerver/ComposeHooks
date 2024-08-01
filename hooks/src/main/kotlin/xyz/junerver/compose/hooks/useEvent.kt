@@ -72,7 +72,7 @@ internal object EventManager {
     }
 
     @Suppress("UNCHECKED_CAST")
-    internal fun <T> register(alias: String, subscriber: (T?) -> Unit): () -> Unit {
+    internal fun <T> register(alias: String, subscriber: (T) -> Unit): () -> Unit {
         aliasSubscriberMap.computeIfAbsent(alias) { CopyOnWriteArrayList() }
             .add(subscriber as (Any?) -> Unit)
         return {

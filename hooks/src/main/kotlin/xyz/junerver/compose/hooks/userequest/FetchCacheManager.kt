@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks.userequest
 
 import kotlin.coroutines.CoroutineContext
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -11,6 +12,8 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
+import xyz.junerver.compose.hooks.CACHE_KEY_PREFIX
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 import xyz.junerver.kotlin.Tuple2
 import xyz.junerver.kotlin.tuple
@@ -22,11 +25,10 @@ import xyz.junerver.kotlin.tuple
   Email: junerver@gmail.com
   Version: v1.0
 */
-private typealias DataCache = Tuple2<CachedData<*>, Long>
+private typealias DataCache = Tuple2<CachedData<*>, Instant>
 
 internal object FetchCacheManager : CoroutineScope {
 
-    // 如果你看过协程的官方文档或视频。你应该会知道Job和SupervisorJob的一个区别是，Job的子协程发生异常被取消会同时取消Job的其它子协程，而SupervisorJob不会。
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + SupervisorJob()
 
@@ -46,31 +48,41 @@ internal object FetchCacheManager : CoroutineScope {
         }
     }
 
-    private val currentTime: Long
-        get() = Clock.System.now().toEpochMilliseconds()
+    private val currentTime: Instant
+        get() = Clock.System.now()
 
     /**
      * 缓存是否有效
      */
     private fun isCacheValid(key: String): Boolean {
-        if (!cache.containsKey(key)) return false // 无缓存
-        val cacheData = cache[key]!!
+        if (!cache.containsKey("${CACHE_KEY_PREFIX}$key")) return false // 无缓存
+        val cacheData = cache["${CACHE_KEY_PREFIX}$key"]!!
         return currentTime < cacheData.second // 还新鲜
     }
 
     /**
      * 存入缓存，key - <数据，缓存过期时间>
      */
-    fun <T> saveCache(key: String, cacheTime: Long, cachedData: CachedData<T>) {
-        cache[key] = tuple(cachedData, currentTime + cacheTime)
+    fun <T> saveCache(key: String, cacheTime: Duration, cachedData: CachedData<T>) {
+        cache["${CACHE_KEY_PREFIX}$key"] = tuple(cachedData, currentTime + cacheTime)
     }
 
     @Suppress("UNCHECKED_CAST")
     fun <T> getCache(key: String): CachedData<T>? {
         return if (isCacheValid(key)) {
-            cache[key]!!.first as CachedData<T>
+            cache["${CACHE_KEY_PREFIX}$key"]!!.first as CachedData<T>
         } else {
             null
         }
     }
+
+    fun clearCache(vararg keys: String) {
+        keys.forEach {
+            cache.remove("${CACHE_KEY_PREFIX}$it")
+        }
+    }
+}
+
+fun clearCache(vararg keys: String) {
+    FetchCacheManager.clearCache(*keys)
 }

@@ -19,6 +19,6 @@ internal typealias ReleaseFn = () -> Unit
 
 @Composable
 fun useWakeLock(): Tuple3<RequestFn, ReleaseFn, IsActive> = useWindowFlags(
-    key = "HOOK_INTERNAL_WAKE_LOCK",
+    key = "${KEY_PREFIX}WAKE_LOCK",
     flags = WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
 )

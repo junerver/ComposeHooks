@@ -17,6 +17,6 @@ internal typealias IsDisabled = Boolean
 
 @Composable
 fun useDisableScreenshot(): Tuple3<DisableFn, EnableFn, IsDisabled> = useWindowFlags(
-    key = "HOOK_INTERNAL_SCREENSHOT",
+    key = "${KEY_PREFIX}SCREENSHOT",
     flags = WindowManager.LayoutParams.FLAG_SECURE
 )

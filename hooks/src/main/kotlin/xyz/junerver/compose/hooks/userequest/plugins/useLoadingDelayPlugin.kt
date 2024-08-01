@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -44,7 +45,7 @@ private class LoadingDelayPlugin<TData : Any> : Plugin<TData>() {
                     get() = {
                         // 清空并创建一个新的定时器对象
                         cancelTimeout()
-                        if (ready && staleTime != -1L && loadingDelay.inWholeMilliseconds > staleTime) {
+                        if (ready && staleTime != (-1).seconds && loadingDelay > staleTime) {
                             // 如果已经ready则添加一个定时任务
                             launch {
                                 delay(loadingDelay)

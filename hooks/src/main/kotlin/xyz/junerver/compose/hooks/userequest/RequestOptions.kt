@@ -3,6 +3,7 @@ package xyz.junerver.compose.hooks.userequest
 import android.util.Log
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.DebounceOptions
 import xyz.junerver.compose.hooks.TParams
@@ -100,12 +101,12 @@ data class RequestOptions<TData> internal constructor(
      * 设置缓存数据回收时间。默认缓存数据 5 分钟后回收
      * 如果设置为 -1, 则表示缓存数据永不过期
      */
-    var cacheTime: Long = 300000,
+    var cacheTime: Duration = 5.minutes,
     /**
      * 缓存数据保持新鲜时间。在该时间间隔内，认为数据是新鲜的，不会重新发请求
-     * 如果设置为 -1，则表示数据永远新鲜
+     * 如果设置为 `(-1).seconds`，则表示数据永远新鲜
      */
-    var staleTime: Long = 0,
+    var staleTime: Duration = 0.seconds,
     /**
      * 自定义缓存策略，无则采取默认策略
      */

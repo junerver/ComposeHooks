@@ -1,5 +1,6 @@
 package xyz.junerver.compose.hooks.userequest.utils
 
+import kotlinx.datetime.Instant
 import xyz.junerver.compose.hooks.TParams
 
 /*
@@ -12,7 +13,7 @@ import xyz.junerver.compose.hooks.TParams
 data class CachedData<TData>(
     val data: TData,
     val params: TParams,
-    val time: Long,
+    val time: Instant,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

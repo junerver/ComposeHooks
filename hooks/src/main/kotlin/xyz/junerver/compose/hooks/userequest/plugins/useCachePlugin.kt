@@ -2,16 +2,19 @@ package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import xyz.junerver.compose.hooks.MutableRef
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.TParams
-import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUnmount
+import xyz.junerver.compose.hooks.useUpdateEffect
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.FetchCacheManager
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
@@ -44,9 +47,9 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
     lateinit var unSubscribeRef: MutableRef<(() -> Unit)?>
     lateinit var currentPromiseRef: MutableRef<Deferred<*>?>
 
-    private var staleTime: Long = 0
-    val currentTime: Long
-        get() = Clock.System.now().toEpochMilliseconds()
+    private var staleTime: Duration = 0.seconds
+    val currentTime: Instant
+        get() = Clock.System.now()
     lateinit var setCache: (key: String, cachedData: CachedData<TData>) -> Unit
     lateinit var getCache: (String, TParams) -> CachedData<TData>?
 
@@ -62,7 +65,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                         val cacheData = getCache(cacheKey, it)
                         // 正在请求，啥也不做
                         if (!cacheData.asBoolean()) return@onBefore null
-                        if (staleTime == -1L || currentTime - cacheData.time <= staleTime) {
+                        if (staleTime == (-1).seconds || currentTime - cacheData.time <= staleTime) {
                             OnBeforeReturn(
                                 loading = false,
                                 data = cacheData.data,
@@ -162,7 +165,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
         with(fetchInstance.fetchState) {
             data = cacheData.data
             params = cacheData.params
-            if (staleTime == -1L || currentTime - cacheData.time <= staleTime) {
+            if (staleTime == (-1).seconds || currentTime - cacheData.time <= staleTime) {
                 loading = false
             }
         }
@@ -224,7 +227,7 @@ internal fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
         }
     }
 
-    useCreation {
+    useUpdateEffect {
         val cacheData = getCache(cacheKey)
         cacheData?.let {
             // 使用缓存初始化
