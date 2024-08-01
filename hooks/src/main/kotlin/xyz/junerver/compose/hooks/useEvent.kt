@@ -71,6 +71,10 @@ internal object EventManager {
         }
     }
 
+    internal fun <T> post(event: T & Any, clazz: KClass<*>) {
+        subscriberMap[clazz]?.forEach { (it as (T) -> Unit).invoke(event) }
+    }
+
     @Suppress("UNCHECKED_CAST")
     internal fun <T> register(alias: String, subscriber: (T) -> Unit): () -> Unit {
         aliasSubscriberMap.computeIfAbsent(alias) { CopyOnWriteArrayList() }
@@ -78,10 +82,6 @@ internal object EventManager {
         return {
             aliasSubscriberMap[alias]?.remove(subscriber)
         }
-    }
-
-    internal fun <T> post(event: T & Any, clazz: KClass<*>) {
-        subscriberMap[clazz]?.forEach { (it as (T) -> Unit).invoke(event) }
     }
 
     internal fun <T> post(alias: String, event: T) {
