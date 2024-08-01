@@ -7,8 +7,6 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
 import xyz.junerver.compose.hooks.MutableRef
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.TParams
@@ -31,6 +29,7 @@ import xyz.junerver.compose.hooks.userequest.utils.getCachePromise
 import xyz.junerver.compose.hooks.userequest.utils.setCachePromise
 import xyz.junerver.compose.hooks.userequest.utils.subscribe
 import xyz.junerver.compose.hooks.userequest.utils.trigger
+import xyz.junerver.compose.hooks.utils.currentTime
 import xyz.junerver.kotlin.asBoolean
 import xyz.junerver.kotlin.isNotNull
 import xyz.junerver.kotlin.tuple
@@ -48,8 +47,6 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
     lateinit var currentPromiseRef: MutableRef<Deferred<*>?>
 
     private var staleTime: Duration = 0.seconds
-    val currentTime: Instant
-        get() = Clock.System.now()
     lateinit var setCache: (key: String, cachedData: CachedData<TData>) -> Unit
     lateinit var getCache: (String, TParams) -> CachedData<TData>?
 

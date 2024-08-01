@@ -11,10 +11,10 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import xyz.junerver.compose.hooks.CACHE_KEY_PREFIX
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
+import xyz.junerver.compose.hooks.utils.currentTime
 import xyz.junerver.kotlin.Tuple2
 import xyz.junerver.kotlin.tuple
 
@@ -47,9 +47,6 @@ internal object FetchCacheManager : CoroutineScope {
             _flow.collect()
         }
     }
-
-    private val currentTime: Instant
-        get() = Clock.System.now()
 
     /**
      * 缓存是否有效

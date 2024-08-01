@@ -14,6 +14,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
+import xyz.junerver.compose.hooks.utils.currentTime
 import xyz.junerver.kotlin.Tuple2
 
 /**
@@ -69,7 +70,6 @@ internal class Debounce(
             }.also { jobs.add(it to guarantee) }
         }
 
-        val currentTime = Clock.System.now()
         val waitTime = currentTime - latestInvokedTime
         val interval = currentTime - latestCalledTime
         val isMaxWait = maxWait in 1.milliseconds..waitTime
