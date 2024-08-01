@@ -1,5 +1,6 @@
 package xyz.junerver.composehooks.example.request
 
+import android.os.Parcelable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -12,15 +13,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import kotlin.coroutines.coroutineContext
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.datetime.Clock
+import kotlinx.parcelize.Parcelize
+import xyz.junerver.compose.hooks.asSuspendNoopFn
 import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.clearCache
 import xyz.junerver.compose.hooks.userequest.useRequest
-import xyz.junerver.composehooks.net.WebService
-import xyz.junerver.composehooks.net.asRequestFn
 import xyz.junerver.composehooks.ui.component.TButton
+import xyz.junerver.composehooks.utils.NanoId
 import xyz.junerver.kotlin.asBoolean
 
 /*
@@ -31,12 +37,32 @@ import xyz.junerver.kotlin.asBoolean
   Version: v1.0
 */
 
+@Parcelize
+data class MockArticle(
+    val time: Long,
+    val data: String,
+) : Parcelable{
+    override fun toString(): String {
+        return "last request time=$time\n\ndata=$data"
+    }
+}
+
+suspend fun mockRequestArticle(): MockArticle {
+    delay(1000)
+    if (coroutineContext.isActive) {
+        return MockArticle(Clock.System.now().toEpochMilliseconds(),NanoId.generate(200))
+    } else {
+        error("coroutine cancelled")
+    }
+}
+
 @Composable
 fun Cache() {
     Surface {
         Column {
             TestSWR()
             Spacer(modifier = Modifier.height(20.dp))
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
             TestStaleTime()
         }
     }
@@ -67,18 +93,17 @@ private fun TestSWR() {
  */
 @Composable
 private fun SWR(useCache: Boolean = false) {
-    val (userInfo, userLoading) = useRequest(
-        requestFn = WebService::userInfo.asRequestFn(),
+    val (data, loading) = useRequest(
+        requestFn = ::mockRequestArticle.asSuspendNoopFn(),
         optionsOf {
-            defaultParams = arrayOf("junerver")
-            if (useCache) cacheKey = "userinfo-junerver"
+            if (useCache) cacheKey = "test-swr-key"
         }
     )
-    Column(modifier = Modifier.height(110.dp)) {
+    Column(modifier = Modifier.height(220.dp)) {
         Text(text = "cache: $useCache", color = Color.Red)
-        Text(text = "Background loading: $userLoading")
-        if (userInfo.asBoolean()) {
-            Text(text = "$userInfo".substring(0..100))
+        Text(text = "Background loading: $loading")
+        if (data.asBoolean()) {
+            Text(text = "$data")
         }
     }
 }
@@ -86,7 +111,7 @@ private fun SWR(useCache: Boolean = false) {
 @Composable
 fun TestStaleTime() {
     val (isVisible, toggle) = useBoolean(true)
-    val cacheKey = "userinfo-junerver-stale"
+    val cacheKey = "test-stale-key"
     Column {
         Row {
             TButton(text = "show/hide") {
@@ -105,19 +130,18 @@ fun TestStaleTime() {
 
 @Composable
 private fun StaleTime(cacheKey: String) {
-    val (userInfo, userLoading) = useRequest(
-        requestFn = WebService::userInfo.asRequestFn(),
+    val (data, loading) = useRequest(
+        requestFn = ::mockRequestArticle.asSuspendNoopFn(),
         optionsOf {
-            defaultParams = arrayOf("junerver")
             this.cacheKey = cacheKey
             staleTime = 5.seconds
         }
     )
-    Column(modifier = Modifier.height(110.dp)) {
-        Text(text = "statleTime: 5000ms", color = Color.Red)
-        Text(text = "Background loading: $userLoading")
-        if (userInfo.asBoolean()) {
-            Text(text = "$userInfo".substring(0..100))
+    Column(modifier = Modifier.height(220.dp)) {
+        Text(text = "statleTime: 5s", color = Color.Red)
+        Text(text = "Background loading: $loading")
+        if (data.asBoolean()) {
+            Text(text = "$data")
         }
     }
 }
