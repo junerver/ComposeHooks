@@ -44,6 +44,7 @@ import xyz.junerver.composehooks.example.UseUpdateEffectExample
 import xyz.junerver.composehooks.example.UseUpdateExample
 import xyz.junerver.composehooks.example.UseVibrateExample
 import xyz.junerver.composehooks.example.request.AutoManual
+import xyz.junerver.composehooks.example.request.Cache
 import xyz.junerver.composehooks.example.request.Cancel
 import xyz.junerver.composehooks.example.request.Debounce
 import xyz.junerver.composehooks.example.request.DepsRefresh
@@ -123,7 +124,7 @@ val subRequestRoutes = mapOf<String, @Composable () -> Unit>(
     "depsRefresh" to { DepsRefresh() },
     "debounce" to { Debounce() },
     "throttle" to { Throttle() },
-    "cache&swr" to { TODO() },
+    "cache&swr" to { Cache() },
     "errorRetry" to { ErrorRetry() }
 )
 

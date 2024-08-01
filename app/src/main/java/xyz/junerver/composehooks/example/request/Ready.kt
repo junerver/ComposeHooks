@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -54,7 +54,7 @@ fun Ready() {
                 Text(text = "$userInfo".substring(0..100))
             }
             Spacer(modifier = Modifier.height(30.dp))
-            Divider(modifier = Modifier.fillMaxWidth())
+            HorizontalDivider(modifier = Modifier.fillMaxWidth())
             if (repoLoading) {
                 Text(text = "repo loading ...")
             } else if (repoInfo.asBoolean()) {
