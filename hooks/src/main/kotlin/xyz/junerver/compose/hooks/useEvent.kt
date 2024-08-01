@@ -58,7 +58,6 @@ import org.jetbrains.annotations.NotNull
  * object.
  */
 internal object EventManager {
-    // 对外使用的事件订阅模式不允许传递 null
     private val subscriberMap = ConcurrentHashMap<KClass<*>, CopyOnWriteArrayList<(Any) -> Unit>>()
     private val aliasSubscriberMap =
         ConcurrentHashMap<String, CopyOnWriteArrayList<(Any?) -> Unit>>()
@@ -82,11 +81,11 @@ internal object EventManager {
     }
 
     internal fun <T> post(event: T & Any, clazz: KClass<*>) {
-        subscriberMap[clazz]?.forEach { it.invoke(event) }
+        subscriberMap[clazz]?.forEach { (it as (T) -> Unit).invoke(event) }
     }
 
     internal fun <T> post(alias: String, event: T) {
-        aliasSubscriberMap[alias]?.forEach { it.invoke(event) }
+        aliasSubscriberMap[alias]?.forEach { (it as (T?) -> Unit).invoke(event) }
     }
 }
 
