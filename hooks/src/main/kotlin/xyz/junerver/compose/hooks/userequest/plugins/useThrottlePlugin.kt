@@ -8,6 +8,7 @@ import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
 import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.PluginLifecycle
+import xyz.junerver.compose.hooks.userequest.PluginOnCancel
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 
@@ -37,7 +38,7 @@ private class ThrottlePlugin<TData : Any> : Plugin<TData>() {
                 }
             }
             object : PluginLifecycle<TData>() {
-                override val onCancel: PluginOnCancelCallback
+                override val onCancel: PluginOnCancel
                     get() = {
                         cancel()
                     }

@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import java.util.concurrent.ConcurrentHashMap
 import xyz.junerver.kotlin.Tuple3
 import xyz.junerver.kotlin.plus
 
@@ -83,7 +84,7 @@ fun <T> usePersistent(
     )
 }
 
-private val memorySaveMap = mutableMapOf<String, Any?>()
+private val memorySaveMap = ConcurrentHashMap<String, Any?>()
 
 /** Callback function when performing persistence operation */
 private typealias SavePersistentCallback = (Unit) -> Unit
