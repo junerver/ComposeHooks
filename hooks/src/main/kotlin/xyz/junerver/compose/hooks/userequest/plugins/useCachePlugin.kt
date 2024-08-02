@@ -8,7 +8,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import xyz.junerver.compose.hooks.MutableRef
-import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUnmount
@@ -21,6 +20,11 @@ import xyz.junerver.compose.hooks.userequest.OnBeforeReturn
 import xyz.junerver.compose.hooks.userequest.OnRequestReturn
 import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.PluginLifecycle
+import xyz.junerver.compose.hooks.userequest.PluginOnBefore
+import xyz.junerver.compose.hooks.userequest.PluginOnError
+import xyz.junerver.compose.hooks.userequest.PluginOnMutate
+import xyz.junerver.compose.hooks.userequest.PluginOnRequest
+import xyz.junerver.compose.hooks.userequest.PluginOnSuccess
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
@@ -57,7 +61,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
             staleTime = staleTimeOp
 
             object : PluginLifecycle<TData>() {
-                override val onBefore: ((TParams) -> OnBeforeReturn<TData>?)
+                override val onBefore: PluginOnBefore<TData>
                     get() = onBefore@{
                         val cacheData = getCache(cacheKey, it)
                         // 正在请求，啥也不做
@@ -88,7 +92,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                         }
                     }
 
-                override val onRequest: ((requestFn: SuspendNormalFunction<TData>, params: TParams) -> OnRequestReturn<TData>?)
+                override val onRequest: PluginOnRequest<TData>
                     get() = onRequest@{ requestFn, param ->
                         var servicePromise: Deferred<TData>? = getCachePromise(cacheKey)
                         trigger(cacheKey, RestoreFetchStateData(loading = true))
@@ -105,7 +109,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                         OnRequestReturn(servicePromise)
                     }
 
-                override val onSuccess: ((data: TData, params: TParams) -> Unit)
+                override val onSuccess: PluginOnSuccess<TData>
                     get() = { data: TData, params: TParams ->
                         if (cacheKey.asBoolean()) {
                             // 取消订阅，保存
@@ -122,7 +126,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                         }
                     }
 
-                override val onError: ((e: Throwable, params: TParams) -> Unit)
+                override val onError: PluginOnError
                     get() = { e: Throwable, _ ->
                         if (cacheKey.asBoolean()) {
                             unSubscribeRef.current?.invoke()
@@ -137,7 +141,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                         }
                     }
 
-                override val onMutate: ((data: TData) -> Unit)
+                override val onMutate: PluginOnMutate<TData>
                     get() = {
                         if (cacheKey.asBoolean()) {
                             unSubscribeRef.current?.invoke()

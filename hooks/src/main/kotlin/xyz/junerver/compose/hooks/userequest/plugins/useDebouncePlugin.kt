@@ -35,7 +35,7 @@ private class DebouncePlugin<TData : Any> : Plugin<TData>() {
                 }
             }
             object : PluginLifecycle<TData>() {
-                override val onCancel: (() -> Unit)
+                override val onCancel: PluginOnCancelCallback
                     get() = {
                         cancel()
                     }

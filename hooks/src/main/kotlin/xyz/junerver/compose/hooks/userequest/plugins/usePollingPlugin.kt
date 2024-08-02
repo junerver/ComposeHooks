@@ -8,14 +8,17 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.useBackToFrontEffect
 import xyz.junerver.compose.hooks.useFrontToBackEffect
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
-import xyz.junerver.compose.hooks.userequest.OnBeforeReturn
 import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.PluginLifecycle
+import xyz.junerver.compose.hooks.userequest.PluginOnBefore
+import xyz.junerver.compose.hooks.userequest.PluginOnCancel
+import xyz.junerver.compose.hooks.userequest.PluginOnError
+import xyz.junerver.compose.hooks.userequest.PluginOnFinally
+import xyz.junerver.compose.hooks.userequest.PluginOnSuccess
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 import xyz.junerver.kotlin.tuple
@@ -64,23 +67,23 @@ private class PollingPlugin<TData : Any> : Plugin<TData>() {
             val pluginScope = this
 
             object : PluginLifecycle<TData>() {
-                override val onBefore: ((TParams) -> OnBeforeReturn<TData>?)
+                override val onBefore: PluginOnBefore<TData>
                     get() = {
                         stopPolling()
                         null
                     }
 
-                override val onError: ((e: Throwable, params: TParams) -> Unit)
+                override val onError: PluginOnError
                     get() = { _, _ ->
                         currentRetryCount += 1
                     }
 
-                override val onSuccess: ((data: TData, params: TParams) -> Unit)
+                override val onSuccess: PluginOnSuccess<TData>
                     get() = { _, _ ->
                         currentRetryCount = 0
                     }
 
-                override val onFinally: ((params: TParams, data: TData?, e: Throwable?) -> Unit)
+                override val onFinally: PluginOnFinally<TData>
                     get() = onFinally@{ _, _, _ ->
                         usedScope = if (pollingWhenHidden) pluginScope else fetch.scope
                         if (!pollingWhenHidden && inBackground) return@onFinally
@@ -94,7 +97,7 @@ private class PollingPlugin<TData : Any> : Plugin<TData>() {
                         }
                     }
 
-                override val onCancel: (() -> Unit)
+                override val onCancel: PluginOnCancel
                     get() = {
                         cancel()
                     }

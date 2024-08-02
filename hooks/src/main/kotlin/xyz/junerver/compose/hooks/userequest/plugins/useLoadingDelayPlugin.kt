@@ -6,13 +6,14 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
 import xyz.junerver.compose.hooks.userequest.Keys
 import xyz.junerver.compose.hooks.userequest.OnBeforeReturn
 import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.PluginLifecycle
+import xyz.junerver.compose.hooks.userequest.PluginOnBefore
+import xyz.junerver.compose.hooks.userequest.PluginOnFinally
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 import xyz.junerver.kotlin.asBoolean
@@ -41,7 +42,7 @@ private class LoadingDelayPlugin<TData : Any> : Plugin<TData>() {
         get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
             val (loadingDelay, staleTime) = with(requestOptions) { tuple(loadingDelay, staleTime) }
             object : PluginLifecycle<TData>() {
-                override val onBefore: ((TParams) -> OnBeforeReturn<TData>?)
+                override val onBefore: PluginOnBefore<TData>
                     get() = {
                         // 清空并创建一个新的定时器对象
                         cancelTimeout()
@@ -55,10 +56,10 @@ private class LoadingDelayPlugin<TData : Any> : Plugin<TData>() {
                         OnBeforeReturn(loading = false)
                     }
 
-                override val onFinally: ((params: TParams, data: TData?, e: Throwable?) -> Unit)
+                override val onFinally: PluginOnFinally<TData>
                     get() = { _, _, _ -> cancelTimeout() }
 
-                override val onCancel: (() -> Unit)
+                override val onCancel: PluginOnCancelCallback
                     get() = { cancel() }
             }
         }

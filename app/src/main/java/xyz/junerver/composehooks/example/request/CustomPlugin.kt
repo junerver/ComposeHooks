@@ -12,6 +12,7 @@ import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
 import xyz.junerver.compose.hooks.userequest.MutateFn
 import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.PluginLifecycle
+import xyz.junerver.compose.hooks.userequest.PluginOnMutate
 import xyz.junerver.compose.hooks.userequest.RefreshFn
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.RunFn
@@ -68,7 +69,7 @@ private fun <TData : Any> useRollbackPlugin(ref: MutableRef<() -> Unit>) = remem
             get() = { fetch: Fetch<TData>, options: RequestOptions<TData> ->
                 initFetch(fetch, options)
                 object : PluginLifecycle<TData>() {
-                    override val onMutate: ((data: TData) -> Unit)
+                    override val onMutate: PluginOnMutate<TData>
                         get() = {
                             pervState = fetch.fetchState
                         }

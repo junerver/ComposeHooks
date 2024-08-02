@@ -11,6 +11,7 @@ import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
 import xyz.junerver.compose.hooks.userequest.OnBeforeReturn
 import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.PluginLifecycle
+import xyz.junerver.compose.hooks.userequest.PluginOnBefore
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.kotlin.asBoolean
 import xyz.junerver.kotlin.plus
@@ -39,7 +40,7 @@ private class AutoRunPlugin<TData : Any> : Plugin<TData>() {
         get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
             initFetch(fetch, requestOptions)
             object : PluginLifecycle<TData>() {
-                override val onBefore: (TParams) -> OnBeforeReturn<TData>?
+                override val onBefore: PluginOnBefore<TData>
                     get() = {
                         runIf(!ready) {
                             OnBeforeReturn(

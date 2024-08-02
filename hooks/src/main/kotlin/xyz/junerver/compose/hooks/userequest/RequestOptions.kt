@@ -63,7 +63,6 @@ data class RequestOptions<TData> internal constructor(
     var pollingInterval: Duration = 0.milliseconds,
     /**
      * 在页面隐藏时，是否继续轮询。如果设置为 false，在页面隐藏时会暂时停止轮询，页面重新显示时继续上次轮询。
-     * todo : 期望是组件在不可见状态能停止轮询，似乎需要加入对页面生命周期感知才能实现
      */
     var pollingWhenHidden: Boolean = false,
     /**

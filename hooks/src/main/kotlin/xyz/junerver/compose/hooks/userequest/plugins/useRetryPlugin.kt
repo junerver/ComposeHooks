@@ -8,12 +8,14 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
-import xyz.junerver.compose.hooks.userequest.OnBeforeReturn
 import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.PluginLifecycle
+import xyz.junerver.compose.hooks.userequest.PluginOnBefore
+import xyz.junerver.compose.hooks.userequest.PluginOnCancel
+import xyz.junerver.compose.hooks.userequest.PluginOnError
+import xyz.junerver.compose.hooks.userequest.PluginOnSuccess
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 import xyz.junerver.kotlin.tuple
@@ -39,7 +41,7 @@ private class RetryPlugin<TData : Any> : Plugin<TData>() {
             }
 
             object : PluginLifecycle<TData>() {
-                override val onBefore: ((TParams) -> OnBeforeReturn<TData>?)
+                override val onBefore: PluginOnBefore<TData>
                     get() = {
                         // 未触发retry时，
                         if (!triggerByRetry) {
@@ -49,12 +51,12 @@ private class RetryPlugin<TData : Any> : Plugin<TData>() {
                         null
                     }
 
-                override val onSuccess: ((data: TData, params: TParams) -> Unit)
+                override val onSuccess: PluginOnSuccess<TData>
                     get() = { _, _ ->
                         count = 0
                     }
 
-                override val onError: ((e: Throwable, params: TParams) -> Unit)
+                override val onError: PluginOnError
                     get() = { _, _ ->
                         count++
                         if (retryCount == -1 || count <= retryCount) {
@@ -73,7 +75,7 @@ private class RetryPlugin<TData : Any> : Plugin<TData>() {
                             count = 0
                         }
                     }
-                override val onCancel: (() -> Unit)
+                override val onCancel: PluginOnCancel
                     get() = {
                         cancel()
                         count = 0

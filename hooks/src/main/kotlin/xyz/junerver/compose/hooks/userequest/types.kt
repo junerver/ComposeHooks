@@ -48,26 +48,23 @@ internal sealed interface Copyable<Self> {
     operator fun plus(that: Self?) = this.copy(that)
 }
 
-/**
- * 可覆盖对象列表的覆盖实现
- */
+/** 可覆盖对象列表的覆盖实现 */
 internal fun <T : Copyable<T>> List<T>.cover(): T? {
     return this.takeIf { it.isNotEmpty() }?.reduce { acc, fetchState -> acc + fetchState }
 }
 
-/**
- * map中如果有这个key就取值，无论结果是否为null；
- * 没有这个key则取旧值
- */
+/** map中如果有这个key就取值，无论结果是否为null； 没有这个key则取旧值 */
 @Suppress("UNCHECKED_CAST")
-internal fun <T> Map<String, Any?>.getOrElse(key: String, default: T?) = if (this.containsKey(key)) {
-    this[key] as? T
-} else {
-    default
-}
+internal fun <T> Map<String, Any?>.getOrElse(key: String, default: T?) =
+    if (this.containsKey(key)) {
+        this[key] as? T
+    } else {
+        default
+    }
 
 /**
  * 使用密封类或者密封接口，可以避免外部继承实现，但是不影响使用接口声明。
+ *
  * @param loading 当前请求是否正在loading
  * @param params 发起请求使用的参数
  * @param data 请求的响应值
@@ -79,18 +76,13 @@ sealed class IFetchStata<out TData>(
     open val data: TData? = null,
     open val error: Throwable? = null,
 ) {
-    /**
-     * [copyMap] 当前对象用于覆盖时的等价map
-     */
+    /** [copyMap] 当前对象用于覆盖时的等价map */
     var copyMap: Map<String, Any?> = emptyMap()
     abstract fun asNotNullMap(): Map<String, Any?>
     abstract fun copy(needCopyMap: Map<String, Any?>?): IFetchStata<TData>
 }
 
 //region [Fetch] 类持有数据的内部状态
-/**
- * [Fetch] 类持有数据的内部状态
- */
 data class FetchState<TData>(
     override var loading: Boolean? = null,
     override var params: TParams? = null,
@@ -111,11 +103,7 @@ data class FetchState<TData>(
         }
     }
 
-    /**
-     * 只产生不是空的map
-     */
     override fun asNotNullMap(): Map<String, Any?> {
-        // 如果手动设置了map则采用手动设置的，否则用默认的
         if (copyMap.entries.isNotEmpty()) return copyMap
         return buildMap {
             if (loading.isNotNull) this[Keys.loading] = loading
@@ -125,9 +113,6 @@ data class FetchState<TData>(
         }
     }
 
-    /**
-     * 完整的map
-     */
     fun asMap() = mapOf(
         Keys.loading to loading,
         Keys.params to params,
@@ -166,13 +151,6 @@ data class FetchState<TData>(
 //endregion
 
 //region 插件化后所有插件的[onBefore]函数执行的返回值
-/**
- * 插件生命周期[PluginLifecycle.onBefore]的返回值类型，
- * [Fetch._runAsync]会在请求发生前回调所有插件的[PluginLifecycle.onBefore]函数，
- * 他们可以彼此覆盖。
- * [stopNow]可以阻止请求发出，不改变状态；
- * [returnNow]可以将返回的状态作为[Fetch.fetchState]的状态改变ui；
- */
 data class OnBeforeReturn<TData>(
     val stopNow: Boolean? = null,
     val returnNow: Boolean? = null,
@@ -202,7 +180,6 @@ data class OnBeforeReturn<TData>(
     }
 
     override fun asNotNullMap(): Map<String, Any?> {
-        // 如果手动设置了map则采用手动设置的，否则用默认的
         if (copyMap.entries.isNotEmpty()) return copyMap
         return buildMap {
             if (stopNow.isNotNull) this[Keys.stopNow] = stopNow
@@ -250,12 +227,6 @@ data class OnBeforeReturn<TData>(
 //endregion
 
 //region 插件化后所有插件的[OnRequest]函数执行的返回值
-/**
- * 插件生命周期[PluginLifecycle.onRequest]的返回值类型，
- * [Fetch._runAsync]会在调用[Fetch.requestFn]请求发生前回调所有插件的[PluginLifecycle.onRequest]函数。
- * 插件可以通过[Fetch.requestFn]拿到原始的请求函数，通过返回值[requestDeferred]来`async`闭包的`await`，
- * 来改变实际请求。
- */
 data class OnRequestReturn<TData>(val requestDeferred: Deferred<TData>? = null) :
     Copyable<OnRequestReturn<TData>> {
     override fun copy(that: OnRequestReturn<TData>?): OnRequestReturn<TData> {
@@ -267,39 +238,26 @@ data class OnRequestReturn<TData>(val requestDeferred: Deferred<TData>? = null) 
 }
 //endregion
 
-/**
- * 因为[Fetch]的相关操作要同样暴露给插件实例，所以创建一个接口，
- * 这样避免插件实例命名出错，对应调用更直白。
- */
+/** 因为[Fetch]的相关操作要同样暴露给插件实例，所以创建一个接口， 这样避免插件实例命名出错，对应调用更直白。 */
 internal sealed interface IFetch<TData> {
-
-    /**
-     * 异步请求函数，调用者需要自己提供作用域，需要注意，取消也需要自己处理
-     */
     suspend fun _runAsync(params: TParams) {}
-
-    /**
-     * 发起请求
-     */
     fun _run(params: TParams) {}
-
-    /**
-     * 取消请求
-     */
     fun cancel() {}
-
-    /**
-     * 刷新
-     */
     fun refresh() {}
-
     suspend fun refreshAsync() {}
-
-    /**
-     * [mutate]直接修改
-     */
     fun mutate(mutateFn: (TData?) -> TData) {}
 }
+
+/**
+ * 插件声明周期回调函数的类型定义
+ */
+typealias PluginOnBefore<TData> = (TParams) -> OnBeforeReturn<TData>?
+typealias PluginOnRequest<TData> = (requestFn: SuspendNormalFunction<TData>, params: TParams) -> OnRequestReturn<TData>?
+typealias PluginOnSuccess<TData> = (data: TData, params: TParams) -> Unit
+typealias PluginOnError = (e: Throwable, params: TParams) -> Unit
+typealias PluginOnFinally<TData> = (params: TParams, data: TData?, e: Throwable?) -> Unit
+typealias PluginOnCancel = () -> Unit
+typealias PluginOnMutate<TData> = (data: TData) -> Unit
 
 /**
  * 插件的生命周期对象：这个对象是插件[Plugin.invoke]方法执行后的返回值，
@@ -307,21 +265,13 @@ internal sealed interface IFetch<TData> {
  */
 abstract class PluginLifecycle<TData> {
     // 插件 onBefore 之后会返回fetch的状态，并且扩展了两个新的字段
-    open val onBefore: ((TParams) -> OnBeforeReturn<TData>?)? = null
-
-    /**
-     * 传递原本用来请求的函数、参数，返回新的函数
-     * 例如原来我们要请求的是 ::run，传递给他参数，现在我们将这两个参数传递给
-     * [OnRequest]，如果他返回结果（一个新的函数），我们则调用这个函数，传递给他参数
-     * 就像 debounce，原本我们传递的是 ::run ，现在我们传递参数的是 debounce
-     */
-    open val onRequest: ((requestFn: SuspendNormalFunction<TData>, params: TParams) -> OnRequestReturn<TData>?)? =
-        null
-    open val onSuccess: ((data: TData, params: TParams) -> Unit)? = null
-    open val onError: ((e: Throwable, params: TParams) -> Unit)? = null
-    open val onFinally: ((params: TParams, data: TData?, e: Throwable?) -> Unit)? = null
-    open val onCancel: (() -> Unit)? = null
-    open val onMutate: ((data: TData) -> Unit)? = null
+    open val onBefore: PluginOnBefore<TData>? = null
+    open val onRequest: PluginOnRequest<TData>? = null
+    open val onSuccess: PluginOnSuccess<TData>? = null
+    open val onError: PluginOnError? = null
+    open val onFinally: PluginOnFinally<TData>? = null
+    open val onCancel: PluginOnCancel? = null
+    open val onMutate: PluginOnMutate<TData>? = null
 }
 
 /**
@@ -343,17 +293,9 @@ abstract class Plugin<TData : Any> : IFetch<TData>, Serializable, CoroutineScope
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + pluginJob
 
-    /**
-     * 因为我们无法像js那样直接定义一个函数类型的同时声明一个函数属性，而且因为序列化的考虑，
-     * 我们必须用一个实例对象来存储插件函数、初始化函数。故而[Fetch]的实例我们必须保存在插件对象中。
-     * 对外暴露的副作用也不能再直接通过[Fetch]实例调用，必须要再通过插件报装一手。
-     */
     lateinit var fetchInstance: Fetch<TData>
     lateinit var options: RequestOptions<TData>
 
-    /**
-     * 插件在被[invoke]执行调用时初始化[Fetch]与[RequestOptions]
-     */
     fun initFetch(fetchInstance: Fetch<TData>, options: RequestOptions<TData>) {
         if (!this::fetchInstance.isInitialized) {
             this.fetchInstance = fetchInstance
@@ -363,19 +305,10 @@ abstract class Plugin<TData : Any> : IFetch<TData>, Serializable, CoroutineScope
         }
     }
 
-    /**
-     * 必须实现的[invoke]属性，该属性执行后返回[PluginLifecycle]，
-     * 它被调用的时机是实例化[Fetch]时，调用后存入[Fetch.pluginImpls]。
-     * 调用时应该执行[initFetch]拿到相应实例，返回值是[PluginLifecycle]
-     */
     abstract val invoke: GenPluginLifecycleFn<TData>
 
-    // 用来初始化[FetchState]，目前看主要是自动运行时设置loading状态为true
     open val onInit: ((RequestOptions<TData>) -> FetchState<TData>)? = null
 
-    /**
-     * 插件默认有一个作用域，可通过
-     */
     override fun cancel() {
         pluginJob.cancelChildren()
     }
@@ -392,9 +325,7 @@ internal class EmptyPlugin<TData : Any> : Plugin<TData>() {
         }
 }
 
-/**
- * 返回一个空插件，避免直接使用[EmptyPlugin]实例
- */
+/** 返回一个空插件，避免直接使用[EmptyPlugin]实例 */
 @Composable
 fun <T : Any> useEmptyPlugin(): Plugin<T> {
     val emptyPluginRef = useCreation {
@@ -403,9 +334,7 @@ fun <T : Any> useEmptyPlugin(): Plugin<T> {
     return emptyPluginRef.current
 }
 
-/**
- * 用于判断处理动作
- */
+/** 用于判断处理动作 */
 internal sealed interface PluginLifecycleMethods
 internal data object OnBefore : PluginLifecycleMethods
 internal data object OnRequest : PluginLifecycleMethods
