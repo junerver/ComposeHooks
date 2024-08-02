@@ -1,5 +1,6 @@
 package xyz.junerver.compose.hooks.userequest
 
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -16,6 +17,7 @@ import xyz.junerver.compose.hooks.CACHE_KEY_PREFIX
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 import xyz.junerver.compose.hooks.utils.currentTime
 import xyz.junerver.kotlin.Tuple2
+import xyz.junerver.kotlin.asBoolean
 import xyz.junerver.kotlin.tuple
 
 /*
@@ -32,7 +34,7 @@ internal object FetchCacheManager : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.IO + SupervisorJob()
 
-    private val cache: MutableMap<String, DataCache> = mutableMapOf()
+    private val cache: MutableMap<String, DataCache> = ConcurrentHashMap()
 
     private val _flow = flow<Nothing> {
         delay(1.seconds)
@@ -48,20 +50,21 @@ internal object FetchCacheManager : CoroutineScope {
         }
     }
 
-    /**
-     * 缓存是否有效
-     */
+    /** 缓存是否有效 */
     private fun isCacheValid(key: String): Boolean {
         if (!cache.containsKey("${CACHE_KEY_PREFIX}$key")) return false // 无缓存
         val cacheData = cache["${CACHE_KEY_PREFIX}$key"]!!
         return currentTime < cacheData.second // 还新鲜
     }
 
-    /**
-     * 存入缓存，key - <数据，缓存过期时间>
-     */
+    /** 存入缓存，key - <数据，缓存过期时间> */
     fun <T> saveCache(key: String, cacheTime: Duration, cachedData: CachedData<T>) {
-        cache["${CACHE_KEY_PREFIX}$key"] = tuple(cachedData, currentTime + cacheTime)
+        if (cacheTime.asBoolean() || cacheTime == (-1).seconds) {
+            cache["${CACHE_KEY_PREFIX}$key"] = tuple(
+                cachedData,
+                currentTime + if (cacheTime == (-1).seconds) Long.MAX_VALUE.seconds else cacheTime
+            )
+        }
     }
 
     @Suppress("UNCHECKED_CAST")

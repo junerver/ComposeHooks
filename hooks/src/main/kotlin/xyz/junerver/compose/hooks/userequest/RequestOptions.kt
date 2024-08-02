@@ -98,7 +98,7 @@ data class RequestOptions<TData> internal constructor(
     var cacheKey: String = "",
     /**
      * 设置缓存数据回收时间。默认缓存数据 5 分钟后回收
-     * 如果设置为 -1, 则表示缓存数据永不过期
+     * 如果设置为 `(-1).seconds`, 则表示缓存数据永不过期
      */
     var cacheTime: Duration = 5.minutes,
     /**
