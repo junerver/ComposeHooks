@@ -248,9 +248,7 @@ internal sealed interface IFetch<TData> {
     fun mutate(mutateFn: (TData?) -> TData) {}
 }
 
-/**
- * 插件声明周期回调函数的类型定义
- */
+/** 插件声明周期回调函数的类型定义 */
 typealias PluginOnBefore<TData> = (TParams) -> OnBeforeReturn<TData>?
 typealias PluginOnRequest<TData> = (requestFn: SuspendNormalFunction<TData>, params: TParams) -> OnRequestReturn<TData>?
 typealias PluginOnSuccess<TData> = (data: TData, params: TParams) -> Unit
@@ -335,11 +333,6 @@ fun <T : Any> useEmptyPlugin(): Plugin<T> {
 }
 
 /** 用于判断处理动作 */
-internal sealed interface PluginLifecycleMethods
-internal data object OnBefore : PluginLifecycleMethods
-internal data object OnRequest : PluginLifecycleMethods
-internal data object OnSuccess : PluginLifecycleMethods
-internal data object OnError : PluginLifecycleMethods
-internal data object OnFinally : PluginLifecycleMethods
-internal data object OnCancel : PluginLifecycleMethods
-internal data object OnMutate : PluginLifecycleMethods
+enum class Methods {
+    OnBefore, OnRequest, OnSuccess, OnError, OnFinally, OnCancel, OnMutate,
+}

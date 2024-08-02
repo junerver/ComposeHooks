@@ -123,7 +123,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
             returnNow = false
         ).copy(
             // 如果列表不为空，则说明onBefore有返回，返回的对象必须实现copy函数，来达成用后一个的值覆盖前一个
-            (runPluginHandler(OnBefore, latestParams) as List<OnBeforeReturn<TData>>).cover()
+            (runPluginHandler(Methods.OnBefore, latestParams) as List<OnBeforeReturn<TData>>).cover()
                 ?.asNotNullMap()
         )
         val (stopNow, returnNow) = onBeforeReturn
@@ -147,7 +147,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
             var (serviceDeferred) = OnRequestReturn<TData>().copy(
                 (
                     runPluginHandler(
-                        OnRequest,
+                        Methods.OnRequest,
                         requestFn,
                         latestParams
                     ) as List<OnRequestReturn<TData>>
@@ -163,11 +163,11 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
                 Keys.error to null
             )
             options.onSuccess.invoke(result, latestParams)
-            runPluginHandler(OnSuccess, result, latestParams)
+            runPluginHandler(Methods.OnSuccess, result, latestParams)
             // 回调finally
             options.onFinally.invoke(latestParams, result, null)
             if (currentCount == count) {
-                runPluginHandler(OnFinally, latestParams, result, null)
+                runPluginHandler(Methods.OnFinally, latestParams, result, null)
             }
         } catch (error: Throwable) {
             if (currentCount != count) return@coroutineScope
@@ -176,10 +176,10 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
                 Keys.error to error
             )
             options.onError.invoke(error, latestParams)
-            runPluginHandler(OnError, error, latestParams)
+            runPluginHandler(Methods.OnError, error, latestParams)
             options.onFinally.invoke(latestParams, null, error)
             if (currentCount == count) {
-                runPluginHandler(OnFinally, latestParams, null, error)
+                runPluginHandler(Methods.OnFinally, latestParams, null, error)
             }
         }
     }
@@ -200,7 +200,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
         this.count += 1
         this.setState(Keys.loading to false)
         cancelRequest()
-        runPluginHandler(OnCancel)
+        runPluginHandler(Methods.OnCancel)
     }
 
     /**
@@ -222,19 +222,19 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
      */
     override fun mutate(mutateFn: (TData?) -> TData) {
         val targetData = mutateFn(fetchState.data)
-        runPluginHandler(OnMutate, targetData)
+        runPluginHandler(Methods.OnMutate, targetData)
         setState(Keys.data to targetData)
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun runPluginHandler(method: PluginLifecycleMethods, vararg rest: Any?): List<*> {
+    private fun runPluginHandler(method: Methods, vararg rest: Any?): List<*> {
         return pluginImpls.mapNotNull {
             when (method) {
-                OnBefore -> {
+                Methods.OnBefore -> {
                     it.onBefore?.invoke(rest[0] as TParams)
                 }
 
-                OnRequest -> {
+                Methods.OnRequest -> {
                     it.onRequest?.invoke(
                         rest[0] as SuspendNormalFunction<TData>,
                         rest[1] as TParams
@@ -243,7 +243,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
                 /**
                  * 参数1：请求的返回值，参数2：请求使用的参数
                  */
-                OnSuccess -> {
+                Methods.OnSuccess -> {
                     it.onSuccess?.invoke(
                         rest[0] as TData,
                         rest[1] as TParams
@@ -252,7 +252,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
                 /**
                  * 参数1：错误，参数2：请求使用的参数
                  */
-                OnError -> {
+                Methods.OnError -> {
                     it.onError?.invoke(
                         rest[0] as Throwable,
                         rest[1] as TParams
@@ -261,7 +261,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
                 /**
                  * 参数1：请求使用的参数，参数2：请求的返回值，参数3：错误
                  */
-                OnFinally -> {
+                Methods.OnFinally -> {
                     it.onFinally?.invoke(
                         rest[0] as TParams,
                         rest[1] as TData?,
@@ -269,13 +269,13 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = defaultOpt
                     )
                 }
 
-                OnCancel -> {
+                Methods.OnCancel -> {
                     it.onCancel?.invoke()
                 }
                 /**
                  * 参数1：要修改的目标数据
                  */
-                OnMutate -> {
+                Methods.OnMutate -> {
                     it.onMutate?.invoke(rest[0] as TData)
                 }
             }
