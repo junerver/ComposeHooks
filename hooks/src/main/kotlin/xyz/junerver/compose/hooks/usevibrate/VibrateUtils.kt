@@ -15,7 +15,7 @@ import androidx.core.content.getSystemService
  * 触发短震动
  */
 fun Context.vibrateShort() {
-    vibrate(50)
+    vibrate(100)
 }
 
 /**
