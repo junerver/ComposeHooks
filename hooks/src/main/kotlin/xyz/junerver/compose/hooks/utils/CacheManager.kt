@@ -1,8 +1,15 @@
 package xyz.junerver.compose.hooks.utils
 
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import xyz.junerver.compose.hooks.cacheKey
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
@@ -22,9 +29,22 @@ import xyz.junerver.kotlin.tuple
 /** first: cacheData, seconds: expiration */
 private typealias DataCache = Tuple2<CachedData<*>, Instant>
 
-internal object CacheManager {
+internal object CacheManager : CoroutineScope {
+
+    override val coroutineContext: CoroutineContext
+        get() = Dispatchers.Default + SupervisorJob()
 
     private val cache: MutableMap<String, DataCache> = ConcurrentHashMap()
+
+    init {
+        launch {
+            delay(1.seconds)
+            while (isActive) {
+                cache.entries.removeIf { it.value.second <= currentTime }
+                delay(30.seconds)
+            }
+        }
+    }
 
     //region for useCachePlugin
     /**
