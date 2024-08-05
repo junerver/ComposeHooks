@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlin.coroutines.coroutineContext
+import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -23,8 +24,8 @@ import xyz.junerver.compose.hooks.asSuspendNoopFn
 import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.userequest.RequestOptions
-import xyz.junerver.compose.hooks.userequest.clearCache
 import xyz.junerver.compose.hooks.userequest.useRequest
+import xyz.junerver.compose.hooks.userequest.utils.clearCache
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.composehooks.utils.NanoId
 import xyz.junerver.kotlin.asBoolean
@@ -43,12 +44,12 @@ data class MockArticle(
     val data: String,
 ) : Parcelable {
     override fun toString(): String {
-        return "last request time=$time\n\ndata=$data"
+        return "last request time=$time\ndata=$data"
     }
 }
 
 suspend fun mockRequestArticle(): MockArticle {
-    delay(1000)
+    delay(1000 + Random.nextLong(500, 1000))
     if (coroutineContext.isActive) {
         return MockArticle(Clock.System.now().toEpochMilliseconds(), NanoId.generate(200))
     } else {
@@ -99,7 +100,7 @@ private fun SWR(useCache: Boolean = false) {
             if (useCache) cacheKey = "test-swr-key"
         }
     )
-    Column(modifier = Modifier.height(220.dp)) {
+    Column(modifier = Modifier.height(210.dp)) {
         Text(text = "cache: $useCache", color = Color.Red)
         Text(text = "Background loading: $loading")
         if (data.asBoolean()) {
@@ -123,6 +124,8 @@ fun TestStaleTime() {
             }
         }
         if (isVisible) {
+            // 相同 cacheKey 的数据全局同步
+            StaleTime(cacheKey)
             StaleTime(cacheKey)
         }
     }
@@ -137,7 +140,7 @@ private fun StaleTime(cacheKey: String) {
             staleTime = 5.seconds
         }
     )
-    Column(modifier = Modifier.height(220.dp)) {
+    Column(modifier = Modifier.height(210.dp)) {
         Text(text = "statleTime: 5s", color = Color.Red)
         Text(text = "Background loading: $loading")
         if (data.asBoolean()) {

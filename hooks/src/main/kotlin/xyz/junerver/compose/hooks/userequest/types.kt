@@ -289,7 +289,7 @@ abstract class Plugin<TData : Any> : IFetch<TData>, Serializable, CoroutineScope
 
     private var pluginJob: Job = Job()
     override val coroutineContext: CoroutineContext
-        get() = Dispatchers.Main + pluginJob
+        get() = Dispatchers.IO + pluginJob
 
     lateinit var fetchInstance: Fetch<TData>
     lateinit var options: RequestOptions<TData>

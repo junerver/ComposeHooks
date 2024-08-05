@@ -5,10 +5,10 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import kotlin.reflect.KClass
-import xyz.junerver.compose.hooks.FORM_KEY_PREFIX
 import xyz.junerver.compose.hooks.Ref
 import xyz.junerver.compose.hooks._useState
 import xyz.junerver.compose.hooks.createContext
+import xyz.junerver.compose.hooks.genFormFieldKey
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
@@ -77,7 +77,7 @@ class FormScope private constructor(
         val currentFormRef: FormRef = formRefRef.current
         @Suppress("UNCHECKED_CAST")
         currentFormRef.formFieldMap[name] = fieldState as MutableState<Any?>
-        val publish = useEventPublish<T?>("${FORM_KEY_PREFIX}${formInstance}_$name")
+        val publish = useEventPublish<T?>(name.genFormFieldKey(formInstance))
         useEffect(fieldState.value) {
             currentFormRef.formOperationCount.longValue += 1
             @Suppress("UNCHECKED_CAST")

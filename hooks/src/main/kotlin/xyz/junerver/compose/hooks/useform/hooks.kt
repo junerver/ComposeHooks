@@ -3,8 +3,8 @@ package xyz.junerver.compose.hooks.useform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
-import xyz.junerver.compose.hooks.FORM_KEY_PREFIX
 import xyz.junerver.compose.hooks._useState
+import xyz.junerver.compose.hooks.genFormFieldKey
 import xyz.junerver.compose.hooks.useContext
 import xyz.junerver.compose.hooks.useEventSubscribe
 
@@ -43,7 +43,7 @@ fun useForm(): FormInstance = Form.useForm()
 @Composable
 fun <T> Form.useWatch(fieldName: String, formInstance: FormInstance): State<T?> {
     val state = _useState<T?>(null)
-    useEventSubscribe<T?>("${FORM_KEY_PREFIX}${formInstance}_$fieldName") { value ->
+    useEventSubscribe<T?>(fieldName.genFormFieldKey(formInstance)) { value ->
         state.value = value
     }
     return state

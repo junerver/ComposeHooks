@@ -1,7 +1,8 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
-import java.util.concurrent.ConcurrentHashMap
+import xyz.junerver.compose.hooks.utils.CacheManager
+import xyz.junerver.compose.hooks.utils.EventManager
 import xyz.junerver.kotlin.Tuple3
 import xyz.junerver.kotlin.plus
 
@@ -35,7 +36,7 @@ private typealias SaveToPersistent<T> = (T?) -> Unit
 private typealias PersistentHookReturn<T> = Tuple3<T, SaveToPersistent<T>, PersistentClear>
 
 /**
- * By default, [memorySaveMap] is used for memory persistence.
+ * By default, [CacheManager.cache] is used for memory persistence.
  * [usePersistent] is a lightweight encapsulation, you need to provide your
  * own persistence solution globally through `PersistentContext.Provider`;
  */
@@ -84,8 +85,6 @@ fun <T> usePersistent(
     )
 }
 
-private val memorySaveMap = ConcurrentHashMap<String, Any?>()
-
 /** Callback function when performing persistence operation */
 private typealias SavePersistentCallback = (Unit) -> Unit
 
@@ -94,21 +93,21 @@ private typealias SavePersistentCallback = (Unit) -> Unit
  * state update
  */
 fun notifyDefaultPersistentObserver(key: String) {
-    EventManager.post("${PERSISTENT_KEY_PREFIX}$key", Unit)
+    EventManager.post(key.persistentKey, Unit)
 }
 
 private fun memorySavePersistent(key: String, value: Any?) {
-    memorySaveMap["${PERSISTENT_KEY_PREFIX}$key"] = value
+    CacheManager.saveCache(key.persistentKey, value)
     notifyDefaultPersistentObserver(key)
 }
 
 private fun memoryGetPersistent(key: String, defaultValue: Any): Any {
-    return memorySaveMap["${PERSISTENT_KEY_PREFIX}$key"] ?: defaultValue
+    return CacheManager.getCache(key.persistentKey, defaultValue)
 }
 
 private fun memoryClearPersistent(key: String) {
-    memorySaveMap.remove("${PERSISTENT_KEY_PREFIX}$key")
+    CacheManager.clearCache(key.persistentKey)
 }
 
 private fun memoryAddObserver(key: String, observer: SavePersistentCallback): () -> Unit =
-    EventManager.register("${PERSISTENT_KEY_PREFIX}$key", observer)
+    EventManager.register(key.persistentKey, observer)

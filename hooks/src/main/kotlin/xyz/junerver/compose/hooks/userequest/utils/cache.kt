@@ -2,6 +2,9 @@ package xyz.junerver.compose.hooks.userequest.utils
 
 import kotlinx.datetime.Instant
 import xyz.junerver.compose.hooks.TParams
+import xyz.junerver.compose.hooks.cacheKey
+import xyz.junerver.compose.hooks.utils.CacheManager
+import xyz.junerver.compose.hooks.utils.currentTime
 
 /*
   Description:
@@ -12,9 +15,10 @@ import xyz.junerver.compose.hooks.TParams
 */
 data class CachedData<TData>(
     val data: TData,
-    val params: TParams,
-    val time: Instant,
+    val params: TParams = emptyArray(),
 ) {
+    val time: Instant = currentTime
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false
@@ -32,4 +36,8 @@ data class CachedData<TData>(
         result = 31 * result + time.hashCode()
         return result
     }
+}
+
+fun clearCache(vararg keys: String) {
+    CacheManager.clearCache(*keys.map { it.cacheKey }.toTypedArray())
 }

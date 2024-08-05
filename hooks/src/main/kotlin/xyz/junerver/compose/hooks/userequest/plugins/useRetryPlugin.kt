@@ -5,7 +5,6 @@ import androidx.compose.runtime.remember
 import kotlin.math.pow
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.userequest.Fetch
@@ -60,7 +59,7 @@ private class RetryPlugin<TData : Any> : Plugin<TData>() {
                     get() = { _, _ ->
                         count++
                         if (retryCount == -1 || count <= retryCount) {
-                            launch(Dispatchers.IO) {
+                            launch {
                                 delay(
                                     if (retryInterval > 0.milliseconds) {
                                         retryInterval

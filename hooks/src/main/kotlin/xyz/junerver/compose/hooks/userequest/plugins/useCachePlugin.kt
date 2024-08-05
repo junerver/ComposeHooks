@@ -13,7 +13,6 @@ import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUnmount
 import xyz.junerver.compose.hooks.useUpdateEffect
 import xyz.junerver.compose.hooks.userequest.Fetch
-import xyz.junerver.compose.hooks.userequest.FetchCacheManager
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
 import xyz.junerver.compose.hooks.userequest.Keys
 import xyz.junerver.compose.hooks.userequest.OnBeforeReturn
@@ -33,6 +32,7 @@ import xyz.junerver.compose.hooks.userequest.utils.getCachePromise
 import xyz.junerver.compose.hooks.userequest.utils.setCachePromise
 import xyz.junerver.compose.hooks.userequest.utils.subscribe
 import xyz.junerver.compose.hooks.userequest.utils.trigger
+import xyz.junerver.compose.hooks.utils.CacheManager
 import xyz.junerver.compose.hooks.utils.currentTime
 import xyz.junerver.kotlin.asBoolean
 import xyz.junerver.kotlin.isNotNull
@@ -118,8 +118,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                                 cacheKey,
                                 CachedData(
                                     data,
-                                    params,
-                                    currentTime
+                                    params
                                 )
                             )
                             unSubscribeRef.current = subscribe(cacheKey, ::setFetchState)
@@ -149,8 +148,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                                 cacheKey,
                                 CachedData(
                                     it,
-                                    fetchInstance.fetchState.params ?: emptyArray(),
-                                    currentTime
+                                    fetchInstance.fetchState.params ?: emptyArray()
                                 )
                             )
                             unSubscribeRef.current = subscribe(cacheKey, ::setFetchState)
@@ -195,7 +193,7 @@ internal fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
         if (customSetCache.asBoolean()) {
             customSetCache(cachedData)
         } else {
-            FetchCacheManager.saveCache(key, cacheTime, cachedData)
+            CacheManager.saveCache(key, cacheTime, cachedData)
         }
         trigger(
             key,
@@ -211,7 +209,7 @@ internal fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
         return if (customGetCache.asBoolean()) {
             customGetCache(params)
         } else {
-            FetchCacheManager.getCache(key)
+            CacheManager.getCache(key)
         }
     }
 

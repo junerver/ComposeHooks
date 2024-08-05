@@ -5,10 +5,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.reflect.KClass
 import org.jetbrains.annotations.NotNull
+import xyz.junerver.compose.hooks.utils.EventManager
 
 /*
   Description: More convenient communication between components, just like using EventBus
@@ -57,37 +56,6 @@ import org.jetbrains.annotations.NotNull
  * Call the post function at the appropriate time and pass your event
  * object.
  */
-internal object EventManager {
-    private val subscriberMap = ConcurrentHashMap<KClass<*>, CopyOnWriteArrayList<(Any) -> Unit>>()
-    private val aliasSubscriberMap =
-        ConcurrentHashMap<String, CopyOnWriteArrayList<(Any?) -> Unit>>()
-
-    @Suppress("UNCHECKED_CAST")
-    internal fun <T : Any> register(clazz: KClass<*>, subscriber: (T) -> Unit): () -> Unit {
-        subscriberMap.computeIfAbsent(clazz) { CopyOnWriteArrayList() }
-            .add(subscriber as (Any) -> Unit)
-        return {
-            subscriberMap[clazz]?.remove(subscriber)
-        }
-    }
-
-    internal fun <T> post(event: T & Any, clazz: KClass<*>) {
-        subscriberMap[clazz]?.forEach { (it as (T) -> Unit).invoke(event) }
-    }
-
-    @Suppress("UNCHECKED_CAST")
-    internal fun <T> register(alias: String, subscriber: (T) -> Unit): () -> Unit {
-        aliasSubscriberMap.computeIfAbsent(alias) { CopyOnWriteArrayList() }
-            .add(subscriber as (Any?) -> Unit)
-        return {
-            aliasSubscriberMap[alias]?.remove(subscriber)
-        }
-    }
-
-    internal fun <T> post(alias: String, event: T) {
-        aliasSubscriberMap[alias]?.forEach { (it as (T?) -> Unit).invoke(event) }
-    }
-}
 
 /**
  * Delegate post
