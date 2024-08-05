@@ -2,10 +2,8 @@ package xyz.junerver.compose.hooks
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.InternalComposeApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import kotlin.reflect.KClass
 import org.jetbrains.annotations.NotNull
 import xyz.junerver.compose.hooks.utils.EventManager
 
@@ -58,30 +56,6 @@ import xyz.junerver.compose.hooks.utils.EventManager
  */
 
 /**
- * Delegate post
- *
- * @param event
- * @param clazz
- * @param T
- */
-@InternalComposeApi
-fun <T> delegatePost(event: T & Any, clazz: KClass<*>) {
-    EventManager.post(event, clazz)
-}
-
-/**
- * Delegate register
- *
- * @param clazz
- * @param subscriber
- * @param T
- * @receiver
- */
-@InternalComposeApi
-fun <T> delegateRegister(clazz: KClass<*>, subscriber: (T) -> Unit) =
-    EventManager.register(clazz, subscriber)
-
-/**
  * Register a subscriber. Note that this subscription function will be
  * removed from the subscription list after the component is uninstalled.
  *
@@ -89,14 +63,13 @@ fun <T> delegateRegister(clazz: KClass<*>, subscriber: (T) -> Unit) =
  * @param T
  * @receiver
  */
-@OptIn(InternalComposeApi::class)
 @Composable
 inline fun <reified T : Any> useEventSubscribe(noinline subscriber: (T) -> Unit) {
     val latest by useLatestState(subscriber)
     val unSubscribeRef = useRef<(() -> Unit)?>(null)
 
     useMount {
-        unSubscribeRef.current = delegateRegister(T::class, latest)
+        unSubscribeRef.current = EventManager.register(T::class, latest)
     }
 
     useUnmount {
@@ -110,10 +83,9 @@ inline fun <reified T : Any> useEventSubscribe(noinline subscriber: (T) -> Unit)
  * @param T
  * @return
  */
-@OptIn(InternalComposeApi::class)
 @Composable
 inline fun <reified T : Any> useEventPublish(): (@NotNull T) -> Unit = remember {
-    { event: T -> delegatePost(event, T::class) }
+    { event: T -> EventManager.post(event, T::class) }
 }
 
 /**

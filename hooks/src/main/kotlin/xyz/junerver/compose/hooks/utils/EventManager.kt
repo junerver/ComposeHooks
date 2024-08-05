@@ -11,13 +11,14 @@ import kotlin.reflect.KClass
   Email: junerver@gmail.com
   Version: v1.0
 */
-
+@PublishedApi
 internal object EventManager {
     private val subscriberMap = ConcurrentHashMap<KClass<*>, CopyOnWriteArrayList<(Any) -> Unit>>()
     private val aliasSubscriberMap =
         ConcurrentHashMap<String, CopyOnWriteArrayList<(Any?) -> Unit>>()
 
     @Suppress("UNCHECKED_CAST")
+    @PublishedApi
     internal fun <T : Any> register(clazz: KClass<*>, subscriber: (T) -> Unit): () -> Unit {
         subscriberMap.computeIfAbsent(clazz) { CopyOnWriteArrayList() }
             .add(subscriber as (Any) -> Unit)
@@ -27,6 +28,7 @@ internal object EventManager {
     }
 
     @Suppress("UNCHECKED_CAST")
+    @PublishedApi
     internal fun <T> post(event: T & Any, clazz: KClass<*>) {
         subscriberMap[clazz]?.forEach { (it as (T) -> Unit).invoke(event) }
     }
