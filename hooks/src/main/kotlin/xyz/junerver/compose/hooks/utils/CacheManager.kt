@@ -41,7 +41,7 @@ internal object CacheManager {
             runIf(it) {
                 cache[key.cacheKey] = tuple(
                     cachedData,
-                    cachedData.time + if (duration == (-1).seconds) Long.MAX_VALUE.seconds else duration
+                    if (duration == (-1).seconds) Instant.DISTANT_FUTURE else cachedData.time + duration
                 )
             }
         }
@@ -61,7 +61,7 @@ internal object CacheManager {
     fun <T> saveCache(key: String, data: T) {
         cache[key] = tuple(
             CachedData(data),
-            currentTime + Long.MAX_VALUE.seconds
+            Instant.DISTANT_FUTURE
         )
     }
 
