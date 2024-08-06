@@ -58,7 +58,7 @@ fun UseFormExample() {
                     }
                 }
                 Spacer(modifier = Modifier.height(18.dp))
-                FormItem<Int>(name = "age", listOf(Required())) { (state, validate, msgs) ->
+                FormItem<Int>(name = "age", Required()) { (state, validate, msgs) ->
                     var age by state
                     ItemRow(title = "* age") {
                         Row {
@@ -85,7 +85,8 @@ fun UseFormExample() {
                 Spacer(modifier = Modifier.height(18.dp))
                 FormItem<String>(
                     name = "mobile",
-                    listOf(Mobile(), Required())
+                    Mobile(),
+                    Required()
                 ) { (state, validate, msgs) ->
                     var string by state
                     ItemRow(title = "* mobile") {
@@ -99,7 +100,7 @@ fun UseFormExample() {
 
                 FormItem<String>(
                     name = "phone",
-                    listOf(Phone())
+                    Phone()
                 ) { (state, validate, msgs) ->
                     var string by state
                     ItemRow(title = "phone") {
@@ -112,7 +113,8 @@ fun UseFormExample() {
                 }
                 FormItem<String>(
                     name = "email",
-                    listOf(Email(), Required())
+                    Email(),
+                    Required()
                 ) { (state, validate, msgs) ->
                     var string by state
                     ItemRow(title = "* email") {
@@ -125,11 +127,9 @@ fun UseFormExample() {
                 }
                 FormItem<String>(
                     name = "id",
-                    listOf(
-                        object : CustomValidator("id number err", {
-                            !it.asBoolean() || (it is String && Pattern.matches(CHINA_ID_REGEX, it))
-                        }) {}
-                    )
+                    object : CustomValidator("id number err", {
+                        !it.asBoolean() || (it is String && Pattern.matches(CHINA_ID_REGEX, it))
+                    }) {}
                 ) { (state, validate, msgs) ->
                     var string by state
                     ItemRow(title = "id") {

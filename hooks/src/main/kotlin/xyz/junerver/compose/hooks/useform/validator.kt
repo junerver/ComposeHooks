@@ -45,7 +45,7 @@ abstract class CustomValidator(
  * @receiver
  * @return Is pass all validators
  */
-fun List<Validator>.validateField(
+fun Array<Validator>.validateField(
     fieldValue: Any?,
     pass: Validator.() -> Boolean,
     fail: Validator.() -> Boolean,

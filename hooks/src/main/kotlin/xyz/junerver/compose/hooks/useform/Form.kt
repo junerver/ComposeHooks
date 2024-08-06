@@ -56,6 +56,21 @@ class FormScope private constructor(
     private val formInstance: FormInstance,
 ) {
 
+    @Deprecated(
+        "use vararg params",
+        ReplaceWith("FormItem(name = name, validators = validators.toTypedArray(), content = content)")
+    )
+    @Composable
+    fun <T : Any> FormItem(
+        name: String,
+        validators: List<Validator> = emptyList(),
+        content: @Composable (Tuple3<MutableState<T?>, Boolean, List<String>>) -> Unit,
+    ) = FormItem(
+        name = name,
+        validators = validators.toTypedArray(),
+        content = content
+    )
+
     /**
      * FormItem Component
      *
@@ -68,7 +83,7 @@ class FormScope private constructor(
     @Composable
     fun <T : Any> FormItem(
         name: String,
-        validators: List<Validator> = emptyList(),
+        vararg validators: Validator,
         content: @Composable (Tuple3<MutableState<T?>, Boolean, List<String>>) -> Unit,
     ) {
         val fieldState = _useState<T?>(default = null)
@@ -94,7 +109,7 @@ class FormScope private constructor(
 
             val fieldValue: Any? = fieldState.value
             val isValidate =
-                validators.validateField(fieldValue, pass = Validator::pass, fail = Validator::fail)
+                (validators as Array<Validator>).validateField(fieldValue, pass = Validator::pass, fail = Validator::fail)
             set(isValidate)
             currentFormRef.formFieldValidationMap[name] = isValidate
         }
