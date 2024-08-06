@@ -40,7 +40,7 @@ internal class Throttle(
 
     private var calledCount = 0
     private val trailingJobs: MutableList<Job> = arrayListOf()
-    private var latestInvokedTime = Instant.fromEpochMilliseconds(0L)
+    private var latestInvokedTime = Instant.DISTANT_PAST
 
     private fun clearTrailing() {
         if (trailingJobs.isNotEmpty()) {
