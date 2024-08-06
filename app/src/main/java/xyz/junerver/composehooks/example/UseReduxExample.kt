@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -16,6 +16,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.mutate
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.plus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -37,14 +41,13 @@ sealed interface TodoAction
 data class AddTodo(val todo: Todo) : TodoAction
 data class DelTodo(val id: String) : TodoAction
 
-val todoReducer: Reducer<List<Todo>, TodoAction> = { prevState: List<Todo>, action: TodoAction ->
+val todoReducer: Reducer<PersistentList<Todo>, TodoAction> = { prevState: PersistentList<Todo>, action: TodoAction ->
     when (action) {
-        is AddTodo -> buildList {
-            addAll(prevState)
-            add(action.todo)
-        }
+        is AddTodo -> prevState + action.todo
 
-        is DelTodo -> prevState.filter { it.id != action.id }
+        is DelTodo -> prevState.mutate { mutator ->
+            mutator.removeIf { it.id == action.id }
+        }
     }
 }
 val fetchReducer: Reducer<NetFetchResult<*>, NetFetchResult<*>> = { _, action ->
@@ -58,7 +61,7 @@ val fetchReducer: Reducer<NetFetchResult<*>, NetFetchResult<*>> = { _, action ->
  */
 val simpleStore = createStore(arrayOf(logMiddleware())) {
     simpleReducer with SimpleData("default", 18)
-    todoReducer with emptyList()
+    todoReducer with persistentListOf()
 }
 
 val fetchStore = createStore {
@@ -78,19 +81,19 @@ fun UseReduxExample() {
                 .padding(20.dp)
         ) {
             SimpleDataContainer()
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 20.dp, bottom = 20.dp)
             )
             TodosListContainer()
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 20.dp, bottom = 20.dp)
             )
             UseReduxFetch()
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 20.dp, bottom = 20.dp)
@@ -116,7 +119,7 @@ fun TodoList() {
      * The corresponding state object saved in the store can be quickly
      * obtained through the [useSelector] function;
      */
-    val todos = useSelector<List<Todo>>()
+    val todos = useSelector<PersistentList<Todo>>()
     Column {
         todos.map {
             TodoItem(item = it)

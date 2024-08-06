@@ -64,4 +64,5 @@ dependencies {
     implementation(libs.kotlin.reflect)
     api(libs.ktx)
     api(libs.kotlinx.datetime)
+    implementation(libs.kotlinx.collections.immutable)
 }

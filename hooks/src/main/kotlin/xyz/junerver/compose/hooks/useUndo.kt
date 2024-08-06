@@ -1,6 +1,10 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.mutate
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.plus
 import xyz.junerver.kotlin.Tuple7
 import xyz.junerver.kotlin.tuple
 
@@ -13,9 +17,9 @@ import xyz.junerver.kotlin.tuple
 */
 
 data class UndoState<T>(
-    var past: List<T> = emptyList(),
+    var past: PersistentList<T> = persistentListOf(),
     var present: T,
-    var future: List<T> = emptyList(),
+    var future: PersistentList<T> = persistentListOf(),
 )
 
 private sealed interface UndoAction
@@ -30,22 +34,22 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
     return when (action) {
         Undo -> {
             if (past.isEmpty()) return preState
-            val newPresent = past[past.size - 1]
-            val newPast = past.dropLast(1)
             preState.copy(
-                past = newPast,
-                present = newPresent,
-                future = listOf(present) + future
+                past = past.mutate {
+                    it.removeLast()
+                },
+                present = past[past.size - 1],
+                future = persistentListOf(present) + future
             )
         }
         Redo -> {
             if (future.isEmpty()) return preState
-            val newPresent = future[0]
-            val newFuture = future.drop(1)
             preState.copy(
-                past = past + listOf(present),
-                present = newPresent,
-                future = newFuture
+                past = past + present,
+                present = future[0],
+                future = future.mutate {
+                    it.removeFirst()
+                }
             )
         }
 
@@ -53,18 +57,18 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
             val (payload) = action as Set<T>
             if (present === payload) return preState
             preState.copy(
-                past = past + listOf(present),
+                past = past + present,
                 present = payload!!,
-                future = emptyList()
+                future = persistentListOf()
             )
         }
 
         is Reset<*> -> {
             val (payload) = action as Reset<T>
             preState.copy(
-                past = emptyList(),
+                past = persistentListOf(),
                 present = payload!!,
-                future = emptyList()
+                future = persistentListOf()
             )
         }
     }

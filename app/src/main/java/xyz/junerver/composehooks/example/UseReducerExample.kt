@@ -21,6 +21,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.mutate
+import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.plus
 import xyz.junerver.compose.hooks.Middleware
 import xyz.junerver.compose.hooks.Reducer
 import xyz.junerver.compose.hooks.useGetState
@@ -112,7 +116,7 @@ fun TaskItem(task: Task, onChange: (Task) -> Unit, onDelete: (Int) -> Unit) {
 
         if (isEditing) {
             TextField(
-                modifier = Modifier.width(100.dp),
+                modifier = Modifier.width(300.dp),
                 value = text,
                 onValueChange = { newText ->
                     text = newText
@@ -143,7 +147,7 @@ fun AddTask(onAddTask: (String) -> Unit) {
 
     Row {
         TextField(
-            modifier = Modifier.width(100.dp),
+            modifier = Modifier.width(300.dp),
             value = text,
             onValueChange = { newText ->
                 text = newText
@@ -161,12 +165,21 @@ fun AddTask(onAddTask: (String) -> Unit) {
 
 @Composable
 fun TaskApp() {
-    val (tasks, dispatch) = useReducer<List<Task>, TaskAction>(
+    val (tasks, dispatch) = useReducer<PersistentList<Task>, TaskAction>(
         { prevState, action ->
             when (action) {
                 is TaskAction.Added -> prevState + Task(nextId++, action.text, false)
-                is TaskAction.Changed -> prevState.map { if (it.id == action.task.id) action.task else it }
-                is TaskAction.Deleted -> prevState.filter { it.id != action.taskId }
+                is TaskAction.Changed -> prevState.mutate { tasks ->
+                    tasks.indexOfFirst { it.id == action.task.id }
+                        .takeIf { it != -1 }
+                        ?.let { index ->
+                            tasks[index] = action.task
+                        }
+                }
+
+                is TaskAction.Deleted -> prevState.mutate { tasks ->
+                    tasks.removeIf { it.id == action.taskId }
+                }
             }
         },
         initialTasks,
@@ -190,12 +203,16 @@ fun TaskApp() {
     Column {
         Text(text = "Day off in Kyoto", style = MaterialTheme.typography.titleLarge)
         AddTask(onAddTask = ::handleAddTask)
-        TaskList(tasks = tasks, onChangeTask = ::handleChangeTask, onDeleteTask = ::handleDeleteTask)
+        TaskList(
+            tasks = tasks,
+            onChangeTask = ::handleChangeTask,
+            onDeleteTask = ::handleDeleteTask
+        )
     }
 }
 
 var nextId = 3
-val initialTasks = listOf(
+val initialTasks = persistentListOf(
     Task(id = 0, text = "Philosopher’s Path", done = true),
     Task(id = 1, text = "Visit the temple", done = false),
     Task(id = 2, text = "Drink matcha", done = false)
