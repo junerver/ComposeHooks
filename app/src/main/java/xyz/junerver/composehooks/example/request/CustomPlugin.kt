@@ -62,7 +62,7 @@ private fun <TData : Any> useRollbackPlugin(ref: MutableRef<() -> Unit>) = remem
         var pervState: FetchState<TData>? = null
 
         fun rollback() {
-            pervState?.let { it1 -> fetchInstance.setState(it1.asMap()) }
+            pervState?.let { fetchInstance.setState(it.asMap()) }
         }
 
         override val invoke: GenPluginLifecycleFn<TData>
