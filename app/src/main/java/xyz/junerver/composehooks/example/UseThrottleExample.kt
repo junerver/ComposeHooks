@@ -3,7 +3,6 @@ package xyz.junerver.composehooks.example
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -61,7 +60,7 @@ fun UseThrottleExample() {
                 /** Manual import：`import xyz.junerver.compose.hooks.invoke` */
                 throttledFn()
             }
-            Divider(
+            HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp)

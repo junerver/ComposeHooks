@@ -16,6 +16,7 @@ allprojects {
     tasks.withType<KotlinCompile> {
         compilerOptions{
             jvmTarget.set(JvmTarget.JVM_1_8)
+            freeCompilerArgs.add("-Xconsistent-data-class-copy-visibility")
         }
     }
 }

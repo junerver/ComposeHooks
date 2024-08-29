@@ -27,12 +27,12 @@ value class Timestamp(val value: Long) : Comparable<Timestamp> {
 
     /** Add two [Timestamp]s together. */
     @Stable
-    inline operator fun plus(other: Timestamp) =
+    operator fun plus(other: Timestamp) =
         Timestamp(value = this.value + other.value)
 
     /** Subtract a Timestamp from another one. */
     @Stable
-    inline operator fun minus(other: Timestamp) =
+    operator fun minus(other: Timestamp) =
         Timestamp(value = this.value - other.value)
 
     @Stable
