@@ -1,7 +1,6 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
-import kotlin.random.Random
 
 /*
   Description:
@@ -14,8 +13,8 @@ import kotlin.random.Random
 @Suppress("UNUSED_VARIABLE")
 @Composable
 fun useUpdate(): () -> Unit {
-    val (state, setState) = useGetState(0.0)
+    val (state, setState, getState) = useGetState(0.0)
     return fun() {
-        setState(Random.nextDouble())
+        setState(getState() + 1)
     }
 }
