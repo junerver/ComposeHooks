@@ -1,9 +1,9 @@
 package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks.TParams
+import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.FetchState
@@ -87,13 +87,13 @@ internal fun <T : Any> useAutoRunPlugin(options: RequestOptions<T>): Plugin<T> {
     /**
      * 这里会因为旋转屏幕重组时再次调用[Fetch.run]函数
      */
-    LaunchedEffect(key1 = ready, block = {
+    useEffect(ready) {
         if (!manual && ready) {
             hasAutoRun.current = true
             autoRunPlugin._run(defaultParams)
         }
-    })
-    LaunchedEffect(*refreshDeps) block@{
+    }
+    useEffect(deps = refreshDeps) block@{
         if (hasAutoRun.current) return@block
         if (!manual) {
             hasAutoRun.current = true

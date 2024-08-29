@@ -2,7 +2,6 @@ package xyz.junerver.compose.hooks
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -90,9 +89,9 @@ fun <S> useThrottle(value: S, options: ThrottleOptions = defaultOption()): S {
     val throttledSet = useThrottleFn(fn = {
         setThrottled(value)
     }, options)
-    LaunchedEffect(key1 = value, block = {
+    useEffect(value) {
         throttledSet()
-    })
+    }
     return throttled
 }
 

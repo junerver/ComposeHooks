@@ -1,7 +1,6 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 
 /*
   Description: Hook that saves the previous state.
@@ -14,7 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 @Composable
 fun <T> usePrevious(present: T): T? {
     val (state, set) = useUndo(initialPresent = present)
-    LaunchedEffect(key1 = present) {
+    useEffect(present) {
         set(present)
     }
     return state.past.lastOrNull()

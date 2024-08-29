@@ -2,7 +2,6 @@ package xyz.junerver.compose.hooks
 
 import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 
 /*
   Description: 获取当前组件是否已经卸载的 Hook
@@ -17,11 +16,11 @@ import androidx.compose.runtime.DisposableEffect
 @Composable
 fun useUnmountedRef(): Ref<Boolean> {
     val unmountedRef = useRef(default = false)
-    DisposableEffect(Unit) {
+    useMount {
         unmountedRef.current = false
-        onDispose {
-            unmountedRef.current = true
-        }
+    }
+    useUnmount {
+        unmountedRef.current = true
     }
     return unmountedRef
 }
