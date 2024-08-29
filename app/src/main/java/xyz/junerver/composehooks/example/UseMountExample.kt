@@ -5,9 +5,15 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useMount
 import xyz.junerver.compose.hooks.useUnmount
+import xyz.junerver.compose.hooks.useUnmountedRef
 import xyz.junerver.compose.hooks.useUpdate
 import xyz.junerver.composehooks.ui.component.TButton
 
@@ -40,11 +46,22 @@ fun UseMountExample() {
 @Composable
 fun UnmountableChild(text: String) {
     val ctx = LocalContext.current
+    val unmountedRef = useUnmountedRef()
     useMount {
         ctx.toast("on mount")
+        launch(Dispatchers.Main + SupervisorJob()) {
+            delay(4.seconds)
+            println("do something after unmount")
+            if (!unmountedRef.current) {
+                ctx.toast("on mount delay")
+            } else {
+                println("component is unmounted!")
+            }
+        }
     }
     useUnmount {
         ctx.toast(" on unmount")
     }
+
     Text(text = text)
 }
