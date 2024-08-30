@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate
@@ -25,15 +24,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.Reducer
 import xyz.junerver.compose.hooks.useGetState
+import xyz.junerver.compose.hooks.useMount
+import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useredux.createStore
 import xyz.junerver.compose.hooks.useredux.useDispatch
 import xyz.junerver.compose.hooks.useredux.useDispatchAsync
 import xyz.junerver.compose.hooks.useredux.useSelector
 import xyz.junerver.composehooks.MainActivity
 import xyz.junerver.composehooks.net.NetApi
-import xyz.junerver.composehooks.net.bean.UserInfo
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.composehooks.utils.NanoId
+import xyz.junerver.kotlin.Tuple2
+import xyz.junerver.kotlin.tuple
 
 data class Todo(val name: String, val id: String)
 
@@ -41,15 +43,16 @@ sealed interface TodoAction
 data class AddTodo(val todo: Todo) : TodoAction
 data class DelTodo(val id: String) : TodoAction
 
-val todoReducer: Reducer<PersistentList<Todo>, TodoAction> = { prevState: PersistentList<Todo>, action: TodoAction ->
-    when (action) {
-        is AddTodo -> prevState + action.todo
+val todoReducer: Reducer<PersistentList<Todo>, TodoAction> =
+    { prevState: PersistentList<Todo>, action: TodoAction ->
+        when (action) {
+            is AddTodo -> prevState + action.todo
 
-        is DelTodo -> prevState.mutate { mutator ->
-            mutator.removeIf { it.id == action.id }
+            is DelTodo -> prevState.mutate { mutator ->
+                mutator.removeIf { it.id == action.id }
+            }
         }
     }
-}
 val fetchReducer: Reducer<NetFetchResult<*>, NetFetchResult<*>> = { _, action ->
     action
 }
@@ -62,14 +65,6 @@ val fetchReducer: Reducer<NetFetchResult<*>, NetFetchResult<*>> = { _, action ->
 val simpleStore = createStore(arrayOf(logMiddleware())) {
     simpleReducer with SimpleData("default", 18)
     todoReducer with persistentListOf()
-}
-
-val fetchStore = createStore {
-    arrayOf("fetch1", "fetch2").forEach {
-        named(it) {
-            fetchReducer with NetFetchResult.Idle
-        }
-    }
 }
 
 @Composable
@@ -237,43 +232,35 @@ sealed interface NetFetchResult<out T> {
 
 @Composable
 fun UseReduxFetch() {
-    val fetchResult: NetFetchResult<String> = useSelector("fetch1")
-    val dispatchFetch = useFetch<String>("fetch1")
+    val (fetchResult, fetch) = useFetchError()
     Column {
         Text(text = "delay 2 seconds, throw error\nresult: $fetchResult")
         TButton(text = "fetch") {
-            dispatchFetch {
-                delay(2.seconds)
-                error("fetch error")
-            }
+            fetch()
         }
     }
 }
 
 @Composable
 fun UseReduxFetch2() {
-    val fetchResult: NetFetchResult<UserInfo> = useSelector("fetch2")
-    val dispatchFetch = useFetch<UserInfo>("fetch2")
+    val (fetchResult, fetch) = useFetchUserInfo()
     Column {
         TButton(text = "fetch2") {
-            dispatchFetch {
-                if (Random.nextDouble() > 0.5) {
-                    NetApi.SERVICE.userInfo("junerver")
-                } else {
-                    error("custom err!")
-                }
-            }
+            fetch()
         }
         when (fetchResult) {
             is NetFetchResult.Error -> {
                 Text("err: ${fetchResult.msg}")
             }
+
             NetFetchResult.Idle -> {
                 Text(text = "idel")
             }
+
             NetFetchResult.Loading -> {
                 Text(text = "loading")
             }
+
             is NetFetchResult.Success -> {
                 Text(text = "succ: ${fetchResult.data}")
             }
@@ -283,6 +270,13 @@ fun UseReduxFetch2() {
 
 typealias ReduxFetch<T> = (block: suspend CoroutineScope.() -> T) -> Unit
 
+/**
+ * 封住处理请求前loading、请求错误
+ *
+ * @param alias
+ * @param T
+ * @return
+ */
 @Composable
 fun <T> useFetch(alias: String): ReduxFetch<T> {
     val dispatchAsync =
@@ -296,4 +290,70 @@ fun <T> useFetch(alias: String): ReduxFetch<T> {
             }
         }
     }
+}
+
+/**
+ * 更加工程化的示例
+ *
+ * More engineering example
+ */
+
+private const val FetchAlias1 = "fetch1"
+private const val FetchAlias2 = "fetch2"
+
+private val NetworkFetchAliases = arrayOf(
+    FetchAlias1,
+    FetchAlias2
+)
+
+val fetchStore = createStore {
+    NetworkFetchAliases.forEach {
+        named(it) {
+            fetchReducer with NetFetchResult.Idle
+        }
+    }
+}
+
+@Composable
+private fun <T> useFetchAliasFetch(
+    alias: String,
+    autoFetch: Boolean = false,
+    errorRetry:Int = 0,
+    block: suspend CoroutineScope.() -> T,
+): Tuple2<NetFetchResult<T>, () -> Unit> {
+    val fetchResult: NetFetchResult<T> = useSelector(alias)
+    val dispatchFetch = useFetch<T>(alias)
+    val retryCount = useRef(errorRetry)
+    val fetch = {
+        dispatchFetch(block)
+    }
+    // 挂载时自动请求
+    useMount {
+        if (autoFetch) fetch()
+    }
+    // 错误重试
+    when(fetchResult){
+        is NetFetchResult.Error->{
+            if (retryCount.current > 0) {
+                fetch()
+                retryCount.current --
+            }
+        }
+        else->{}
+    }
+    return tuple(
+        first = fetchResult,
+        second = fetch
+    )
+}
+
+@Composable
+private fun useFetchError() = useFetchAliasFetch(alias = FetchAlias1, errorRetry = 3) {
+    delay(2.seconds)
+    error("fetch error")
+}
+
+@Composable
+private fun useFetchUserInfo(user: String = "junerver") = useFetchAliasFetch(alias = FetchAlias2, autoFetch = true) {
+    NetApi.SERVICE.userInfo(user)
 }
