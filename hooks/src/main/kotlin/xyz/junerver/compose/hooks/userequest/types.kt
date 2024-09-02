@@ -333,6 +333,6 @@ fun <T : Any> useEmptyPlugin(): Plugin<T> {
 }
 
 /** 用于判断处理动作 */
-enum class Methods {
+internal enum class Methods {
     OnBefore, OnRequest, OnSuccess, OnError, OnFinally, OnCancel, OnMutate,
 }
