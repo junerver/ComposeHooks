@@ -318,7 +318,7 @@ val fetchStore = createStore {
 private fun <T> useFetchAliasFetch(
     alias: String,
     autoFetch: Boolean = false,
-    errorRetry:Int = 0,
+    errorRetry: Int = 0,
     block: suspend CoroutineScope.() -> T,
 ): Tuple2<NetFetchResult<T>, () -> Unit> {
     val fetchResult: NetFetchResult<T> = useSelector(alias)
@@ -332,14 +332,14 @@ private fun <T> useFetchAliasFetch(
         if (autoFetch) fetch()
     }
     // 错误重试
-    when(fetchResult){
-        is NetFetchResult.Error->{
+    when (fetchResult) {
+        is NetFetchResult.Error -> {
             if (retryCount.current > 0) {
                 fetch()
-                retryCount.current --
+                retryCount.current--
             }
         }
-        else->{}
+        else -> {}
     }
     return tuple(
         first = fetchResult,

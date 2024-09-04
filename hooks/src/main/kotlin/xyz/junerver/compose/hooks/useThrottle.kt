@@ -12,8 +12,8 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import xyz.junerver.compose.hooks.utils.currentTime
 
 /**
  * Throttle options
@@ -52,18 +52,13 @@ internal class Throttle(
 
     override fun invoke(p1: TParams) {
         val (wait, leading, trailing) = options
-        val waitTime = Clock.System.now() - latestInvokedTime
+        val waitTime = currentTime - latestInvokedTime
 
-        fun task(isDelay: Boolean, isTrailing: Boolean = false) {
-            scope.launch(start = if (isTrailing) CoroutineStart.LAZY else CoroutineStart.DEFAULT) {
-                if (isDelay) delay(wait)
+        fun task(isTrailing: Boolean) {
+            scope.launch(start = CoroutineStart.DEFAULT) {
+                if (isTrailing) delay(wait)
                 fn(p1)
-                if (!isTrailing && trailingJobs.isNotEmpty()) {
-                    trailingJobs.last().apply {
-                        start()
-                        join()
-                    }
-                }
+                if (isTrailing) latestInvokedTime = currentTime
             }.also {
                 if (isTrailing) {
                     trailingJobs.add(it)
@@ -71,12 +66,12 @@ internal class Throttle(
             }
         }
         if (waitTime > wait) {
-            task(isDelay = !(calledCount == 0 && leading))
-            latestInvokedTime = Clock.System.now()
+            task(isTrailing = calledCount == 0 && !leading)
+            latestInvokedTime = currentTime
         } else {
             if (trailing) {
                 clearTrailing()
-                task(isDelay = true, isTrailing = true)
+                task(isTrailing = true)
             }
         }
         calledCount++

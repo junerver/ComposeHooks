@@ -5,7 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.datetime.Clock
+import xyz.junerver.compose.hooks.utils.currentTime
 import xyz.junerver.kotlin.Tuple4
 import xyz.junerver.kotlin.tuple
 
@@ -45,13 +45,13 @@ fun useTimestamp(
     autoResume: Boolean = true,
 ): Tuple4<Long, PauseFn, ResumeFn, IsActive> {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
-    var timestamp by useState(default = Clock.System.now())
+    var timestamp by useState(default = currentTime)
     val (resume, pause, isActive) = useInterval(
         optionsOf {
             period = interval
         }
     ) {
-        timestamp = Clock.System.now() + offset
+        timestamp = currentTime + offset
         callback?.invoke(timestamp.toEpochMilliseconds())
     }
     useMount {
@@ -78,13 +78,13 @@ fun useTimestampRef(
     autoResume: Boolean = true,
 ): Tuple4<Ref<Long>, PauseFn, ResumeFn, IsActive> {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
-    val timestampRef = useRef(default = Clock.System.now().toEpochMilliseconds())
+    val timestampRef = useRef(default = currentTime.toEpochMilliseconds())
     val (resume, pause, isActive) = useInterval(
         optionsOf {
             period = interval
         }
     ) {
-        timestampRef.current = (Clock.System.now() + offset).toEpochMilliseconds()
+        timestampRef.current = (currentTime + offset).toEpochMilliseconds()
         callback?.invoke(timestampRef.current)
     }
     useMount {

@@ -3,8 +3,8 @@ package xyz.junerver.compose.hooks
 import androidx.compose.runtime.Composable
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import xyz.junerver.compose.hooks.utils.currentTime
 import xyz.junerver.kotlin.Tuple2
 import xyz.junerver.kotlin.asBoolean
 
@@ -42,7 +42,7 @@ fun useCountdown(options: CountdownOptions): Tuple2<Duration, FormattedRes> {
     val (leftTime, targetDate, interval, onEnd) = options
     val target = useCreation {
         if (leftTime.asBoolean()) {
-            Clock.System.now() + leftTime
+            currentTime + leftTime
         } else {
             targetDate
         }
@@ -81,7 +81,7 @@ fun useCountdown(options: CountdownOptions): Tuple2<Duration, FormattedRes> {
 
 private fun calcLeft(target: Instant?): Duration {
     if (target == null) return 0.seconds
-    val left = target - Clock.System.now()
+    val left = target - currentTime
     return if (left < 0.seconds) 0.seconds else left
 }
 

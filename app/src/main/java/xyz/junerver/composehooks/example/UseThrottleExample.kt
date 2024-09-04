@@ -9,7 +9,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.datetime.Clock
 import xyz.junerver.compose.hooks.invoke
+import xyz.junerver.compose.hooks.optionsOf
+import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useThrottle
 import xyz.junerver.compose.hooks.useThrottleEffect
@@ -33,7 +36,16 @@ fun UseThrottleExample() {
 
     // for useThrottleFn
     val (stateFn, setStateFn) = useGetState(0)
-    val throttledFn = useThrottleFn(fn = { setStateFn(stateFn + 1) })
+    val throttledFn = useThrottleFn(
+        fn = { setStateFn(stateFn + 1) },
+        optionsOf {
+            leading = false
+            trailing = false
+        }
+    )
+    useEffect(stateFn) {
+        println("$stateFn: ${Clock.System.now()}")
+    }
 
     // for throttleEffect
     val (stateEf, setStateEf) = useGetState(0)

@@ -12,7 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import xyz.junerver.compose.hooks.utils.currentTime
 import xyz.junerver.kotlin.Tuple2
 
@@ -42,8 +42,8 @@ internal class Debounce(
 
     private var calledCount = 0
     private val jobs: MutableList<Tuple2<Job, Boolean>> = arrayListOf()
-    private var latestInvokedTime = Clock.System.now()
-    private var latestCalledTime = Clock.System.now()
+    private var latestInvokedTime = Instant.DISTANT_PAST
+    private var latestCalledTime = latestInvokedTime
 
     private fun clear() {
         if (jobs.isNotEmpty()) {
@@ -59,21 +59,18 @@ internal class Debounce(
     override fun invoke(p1: TParams) {
         val (wait, leading, trailing, maxWait) = options
         fun task(guarantee: Boolean, isDelay: Boolean) {
-            if (guarantee) {
-                latestInvokedTime = Clock.System.now()
-            }
             scope.launch {
                 if (isDelay) delay(wait)
                 fn(p1)
-                latestInvokedTime = Clock.System.now()
+                latestInvokedTime = currentTime
             }.also { jobs.add(it to guarantee) }
         }
 
         val waitTime = currentTime - latestInvokedTime
         val interval = currentTime - latestCalledTime
         val isMaxWait = maxWait in 1.milliseconds..waitTime
-        if (isMaxWait || (calledCount == 0 && leading)) {
-            task(guarantee = isMaxWait, isDelay = false)
+        if ((isMaxWait && calledCount != 0) || (calledCount == 0 && leading)) {
+            task(guarantee = true, isDelay = false)
         } else {
             if (calledCount > 0 && interval < wait) {
                 clear()
@@ -85,7 +82,7 @@ internal class Debounce(
             }
         }
         calledCount++
-        latestCalledTime = Clock.System.now()
+        latestCalledTime = currentTime
     }
 }
 

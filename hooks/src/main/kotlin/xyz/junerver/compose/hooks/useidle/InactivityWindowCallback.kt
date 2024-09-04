@@ -16,8 +16,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
+import xyz.junerver.compose.hooks.utils.currentTime
 
 /*
   Description:
@@ -35,19 +35,19 @@ internal class InactivityWindowCallback(
     private val isTimeoutCallback: (Boolean, Instant) -> Unit,
 ) : Window.Callback {
 
-    private var lastActiveTime = Clock.System.now()
+    private var lastActiveTime = currentTime
 
     init {
         scope.launch {
             while (isActive) {
-                isTimeoutCallback(Clock.System.now() - lastActiveTime > timeout, lastActiveTime)
+                isTimeoutCallback(currentTime - lastActiveTime > timeout, lastActiveTime)
                 delay(interval)
             }
         }
     }
 
     private fun updateLastInteractionTime() {
-        lastActiveTime = Clock.System.now()
+        lastActiveTime = currentTime
     }
 
     override fun dispatchTouchEvent(event: MotionEvent?): Boolean {

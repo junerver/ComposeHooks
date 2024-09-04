@@ -10,9 +10,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.utils.currentTime
 import xyz.junerver.kotlin.Tuple2
 
 /*
@@ -27,7 +27,7 @@ import xyz.junerver.kotlin.Tuple2
 fun useIdle(timeout: Duration = 5.seconds): Tuple2<Boolean, Instant> {
     val window = (LocalContext.current as Activity).window
     var idle by useState(default = false)
-    var lastActive by useState(default = Clock.System.now())
+    var lastActive by useState(default = currentTime)
     val originalCallback = remember { window.callback }
     val scope = rememberCoroutineScope()
     DisposableEffect(key1 = Unit) {
