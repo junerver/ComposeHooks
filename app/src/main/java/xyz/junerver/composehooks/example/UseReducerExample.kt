@@ -21,10 +21,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.plus
+import kotlinx.coroutines.delay
 import xyz.junerver.compose.hooks.Middleware
 import xyz.junerver.compose.hooks.Reducer
 import xyz.junerver.compose.hooks.useGetState
@@ -165,7 +167,7 @@ fun AddTask(onAddTask: (String) -> Unit) {
 
 @Composable
 fun TaskApp() {
-    val (tasks, dispatch) = useReducer<PersistentList<Task>, TaskAction>(
+    val (tasks, dispatch, dispatchAsync) = useReducer<PersistentList<Task>, TaskAction>(
         { prevState, action ->
             when (action) {
                 is TaskAction.Added -> prevState + Task(nextId++, action.text, false)
@@ -189,7 +191,10 @@ fun TaskApp() {
     )
 
     fun handleAddTask(text: String) {
-        dispatch(TaskAction.Added(text))
+        dispatchAsync {
+            delay(2.seconds)
+            TaskAction.Added(text)
+        }
     }
 
     fun handleChangeTask(task: Task) {

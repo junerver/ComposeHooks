@@ -3,7 +3,8 @@ package xyz.junerver.compose.hooks
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import xyz.junerver.kotlin.Tuple2
+import xyz.junerver.compose.hooks.useredux.DispatchAsync
+import xyz.junerver.kotlin.Tuple3
 
 /*
   Description:
@@ -30,7 +31,8 @@ fun <S, A> useReducer(
     reducer: Reducer<S, A>,
     initialState: S,
     middlewares: Array<Middleware<S, A>> = emptyArray(),
-): Tuple2<S, Dispatch<A>> {
+): Tuple3<S, Dispatch<A>, DispatchAsync<A>> {
+    val asyncRun = useAsync()
     var state by _useState(initialState)
     val dispatch = { action: A -> state = reducer(state, action) }
     val enhancedDispatch: Dispatch<A> = if (middlewares.isNotEmpty()) {
@@ -44,5 +46,10 @@ fun <S, A> useReducer(
     } else {
         dispatch
     }
-    return Tuple2(state, enhancedDispatch)
+    val enhancedDispatchAsync: DispatchAsync<A> = { block ->
+        asyncRun {
+            enhancedDispatch(block(enhancedDispatch))
+        }
+    }
+    return Tuple3(state, enhancedDispatch, enhancedDispatchAsync)
 }
