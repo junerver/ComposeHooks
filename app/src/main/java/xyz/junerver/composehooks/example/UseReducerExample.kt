@@ -26,11 +26,15 @@ import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.plus
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import xyz.junerver.compose.hooks.Dispatch
 import xyz.junerver.compose.hooks.Middleware
 import xyz.junerver.compose.hooks.Reducer
+import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useReducer
+import xyz.junerver.compose.hooks.useReducerThunk
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -167,7 +171,7 @@ fun AddTask(onAddTask: (String) -> Unit) {
 
 @Composable
 fun TaskApp() {
-    val (tasks, dispatch, dispatchAsync) = useReducer<PersistentList<Task>, TaskAction>(
+    val (tasks, dispatch) = useReducerThunk<PersistentList<Task>, TaskAction>(
         { prevState, action ->
             when (action) {
                 is TaskAction.Added -> prevState + Task(nextId++, action.text, false)
@@ -191,10 +195,11 @@ fun TaskApp() {
     )
 
     fun handleAddTask(text: String) {
-        dispatchAsync {
+        val fn: suspend CoroutineScope.(Dispatch<TaskAction>) -> TaskAction = {
             delay(2.seconds)
             TaskAction.Added(text)
         }
+        dispatch(fn)
     }
 
     fun handleChangeTask(task: Task) {
