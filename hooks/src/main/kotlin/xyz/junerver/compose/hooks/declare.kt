@@ -17,7 +17,6 @@ import xyz.junerver.compose.hooks.usedeviceinfo.ScreenInfo
 import xyz.junerver.compose.hooks.usedeviceinfo.useBatteryInfo
 import xyz.junerver.compose.hooks.usedeviceinfo.useBuildInfo
 import xyz.junerver.compose.hooks.usedeviceinfo.useScreenInfo
-import xyz.junerver.compose.hooks.useredux.DispatchAsync
 import xyz.junerver.compose.hooks.useredux.DispatchCallback
 import xyz.junerver.compose.hooks.useredux.useDispatch
 import xyz.junerver.compose.hooks.useredux.useDispatchAsync

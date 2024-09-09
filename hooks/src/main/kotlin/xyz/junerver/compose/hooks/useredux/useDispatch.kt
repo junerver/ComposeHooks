@@ -1,8 +1,8 @@
 package xyz.junerver.compose.hooks.useredux
 
 import androidx.compose.runtime.Composable
-import kotlinx.coroutines.CoroutineScope
 import xyz.junerver.compose.hooks.Dispatch
+import xyz.junerver.compose.hooks.DispatchAsync
 import xyz.junerver.compose.hooks.useAsync
 import xyz.junerver.compose.hooks.useContext
 
@@ -21,7 +21,6 @@ inline fun <reified A> useDispatch(alias: String? = null): Dispatch<A> =
     }
         ?: useContext(context = ReduxContext).second[A::class] as? Dispatch<A> ?: registerErr("type:<${A::class.qualifiedName}>")
 
-typealias DispatchAsync<A> = (block: suspend CoroutineScope.(Dispatch<A>) -> A) -> Unit
 internal typealias DispatchCallback<A> = (Dispatch<A>) -> Unit
 
 /**

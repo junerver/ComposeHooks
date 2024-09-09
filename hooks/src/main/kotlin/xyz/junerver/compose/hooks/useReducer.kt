@@ -3,7 +3,7 @@ package xyz.junerver.compose.hooks
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import xyz.junerver.compose.hooks.useredux.DispatchAsync
+import kotlinx.coroutines.CoroutineScope
 import xyz.junerver.kotlin.Tuple3
 
 /*
@@ -23,6 +23,8 @@ import xyz.junerver.kotlin.Tuple3
 typealias Reducer<S, A> = (prevState: S, action: A) -> S
 
 typealias Dispatch<A> = (A) -> Unit
+
+typealias DispatchAsync<A> = (block: suspend CoroutineScope.(Dispatch<A>) -> A) -> Unit
 
 typealias Middleware<S, A> = (dispatch: Dispatch<A>, state: S) -> Dispatch<A>
 
