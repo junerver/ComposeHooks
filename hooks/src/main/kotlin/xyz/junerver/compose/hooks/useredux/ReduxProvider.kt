@@ -14,9 +14,9 @@ import xyz.junerver.kotlin.plus
 val ReduxContext =
     createContext<
         Tuple3<
-            Map<KClass<*>, Any>,
-            Map<KClass<*>, Dispatch<Any>>,
-            Map<String, Tuple2<Any, Dispatch<Any>>>
+            Map<KClass<*>, Any>, // state map
+            Map<KClass<*>, Dispatch<Any>>, // dispatch map
+            Map<String, Tuple2<Any, Dispatch<Any>>> // alias map
             >
         >(Tuple3(mapOf(), mapOf(), mapOf()))
 
@@ -35,13 +35,13 @@ fun ReduxProvider(store: Store, content: @Composable () -> Unit) {
     val aliasMap: MutableMap<String, Tuple2<Any, Dispatch<Any>>> = useMap()
     store.records.forEach { entry ->
         val (state, dispatch) = useReducer(
-            reducer = entry.first,
-            initialState = entry.second,
+            reducer = entry.reducer,
+            initialState = entry.initialState,
             store.middlewares
         )
-        stateMap[entry.third] = state
-        dispatchMap[entry.fourth] = dispatch
-        aliasMap[entry.fifth] = state to dispatch
+        stateMap[entry.stateType] = state
+        dispatchMap[entry.actionType] = dispatch
+        aliasMap[entry.alias] = state to dispatch
     }
     ReduxContext.Provider(value = (stateMap to dispatchMap) + aliasMap) {
         content()

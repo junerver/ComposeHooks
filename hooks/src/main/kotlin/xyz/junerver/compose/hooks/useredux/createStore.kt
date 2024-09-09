@@ -4,15 +4,14 @@ import kotlin.reflect.KClass
 import xyz.junerver.compose.hooks.Middleware
 import xyz.junerver.compose.hooks.Reducer
 import xyz.junerver.kotlin.Tuple2
-import xyz.junerver.kotlin.Tuple5
 
-internal typealias StoreRecord = Tuple5<
-    Reducer<Any, Any>, // reducer
-    Any, // initialState
-    KClass<*>, // state type
-    KClass<*>, // action type
-    String // alias
-    >
+data class StoreRecord(
+    val reducer: Reducer<Any, Any>,
+    val initialState: Any,
+    val stateType: KClass<*>,
+    val actionType: KClass<*>,
+    val alias: String,
+)
 
 data class Store(
     val middlewares: Array<Middleware<Any, Any>>,
@@ -40,28 +39,28 @@ data class Store(
 class StoreScope private constructor(val list: MutableList<StoreRecord>) {
 
     @Suppress("UNCHECKED_CAST")
-    inline fun <reified T : Any, reified A : Any> add(
-        pair: Tuple2<Reducer<T, A>, T>,
+    inline fun <reified S : Any, reified A : Any> add(
+        pair: Tuple2<Reducer<S, A>, S>,
         alias: String? = null,
     ) {
         list.add(
-            Tuple5(
-                pair.first as Reducer<Any, Any>,
-                pair.second,
-                T::class,
-                A::class,
-                alias ?: T::class.qualifiedName ?: "unknown" // default alias
+            StoreRecord(
+                reducer = pair.first as Reducer<Any, Any>,
+                initialState = pair.second,
+                stateType = S::class,
+                actionType = A::class,
+                alias = alias ?: (S::class.qualifiedName ?: "unknown") // default alias
             )
         )
     }
 
-    inline infix fun <reified T : Any, reified A : Any> Reducer<T, A>.with(state: T) {
-        add(Tuple2(this@with, state))
+    inline infix fun <reified S : Any, reified A : Any> Reducer<S, A>.with(initialState: S) {
+        add(Tuple2(this@with, initialState))
     }
 
     object NamedScope {
-        inline infix fun <reified T : Any, reified A : Any> Reducer<T, A>.with(state: T): Tuple2<Reducer<T, A>, T> {
-            return Tuple2(this@with, state)
+        inline infix fun <reified S : Any, reified A : Any> Reducer<S, A>.with(initialState: S): Tuple2<Reducer<S, A>, S> {
+            return Tuple2(this@with, initialState)
         }
     }
 
@@ -101,3 +100,5 @@ fun registerErr(target: String): Nothing {
 operator fun Store.plus(other: Store): Store {
     return Store(this.middlewares + other.middlewares, this.records + other.records)
 }
+
+fun combineStores(vararg stores: Store): Store = stores.reduce { acc, store -> acc + store }
