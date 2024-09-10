@@ -1,6 +1,6 @@
 [versions]
 agp = "8.2.2"
-arrowCore = "1.2.0-RC"
+arrowCore = "1.2.4"
 kotlin = "2.0.20"
 coreKtx = "1.13.1"
 junit = "4.13.2"
