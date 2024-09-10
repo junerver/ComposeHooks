@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -7,7 +6,10 @@ plugins {
     alias(libs.plugins.androidLibrary) apply false
     alias(libs.plugins.mavenPublish) apply false
     alias(libs.plugins.kotlinter) apply false
+    alias(libs.plugins.jetbrainsCompose) apply false
     alias(libs.plugins.compose.compiler) apply false
+    alias(libs.plugins.kotlinMultiplatform) apply false
+    alias(libs.plugins.jetbrains.kotlin.jvm) apply false
 }
 
 allprojects {
@@ -15,7 +17,7 @@ allprojects {
 
     tasks.withType<KotlinCompile> {
         compilerOptions{
-            jvmTarget.set(JvmTarget.JVM_1_8)
+//            jvmTarget.set(JvmTarget.JVM_1_8)
             freeCompilerArgs.add("-Xconsistent-data-class-copy-visibility")
         }
     }

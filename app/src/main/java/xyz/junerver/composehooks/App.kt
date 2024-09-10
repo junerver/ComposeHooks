@@ -24,7 +24,7 @@ import xyz.junerver.composehooks.ui.theme.ComposeHooksTheme
 */
 
 @Composable
-fun App(){
+fun App() {
     ComposeHooksTheme {
         // provide store for all components
         ReduxProvider(store = simpleStore + fetchStore) {

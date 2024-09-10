@@ -39,3 +39,4 @@ google-services.json
 
 gradle.properties
 secring.gpg
+/.kotlin/

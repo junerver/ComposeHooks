@@ -34,11 +34,11 @@ fun UseTimeoutExample() {
 
     Surface {
         Column {
-            Text(text = "current: $state  ${Math.random()}")
+            Text(text = "current: $state  flag: ${Math.random()}")
 
             TButton(text = "update") {
                 /**
-                 * Even if the component is refreshed, the closure in use Timeout will not be executed again
+                 * Even if the component is refreshed, the closure in [useTimeout] will not be executed again
                  */
                 update()
             }
