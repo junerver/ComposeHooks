@@ -36,7 +36,41 @@ implementation("xyz.junerver.compose:hooks2:2.1.0-alpha0-SNAPSHOT")
 
 由于当前kmp反射能力所限，在commomMain中将无法使用 `optionsOf` 与  `defaultOption` 这两个顶级函数来创建参数。
 
-需要使用例如： `CountdownOptions.optionOf{}` 这样的写法显式创建配置选项！
+需要使用例如： `CounterOptions.optionOf{}` 这样的写法显式创建配置选项！
+
+```kotlin
+@Composable
+@Preview
+fun App() {
+    MaterialTheme {
+        val (showContent, toggle) = useBoolean(false)
+        val (count, inc) = useCounter(options = CounterOptions.optionOf {
+            max = 100
+        })
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Button(onClick = {
+                toggle()
+                inc(1)
+            }) {
+                Text("Click me!")
+            }
+            AnimatedVisibility(showContent) {
+                val greeting = remember { Greeting().greet() }
+                Column(
+                    Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(painterResource(Res.drawable.compose_multiplatform), null)
+                    Text("#$count Compose: $greeting")
+                }
+            }
+        }
+    }
+}
+```
+<picture>
+  <img src="art/kmp_desktop.png" width="720">
+</picture>
 
 ## 简介
 

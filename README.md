@@ -36,7 +36,41 @@ Currently only limited targets are supported:
 
 Due to the current kmp reflection capability, the two top-level functions `optionsOf` and `defaultOption` cannot be used in commomMain to create parameters.
 
-For example, `CountdownOptions.optionOf{}` needs to be used to explicitly create configuration options!
+For example, `CounterOptions.optionOf{}` needs to be used to explicitly create configuration options!
+
+```kotlin
+@Composable
+@Preview
+fun App() {
+    MaterialTheme {
+        val (showContent, toggle) = useBoolean(false)
+        val (count, inc) = useCounter(options = CounterOptions.optionOf {
+            max = 100
+        })
+        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
+            Button(onClick = {
+                toggle()
+                inc(1)
+            }) {
+                Text("Click me!")
+            }
+            AnimatedVisibility(showContent) {
+                val greeting = remember { Greeting().greet() }
+                Column(
+                    Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Image(painterResource(Res.drawable.compose_multiplatform), null)
+                    Text("#$count Compose: $greeting")
+                }
+            }
+        }
+    }
+}
+```
+<picture>
+  <img src="art/kmp_desktop.png" width="720">
+</picture>
 
 ## About
 
