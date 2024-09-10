@@ -17,6 +17,27 @@
 
 [![Star History Chart](https://api.star-history.com/svg?repos=junerver/ComposeHooks&type=Date)](https://star-history.com/#junerver/ComposeHooks&Date)
 
+## KMP 支持(预览)
+
+> 注意：工件id为 `hooks2`
+
+```kotlin
+maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
+
+implementation("xyz.junerver.compose:hooks2:2.1.0-alpha0-SNAPSHOT")
+```
+
+目前只支持有限的 target：
+- android
+- desktop（jvm）
+- iosarm64
+- iosimulatorarm64
+- iosx64
+
+由于当前kmp反射能力所限，在commomMain中将无法使用 `optionsOf` 与  `defaultOption` 这两个顶级函数来创建参数。
+
+需要使用例如： `CountdownOptions.optionOf{}` 这样的写法显式创建配置选项！
+
 ## 简介
 
 项目的 idea 来自 [alibaba](https://github.com/alibaba)/[hooks](https://github.com/alibaba/hooks)，这是一个非常好用的React Hooks 集合。

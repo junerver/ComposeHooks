@@ -17,6 +17,27 @@ English | [简体中文](https://github.com/junerver/ComposeHooks/blob/master/RE
 
 [![Star History Chart](https://api.star-history.com/svg?repos=junerver/ComposeHooks&type=Date)](https://star-history.com/#junerver/ComposeHooks&Date)
 
+## KMP Support(preview)
+
+> NOTE: The artifact id is `hooks2`
+
+```kotlin
+maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
+
+implementation("xyz.junerver.compose:hooks2:2.1.0-alpha0-SNAPSHOT")
+```
+
+Currently only limited targets are supported:
+- android
+- desktop (jvm)
+- iosarm64
+- iosimulatorarm64
+- iosx64
+
+Due to the current kmp reflection capability, the two top-level functions `optionsOf` and `defaultOption` cannot be used in commomMain to create parameters.
+
+For example, `CountdownOptions.optionOf{}` needs to be used to explicitly create configuration options!
+
 ## About
 
 The idea for the project comes from [alibaba](https://github.com/alibaba)/[hooks](https://github.com/alibaba/hooks), which is a very easy-to-use collection of React Hooks.

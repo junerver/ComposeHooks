@@ -1,4 +1,4 @@
-
+import java.time.Duration
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -12,6 +12,13 @@ plugins {
 }
 
 kotlin {
+    @OptIn(ExperimentalKotlinGradlePluginApi::class)
+    compilerOptions.freeCompilerArgs.addAll(
+        listOf(
+            "-Xexpect-actual-classes",
+            "-Xconsistent-data-class-copy-visibility"
+        )
+    )
 
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -33,6 +40,25 @@ kotlin {
             isStatic = true
         }
     }
+
+    //  can not support js, because: Implementing a function interface is prohibited in JavaScript.
+//    js {
+//        nodejs {
+//            testTask {
+//                useMocha {
+//                    timeout = "300s"
+//                }
+//            }
+//        }
+//        browser {
+//            testTask {
+//                useKarma {
+//                    useChromeHeadless()
+//                    timeout.set(Duration.ofMinutes(5))
+//                }
+//            }
+//        }
+//    }
 
     sourceSets {
         commonMain.dependencies {
@@ -60,7 +86,7 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
-            implementation(libs.kotlin.test.junit)
+//            implementation(libs.kotlin.test.junit)
         }
         androidInstrumentedTest.dependencies {
             implementation(libs.compose.ui.test)
