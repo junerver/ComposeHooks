@@ -17,6 +17,7 @@ import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.TButton
+import xyz.junerver.kotlin.asBoolean
 
 /*
   Description:
@@ -29,7 +30,7 @@ import xyz.junerver.composehooks.ui.component.TButton
 @Composable
 fun Refresh() {
     var params by useState("")
-    val (userInfo, loading, _, request, _, refresh) = useRequest(
+    val (userInfo, loading, error, request, _, refresh) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
         RequestOptions.optionOf {
             defaultParams = arrayOf("junerver")
@@ -53,6 +54,9 @@ fun Refresh() {
             Spacer(modifier = Modifier.height(15.dp))
             Text(text = "current user: $params")
             Spacer(modifier = Modifier.height(15.dp))
+            if (error.asBoolean()) {
+                Text(text = "error: ${error.message}")
+            }
             if (loading) {
                 Text(text = "Loading ...")
             } else {

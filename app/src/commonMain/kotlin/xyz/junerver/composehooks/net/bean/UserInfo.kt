@@ -7,7 +7,7 @@ data class UserInfo(
     val login: String,
     val name: String,
     val avatar_url: String,
-    val bio: String,
+    val bio: String? = null,
     val blog: String,
     val company: String? = null,
     val created_at: String,
