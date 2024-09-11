@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinAndroid)
     id("kotlin-parcelize")
     alias(libs.plugins.compose.compiler)
+    alias(libs.plugins.kotlinSerialization)
 }
 
 android {
@@ -69,12 +70,14 @@ dependencies {
     androidTestImplementation(libs.compose.ui.test.junit4)
 
     implementation(libs.okhttp)
-    implementation(libs.gson)
     implementation(libs.bundles.retrofit){
         exclude(group = "com.squareup.okhttp3",module = "okhttp")
     }
     implementation("com.tencent:mmkv:1.3.4")
+
+
     implementation(projects.hooks)
 
     implementation(libs.kotlinx.collections.immutable)
+    implementation(libs.kotlinx.serialization.json)
 }

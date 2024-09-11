@@ -2,9 +2,11 @@ package xyz.junerver.composehooks.net
 
 import java.util.concurrent.TimeUnit
 import kotlin.reflect.KFunction
+import kotlinx.serialization.json.Json
+import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.kotlinx.serialization.asConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Headers
 import retrofit2.http.Path
@@ -33,9 +35,12 @@ object NetApi {
         val builder = OkHttpClient.Builder()
         builder.connectTimeout(DEFAULT_TIMEOUT, TimeUnit.SECONDS)
             .pingInterval(30, TimeUnit.SECONDS)
+        val networkJson = Json { ignoreUnknownKeys = true }
         mRetrofit = Retrofit.Builder()
             .client(builder.build())
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(
+                networkJson.asConverterFactory("application/json; charset=UTF8".toMediaType())
+            )
             .baseUrl(BASE_URL)
             .build()
         SERVICE = mRetrofit.create(WebService::class.java)
@@ -58,7 +63,5 @@ interface WebService {
     suspend fun repoInfo(@Path("user") user: String, @Path("repo") repo: String): RepoInfo
 }
 
-/**
- * 自定义一个传递Retrofit接口实例的扩展函数，省去调用 [asSuspendNoopFn] 每次都要传递实例的步骤
- */
+/** 自定义一个传递Retrofit接口实例的扩展函数，省去调用 [asSuspendNoopFn] 每次都要传递实例的步骤 */
 fun <T : Any> KFunction<T>.asRequestFn() = this.asSuspendNoopFn(NetApi.SERVICE)
