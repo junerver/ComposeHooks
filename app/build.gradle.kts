@@ -36,7 +36,7 @@ kotlin {
         val desktopMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
-                implementation("ca.gosyer:kotlin-multiplatform-appdirs:1.1.1")
+                implementation(libs.kotlin.multiplatform.appdirs)
                 implementation(libs.kotlinx.coroutines.swing)
             }
         }
@@ -45,13 +45,13 @@ kotlin {
             dependencies {
                 implementation(compose.preview)
                 implementation(libs.androidx.activity.compose)
-                implementation("com.ctrip.flight.mmkv:mmkv-kotlin:1.2.14")
+                implementation(libs.mmkv.kotlin)
             }
         }
 
         iosMain {
             dependencies {
-                implementation("com.ctrip.flight.mmkv:mmkv-kotlin:1.2.14")
+                implementation(libs.mmkv.kotlin)
             }
         }
 
@@ -67,7 +67,6 @@ kotlin {
 
             implementation(libs.navigation.compose)
 
-//            implementation("com.ctrip.flight.mmkv:mmkv-kotlin:1.2.14")
             implementation(projects.hooks)
             implementation(libs.kotlinx.collections.immutable)
             implementation(libs.kotlinx.serialization.json)
@@ -135,34 +134,3 @@ compose.desktop {
     }
 }
 
-
-//dependencies {
-//    testImplementation(libs.junit)
-//    androidTestImplementation(libs.androidx.junit)
-//    androidTestImplementation(libs.androidx.espresso.core)
-//
-//    implementation(libs.androidx.core.ktx)
-//    implementation(libs.androidx.lifecycle.runtime.ktx)
-//
-//    implementation(libs.androidx.activity.compose)
-//    implementation(libs.androidx.navigation.compose)
-//
-//    implementation(platform(libs.compose.bom))
-//    implementation(libs.compose.ui)
-//    implementation(libs.compose.ui.graphics)
-//    implementation(libs.compose.ui.tooling.preview)
-//    implementation(libs.compose.material3)
-//    debugImplementation(libs.compose.ui.tooling)
-//    debugImplementation(libs.compose.ui.test.manifest)
-//    androidTestImplementation(libs.compose.ui.test.junit4)
-//
-//    implementation("com.ctrip.flight.mmkv:mmkv-kotlin:1.2.14")
-//
-//    implementation(projects.hooks)
-//
-//    implementation(libs.kotlinx.collections.immutable)
-//    implementation(libs.kotlinx.serialization.json)
-//
-//    implementation(libs.ktor.client.core)
-//    implementation(libs.bundles.ktor)
-//}

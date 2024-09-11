@@ -40,25 +40,6 @@ kotlin {
         }
     }
 
-    //  can not support js, because: Implementing a function interface is prohibited in JavaScript.
-//    js {
-//        nodejs {
-//            testTask {
-//                useMocha {
-//                    timeout = "300s"
-//                }
-//            }
-//        }
-//        browser {
-//            testTask {
-//                useKarma {
-//                    useChromeHeadless()
-//                    timeout.set(Duration.ofMinutes(5))
-//                }
-//            }
-//        }
-//    }
-
     sourceSets {
         commonMain.dependencies {
             api(compose.runtime)
