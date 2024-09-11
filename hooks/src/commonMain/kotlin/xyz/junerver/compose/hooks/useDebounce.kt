@@ -17,11 +17,12 @@ import xyz.junerver.compose.hooks.utils.currentTime
 /**
  * Debounce options
  *
+ * @constructor Create empty Debounce options
  * @property wait time to delay
  * @property leading Specify invoking on the leading edge of the timeout.
  * @property trailing Specify invoking on the trailing edge of the timeout.
- * @property maxWait The maximum time func is allowed to be delayed before it’s invoked.
- * @constructor Create empty Debounce options
+ * @property maxWait The maximum time func is allowed to be delayed before
+ *    it’s invoked.
  */
 data class DebounceOptions internal constructor(
     var wait: Duration = 1.seconds,
@@ -36,7 +37,7 @@ internal class Debounce(
     var fn: VoidFunction,
     private val scope: CoroutineScope,
     private val options: DebounceOptions = DebounceOptions(),
-) : VoidFunction {
+) {
 
     private var calledCount = 0
     private val jobs: MutableList<Pair<Job, Boolean>> = arrayListOf()
@@ -54,7 +55,7 @@ internal class Debounce(
         }
     }
 
-    override fun invoke(p1: TParams) {
+    fun invoke(p1: TParams) {
         val (wait, leading, trailing, maxWait) = options
         fun task(guarantee: Boolean, isDelay: Boolean) {
             scope.launch {
@@ -114,7 +115,7 @@ fun useDebounceFn(
     val debounced = remember {
         Debounce(latestFn, scope, options)
     }.apply { this.fn = latestFn }
-    return debounced
+    return { p1 -> debounced.invoke(p1) }
 }
 
 @Composable

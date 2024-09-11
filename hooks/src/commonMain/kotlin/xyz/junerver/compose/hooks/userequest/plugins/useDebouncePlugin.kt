@@ -29,10 +29,10 @@ private class DebouncePlugin<TData : Any> : Plugin<TData>() {
                     requestOptions.debounceOptions
                 )
                 fetch.runAsync = {
-                    debounce(it)
+                    debounce.invoke(it)
                 }
                 fetch.run = {
-                    debounce(it)
+                    debounce.invoke(it)
                 }
             }
             object : PluginLifecycle<TData>() {

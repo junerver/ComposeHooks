@@ -31,10 +31,10 @@ private class ThrottlePlugin<TData : Any> : Plugin<TData>() {
                     requestOptions.throttleOptions
                 )
                 fetch.run = {
-                    throttle(it)
+                    throttle.invoke(it)
                 }
                 fetch.runAsync = {
-                    throttle(it)
+                    throttle.invoke(it)
                 }
             }
             object : PluginLifecycle<TData>() {

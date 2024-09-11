@@ -78,13 +78,6 @@ ktor-client-content-negotiat = { group = "io.ktor", name = "ktor-client-content-
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktorVersion" }
 ktor-server-default-headers = { group = "io.ktor", name = "ktor-server-default-headers", version.ref = "ktorVersion" }
 
-
-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofitVersion" }
-retrofit-converter-scalars = { group = "com.squareup.retrofit2", name = "converter-scalars", version.ref = "retrofitVersion" }
-retrofit-converter-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofitVersion" }
-retrofit-converter-kotlinx-serialization = { group = "com.squareup.retrofit2", name = "converter-kotlinx-serialization", version.ref = "retrofitVersion" }
-okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version = "4.12.0" }
-
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
@@ -99,13 +92,6 @@ jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrai
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 
 [bundles]
-retrofit = [
-    "retrofit",
-    "retrofit-converter-scalars",
-    "retrofit-converter-gson",
-    "retrofit-converter-kotlinx-serialization",
-]
-
 ktor = [
     "ktor-client-core",
     "ktor-client-cio",

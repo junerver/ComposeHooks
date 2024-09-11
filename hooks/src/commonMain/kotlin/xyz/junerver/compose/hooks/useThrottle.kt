@@ -13,10 +13,10 @@ import xyz.junerver.compose.hooks.utils.currentTime
 /**
  * Throttle options
  *
+ * @constructor Create empty Throttle options
  * @property wait time to delay
  * @property leading Specify invoking on the leading edge of the timeout.
  * @property trailing Specify invoking on the trailing edge of the timeout.
- * @constructor Create empty Throttle options
  */
 data class ThrottleOptions internal constructor(
     var wait: Duration = 1.seconds,
@@ -30,7 +30,7 @@ internal class Throttle(
     var fn: VoidFunction,
     private val scope: CoroutineScope,
     private val options: ThrottleOptions = ThrottleOptions(),
-) : VoidFunction {
+) {
 
     private var calledCount = 0
     private val trailingJobs: MutableList<Job> = arrayListOf()
@@ -45,7 +45,7 @@ internal class Throttle(
         }
     }
 
-    override fun invoke(p1: TParams) {
+    fun invoke(p1: TParams) {
         val (wait, leading, trailing) = options
         val waitTime = currentTime - latestInvokedTime
 
@@ -95,7 +95,7 @@ fun useThrottleFn(
     val throttled = remember {
         Throttle(latestFn, scope, options)
     }.apply { this.fn = latestFn }
-    return throttled
+    return { p1 -> throttled.invoke(p1) }
 }
 
 @Composable
