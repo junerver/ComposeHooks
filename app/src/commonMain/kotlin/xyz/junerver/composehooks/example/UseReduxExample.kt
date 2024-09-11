@@ -30,7 +30,6 @@ import xyz.junerver.compose.hooks.useredux.createStore
 import xyz.junerver.compose.hooks.useredux.useDispatch
 import xyz.junerver.compose.hooks.useredux.useDispatchAsync
 import xyz.junerver.compose.hooks.useredux.useSelector
-import xyz.junerver.composehooks.MainActivity
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.net.bean.UserInfo
 import xyz.junerver.composehooks.ui.component.TButton

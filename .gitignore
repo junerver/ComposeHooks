@@ -40,3 +40,4 @@ google-services.json
 gradle.properties
 secring.gpg
 /.kotlin/
+/app/src/commonMain/kotlin/xyz/junerver/composehooks/secret.kt

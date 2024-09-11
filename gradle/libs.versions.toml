@@ -10,6 +10,7 @@ appcompat = "1.7.0"
 material = "1.12.0"
 lifecycleRuntimeKtx = "2.8.4"
 
+navigationComposeVersion = "2.7.0-alpha07"
 retrofitVersion = "2.11.0"
 ktorVersion = "2.3.12"
 
@@ -23,7 +24,7 @@ biometric = "1.2.0-alpha05"
 
 kotlinxDatetime = "0.6.0"
 kotlinxCollectionsImmutable = "0.3.7"
-kotlinxCoroutines = "1.7.3"
+kotlinxCoroutines = "1.8.1"
 kotlinxSerializationJson = "1.7.1"
 
 jetbrainsKotlinJvm = "1.9.0"
@@ -65,6 +66,7 @@ kotlin-reflect = { group = "org.jetbrains.kotlin", name = "kotlin-reflect" }
 kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinxDatetime" }
 kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinxCollectionsImmutable" }
 kotlinx-coroutines = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+kotlinx-coroutines-swing = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-swing", version.ref = "kotlinxCoroutines" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 
@@ -76,7 +78,7 @@ ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref =
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktorVersion" }
 ktor-client-content-negotiat = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktorVersion" }
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktorVersion" }
-ktor-server-default-headers = { group = "io.ktor", name = "ktor-server-default-headers", version.ref = "ktorVersion" }
+navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -97,5 +99,4 @@ ktor = [
     "ktor-client-cio",
     "ktor-client-content-negotiat",
     "ktor-serialization-kotlinx-json",
-    "ktor-server-default-headers"
 ]

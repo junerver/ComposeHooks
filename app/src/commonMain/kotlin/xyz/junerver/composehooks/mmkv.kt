@@ -27,7 +27,6 @@ fun mmkvSave(key: String, value: Any?) {
     notifyDefaultPersistentObserver(key)
 }
 
-@Suppress("IMPLICIT_CAST_TO_ANY")
 fun mmkvGet(key: String, value: Any): Any {
     return when (value) {
         is Int -> mmkv.takeInt(key, value)
