@@ -1,4 +1,3 @@
-import java.time.Duration
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -79,11 +78,20 @@ kotlin {
 
             api(libs.arrow.core)
         }
-        androidMain.dependencies {
-            implementation(libs.androidx.activity.compose)
-            implementation(libs.androidx.appcompat)
-            implementation(libs.androidx.biometric)
+        androidMain {
+            kotlin.srcDir("src/commonJvmAndroid/kotlin")
+            dependencies {
+                implementation(libs.androidx.activity.compose)
+                implementation(libs.androidx.appcompat)
+                implementation(libs.androidx.biometric)
+            }
         }
+        val desktopMain by getting {
+            kotlin.srcDir("src/commonJvmAndroid/kotlin")
+            dependencies {
+            }
+        }
+
         commonTest.dependencies {
             implementation(libs.kotlin.test)
 //            implementation(libs.kotlin.test.junit)
