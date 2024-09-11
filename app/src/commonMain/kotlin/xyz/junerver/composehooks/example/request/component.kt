@@ -10,13 +10,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
+import xyz.junerver.compose.hooks.DebounceOptions
+import xyz.junerver.compose.hooks.ThrottleOptions
 import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useEventPublish
 import xyz.junerver.compose.hooks.useEventSubscribe
+import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
-import xyz.junerver.composehooks.net.WebService
-import xyz.junerver.composehooks.net.asRequestFn
+import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.kotlin.asBoolean
 import xyz.junerver.kotlin.runIf
@@ -59,8 +60,8 @@ fun Container(label: String, optionFunc: OptionFunc) {
 @Composable
 fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc) {
     val (userInfo, loading, _, request) = useRequest(
-        requestFn = WebService::userInfo.asRequestFn(),
-        optionsOf {
+        requestFn = { NetApi.userInfo(it[0] as String) },
+        RequestOptions.optionOf {
             defaultParams = arrayOf("junerver")
             when (optionFunc) {
                 OptionFunc.LoadingDelay -> runIf(isUsed) {
@@ -81,7 +82,7 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
                      *
                      * When you configure [DebounceOptions.wait], anti-shake processing will be performed according to the set value.
                      */
-                    debounceOptions = optionsOf { wait = 3.seconds }
+                    debounceOptions = DebounceOptions.optionOf { wait = 3.seconds }
                 }
 
                 OptionFunc.Throttle -> runIf(isUsed) {
@@ -90,7 +91,7 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
                      *
                      * When you configure [ThrottleOptions.wait], throttling will be performed according to the set value.
                      */
-                    throttleOptions = optionsOf { wait = 3.seconds }
+                    throttleOptions = ThrottleOptions.optionOf { wait = 3.seconds }
                 }
             }
         }

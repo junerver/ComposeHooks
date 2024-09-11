@@ -1,11 +1,8 @@
 package xyz.junerver.composehooks.net.bean
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
 @Serializable
-@Parcelize
 data class RepoInfo(
     val allow_forking: Boolean,
     val archive_url: String,
@@ -89,4 +86,4 @@ data class RepoInfo(
     val watchers: Int,
     val watchers_count: Int,
     val web_commit_signoff_required: Boolean,
-) : Parcelable
+)

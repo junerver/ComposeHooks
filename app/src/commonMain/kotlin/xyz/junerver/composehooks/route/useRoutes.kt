@@ -1,6 +1,5 @@
 package xyz.junerver.composehooks.route
 
-import android.annotation.SuppressLint
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -25,7 +24,6 @@ private val LocalNavHostController: ProvidableCompositionLocal<NavHostController
 @Composable
 fun useNavigate() = LocalNavHostController.current
 
-@SuppressLint("ComposableNaming")
 @Composable
 fun useRoutes(routes: Map<String, Component>) {
     val navController = rememberNavController()

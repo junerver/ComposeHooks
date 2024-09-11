@@ -1,6 +1,5 @@
 package xyz.junerver.composehooks.example.request
 
-import android.os.Parcelable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -12,10 +11,8 @@ import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
-import kotlinx.parcelize.Parcelize
-import xyz.junerver.compose.hooks.asSuspendNoopFn
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.kotlin.asBoolean
 
@@ -27,12 +24,11 @@ import xyz.junerver.kotlin.asBoolean
   Version: v1.0
 */
 
-@Parcelize
 data class MockInfo(
     val name: String,
     val age: Int,
     val sex: String,
-) : Parcelable
+)
 
 // 伪装的一个
 var count = 0
@@ -57,8 +53,10 @@ fun ErrorRetry() {
     var count by useState("")
 
     val (mockInfo, stuLoading, err) = useRequest(
-        requestFn = ::mockRequest.asSuspendNoopFn(),
-        optionsOf {
+        requestFn = {
+            mockRequest(it[0] as String, it[1] as String)
+        },
+        RequestOptions.optionOf {
             defaultParams = arrayOf("1", "2")
             retryCount = 5
             retryInterval = 2.seconds

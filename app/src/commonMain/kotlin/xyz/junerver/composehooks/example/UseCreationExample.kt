@@ -1,6 +1,5 @@
 package xyz.junerver.composehooks.example
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,7 +18,7 @@ import xyz.junerver.composehooks.ui.component.TButton
 */
 data class Subject(val flag: String) {
     init {
-        Log.d("UseCreationExample", "Subject is be instantiated：$flag")
+        println("UseCreationExample Subject is be instantiated：$flag")
     }
 }
 

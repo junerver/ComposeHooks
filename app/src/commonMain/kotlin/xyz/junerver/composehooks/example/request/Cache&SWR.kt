@@ -1,6 +1,5 @@
 package xyz.junerver.composehooks.example.request
 
-import android.os.Parcelable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,9 +18,6 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.datetime.Clock
-import kotlinx.parcelize.Parcelize
-import xyz.junerver.compose.hooks.asSuspendNoopFn
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
@@ -38,11 +34,10 @@ import xyz.junerver.kotlin.asBoolean
   Version: v1.0
 */
 
-@Parcelize
 data class MockArticle(
     val time: Long,
     val data: String,
-) : Parcelable {
+) {
     override fun toString(): String {
         return "last request time=$time\ndata=$data"
     }
@@ -95,8 +90,10 @@ private fun TestSWR() {
 @Composable
 private fun SWR(useCache: Boolean = false) {
     val (data, loading) = useRequest(
-        requestFn = ::mockRequestArticle.asSuspendNoopFn(),
-        optionsOf {
+        requestFn = {
+            mockRequestArticle()
+        },
+        RequestOptions.optionOf {
             if (useCache) cacheKey = "test-swr-key"
         }
     )
@@ -134,8 +131,10 @@ fun TestStaleTime() {
 @Composable
 private fun StaleTime(cacheKey: String) {
     val (data, loading) = useRequest(
-        requestFn = ::mockRequestArticle.asSuspendNoopFn(),
-        optionsOf {
+        requestFn = {
+            mockRequestArticle()
+        },
+        RequestOptions.optionOf {
             this.cacheKey = cacheKey
             staleTime = 5.seconds
         }

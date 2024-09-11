@@ -12,15 +12,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.NetApi
-import xyz.junerver.composehooks.net.WebService
-import xyz.junerver.composehooks.net.asRequestFn
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.kotlin.asBoolean
 
@@ -51,8 +47,8 @@ fun AutoManual() {
 fun Auto() {
     val (userInfo, loading, error) = useRequest(
 //        requestFn = NetApi.SERVICE::userInfo.asSuspendNoopFn(), // Make a request directly through the WebService instance
-        requestFn = WebService::userInfo.asRequestFn(), // Make a request WebService interface
-        optionsOf {
+        requestFn = { NetApi.userInfo(it[0] as String) }, // Make a request WebService interface
+        RequestOptions.optionOf {
             defaultParams =
                 arrayOf("junerver") // Automatically requests must set default parameters
         }
@@ -72,7 +68,6 @@ fun Auto() {
     }
 }
 
-@Preview
 @Composable
 fun Manual() {
     val (repoInfo, loading, error, request) = useRequest(

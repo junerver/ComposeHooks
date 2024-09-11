@@ -1,17 +1,15 @@
 package xyz.junerver.composehooks.example.request
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
-import xyz.junerver.composehooks.net.WebService
-import xyz.junerver.composehooks.net.asRequestFn
+import xyz.junerver.composehooks.net.NetApi
 
 /*
   Description:
@@ -24,14 +22,14 @@ import xyz.junerver.composehooks.net.asRequestFn
 fun Lifecycle() {
     var state by useState(default = "")
     useRequest(
-        requestFn = WebService::userInfo.asRequestFn(),
-        optionsOf {
+        requestFn = { NetApi.userInfo(it[0] as String) },
+        RequestOptions.optionOf {
             defaultParams = arrayOf("junerver")
             onBefore = {
                 state += "onBefore: ${it.joinToString("、")}"
             }
             onSuccess = { data, _ ->
-                Log.d("Lifecycle", "Lifecycle: onSuccess")
+                println("Lifecycle Lifecycle: onSuccess")
                 state += "\n\nonSuccess:\nData:$data"
             }
             onError = { err, pa ->

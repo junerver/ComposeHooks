@@ -3,7 +3,6 @@ package xyz.junerver.composehooks.example.request
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks.MutableRef
-import xyz.junerver.compose.hooks.defaultOption
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.userequest.CancelFn
 import xyz.junerver.compose.hooks.userequest.Fetch
@@ -41,7 +40,7 @@ typealias RollbackFn = () -> Unit
 @Composable
 fun <TData : Any> useCustomPluginRequest(
     requestFn: suspend (TParams) -> TData,
-    options: RequestOptions<TData> = defaultOption(),
+    options: RequestOptions<TData>,
 ): Tuple8<TData?, Boolean, Throwable?, RunFn, MutateFn<TData>, RefreshFn, CancelFn, RollbackFn> {
     val rollbackRef = useRef(default = { })
     val tuple = useRequest(

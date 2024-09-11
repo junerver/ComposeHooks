@@ -87,7 +87,7 @@ kotlin {
             }
         }
         val desktopMain by getting {
-//            kotlin.srcDir("src/commonJvmAndroid/kotlin")
+            kotlin.srcDir("src/commonJvmAndroid/kotlin")
             dependencies {
             }
         }

@@ -1,13 +1,12 @@
 package xyz.junerver.composehooks.example
 
-import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.optionsOf
+import xyz.junerver.compose.hooks.TimestampOptions
 import xyz.junerver.compose.hooks.useTimestamp
 import xyz.junerver.compose.hooks.useTimestampRef
 import xyz.junerver.composehooks.example.request.DividerSpacer
@@ -34,10 +33,10 @@ fun UseTimestampExample() {
 @Composable
 fun SubState() {
     val (timestamp, pause, resume, isActive) = useTimestamp(
-        optionsOf {
+        TimestampOptions.optionOf {
             interval = 1.seconds
             callback = {
-                Log.d("UseTimestampExample", "UseTimestampExample: $it")
+                println("UseTimestampExample UseTimestampExample: $it")
             }
         }
     )
@@ -57,7 +56,7 @@ fun SubState() {
 @Composable
 fun SubRef() {
     val (timestamp, _, resume) = useTimestampRef(
-        optionsOf {
+        TimestampOptions.optionOf {
             interval = 1.seconds
         }
     )

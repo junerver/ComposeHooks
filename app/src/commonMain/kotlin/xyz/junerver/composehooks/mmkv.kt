@@ -1,7 +1,7 @@
 package xyz.junerver.composehooks
 
 import xyz.junerver.compose.hooks.notifyDefaultPersistentObserver
-//import com.ctrip.flight.mmkv.defaultMMKV
+// import com.ctrip.flight.mmkv.defaultMMKV
 
 /*
   Description:
@@ -11,7 +11,7 @@ import xyz.junerver.compose.hooks.notifyDefaultPersistentObserver
   Version: v1.0
 */
 
-//val mmkv = defaultMMKV()
+// val mmkv = defaultMMKV()
 
 fun mmkvSave(key: String, value: Any?) {
 //    when (value) {
@@ -22,7 +22,7 @@ fun mmkvSave(key: String, value: Any?) {
 //        is Boolean -> mmkv.set(key, value)
 //        is String -> mmkv.set(key, value)
 //        is ByteArray -> mmkv.set(key, value)
-////        is Parcelable -> mmkv.set(key, value)
+// //        is Parcelable -> mmkv.set(key, value)
 //    }
     notifyDefaultPersistentObserver(key)
 }
@@ -37,7 +37,7 @@ fun mmkvGet(key: String, value: Any): Any {
 //        is Boolean -> mmkv.takeBoolean(key, value)
 //        is String -> mmkv.takeString(key, value)
 //        is ByteArray -> mmkv.takeByteArray(key, value)
-////        is Parcelable -> mmkv.takeParcelable(key, value.javaClass)
+// //        is Parcelable -> mmkv.takeParcelable(key, value.javaClass)
 //        else -> error("wrong type of default value！")
 //    } as Any
 }

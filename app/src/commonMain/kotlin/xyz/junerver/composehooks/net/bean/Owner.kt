@@ -1,11 +1,8 @@
 package xyz.junerver.composehooks.net.bean
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
 @Serializable
-@Parcelize
 data class Owner(
     val avatar_url: String,
     val events_url: String,
@@ -25,4 +22,4 @@ data class Owner(
     val subscriptions_url: String,
     val type: String,
     val url: String,
-) : Parcelable
+)

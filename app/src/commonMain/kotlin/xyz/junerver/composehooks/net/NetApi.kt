@@ -9,9 +9,7 @@ import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.request.get
 import io.ktor.http.headers
 import io.ktor.serialization.kotlinx.json.json
-import kotlin.reflect.KFunction
 import kotlinx.serialization.json.Json
-import xyz.junerver.compose.hooks.asSuspendNoopFn
 import xyz.junerver.composehooks.acc_token
 import xyz.junerver.composehooks.net.bean.RepoInfo
 import xyz.junerver.composehooks.net.bean.UserInfo
@@ -45,19 +43,21 @@ object NetApi : WebService {
             socketTimeoutMillis = 15000L
         }
         install(ContentNegotiation) {
-            json(Json {
-                prettyPrint = true
-                isLenient = true
-            })
+            json(
+                Json {
+                    prettyPrint = true
+                    isLenient = true
+                }
+            )
         }
     }
 
     override suspend fun userInfo(user: String): UserInfo {
-        return client.get("users/${user}").body()
+        return client.get("users/$user").body()
     }
 
     override suspend fun repoInfo(user: String, repo: String): RepoInfo {
-        return client.get("repos/${user}/${repo}").body()
+        return client.get("repos/$user/$repo").body()
     }
 }
 
@@ -67,6 +67,3 @@ interface WebService {
 
     suspend fun repoInfo(user: String, repo: String): RepoInfo
 }
-
-/** 自定义一个传递Retrofit接口实例的扩展函数，省去调用 [asSuspendNoopFn] 每次都要传递实例的步骤 */
-fun <T : Any> KFunction<T>.asRequestFn() = this.asSuspendNoopFn(NetApi)

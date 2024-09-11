@@ -1,11 +1,8 @@
 package xyz.junerver.composehooks.net.bean
 
-import android.os.Parcelable
-import kotlinx.parcelize.Parcelize
 import kotlinx.serialization.Serializable
 
 @Serializable
-@Parcelize
 data class UserInfo(
     val login: String,
     val name: String,
@@ -39,4 +36,4 @@ data class UserInfo(
     val type: String,
     val updated_at: String,
     val url: String,
-) : Parcelable
+)

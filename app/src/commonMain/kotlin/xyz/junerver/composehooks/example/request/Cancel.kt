@@ -9,10 +9,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.optionsOf
+import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
-import xyz.junerver.composehooks.net.WebService
-import xyz.junerver.composehooks.net.asRequestFn
+import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.kotlin.asBoolean
 
@@ -26,8 +25,8 @@ import xyz.junerver.kotlin.asBoolean
 @Composable
 fun Cancel() {
     val (userInfo, loading, _, request, _, _, cancel) = useRequest(
-        requestFn = WebService::userInfo.asRequestFn(),
-        optionsOf {
+        requestFn = { NetApi.userInfo(it[0] as String) },
+        RequestOptions.optionOf {
             manual = true
             defaultParams = arrayOf("junerver")
         }
