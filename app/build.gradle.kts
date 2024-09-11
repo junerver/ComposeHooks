@@ -69,15 +69,13 @@ dependencies {
     debugImplementation(libs.compose.ui.test.manifest)
     androidTestImplementation(libs.compose.ui.test.junit4)
 
-    implementation(libs.okhttp)
-    implementation(libs.bundles.retrofit){
-        exclude(group = "com.squareup.okhttp3",module = "okhttp")
-    }
     implementation("com.tencent:mmkv:1.3.4")
-
 
     implementation(projects.hooks)
 
     implementation(libs.kotlinx.collections.immutable)
     implementation(libs.kotlinx.serialization.json)
+
+    implementation(libs.ktor.client.core)
+    implementation(libs.bundles.ktor)
 }

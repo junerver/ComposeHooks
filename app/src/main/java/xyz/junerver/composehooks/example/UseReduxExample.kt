@@ -32,6 +32,7 @@ import xyz.junerver.compose.hooks.useredux.useDispatchAsync
 import xyz.junerver.compose.hooks.useredux.useSelector
 import xyz.junerver.composehooks.MainActivity
 import xyz.junerver.composehooks.net.NetApi
+import xyz.junerver.composehooks.net.bean.UserInfo
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.composehooks.utils.NanoId
 import xyz.junerver.kotlin.Tuple2
@@ -354,6 +355,6 @@ private fun useFetchError() = useFetchAliasFetch(alias = FetchAlias1, errorRetry
 }
 
 @Composable
-private fun useFetchUserInfo(user: String = "junerver") = useFetchAliasFetch(alias = FetchAlias2, autoFetch = true) {
-    NetApi.SERVICE.userInfo(user)
+private fun useFetchUserInfo(user: String = "junerver") = useFetchAliasFetch<UserInfo>(alias = FetchAlias2, autoFetch = true) {
+    NetApi.userInfo(user)
 }

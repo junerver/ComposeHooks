@@ -77,7 +77,7 @@ fun Auto() {
 fun Manual() {
     val (repoInfo, loading, error, request) = useRequest(
         requestFn = {
-            NetApi.SERVICE.repoInfo(it[0] as String, it[1] as String)
+            NetApi.repoInfo(it[0] as String, it[1] as String)
         },
         RequestOptions.optionOf {
             manual = true
