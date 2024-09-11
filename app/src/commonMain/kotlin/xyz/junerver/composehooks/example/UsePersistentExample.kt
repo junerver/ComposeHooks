@@ -68,9 +68,7 @@ private fun DefaultPersistent() {
 
 @Composable
 private fun MMKVPersistent() {
-    /**
-     * 使用持久化需要传递重写三个函数，分别是持久化的 get、set、clear
-     */
+    /** 使用持久化需要传递重写三个函数，分别是持久化的 get、set、clear */
     PersistentContext.Provider(
         value = PersistentContext.LocalCtx.current.copy(
             first = ::mmkvGet,
@@ -106,7 +104,7 @@ private fun MMKVPersistentSub() {
 private fun VsViewModel() {
     val (vsvm, saveVsvm) = usePersistent(key = "vsVm", "")
     val (state, setState) = useGetState("")
-    val vm: PersistentVm = viewModel()
+    val vm = viewModel { PersistentVm() }
     var vmstate by vm.vmState
     val nav = useNavigate()
     val (hideKeyboard) = useKeyboard()
@@ -138,7 +136,7 @@ private fun VsViewModel() {
 @Composable
 private fun VsViewModelSub() {
     val (vsvm, _) = usePersistent(key = "vsVm", "")
-    val vm: PersistentVm = viewModel()
+    val vm = viewModel { PersistentVm() }
     var vmstate by vm.vmState
     Column {
         Text(text = "state from persistent: $vsvm")

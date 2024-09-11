@@ -1,8 +1,7 @@
+
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
-import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
-import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -13,24 +12,6 @@ plugins {
 }
 
 kotlin {
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        moduleName = "composeApp"
-        browser {
-            val projectDirPath = project.projectDir.path
-            commonWebpackConfig {
-                outputFileName = "composeApp.js"
-                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-                    static = (static ?: mutableListOf()).apply {
-                        // Serve sources to debug inside browser
-                        add(projectDirPath)
-                    }
-                }
-            }
-        }
-        binaries.executable()
-    }
-
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
@@ -52,19 +33,28 @@ kotlin {
     }
 
     sourceSets {
-        val desktopMain by getting{
+        val desktopMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
+                implementation("ca.gosyer:kotlin-multiplatform-appdirs:1.1.1")
                 implementation(libs.kotlinx.coroutines.swing)
             }
         }
 
-        androidMain{
+        androidMain {
             dependencies {
                 implementation(compose.preview)
                 implementation(libs.androidx.activity.compose)
+                implementation("com.ctrip.flight.mmkv:mmkv-kotlin:1.2.14")
             }
         }
+
+        iosMain {
+            dependencies {
+                implementation("com.ctrip.flight.mmkv:mmkv-kotlin:1.2.14")
+            }
+        }
+
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
