@@ -52,7 +52,7 @@ fun UseThrottleExample() {
     val (result, setResult) = useGetState("")
     useThrottleEffect(stateEf) {
         setResult("loading")
-        val result = NetApi.SERVICE.userInfo("junerver")
+        val result = NetApi.userInfo("junerver")
         setResult(result.toString().subStringIf())
     }
     Surface {

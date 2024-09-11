@@ -38,7 +38,7 @@ fun UseDebounceExample() {
     val (result, setResult) = useGetState("")
     useDebounceEffect(stateEf) {
         setResult("loading")
-        val userInfo = NetApi.SERVICE.userInfo("junerver")
+        val userInfo = NetApi.userInfo("junerver")
         setResult(userInfo.toString().subStringIf())
     }
 

@@ -1,7 +1,7 @@
 package xyz.junerver.composehooks
 
 import android.app.Application
-import com.tencent.mmkv.MMKV
+import com.ctrip.flight.mmkv.initialize
 
 /*
   Description:
@@ -14,6 +14,6 @@ import com.tencent.mmkv.MMKV
 class HooksApplication : Application() {
     override fun onCreate() {
         super.onCreate()
-        MMKV.initialize(this)
+        initialize(this)
     }
 }

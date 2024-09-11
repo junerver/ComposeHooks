@@ -69,7 +69,7 @@ dependencies {
     debugImplementation(libs.compose.ui.test.manifest)
     androidTestImplementation(libs.compose.ui.test.junit4)
 
-    implementation("com.tencent:mmkv:1.3.4")
+    implementation("com.ctrip.flight.mmkv:mmkv-kotlin:1.2.14")
 
     implementation(projects.hooks)
 
