@@ -89,7 +89,7 @@ private fun MMKVPersistent() {
                 hideKeyboard()
                 saveToken(state)
                 setState("")
-                toast("now you can exit app,and reopen")
+                println("now you can exit app,and reopen")
             }
             MMKVPersistentSub()
         }

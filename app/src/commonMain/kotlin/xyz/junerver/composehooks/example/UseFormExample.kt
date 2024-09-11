@@ -165,7 +165,7 @@ private fun FormScope.Sub() {
     val canSubmit by formInstance._isValidated()
     Row {
         TButton(text = "submit", enabled = canSubmit) {
-            toast(
+            println(
                 formInstance.getAllFields()
                     .toString() + "\nisValidated :" + formInstance.isValidated()
             )

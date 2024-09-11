@@ -78,7 +78,7 @@ kotlin {
 
             implementation(libs.navigation.compose)
 
-            implementation("com.ctrip.flight.mmkv:mmkv-kotlin:1.2.14")
+//            implementation("com.ctrip.flight.mmkv:mmkv-kotlin:1.2.14")
             implementation(projects.hooks)
             implementation(libs.kotlinx.collections.immutable)
             implementation(libs.kotlinx.serialization.json)

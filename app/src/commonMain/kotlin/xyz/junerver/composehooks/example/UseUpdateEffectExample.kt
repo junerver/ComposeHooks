@@ -3,7 +3,6 @@ package xyz.junerver.composehooks.example
 import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useUpdateEffect
 import xyz.junerver.composehooks.ui.component.TButton
@@ -17,12 +16,12 @@ import xyz.junerver.composehooks.ui.component.TButton
 */
 @Composable
 fun UseUpdateEffectExample() {
-    val ctx = LocalContext.current
+//    val ctx = LocalContext.current
 
     val (state, setState) = useGetState(0)
     useUpdateEffect(state) {
         // A hook alike useEffect but skips running the effect for the first time.
-        ctx.toast("useUpdateEffect deps change")
+        println("useUpdateEffect deps change")
     }
     Surface {
         Column {

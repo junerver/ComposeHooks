@@ -37,7 +37,7 @@ fun UseRefExample() {
                 update()
             }
             TButton(text = "toast ref") {
-                toast("ref.current: ${countRef.current}")
+                println("ref.current: ${countRef.current}")
             }
             HorizontalDivider(
                 modifier = Modifier

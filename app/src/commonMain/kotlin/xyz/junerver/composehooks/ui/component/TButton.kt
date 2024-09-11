@@ -1,6 +1,6 @@
 package xyz.junerver.composehooks.ui.component
 
-import android.content.Context
+//import android.content.Context
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -23,10 +23,10 @@ fun TButton(
     text: String,
     modifier: Modifier = Modifier,
     enabled: Boolean = true,
-    onClick: Context.() -> Unit,
+    onClick: () -> Unit,
 ) {
-    val ctx = LocalContext.current
-    Button(onClick = { ctx.onClick() }, enabled = enabled, modifier = modifier.padding(PaddingValues(4.dp))) {
+//    val ctx = LocalContext.current
+    Button(onClick = { onClick() }, enabled = enabled, modifier = modifier.padding(PaddingValues(4.dp))) {
         Text(text = text)
     }
 }

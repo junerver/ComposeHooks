@@ -70,10 +70,10 @@ fun UseDeviceInfoExample() {
             TButton(text = if (isDisable) "Enable" else "Disable") {
                 if (isDisable) {
                     enable()
-                    toast("Now you can take screenshots")
+                    println("Now you can take screenshots")
                 } else {
                     disable()
-                    toast("Now you can't take screenshots")
+                    println("Now you can't take screenshots")
                 }
             }
 
@@ -82,10 +82,10 @@ fun UseDeviceInfoExample() {
             TButton(text = if (isActive) "release" else "request") {
                 if (isActive) {
                     release()
-                    toast("Release wake lock")
+                    println("Release wake lock")
                 } else {
                     req()
-                    toast("Request wake lock")
+                    println("Request wake lock")
                 }
             }
 
@@ -94,10 +94,10 @@ fun UseDeviceInfoExample() {
             TButton(text = if (isFlagsAdded) "clearFlags" else "addFlags") {
                 if (isFlagsAdded) {
                     clearFlags()
-                    toast("Window flags clear!")
+                    println("Window flags clear!")
                 } else {
                     addFlags()
-                    toast("Window flags added!")
+                    println("Window flags added!")
                 }
             }
         }

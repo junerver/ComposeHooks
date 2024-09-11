@@ -66,7 +66,7 @@ fun SubRef() {
         Text(text = "TimestampRef: ${timestamp.current}")
         Row {
             TButton(text = "alert time") {
-                toast("${timestamp.current}")
+                println("${timestamp.current}")
             }
         }
     }

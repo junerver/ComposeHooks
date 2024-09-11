@@ -45,22 +45,22 @@ fun UseMountExample() {
 
 @Composable
 fun UnmountableChild(text: String) {
-    val ctx = LocalContext.current
+//    val ctx = LocalContext.current
     val unmountedRef = useUnmountedRef()
     useMount {
-        ctx.toast("on mount")
+        println("on mount")
         launch(Dispatchers.Main + SupervisorJob()) {
             delay(4.seconds)
             println("do something after unmount")
             if (!unmountedRef.current) {
-                ctx.toast("on mount delay")
+                println("on mount delay")
             } else {
                 println("component is unmounted!")
             }
         }
     }
     useUnmount {
-        ctx.toast(" on unmount")
+        println(" on unmount")
     }
 
     Text(text = text)
