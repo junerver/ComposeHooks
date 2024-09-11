@@ -97,6 +97,13 @@ private fun UseStateQuestionOne() {
     }
 }
 
+/**
+ * 如果我们直接对 [MutableState] 进行解构，在快速更新状态的场景会导致状态不更新；
+ * 解决方法：
+ * 1. 使用 by 委托
+ * 2. 直接使用 state.value
+ * 3. 使用 [useGetState]
+ */
 @Composable
 private fun UseStateQuestionTwo() {
     val directState = useState(default = "direct")

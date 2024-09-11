@@ -1,5 +1,6 @@
 package xyz.junerver.composehooks.route
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
@@ -8,6 +9,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import xyz.junerver.composehooks.getPlatform
+import xyz.junerver.composehooks.ui.component.TButton
 
 /*
   Description:
@@ -28,9 +31,16 @@ fun useNavigate() = LocalNavHostController.current
 fun useRoutes(routes: Map<String, Component>) {
     val navController = rememberNavController()
     return CompositionLocalProvider(LocalNavHostController provides navController) {
-        NavHost(navController = navController, startDestination = "/") {
-            routes.map { route ->
-                composable(route.key) { route.value() }
+        Column {
+            if (getPlatform().name.startsWith("Java")) {
+                TButton("back") {
+                    navController.popBackStack()
+                }
+            }
+            NavHost(navController = navController, startDestination = "/") {
+                routes.map { route ->
+                    composable(route.key) { route.value() }
+                }
             }
         }
     }

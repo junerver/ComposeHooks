@@ -329,7 +329,7 @@ private fun <T> useFetchAliasFetch(
     }
     // 挂载时自动请求
     useMount {
-        if (autoFetch) fetch()
+        if (autoFetch && fetchResult is NetFetchResult.Idle) fetch()
     }
     // 错误重试
     when (fetchResult) {
@@ -339,6 +339,7 @@ private fun <T> useFetchAliasFetch(
                 retryCount.current--
             }
         }
+
         else -> {}
     }
     return tuple(
@@ -354,6 +355,7 @@ private fun useFetchError() = useFetchAliasFetch(alias = FetchAlias1, errorRetry
 }
 
 @Composable
-private fun useFetchUserInfo(user: String = "junerver") = useFetchAliasFetch<UserInfo>(alias = FetchAlias2, autoFetch = true) {
-    NetApi.userInfo(user)
-}
+private fun useFetchUserInfo(user: String = "junerver") =
+    useFetchAliasFetch<UserInfo>(alias = FetchAlias2, autoFetch = true) {
+        NetApi.userInfo(user)
+    }

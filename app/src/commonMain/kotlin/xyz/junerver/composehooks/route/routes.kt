@@ -12,6 +12,7 @@ import xyz.junerver.composehooks.example.sub.PersistentSub
   Email: junerver@gmail.com
   Version: v1.0
 */
+expect val androidRoutes: Map<String, @Composable () -> Unit>
 
 val routes = mapOf<String, @Composable () -> Unit>(
     "/" to { HomeScreen() },
@@ -19,25 +20,21 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useAsync" to { UseAsyncExample() },
     "useAutoReset" to { UseAutoResetExample() },
     "useBoolean" to { UseBooleanExample() },
-    "useBiometric" to { },
     "useClipboard" to { UseClipboardExample() },
     "useContext" to { UseContextExample() },
     "useCountdown" to { UseCountdownExample() },
     "useCounter" to { UseCounterExample() },
     "useCreation" to { UseCreationExample() },
     "useDebounce" to { UseDebounceExample() },
-    "useDeviceInfo" to { },
     "useEffect" to { UseEffectExample() },
     "useEvent" to { UseEventExample() },
     "useForm" to { UseFormExample() },
     "useGetState" to { UseGetStateExample() },
-    "useIdle" to { },
     "useInterval" to { UseIntervalExample() },
     "useLatest" to { UseLatestExample() },
     "useList" to { UseListExample() },
     "useMap" to { UseMapExample() },
     "useMount" to { UseMountExample() },
-    "useNetwork" to { },
     "useNow" to { UseNowExample() },
     "useNumber" to { UseNumberExample() },
     "usePersistent" to { UsePersistentExample() },
@@ -46,7 +43,6 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useRedux" to { UseReduxExample() },
     "useRef" to { UseRefExample() },
     "useResetState" to { UseResetStateExample() },
-    "useSensor" to { },
     "useState" to { UseStateExample() },
     "useThrottle" to { UseThrottleExample() },
     "useTimeout" to { UseTimeoutExample() },
@@ -55,9 +51,9 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useUndo" to { UseUndoExample() },
     "useUnmount" to { UseMountExample() },
     "useUpdate" to { UseUpdateExample() },
-    "useUpdateEffect" to { UseUpdateEffectExample() },
-    "useVibrate" to { }
-)
+    "useUpdateEffect" to { UseUpdateEffectExample() }
+
+) + androidRoutes
 
 val subRequestRoutes = mapOf<String, @Composable () -> Unit>(
     "auto&manual" to { AutoManual() },
