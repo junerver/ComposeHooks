@@ -42,7 +42,7 @@ data class RequestOptions<TData> internal constructor(
     /**
      * requestFn 抛出异常时触发
      */
-    var onError: OnErrorCallback = { error, _ -> println(error.toString()) },
+    var onError: OnErrorCallback = { error, _ -> error.printStackTrace() },
     /**
      * requestFn 执行完成时触发；参数1：请求参数，参数2：返回值，参数3：异常
      */
