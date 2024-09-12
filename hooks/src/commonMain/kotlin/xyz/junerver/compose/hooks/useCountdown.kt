@@ -51,7 +51,7 @@ fun useCountdown(options: CountdownOptions): Pair<Duration, FormattedRes> {
     val onEndRef = useLatestRef(value = onEnd)
     val pauseRef = useRef(default = {})
     val (resume, pause) = useInterval(
-        IntervalOptions.optionOf {
+        optionsOf {
             period = interval
         }
     ) {

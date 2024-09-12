@@ -14,7 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.TButton
@@ -48,7 +48,7 @@ fun Auto() {
     val (userInfo, loading, error) = useRequest(
 //        requestFn = NetApi.SERVICE::userInfo.asSuspendNoopFn(), // Make a request directly through the WebService instance
         requestFn = { NetApi.userInfo(it[0] as String) }, // Make a request WebService interface
-        RequestOptions.optionOf {
+        optionsOf {
             defaultParams =
                 arrayOf("junerver") // Automatically requests must set default parameters
         }
@@ -74,7 +74,7 @@ fun Manual() {
         requestFn = {
             NetApi.repoInfo(it[0] as String, it[1] as String)
         },
-        RequestOptions.optionOf {
+        optionsOf {
             manual = true
             defaultParams =
                 arrayOf(

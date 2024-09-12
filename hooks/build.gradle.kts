@@ -59,20 +59,27 @@ kotlin {
 
             api(libs.arrow.core)
         }
-        androidMain {
-            kotlin.srcDir("src/commonJvmAndroid/kotlin")
-            dependencies {
-                implementation(libs.androidx.activity.compose)
-                implementation(libs.androidx.appcompat)
-                implementation(libs.androidx.biometric)
-            }
-        }
-        val desktopMain by getting {
-            kotlin.srcDir("src/commonJvmAndroid/kotlin")
-            dependencies {
-            }
+
+        val commonJvmAndroid by creating {
+            dependsOn(commonMain.get())
         }
 
+        androidMain.get().dependsOn(commonJvmAndroid)
+        androidMain.dependencies {
+            implementation(libs.androidx.activity.compose)
+            implementation(libs.androidx.appcompat)
+            implementation(libs.androidx.biometric)
+        }
+
+        val desktopMain by getting {
+            dependsOn(commonJvmAndroid)
+        }
+
+        iosMain.get().dependsOn(commonMain.get())
+        iosX64Main.get().dependsOn(iosMain.get())
+        iosArm64Main.get().dependsOn(iosMain.get())
+        iosSimulatorArm64Main.get().dependsOn(iosMain.get())
+        
         commonTest.dependencies {
             implementation(libs.kotlin.test)
 //            implementation(libs.kotlin.test.junit)

@@ -10,8 +10,26 @@ package xyz.junerver.composehooks
   Version: v1.0
 */
 
-expect fun mmkvSave(key: String, value: Any?)
+val storeDelegate by lazy {
+    getKVDelegate()
+}
 
-expect fun mmkvGet(key: String, value: Any): Any
+fun mmkvSave(key: String, value: Any?) {
+    storeDelegate.saveData(key, value)
+}
 
-expect fun mmkvClear(key: String)
+fun mmkvGet(key: String, value: Any): Any {
+    return storeDelegate.readData(key, value)
+}
+
+fun mmkvClear(key: String) {
+    storeDelegate.remove(key)
+}
+
+expect fun getKVDelegate(): KeyValueStoreDelegate
+
+interface KeyValueStoreDelegate {
+    fun <T> saveData(key: String, data: T)
+    fun <T> readData(key: String, default: T): T
+    fun remove(key: String)
+}

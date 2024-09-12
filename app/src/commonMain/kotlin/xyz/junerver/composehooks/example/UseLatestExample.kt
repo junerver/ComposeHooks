@@ -5,15 +5,11 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.IntervalOptions
+import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useInterval
 import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.useState
@@ -42,7 +38,7 @@ fun UseLatestExample() {
 fun Normal() {
     var count by remember { mutableIntStateOf(0) }
     useInterval(
-        IntervalOptions.optionOf {
+        optionsOf {
             initialDelay = 2.seconds
             period = 1.seconds
         },
@@ -57,7 +53,7 @@ fun Normal() {
 fun UseStateButWithoutUseLatest() {
     val (count, setCount) = useState(0)
     useInterval(
-        IntervalOptions.optionOf {
+        optionsOf {
             initialDelay = 2.seconds
             period = 1.seconds
         },
@@ -73,7 +69,7 @@ fun UseStateAndUseLatest() {
     val (count, setCount) = useState(0)
     val latestRef = useLatestRef(value = count)
     useInterval(
-        IntervalOptions.optionOf {
+        optionsOf {
             initialDelay = 2.seconds
             period = 1.seconds
         },

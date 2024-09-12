@@ -21,3 +21,13 @@ abstract class Options<T>(val creator: () -> T) {
     /** [default]函数直接调用构造器函数获取默认实例 */
     fun default() = creator()
 }
+
+/**
+ * 用于快捷创建配置选项的顶层函数，在jvm/andorid上使用反射创建、在ios平台手动创建
+ */
+expect inline fun <reified T> optionsOf(noinline opt: T.() -> Unit): T
+
+/**
+ * 创建默认选项的顶层函数，在jvm/andorid上使用反射创建、在ios平台手动创建
+ */
+expect inline fun <reified T> defaultOption(): T

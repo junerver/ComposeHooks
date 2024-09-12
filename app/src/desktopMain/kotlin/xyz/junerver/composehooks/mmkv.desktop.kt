@@ -1,32 +1,23 @@
 package xyz.junerver.composehooks
 
 import ca.gosyer.appdirs.AppDirs
-import java.io.BufferedReader
-import java.io.BufferedWriter
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileNotFoundException
-import java.io.FileOutputStream
-import java.io.FileReader
-import java.io.InputStreamReader
-import java.io.OutputStreamWriter
+import java.io.*
 import java.security.MessageDigest
-import java.util.Properties
+import java.util.*
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
 import javax.crypto.CipherOutputStream
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
-import xyz.junerver.compose.hooks.notifyDefaultPersistentObserver
 
 /*
   Description: 这段代码完全借鉴自[FunnySaltyFish](https://github.com/FunnySaltyFish)/[Transtation-KMP](https://github.com/FunnySaltyFish/Transtation-KMP)
-  Author: pavi2410
+  Author: FunnySaltyFish
   Date: 2024/9/11-15:11
   Email: junerver@gmail.com
   Version: v1.0
 */
-class DataSaverProperties(private val filePath: String, private val encryptionKey: String) {
+class DataSaverProperties(private val filePath: String, private val encryptionKey: String) : KeyValueStoreDelegate {
     private val properties = Properties()
     private val hashedKey = hashKey(encryptionKey)
 
@@ -86,25 +77,25 @@ class DataSaverProperties(private val filePath: String, private val encryptionKe
         return md.digest(key.toByteArray())
     }
 
-    fun <T> saveData(key: String, data: T) {
+    override fun <T> saveData(key: String, data: T) {
         properties[key] = data.toString()
         saveProperties()
     }
 
-    fun <T> readData(key: String, default: T): T {
+    override fun <T> readData(key: String, default: T): T {
         val value = properties.getProperty(key) ?: return default
         return when (default) {
             is Int -> value.toIntOrNull() ?: default
             is Long -> value.toLongOrNull() ?: default
-            is Boolean -> value.toBooleanStrictOrNull() ?: default
             is Double -> value.toDoubleOrNull() ?: default
             is Float -> value.toFloatOrNull() ?: default
+            is Boolean -> value.toBooleanStrictOrNull() ?: default
             is String -> value
             else -> error("wrong type of default value！")
         } as T
     }
 
-    fun remove(key: String) {
+    override fun remove(key: String) {
         properties.remove(key)
         saveProperties()
     }
@@ -114,50 +105,18 @@ class DataSaverProperties(private val filePath: String, private val encryptionKe
     }
 }
 
-val mmkv by lazy {
-    // 读取 dotenv
-    DataSaverProperties(
-        filePath = CacheManager.baseDir.resolve("data_saver.properties").absolutePath,
-        encryptionKey = "OpenSourceMagicKey"
-    )
-}
-
 object CacheManager {
-    private val appName = "Transtation"
-    private val author = "FunnySaltyFish"
+    private const val appName = "ComposeHooks"
+    private const val author = "Junerver"
     private val appDir = AppDirs(appName, author)
     private val userHome = appDir.getUserDataDir()
     val baseDir = File(userHome)
-
     var cacheDir: File = baseDir.resolve("cache")
 }
 
-actual fun mmkvSave(key: String, value: Any?) {
-    when (value) {
-        is Int -> mmkv.saveData(key, value)
-        is Long -> mmkv.saveData(key, value)
-        is Double -> mmkv.saveData(key, value)
-        is Float -> mmkv.saveData(key, value)
-        is Boolean -> mmkv.saveData(key, value)
-        is String -> mmkv.saveData(key, value)
-        is ByteArray -> mmkv.saveData(key, value)
-    }
-    notifyDefaultPersistentObserver(key)
-}
-
-actual fun mmkvGet(key: String, value: Any): Any {
-    return when (value) {
-        is Int -> mmkv.readData(key, value)
-        is Long -> mmkv.readData(key, value)
-        is Double -> mmkv.readData(key, value)
-        is Float -> mmkv.readData(key, value)
-        is Boolean -> mmkv.readData(key, value)
-        is String -> mmkv.readData(key, value)
-        is ByteArray -> mmkv.readData(key, value)
-        else -> error("wrong type of default value！")
-    }
-}
-
-actual fun mmkvClear(key: String) {
-    mmkv.remove(key)
+actual fun getKVDelegate(): KeyValueStoreDelegate {
+    return DataSaverProperties(
+        filePath = CacheManager.baseDir.resolve("data_saver.properties").absolutePath,
+        encryptionKey = "OpenSourceMagicKey"
+    )
 }

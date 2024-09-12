@@ -7,8 +7,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import arrow.core.left
 import arrow.core.right
-import xyz.junerver.compose.hooks.CounterOptions
 import xyz.junerver.compose.hooks.invoke
+import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useCounter
 import xyz.junerver.composehooks.ui.component.TButton
 
@@ -24,7 +24,7 @@ import xyz.junerver.composehooks.ui.component.TButton
 fun UseCounterExample() {
     val (current, inc, dec, set, reset) = useCounter(
         initialValue = 100, // 即使配置了100也不会超出选项的上下限
-        options = CounterOptions.optionOf {
+        options = optionsOf {
             min = 1
             max = 10
         }

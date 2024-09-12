@@ -10,12 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.DebounceOptions
-import xyz.junerver.compose.hooks.ThrottleOptions
-import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.useEventPublish
-import xyz.junerver.compose.hooks.useEventSubscribe
-import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.*
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.TButton
@@ -61,7 +56,7 @@ fun Container(label: String, optionFunc: OptionFunc) {
 fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc) {
     val (userInfo, loading, _, request) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
-        RequestOptions.optionOf {
+        optionsOf {
             defaultParams = arrayOf("junerver")
             when (optionFunc) {
                 OptionFunc.LoadingDelay -> runIf(isUsed) {
@@ -82,16 +77,16 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
                      *
                      * When you configure [DebounceOptions.wait], anti-shake processing will be performed according to the set value.
                      */
-                    debounceOptions = DebounceOptions.optionOf { wait = 3.seconds }
+                    debounceOptions = optionsOf { wait = 3.seconds }
                 }
 
                 OptionFunc.Throttle -> runIf(isUsed) {
                     /**
-                     * 当你配置了[throttleOptions.wait]，会按照设置值进行节流处理
+                     * 当你配置了[ThrottleOptions.wait]，会按照设置值进行节流处理
                      *
                      * When you configure [ThrottleOptions.wait], throttling will be performed according to the set value.
                      */
-                    throttleOptions = ThrottleOptions.optionOf { wait = 3.seconds }
+                    throttleOptions = optionsOf { wait = 3.seconds }
                 }
             }
         }

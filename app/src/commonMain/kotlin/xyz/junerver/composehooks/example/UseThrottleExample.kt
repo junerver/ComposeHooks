@@ -10,13 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.datetime.Clock
-import xyz.junerver.compose.hooks.ThrottleOptions
-import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.useEffect
-import xyz.junerver.compose.hooks.useGetState
-import xyz.junerver.compose.hooks.useThrottle
-import xyz.junerver.compose.hooks.useThrottleEffect
-import xyz.junerver.compose.hooks.useThrottleFn
+import xyz.junerver.compose.hooks.*
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.composehooks.utils.subStringIf
@@ -38,7 +32,7 @@ fun UseThrottleExample() {
     val (stateFn, setStateFn) = useGetState(0)
     val throttledFn = useThrottleFn(
         fn = { setStateFn(stateFn + 1) },
-        ThrottleOptions.optionOf {
+        optionsOf {
             leading = false
             trailing = false
         }

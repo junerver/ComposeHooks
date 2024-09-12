@@ -41,6 +41,14 @@ kotlin {
             }
         }
 
+        val commonIosAndroid by creating {
+            dependsOn(commonMain.get())
+            dependencies {
+                implementation(libs.mmkv.kotlin)
+            }
+        }
+
+        androidMain.get().dependsOn(commonIosAndroid)
         androidMain {
             dependencies {
                 implementation(compose.preview)
@@ -49,11 +57,11 @@ kotlin {
             }
         }
 
-        iosMain {
-            dependencies {
-                implementation(libs.mmkv.kotlin)
-            }
-        }
+        iosMain.get().dependsOn(commonIosAndroid)
+        iosMain.get().dependsOn(commonMain.get())
+        iosX64Main.get().dependsOn(iosMain.get())
+        iosArm64Main.get().dependsOn(iosMain.get())
+        iosSimulatorArm64Main.get().dependsOn(iosMain.get())
 
         commonMain.dependencies {
             implementation(compose.runtime)

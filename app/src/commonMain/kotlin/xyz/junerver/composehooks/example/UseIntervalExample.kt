@@ -31,11 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.IntervalOptions
-import xyz.junerver.compose.hooks.useBoolean
-import xyz.junerver.compose.hooks.useEffect
-import xyz.junerver.compose.hooks.useGetState
-import xyz.junerver.compose.hooks.useInterval
+import xyz.junerver.compose.hooks.*
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -76,7 +72,7 @@ private fun Manual() {
     // if you prefer to this usage, use `useGetState`
     val (countDown, setCountDown) = useGetState(60)
     val (resume, pause, isActive) = useInterval(
-        IntervalOptions.optionOf {
+        optionsOf {
             initialDelay = 2.seconds
             period = 1.seconds
         }
@@ -101,7 +97,7 @@ private fun ByReady() {
     val (countDown, setCountDown) = useGetState(60)
     val (isReady, toggle, setReady) = useBoolean(false)
     useInterval(
-        options = IntervalOptions.optionOf {
+        options = optionsOf {
             initialDelay = 2.seconds
             period = 1.seconds
         },
@@ -166,7 +162,7 @@ fun MyDecorationBox(
     val (isReady, _, _, setReadyTrue, setReadyFalse) = useBoolean(false)
     val (countdown, setCountdown) = useGetState(countDownTimer)
     useInterval(
-        IntervalOptions.optionOf {
+        optionsOf {
             initialDelay = 1.seconds
             period = 1.seconds
         },

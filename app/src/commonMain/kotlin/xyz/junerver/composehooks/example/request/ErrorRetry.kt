@@ -11,8 +11,9 @@ import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import kotlinx.datetime.Clock
+import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useState
-import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.kotlin.asBoolean
 
@@ -56,12 +57,12 @@ fun ErrorRetry() {
         requestFn = {
             mockRequest(it[0] as String, it[1] as String)
         },
-        RequestOptions.optionOf {
+        optionsOf {
             defaultParams = arrayOf("1", "2")
             retryCount = 5
             retryInterval = 2.seconds
             onError = { _, _ ->
-                count += "${System.currentTimeMillis() / 1000}\n"
+                count += "${Clock.System.now().epochSeconds}\n"
             }
         }
     )

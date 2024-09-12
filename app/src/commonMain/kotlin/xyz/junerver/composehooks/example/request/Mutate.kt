@@ -11,9 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.usePrevious
-import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.TButton
@@ -85,7 +85,7 @@ private fun ManualMutateRollback() {
     val (input, setInput) = useGetState("")
     val (userInfo, loading, _, _, mutate) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
-        RequestOptions.optionOf {
+        optionsOf {
             defaultParams = arrayOf("junerver")
         }
     )
@@ -138,7 +138,7 @@ private fun AutoRollback() {
     val (input, setInput) = useGetState("")
     val (userInfo, loading, _, _, mutate, _, _, triggerRollback) = useCustomPluginRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
-        RequestOptions.optionOf {
+        optionsOf {
             defaultParams = arrayOf("junerver")
         }
     )

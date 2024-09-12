@@ -10,12 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.useBoolean
-import xyz.junerver.compose.hooks.useEventPublish
-import xyz.junerver.compose.hooks.useEventSubscribe
-import xyz.junerver.compose.hooks.useRef
-import xyz.junerver.compose.hooks.useUpdate
-import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.*
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.kotlin.asBoolean
@@ -60,7 +55,7 @@ fun Sub(isPollingWhenHidden: Boolean = false) {
     val post = useEventPublish<Int>()
     val (userInfo, loading) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
-        RequestOptions.optionOf {
+        optionsOf {
             defaultParams = arrayOf("junerver")
             pollingInterval = 3.seconds
             pollingWhenHidden = isPollingWhenHidden
