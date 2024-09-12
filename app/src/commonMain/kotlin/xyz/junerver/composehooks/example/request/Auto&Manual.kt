@@ -1,10 +1,6 @@
 package xyz.junerver.composehooks.example.request
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
@@ -46,7 +42,7 @@ fun AutoManual() {
 @Composable
 fun Auto() {
     val (userInfo, loading, error) = useRequest(
-//        requestFn = NetApi.SERVICE::userInfo.asSuspendNoopFn(), // Make a request directly through the WebService instance
+//        requestFn = NetApi::userInfo.asSuspendNoopFn(), // Make a request directly through the WebService instance
         requestFn = { NetApi.userInfo(it[0] as String) }, // Make a request WebService interface
         optionsOf {
             defaultParams =

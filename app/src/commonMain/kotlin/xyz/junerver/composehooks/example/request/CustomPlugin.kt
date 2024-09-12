@@ -13,8 +13,8 @@ import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.PluginLifecycle
 import xyz.junerver.compose.hooks.userequest.PluginOnMutate
 import xyz.junerver.compose.hooks.userequest.RefreshFn
+import xyz.junerver.compose.hooks.userequest.ReqFn
 import xyz.junerver.compose.hooks.userequest.RequestOptions
-import xyz.junerver.compose.hooks.userequest.RunFn
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.kotlin.Tuple8
 import xyz.junerver.kotlin.plus
@@ -41,7 +41,7 @@ typealias RollbackFn = () -> Unit
 fun <TData : Any> useCustomPluginRequest(
     requestFn: suspend (TParams) -> TData,
     options: RequestOptions<TData>,
-): Tuple8<TData?, Boolean, Throwable?, RunFn, MutateFn<TData>, RefreshFn, CancelFn, RollbackFn> {
+): Tuple8<TData?, Boolean, Throwable?, ReqFn, MutateFn<TData>, RefreshFn, CancelFn, RollbackFn> {
     val rollbackRef = useRef(default = { })
     val tuple = useRequest(
         requestFn = requestFn,

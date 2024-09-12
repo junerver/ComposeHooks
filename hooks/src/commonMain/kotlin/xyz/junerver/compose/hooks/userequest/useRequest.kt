@@ -12,7 +12,7 @@ import xyz.junerver.compose.hooks.userequest.plugins.*
 import xyz.junerver.compose.hooks.utils._useSetState
 import xyz.junerver.kotlin.Tuple7
 
-typealias RunFn = VoidFunction
+typealias ReqFn = VoidFunction
 typealias MutateFn<TData> = KFunction1<(TData?) -> TData, Unit>
 typealias RefreshFn = KFunction0<Unit>
 typealias CancelFn = KFunction0<Unit>
@@ -88,7 +88,7 @@ fun <TData : Any> useRequest(
     requestFn: SuspendNormalFunction<TData>,
     options: RequestOptions<TData> = RequestOptions(),
     plugins: Array<@Composable (RequestOptions<TData>) -> Plugin<TData>> = emptyArray(),
-): Tuple7<TData?, Boolean, Throwable?, RunFn, MutateFn<TData>, RefreshFn, CancelFn> {
+): Tuple7<TData?, Boolean, Throwable?, ReqFn, MutateFn<TData>, RefreshFn, CancelFn> {
     val fetch = useRequestPluginsImpl(
         requestFn,
         options,
