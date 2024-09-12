@@ -38,7 +38,7 @@ data class BiometricOptions internal constructor(
 
 @Composable
 fun useBiometric(
-    options: BiometricOptions = defaultOption(),
+    options: BiometricOptions = BiometricOptions(),
 ): Tuple2<() -> Unit, Boolean> {
     val (isAuthed, setIsAuthed) = _useSetState(default = false)
     val context = LocalContext.current

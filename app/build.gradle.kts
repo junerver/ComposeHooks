@@ -1,4 +1,3 @@
-
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -31,7 +30,7 @@ kotlin {
             isStatic = true
         }
     }
-
+    applyDefaultHierarchyTemplate()
     sourceSets {
         val desktopMain by getting {
             dependencies {
@@ -58,10 +57,6 @@ kotlin {
         }
 
         iosMain.get().dependsOn(commonIosAndroid)
-        iosMain.get().dependsOn(commonMain.get())
-        iosX64Main.get().dependsOn(iosMain.get())
-        iosArm64Main.get().dependsOn(iosMain.get())
-        iosSimulatorArm64Main.get().dependsOn(iosMain.get())
 
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -80,6 +75,7 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.ktor.client.core)
             implementation(libs.bundles.ktor)
+            implementation("ch.qos.logback:logback-classic:1.2.3")
         }
     }
 }

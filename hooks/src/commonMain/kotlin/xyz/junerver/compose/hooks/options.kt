@@ -1,4 +1,8 @@
+@file:Suppress("IMPLICIT_CAST_TO_ANY", "UNCHECKED_CAST")
+
 package xyz.junerver.compose.hooks
+
+import xyz.junerver.compose.hooks.userequest.RequestOptions
 
 /**
  * Description: 规范Options的形式
@@ -22,12 +26,30 @@ abstract class Options<T>(val creator: () -> T) {
     fun default() = creator()
 }
 
-/**
- * 用于快捷创建配置选项的顶层函数，在jvm/andorid上使用反射创建、在ios平台手动创建
- */
-expect inline fun <reified T> optionsOf(noinline opt: T.() -> Unit): T
+inline fun <reified T> optionsOf(noinline opt: T.() -> Unit): T {
+    return when (T::class) {
+        CountdownOptions::class -> CountdownOptions.optionOf(opt as CountdownOptions.() -> Unit)
+        CounterOptions::class -> CounterOptions.optionOf(opt as CounterOptions.() -> Unit)
+        DebounceOptions::class -> DebounceOptions.optionOf(opt as DebounceOptions.() -> Unit)
+        IntervalOptions::class -> IntervalOptions.optionOf(opt as IntervalOptions.() -> Unit)
+        UseNowOptions::class -> UseNowOptions.optionOf(opt as UseNowOptions.() -> Unit)
+        ThrottleOptions::class -> ThrottleOptions.optionOf(opt as ThrottleOptions.() -> Unit)
+        TimestampOptions::class -> TimestampOptions.optionOf(opt as TimestampOptions.() -> Unit)
+        RequestOptions::class -> RequestOptions.optionOf(opt as RequestOptions<Any>.() -> Unit)
+        else -> error("unsupported options!!!!")
+    } as T
+}
 
-/**
- * 创建默认选项的顶层函数，在jvm/andorid上使用反射创建、在ios平台手动创建
- */
-expect inline fun <reified T> defaultOption(): T
+inline fun <reified T> defaultOption(): T {
+    return when (T::class) {
+        CountdownOptions::class -> CountdownOptions.default()
+        CounterOptions::class -> CounterOptions.default()
+        DebounceOptions::class -> DebounceOptions.default()
+        IntervalOptions::class -> IntervalOptions.default()
+        UseNowOptions::class -> UseNowOptions.default()
+        ThrottleOptions::class -> ThrottleOptions.default()
+        TimestampOptions::class -> TimestampOptions.default()
+        RequestOptions::class -> RequestOptions.default<Any>()
+        else -> error("unsupported options!!!!")
+    } as T
+}

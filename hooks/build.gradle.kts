@@ -39,7 +39,7 @@ kotlin {
             isStatic = true
         }
     }
-
+    applyDefaultHierarchyTemplate()
     sourceSets {
         commonMain.dependencies {
             api(compose.runtime)
@@ -75,11 +75,6 @@ kotlin {
             dependsOn(commonJvmAndroid)
         }
 
-        iosMain.get().dependsOn(commonMain.get())
-        iosX64Main.get().dependsOn(iosMain.get())
-        iosArm64Main.get().dependsOn(iosMain.get())
-        iosSimulatorArm64Main.get().dependsOn(iosMain.get())
-        
         commonTest.dependencies {
             implementation(libs.kotlin.test)
 //            implementation(libs.kotlin.test.junit)
