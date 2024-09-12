@@ -26,7 +26,7 @@ import xyz.junerver.kotlin.asBoolean
 fun Cancel() {
     val (userInfo, loading, _, request, _, _, cancel) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
-        optionsOf {
+        optionsOf = {
             manual = true
             defaultParams = arrayOf("junerver")
         }

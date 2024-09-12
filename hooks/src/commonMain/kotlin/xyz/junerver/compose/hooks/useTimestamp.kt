@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -39,9 +40,10 @@ data class TimestampOptions internal constructor(
  * @param autoResume If automatically execute resume when entering the component
  * @return
  */
+@Deprecated("Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`")
 @Composable
 fun useTimestamp(
-    options: TimestampOptions = TimestampOptions(),
+    options: TimestampOptions = remember { TimestampOptions() },
     autoResume: Boolean = true,
 ): Tuple4<Long, PauseFn, ResumeFn, IsActive> {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
@@ -65,6 +67,14 @@ fun useTimestamp(
     )
 }
 
+@Composable
+fun useTimestamp(
+    optionsOf: TimestampOptions.() -> Unit,
+    autoResume: Boolean = true,
+): Tuple4<Long, PauseFn, ResumeFn, IsActive> {
+    return useTimestamp(remember(optionsOf) { TimestampOptions.optionOf(optionsOf) }, autoResume)
+}
+
 /**
  * Use timestamp ref
  *
@@ -72,9 +82,10 @@ fun useTimestamp(
  * @param autoResume If automatically execute resume when entering the component
  * @return
  */
+@Deprecated("Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`")
 @Composable
 fun useTimestampRef(
-    options: TimestampOptions = TimestampOptions(),
+    options: TimestampOptions = remember { TimestampOptions() },
     autoResume: Boolean = true,
 ): Tuple4<Ref<Long>, PauseFn, ResumeFn, IsActive> {
     val (interval, offset, callback) = with(options) { Triple(interval, offset, callback) }
@@ -96,4 +107,12 @@ fun useTimestampRef(
         third = resume,
         fourth = isActive
     )
+}
+
+@Composable
+fun useTimestampRef(
+    optionsOf: TimestampOptions.() -> Unit,
+    autoResume: Boolean = true,
+): Tuple4<Ref<Long>, PauseFn, ResumeFn, IsActive> {
+    return useTimestampRef(remember(optionsOf) { TimestampOptions.optionOf(optionsOf) }, autoResume)
 }

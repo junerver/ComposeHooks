@@ -56,7 +56,7 @@ fun Container(label: String, optionFunc: OptionFunc) {
 fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc) {
     val (userInfo, loading, _, request) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
-        optionsOf {
+        optionsOf = {
             defaultParams = arrayOf("junerver")
             when (optionFunc) {
                 OptionFunc.LoadingDelay -> runIf(isUsed) {

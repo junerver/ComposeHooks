@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.optionsOf
+import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.TButton
@@ -44,7 +45,7 @@ fun Auto() {
     val (userInfo, loading, error) = useRequest(
 //        requestFn = NetApi::userInfo.asSuspendNoopFn(), // Make a request directly through the WebService instance
         requestFn = { NetApi.userInfo(it[0] as String) }, // Make a request WebService interface
-        optionsOf {
+        optionsOf = {
             defaultParams =
                 arrayOf("junerver") // Automatically requests must set default parameters
         }
@@ -70,7 +71,9 @@ fun Manual() {
         requestFn = {
             NetApi.repoInfo(it[0] as String, it[1] as String)
         },
-        optionsOf {
+        // 这种传参会带来性能问题，请尽快更新使用性能优化版本，那你可以简单的在`optionsOf`后面加`=`来进行替换
+        options = optionsOf {
+            println("Configure closure execution!")
             manual = true
             defaultParams =
                 arrayOf(
@@ -85,11 +88,11 @@ fun Manual() {
                 Text(text = "Manual:")
                 TButton(text = "request with default") {
                     /**
-                     * 一般来说，手动请求的时候需要设置参数，但是如果你已经设置了默认参数[defaultParams]，你可以不传递,
+                     * 一般来说，手动请求的时候需要设置参数，但是如果你已经设置了默认参数[RequestOptions.defaultParams]，你可以不传递,
                      * 但是你可能需要手动导入[invoke].
                      *
                      * Generally , parameters need to be set when making a manual request, but
-                     * if you have set [defaultParams], you do not need to pass them, but you
+                     * if you have set [RequestOptions.defaultParams], you do not need to pass them, but you
                      * may need to manually import [invoke]
                      */
                     request()

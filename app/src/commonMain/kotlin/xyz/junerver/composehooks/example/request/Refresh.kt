@@ -32,7 +32,7 @@ fun Refresh() {
     var params by useState("")
     val (userInfo, loading, error, request, _, refresh) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
-        optionsOf {
+        optionsOf = {
             defaultParams = arrayOf("junerver")
             onBefore = {
                 params = it.joinToString("、")

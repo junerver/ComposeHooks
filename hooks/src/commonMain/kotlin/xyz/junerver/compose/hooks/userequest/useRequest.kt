@@ -83,10 +83,11 @@ typealias CancelFn = KFunction0<Unit>
  *    请求的配置项，参考[RequestOptions]，以及[ahooks-useRequest](https://ahooks.gitee.io/zh-CN/hooks/use-request/index).
  * @param plugins 自定义的插件，这是一个数组，请通过arrayOf传入
  */
+@Deprecated("Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`")
 @Composable
 fun <TData : Any> useRequest(
     requestFn: SuspendNormalFunction<TData>,
-    options: RequestOptions<TData> = RequestOptions(),
+    options: RequestOptions<TData> = remember { RequestOptions() },
     plugins: Array<@Composable (RequestOptions<TData>) -> Plugin<TData>> = emptyArray(),
 ): Tuple7<TData?, Boolean, Throwable?, ReqFn, MutateFn<TData>, RefreshFn, CancelFn> {
     val fetch = useRequestPluginsImpl(
@@ -123,6 +124,23 @@ fun <TData : Any> useRequest(
             seventh = ::cancel
         )
     }
+}
+
+/**
+ * 性能优化版本，[optionsOf] 是一个普通的内联函数，他会在每次组件重组时调用，这回带来一些性能上的损耗，我们可以简单呢的通过 [remember]，进行优化。
+ * 在未来版本将会把原始的直接传递对象这类api转变为私有，只允许通过闭包方式使用。
+ */
+@Composable
+fun <TData : Any> useRequest(
+    requestFn: SuspendNormalFunction<TData>,
+    optionsOf: RequestOptions<TData>.() -> Unit = {},
+    plugins: Array<@Composable (RequestOptions<TData>) -> Plugin<TData>> = emptyArray(),
+): Tuple7<TData?, Boolean, Throwable?, ReqFn, MutateFn<TData>, RefreshFn, CancelFn> {
+    return useRequest(
+        requestFn,
+        remember(optionsOf) { RequestOptions.optionOf(optionsOf) },
+        plugins
+    )
 }
 
 @Composable

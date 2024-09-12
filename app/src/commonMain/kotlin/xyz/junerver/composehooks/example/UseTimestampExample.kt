@@ -6,7 +6,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useTimestamp
 import xyz.junerver.compose.hooks.useTimestampRef
 import xyz.junerver.composehooks.example.request.DividerSpacer
@@ -33,7 +32,7 @@ fun UseTimestampExample() {
 @Composable
 fun SubState() {
     val (timestamp, pause, resume, isActive) = useTimestamp(
-        optionsOf {
+        optionsOf = {
             interval = 1.seconds
             callback = {
                 println("UseTimestampExample UseTimestampExample: $it")
@@ -56,7 +55,7 @@ fun SubState() {
 @Composable
 fun SubRef() {
     val (timestamp, _, resume) = useTimestampRef(
-        optionsOf {
+        optionsOf = {
             interval = 1.seconds
         }
     )

@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.NetApi
@@ -26,7 +25,7 @@ fun DepsRefresh() {
     val (state, setState) = useGetState(0)
     val (userInfo, loading, error) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
-        optionsOf {
+        optionsOf = {
             defaultParams =
                 arrayOf("junerver")
             refreshDeps = arrayOf(state)

@@ -67,9 +67,10 @@ private class Interval(private val options: IntervalOptions) {
     }
 }
 
+@Deprecated("Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`")
 @Composable
 fun useInterval(
-    options: IntervalOptions = IntervalOptions(),
+    options: IntervalOptions = remember { IntervalOptions() },
     block: () -> Unit,
 ): Triple<ResumeFn, PauseFn, IsActive> {
     val latestFn by useLatestState(value = block)
@@ -93,7 +94,19 @@ fun useInterval(
 
 @Composable
 fun useInterval(
-    options: IntervalOptions = IntervalOptions(),
+    optionsOf: IntervalOptions.() -> Unit,
+    block: () -> Unit,
+): Triple<ResumeFn, PauseFn, IsActive> {
+    return useInterval(
+        options = remember(optionsOf) { IntervalOptions.optionOf(optionsOf) },
+        block = block
+    )
+}
+
+@Deprecated("Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`")
+@Composable
+fun useInterval(
+    options: IntervalOptions = remember { IntervalOptions() },
     ready: Boolean,
     block: () -> Unit,
 ) {
@@ -114,3 +127,14 @@ fun useInterval(
         }
     }
 }
+
+@Composable
+fun useInterval(
+    optionsOf: IntervalOptions.() -> Unit,
+    ready: Boolean,
+    block: () -> Unit,
+) = useInterval(
+    remember(optionsOf) { IntervalOptions.optionOf(optionsOf) },
+    ready = ready,
+    block = block
+)

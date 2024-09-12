@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
@@ -47,6 +48,7 @@ internal typealias DecFn = (Int) -> Unit
  * }.right())
  * ```
  */
+@Deprecated("Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`")
 @Composable
 fun useCounter(
     initialValue: Int = 0,
@@ -84,6 +86,14 @@ fun useCounter(
         ::set,
         ::reset
     )
+}
+
+@Composable
+fun useCounter(
+    initialValue: Int = 0,
+    optionsOf: CounterOptions.() -> Unit,
+): Tuple5<Int, IncFn, DecFn, SetValueFn<Either<Int, (Int) -> Int>>, ResetFn> {
+    return useCounter(initialValue, remember(optionsOf) { CounterOptions.optionOf(optionsOf) })
 }
 
 private fun getTargetValue(value: Int, options: CounterOptions): Int {

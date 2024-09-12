@@ -57,7 +57,7 @@ fun ErrorRetry() {
         requestFn = {
             mockRequest(it[0] as String, it[1] as String)
         },
-        optionsOf {
+        optionsOf = {
             defaultParams = arrayOf("1", "2")
             retryCount = 5
             retryInterval = 2.seconds

@@ -29,7 +29,7 @@ import xyz.junerver.kotlin.asBoolean
 fun Ready() {
     val (userInfo, userLoading) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
-        optionsOf {
+        optionsOf = {
             defaultParams =
                 arrayOf("junerver")
         }
@@ -38,7 +38,7 @@ fun Ready() {
         requestFn = {
             NetApi.repoInfo(it[0] as String, it[1] as String)
         },
-        optionsOf {
+        optionsOf = {
             defaultParams = arrayOf(
                 "junerver",
                 "ComposeHooks"

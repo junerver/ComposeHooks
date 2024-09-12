@@ -72,7 +72,7 @@ private fun Manual() {
     // if you prefer to this usage, use `useGetState`
     val (countDown, setCountDown) = useGetState(60)
     val (resume, pause, isActive) = useInterval(
-        optionsOf {
+        optionsOf = {
             initialDelay = 2.seconds
             period = 1.seconds
         }
@@ -162,7 +162,7 @@ fun MyDecorationBox(
     val (isReady, _, _, setReadyTrue, setReadyFalse) = useBoolean(false)
     val (countdown, setCountdown) = useGetState(countDownTimer)
     useInterval(
-        optionsOf {
+        optionsOf = {
             initialDelay = 1.seconds
             period = 1.seconds
         },

@@ -40,12 +40,12 @@ typealias RollbackFn = () -> Unit
 @Composable
 fun <TData : Any> useCustomPluginRequest(
     requestFn: suspend (TParams) -> TData,
-    options: RequestOptions<TData>,
+    optionsOf: RequestOptions<TData>.() -> Unit = {},
 ): Tuple8<TData?, Boolean, Throwable?, ReqFn, MutateFn<TData>, RefreshFn, CancelFn, RollbackFn> {
     val rollbackRef = useRef(default = { })
     val tuple = useRequest(
         requestFn = requestFn,
-        options = options,
+        optionsOf = optionsOf,
         arrayOf({
             useRollbackPlugin(ref = rollbackRef)
         })

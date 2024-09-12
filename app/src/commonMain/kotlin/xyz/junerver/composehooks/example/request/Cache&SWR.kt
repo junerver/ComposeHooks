@@ -94,7 +94,7 @@ private fun SWR(useCache: Boolean = false) {
         requestFn = {
             mockRequestArticle()
         },
-        optionsOf {
+        optionsOf = {
             if (useCache) cacheKey = "test-swr-key"
         }
     )
@@ -135,7 +135,7 @@ private fun StaleTime(cacheKey: String) {
         requestFn = {
             mockRequestArticle()
         },
-        optionsOf {
+        optionsOf = {
             this.cacheKey = cacheKey
             staleTime = 5.seconds
         }

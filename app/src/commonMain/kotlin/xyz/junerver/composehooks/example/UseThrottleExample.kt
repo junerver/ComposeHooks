@@ -32,7 +32,7 @@ fun UseThrottleExample() {
     val (stateFn, setStateFn) = useGetState(0)
     val throttledFn = useThrottleFn(
         fn = { setStateFn(stateFn + 1) },
-        optionsOf {
+        optionsOf = {
             leading = false
             trailing = false
         }
@@ -46,8 +46,8 @@ fun UseThrottleExample() {
     val (result, setResult) = useGetState("")
     useThrottleEffect(stateEf) {
         setResult("loading")
-        val result = NetApi.userInfo("junerver")
-        setResult(result.toString().subStringIf())
+        val resp = NetApi.userInfo("junerver")
+        setResult(resp.toString().subStringIf())
     }
     Surface {
         Column {

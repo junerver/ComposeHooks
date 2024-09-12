@@ -10,6 +10,7 @@ import androidx.biometric.BiometricManager.Authenticators.BIOMETRIC_STRONG
 import androidx.biometric.BiometricPrompt
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.FragmentActivity
 import kotlin.properties.Delegates
@@ -36,9 +37,10 @@ data class BiometricOptions internal constructor(
     companion object : Options<BiometricOptions>(::BiometricOptions)
 }
 
+@Deprecated("Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`")
 @Composable
 fun useBiometric(
-    options: BiometricOptions = BiometricOptions(),
+    options: BiometricOptions = remember { BiometricOptions() },
 ): Tuple2<() -> Unit, Boolean> {
     val (isAuthed, setIsAuthed) = _useSetState(default = false)
     val context = LocalContext.current
@@ -54,6 +56,13 @@ fun useBiometric(
         open,
         isAuthed.value
     )
+}
+
+@Composable
+fun useBiometric(
+    optionsOf: BiometricOptions.() -> Unit,
+): Tuple2<() -> Unit, Boolean> {
+    return useBiometric(remember(optionsOf) { BiometricOptions.optionOf(optionsOf) })
 }
 
 class BiometricActivity : FragmentActivity() {

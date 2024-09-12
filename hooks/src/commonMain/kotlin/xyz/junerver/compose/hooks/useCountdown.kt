@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.datetime.Instant
@@ -36,6 +37,7 @@ data class CountdownOptions internal constructor(
     companion object : Options<CountdownOptions>(::CountdownOptions)
 }
 
+@Deprecated("Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`")
 @Composable
 fun useCountdown(options: CountdownOptions): Pair<Duration, FormattedRes> {
     val (leftTime, targetDate, interval, onEnd) = options
@@ -51,7 +53,7 @@ fun useCountdown(options: CountdownOptions): Pair<Duration, FormattedRes> {
     val onEndRef = useLatestRef(value = onEnd)
     val pauseRef = useRef(default = {})
     val (resume, pause) = useInterval(
-        optionsOf {
+        optionsOf = {
             period = interval
         }
     ) {
@@ -76,6 +78,11 @@ fun useCountdown(options: CountdownOptions): Pair<Duration, FormattedRes> {
         timeLeft,
         parseDuration(timeLeft)
     )
+}
+
+@Composable
+fun useCountdown(optionsOf: CountdownOptions.() -> Unit): Pair<Duration, FormattedRes> {
+    return useCountdown(remember(optionsOf) { CountdownOptions.optionOf(optionsOf) })
 }
 
 private fun calcLeft(target: Instant?): Duration {

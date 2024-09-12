@@ -122,8 +122,6 @@ data class RequestOptions<TData> internal constructor(
 ) {
     @Suppress("unused")
     companion object {
-        fun <T> default(): RequestOptions<T> = RequestOptions()
-
         fun <T> optionOf(opt: RequestOptions<T>.() -> Unit): RequestOptions<T> =
             RequestOptions<T>().apply {
                 opt()

@@ -55,7 +55,7 @@ fun Sub(isPollingWhenHidden: Boolean = false) {
     val post = useEventPublish<Int>()
     val (userInfo, loading) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
-        optionsOf {
+        optionsOf = {
             defaultParams = arrayOf("junerver")
             pollingInterval = 3.seconds
             pollingWhenHidden = isPollingWhenHidden

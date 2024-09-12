@@ -3,6 +3,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import arrow.core.Either
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -91,19 +92,19 @@ fun <T> rememberCreation(vararg keys: Any?, factory: () -> T) =
 @Composable
 fun <S> rememberDebounce(
     value: S,
-    options: DebounceOptions = DebounceOptions(),
+    options: DebounceOptions = remember { DebounceOptions() },
 ) = useDebounce(value, options)
 
 @Composable
 fun rememberDebounceFn(
     fn: VoidFunction,
-    options: DebounceOptions = DebounceOptions(),
+    options: DebounceOptions = remember { DebounceOptions() },
 ) = useDebounceFn(fn, options)
 
 @Composable
 fun LaunchedDebounceEffect(
     vararg keys: Any?,
-    options: DebounceOptions = DebounceOptions(),
+    options: DebounceOptions = remember { DebounceOptions() },
     block: SuspendAsyncFn,
 ) = useDebounceEffect(*keys, options = options, block = block)
 //endregion
@@ -131,13 +132,13 @@ fun <T> _rememberGetState(default: T) = _useGetState(default = default)
 
 @Composable
 fun rememberInterval(
-    options: IntervalOptions = IntervalOptions(),
+    options: IntervalOptions = remember { IntervalOptions() },
     block: () -> Unit,
 ) = useInterval(options, block)
 
 @Composable
 fun rememberInterval(
-    options: IntervalOptions = IntervalOptions(),
+    options: IntervalOptions = remember { IntervalOptions() },
     ready: Boolean,
     block: () -> Unit,
 ) = useInterval(options, ready, block)
@@ -165,7 +166,7 @@ fun <K, V> rememberMap(pairs: Iterable<Pair<K, V>>) = useMap(pairs)
 fun rememberMount(fn: SuspendAsyncFn) = useMount(fn)
 
 @Composable
-fun rememberNow(options: UseNowOptions = UseNowOptions()) = useNow(options)
+fun rememberNow(options: UseNowOptions = remember { UseNowOptions() }) = useNow(options)
 
 //region useNumber
 @Composable
@@ -210,19 +211,19 @@ fun <T> _rememberState(default: T) = _useState(default)
 
 //region useThrottle
 @Composable
-fun <S> rememberThrottle(value: S, options: ThrottleOptions = ThrottleOptions()) =
+fun <S> rememberThrottle(value: S, options: ThrottleOptions = remember { ThrottleOptions() }) =
     useThrottle(value, options)
 
 @Composable
 fun rememberThrottleFn(
     fn: VoidFunction,
-    options: ThrottleOptions = ThrottleOptions(),
+    options: ThrottleOptions = remember { ThrottleOptions() },
 ) = useThrottleFn(fn, options)
 
 @Composable
 fun LaunchedThrottleEffect(
     vararg keys: Any?,
-    options: ThrottleOptions = ThrottleOptions(),
+    options: ThrottleOptions = remember { ThrottleOptions() },
     block: SuspendAsyncFn,
 ) = useThrottleEffect(*keys, options = options, block = block)
 //endregion
@@ -232,13 +233,13 @@ fun rememberTimeout(delay: Duration = 1.seconds, block: () -> Unit) = useTimeout
 
 @Composable
 fun rememberTimestamp(
-    options: TimestampOptions = TimestampOptions(),
+    options: TimestampOptions = remember { TimestampOptions() },
     autoResume: Boolean = true,
 ) = useTimestamp(options, autoResume)
 
 @Composable
 fun rememberTimestampRef(
-    options: TimestampOptions = TimestampOptions(),
+    options: TimestampOptions = remember { TimestampOptions() },
     autoResume: Boolean = true,
 ) = useTimestampRef(options, autoResume)
 
