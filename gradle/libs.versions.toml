@@ -8,6 +8,7 @@ kotlinMultiplatformAppdirs = "1.1.1"
 ktorVersion = "2.3.12"
 mmkvKotlin = "1.2.14"
 navigationComposeVersion = "2.7.0-alpha07"
+logbackClassic = "1.5.6"
 
 activityCompose = "1.9.2"
 androidx-lifecycle = "2.8.2"
@@ -52,10 +53,12 @@ kotlin-multiplatform-appdirs = { module = "ca.gosyer:kotlin-multiplatform-appdir
 mmkv-kotlin = { module = "com.ctrip.flight.mmkv:mmkv-kotlin", version.ref = "mmkvKotlin" }
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrowCore" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logbackClassic" }
 
 # ktor
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktorVersion" }
 ktor-client-cio = { group = "io.ktor", name = "ktor-client-cio", version.ref = "ktorVersion" }
+ktor-client-logging = { group = "io.ktor", name = "ktor-client-logging", version.ref = "ktorVersion" }
 ktor-client-content-negotiat = { group = "io.ktor", name = "ktor-client-content-negotiation", version.ref = "ktorVersion" }
 ktor-serialization-kotlinx-json = { group = "io.ktor", name = "ktor-serialization-kotlinx-json", version.ref = "ktorVersion" }
 
@@ -76,6 +79,7 @@ kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", versio
 ktor = [
     "ktor-client-core",
     "ktor-client-cio",
+    "ktor-client-logging",
     "ktor-client-content-negotiat",
     "ktor-serialization-kotlinx-json",
 ]

@@ -5,6 +5,10 @@ import io.ktor.client.call.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.DEFAULT
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
 import io.ktor.http.headers
 import io.ktor.serialization.kotlinx.json.*
@@ -32,8 +36,8 @@ object NetApi : WebService {
         defaultRequest {
             url(BASE_URL)
             headers {
-                set("Content-Type", "application/json;charset=UTF-8")
-                set("Authorization", "token $acc_token")
+                append("Content-Type", "application/json;charset=UTF-8")
+                append("Authorization", "token $acc_token")
             }
         }
         install(HttpTimeout) {
@@ -46,10 +50,14 @@ object NetApi : WebService {
                 Json {
                     prettyPrint = true
                     isLenient = true
-//                    ignoreUnknownKeys = true
-//                    explicitNulls = false
+                    ignoreUnknownKeys = true
+                    explicitNulls = false
                 }
             )
+        }
+        install(Logging) {
+            logger = Logger.DEFAULT
+            level = LogLevel.INFO
         }
     }
 

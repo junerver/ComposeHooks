@@ -75,7 +75,7 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.ktor.client.core)
             implementation(libs.bundles.ktor)
-            implementation("ch.qos.logback:logback-classic:1.2.3")
+            implementation(libs.logback.classic)
         }
     }
 }
