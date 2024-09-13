@@ -35,40 +35,6 @@ Currently only limited targets are supported:
 - iosx64
 
 
-```kotlin
-@Composable
-@Preview
-fun App() {
-    MaterialTheme {
-        val (showContent, toggle) = useBoolean(false)
-        val (count, inc) = useCounter(options = optionsOf {
-            max = 100
-        })
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(onClick = {
-                toggle()
-                inc(1)
-            }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("#$count Compose: $greeting")
-                }
-            }
-        }
-    }
-}
-```
-<picture>
-  <img src="art/kmp_desktop.png" width="720">
-</picture>
-
 ## About
 
 The idea for the project comes from [alibaba](https://github.com/alibaba)/[hooks](https://github.com/alibaba/hooks), which is a very easy-to-use collection of React Hooks.
@@ -197,7 +163,7 @@ If used in ComposeMultiplatform, use artifact id: `hooks2`
    - SWR(stale-while-revalidate)
    - Caching
 
-
+For more usage, please refer to [wiki](https://github.com/junerver/ComposeHooks/wiki) and examples
 
 ## Live Templates
 

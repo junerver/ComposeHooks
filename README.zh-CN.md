@@ -34,40 +34,6 @@ implementation("xyz.junerver.compose:hooks2:2.1.0-alpha0-SNAPSHOT")
 - iosimulatorarm64
 - iosx64
 
-```kotlin
-@Composable
-@Preview
-fun App() {
-    MaterialTheme {
-        val (showContent, toggle) = useBoolean(false)
-        val (count, inc) = useCounter(options = optionsOf {
-            max = 100
-        })
-        Column(Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
-            Button(onClick = {
-                toggle()
-                inc(1)
-            }) {
-                Text("Click me!")
-            }
-            AnimatedVisibility(showContent) {
-                val greeting = remember { Greeting().greet() }
-                Column(
-                    Modifier.fillMaxWidth(),
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    Image(painterResource(Res.drawable.compose_multiplatform), null)
-                    Text("#$count Compose: $greeting")
-                }
-            }
-        }
-    }
-}
-```
-<picture>
-  <img src="art/kmp_desktop.png" width="720">
-</picture>
-
 ## 简介
 
 项目的 idea 来自 [alibaba](https://github.com/alibaba)/[hooks](https://github.com/alibaba/hooks)，这是一个非常好用的React Hooks 集合。
@@ -200,6 +166,8 @@ implementation("xyz.junerver.compose:hooks:<latest_release>")
    - loading delay
    - SWR(stale-while-revalidate)
    - 缓存
+
+更多用法请查看[wiki](https://github.com/junerver/ComposeHooks/wiki)、工程示例
 
 ## 使用 Live Templates
 
