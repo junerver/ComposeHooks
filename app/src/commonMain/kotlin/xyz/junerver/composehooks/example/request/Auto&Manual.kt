@@ -68,18 +68,12 @@ fun Auto() {
 @Composable
 fun Manual() {
     val (repoInfo, loading, error, request) = useRequest(
-        requestFn = {
-            NetApi.repoInfo(it[0] as String, it[1] as String)
-        },
+        requestFn = { NetApi.repoInfo(it[0] as String, it[1] as String) },
         // 这种传参会带来性能问题，请尽快更新使用性能优化版本，那你可以简单的在`optionsOf`后面加`=`来进行替换
         options = optionsOf {
             println("Configure closure execution!")
             manual = true
-            defaultParams =
-                arrayOf(
-                    "junerver",
-                    "ComposeHooks"
-                ) // Automatically requests must set default parameters
+            defaultParams = arrayOf("junerver", "ComposeHooks") // Automatically requests must set default parameters
         }
     )
     Surface {

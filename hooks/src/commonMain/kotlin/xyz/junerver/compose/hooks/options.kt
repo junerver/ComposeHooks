@@ -13,7 +13,6 @@ import xyz.junerver.compose.hooks.userequest.RequestOptions
  *  companion object : Options<DebounceOptions>(::DebounceOptions)
  * ```
  *
- * 使用的时候也非常方便，直接通过[optionsOf]即可创建选项实例。
  */
 @Suppress("MemberVisibilityCanBePrivate", "unused")
 abstract class Options<T>(val creator: () -> T) {
@@ -23,6 +22,13 @@ abstract class Options<T>(val creator: () -> T) {
     }
 }
 
+/**
+ * 这个函数已经废弃，请使用性能优化后的 `optionsOf = {}` 来传递选项配置，这个函数将于不久后删除！
+ *
+ * This function is deprecated, please use the performance-optimized 'optionsOf = {}' to pass the option configuration, this function will be removed soon!
+ *
+ */
+@Deprecated("This function is not recommended, please use the specific `XxxOptions.optionOf{}` instead")
 inline fun <reified T> optionsOf(noinline opt: T.() -> Unit): T {
     return when (T::class) {
         CountdownOptions::class -> CountdownOptions.optionOf(opt as CountdownOptions.() -> Unit)

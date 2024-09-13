@@ -2,13 +2,7 @@ package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -31,7 +25,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.*
+import xyz.junerver.compose.hooks.useBoolean
+import xyz.junerver.compose.hooks.useEffect
+import xyz.junerver.compose.hooks.useGetState
+import xyz.junerver.compose.hooks.useInterval
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -97,7 +94,7 @@ private fun ByReady() {
     val (countDown, setCountDown) = useGetState(60)
     val (isReady, toggle, setReady) = useBoolean(false)
     useInterval(
-        options = optionsOf {
+        optionsOf = {
             initialDelay = 2.seconds
             period = 1.seconds
         },
