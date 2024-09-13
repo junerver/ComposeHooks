@@ -20,6 +20,7 @@ kotlinxCollectionsImmutable = "0.3.7"
 kotlinxCoroutines = "1.8.1"
 kotlinxSerializationJson = "1.7.1"
 jetbrainsKotlinJvm = "1.9.0"
+slf4jAndroid = "1.7.36"
 
 [libraries]
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
@@ -54,6 +55,7 @@ mmkv-kotlin = { module = "com.ctrip.flight.mmkv:mmkv-kotlin", version.ref = "mmk
 arrow-core = { module = "io.arrow-kt:arrow-core", version.ref = "arrowCore" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationComposeVersion" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logbackClassic" }
+slf4j-android = { module = "org.slf4j:slf4j-android", version.ref = "slf4jAndroid" }
 
 # ktor
 ktor-client-core = { group = "io.ktor", name = "ktor-client-core", version.ref = "ktorVersion" }

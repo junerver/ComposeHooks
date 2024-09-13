@@ -37,6 +37,7 @@ kotlin {
                 implementation(compose.desktop.currentOs)
                 implementation(libs.kotlin.multiplatform.appdirs)
                 implementation(libs.kotlinx.coroutines.swing)
+                implementation(libs.logback.classic)
             }
         }
 
@@ -53,6 +54,7 @@ kotlin {
                 implementation(compose.preview)
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.mmkv.kotlin)
+                implementation(libs.slf4j.android)
             }
         }
 
@@ -75,7 +77,6 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.ktor.client.core)
             implementation(libs.bundles.ktor)
-            implementation(libs.logback.classic)
         }
     }
 }

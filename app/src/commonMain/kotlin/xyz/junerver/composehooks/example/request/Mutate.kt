@@ -1,3 +1,5 @@
+@file:Suppress("UNUSED_PARAMETER")
+
 package xyz.junerver.composehooks.example.request
 
 import androidx.compose.foundation.layout.Column
@@ -104,6 +106,7 @@ private fun ManualMutateRollback() {
     val previous = usePrevious(present = userInfo)
 
     Column {
+        Text("Use `usePrevious` to save the previous data requested, and roll back through `mutate`")
         OutlinedTextField(value = input, onValueChange = setInput)
         Row {
             TButton(text = "changeName") {
@@ -128,11 +131,15 @@ private fun ManualMutateRollback() {
         if (loading) {
             Text(text = "Loading ...")
         } else {
-            Text(text = "${userInfo.toString().subStringIf()}")
+            Text(text = userInfo.toString().subStringIf())
         }
     }
 }
 
+/**
+ * 通过使用自定义插件实现 rollback 扩展，在实际使用中，可以在请求的生命周期回调`onError`中调用 rollback，
+ * 从而实现乐观更新请求失败后的自动归滚。
+ */
 @Composable
 private fun AutoRollback() {
     val (input, setInput) = useGetState("")
@@ -146,11 +153,13 @@ private fun AutoRollback() {
     fun mockFnChangeName(newName: String) {}
 
     Column {
+        Text("Extend the rollback function by implementing a custom plug-in")
         OutlinedTextField(value = input, onValueChange = setInput)
         Row {
             TButton(text = "changeName") {
                 mockFnChangeName(input)
-                /** 调用 [mutate] 乐观更新 Call [mutate] for optimistic updates */
+                // 调用 mutate 乐观更新
+                // Call mutate for optimistic updates
                 if (userInfo.asBoolean()) {
                     // request user info success
                     mutate {
@@ -174,7 +183,7 @@ private fun AutoRollback() {
         if (loading) {
             Text(text = "Loading ...")
         } else {
-            Text(text = "${userInfo.toString().subStringIf()}")
+            Text(text = userInfo.toString().subStringIf())
         }
     }
 }

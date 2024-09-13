@@ -88,23 +88,7 @@ fun useCounter(initialValue: Int = 0, options: CounterOptions): Tuple5<Int, IncF
 }
 
 @Composable
-fun useCounter(
-    initialValue: Int = 0,
-    optionsOf: CounterOptions.() -> Unit,
-): Tuple5<
-    Int,
-    IncFn,
-    DecFn,
-    SetValueFn<
-        Either<
-            Int,
-            (
-                Int,
-            ) -> Int
-        >
-    >,
-    ResetFn
-> =
+fun useCounter(initialValue: Int = 0, optionsOf: CounterOptions.() -> Unit) =
     useCounter(initialValue, remember(optionsOf) { CounterOptions.optionOf(optionsOf) })
 
 private fun getTargetValue(value: Int, options: CounterOptions): Int {

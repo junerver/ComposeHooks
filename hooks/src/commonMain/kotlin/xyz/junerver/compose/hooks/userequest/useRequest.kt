@@ -7,6 +7,8 @@ import kotlin.reflect.KFunction0
 import kotlin.reflect.KFunction1
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.VoidFunction
+import xyz.junerver.compose.hooks.useCreation
+import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUnmount
 import xyz.junerver.compose.hooks.userequest.plugins.*
 import xyz.junerver.compose.hooks.utils._useSetState
@@ -92,27 +94,34 @@ fun <TData : Any> useRequest(
     options: RequestOptions<TData> = remember { RequestOptions() },
     plugins: Array<@Composable (RequestOptions<TData>) -> Plugin<TData>> = emptyArray(),
 ): Tuple7<TData?, Boolean, Throwable?, ReqFn, MutateFn<TData>, RefreshFn, CancelFn> {
+    val customPluginsRef = useRef<Array<Plugin<TData>>>(emptyArray())
+    if (customPluginsRef.current.size != plugins.size) {
+        customPluginsRef.current = plugins.map {
+            it(options)
+        }.toTypedArray()
+    }
+    val buildInDebouncePlugin = useDebouncePlugin(options)
+    val buildInLoadingDelayPlugin = useLoadingDelayPlugin(options)
+    val buildInPollingPlugin = usePollingPlugin(options)
+    val buildInThrottlePlugin = useThrottlePlugin(options)
+    val buildInAutoRunPlugin = useAutoRunPlugin(options)
+    val buildInCachePlugin = useCachePlugin(options)
+    val buildInRetryPlugin = useRetryPlugin(options)
+    val allPlugins = useCreation(*plugins) {
+        customPluginsRef.current + arrayOf(
+            buildInDebouncePlugin,
+            buildInLoadingDelayPlugin,
+            buildInPollingPlugin,
+            buildInThrottlePlugin,
+            buildInAutoRunPlugin,
+            buildInCachePlugin,
+            buildInRetryPlugin
+        )
+    }
     val fetch = useRequestPluginsImpl(
         requestFn,
         options,
-        buildList {
-            addAll(
-                plugins.map {
-                    it(options)
-                }
-            )
-            addAll(
-                arrayOf(
-                    useDebouncePlugin(options),
-                    useLoadingDelayPlugin(options),
-                    usePollingPlugin(options),
-                    useThrottlePlugin(options),
-                    useAutoRunPlugin(options),
-                    useCachePlugin(options),
-                    useRetryPlugin(options)
-                )
-            )
-        }.toTypedArray()
+        allPlugins.current
     )
 
     return with(fetch) {
