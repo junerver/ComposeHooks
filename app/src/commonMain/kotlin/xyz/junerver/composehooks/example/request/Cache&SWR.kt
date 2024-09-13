@@ -1,6 +1,10 @@
 package xyz.junerver.composehooks.example.request
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -105,6 +109,7 @@ fun TestStaleTime() {
     val (isVisible, toggle) = useBoolean(true)
     val cacheKey = "test-stale-key"
     Column {
+        Text("↓ The following two components use the same 'cacheKey' and they will share the data")
         Row {
             TButton(text = "show/hide") {
                 toggle()

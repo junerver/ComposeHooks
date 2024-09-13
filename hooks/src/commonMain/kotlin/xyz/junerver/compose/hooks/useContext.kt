@@ -3,6 +3,7 @@ package xyz.junerver.compose.hooks
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ProvidableCompositionLocal
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.runtime.compositionLocalOf
 
 /*
@@ -41,5 +42,6 @@ fun <T> createContext(initialValue: T): ReactContext<T> = object : ReactContext<
  *
  * @see [useContext](https://reactjs.org/docs/hooks-reference.html#usecontext)
  */
+@ReadOnlyComposable
 @Composable
 fun <T> useContext(context: ReactContext<T>): T = context.LocalCtx.current

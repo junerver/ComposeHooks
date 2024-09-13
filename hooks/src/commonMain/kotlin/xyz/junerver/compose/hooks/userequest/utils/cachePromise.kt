@@ -10,19 +10,19 @@ import kotlinx.coroutines.Deferred
   Version: v1.0
 */
 
-private val cachePromise: MutableMap<String, Deferred<*>> = mutableMapOf()
+private val cacheDeferred: MutableMap<String, Deferred<*>> = mutableMapOf()
 
 @Suppress("UNCHECKED_CAST")
-internal fun <T> getCachePromise(cacheKey: String) = cachePromise[cacheKey] as? Deferred<T>
+internal fun <T> getCacheDeferred(cacheKey: String) = cacheDeferred[cacheKey] as? Deferred<T>
 
-internal fun setCachePromise(cacheKey: String, promise: Deferred<*>) {
-    cachePromise[cacheKey] = promise
+internal fun setCacheDeferred(cacheKey: String, promise: Deferred<*>) {
+    cacheDeferred[cacheKey] = promise
 }
 
 /**
  * 如果是添加到缓存中的Deferred则移除该缓存
  */
 internal suspend fun <T> Deferred<T>.awaitPlus(): T {
-    cachePromise.entries.removeAll { it.value == this }
+    cacheDeferred.entries.removeAll { it.value == this }
     return this.await()
 }

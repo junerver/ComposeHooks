@@ -7,9 +7,31 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import xyz.junerver.compose.hooks.*
-import xyz.junerver.compose.hooks.userequest.*
-import xyz.junerver.compose.hooks.userequest.utils.*
+import xyz.junerver.compose.hooks.MutableRef
+import xyz.junerver.compose.hooks.TParams
+import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useUnmount
+import xyz.junerver.compose.hooks.useUpdateEffect
+import xyz.junerver.compose.hooks.userequest.Fetch
+import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
+import xyz.junerver.compose.hooks.userequest.Keys
+import xyz.junerver.compose.hooks.userequest.OnBeforeReturn
+import xyz.junerver.compose.hooks.userequest.OnRequestReturn
+import xyz.junerver.compose.hooks.userequest.Plugin
+import xyz.junerver.compose.hooks.userequest.PluginLifecycle
+import xyz.junerver.compose.hooks.userequest.PluginOnBefore
+import xyz.junerver.compose.hooks.userequest.PluginOnError
+import xyz.junerver.compose.hooks.userequest.PluginOnMutate
+import xyz.junerver.compose.hooks.userequest.PluginOnRequest
+import xyz.junerver.compose.hooks.userequest.PluginOnSuccess
+import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
+import xyz.junerver.compose.hooks.userequest.utils.CachedData
+import xyz.junerver.compose.hooks.userequest.utils.RestoreFetchStateData
+import xyz.junerver.compose.hooks.userequest.utils.getCacheDeferred
+import xyz.junerver.compose.hooks.userequest.utils.setCacheDeferred
+import xyz.junerver.compose.hooks.userequest.utils.subscribe
+import xyz.junerver.compose.hooks.userequest.utils.trigger
 import xyz.junerver.compose.hooks.utils.CacheManager
 import xyz.junerver.compose.hooks.utils.currentTime
 import xyz.junerver.kotlin.Tuple4
@@ -72,7 +94,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
 
                 override val onRequest: PluginOnRequest<TData>
                     get() = onRequest@{ requestFn, param ->
-                        var servicePromise: Deferred<TData>? = getCachePromise(cacheKey)
+                        var servicePromise: Deferred<TData>? = getCacheDeferred(cacheKey)
                         trigger(cacheKey, RestoreFetchStateData(loading = true))
 
                         // 如果已经发起过请求，则直接从缓存中返回之前请求的 Deferred
@@ -83,7 +105,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                         // 发起异步请求，将Deferred存入 ref、缓存，并且返回 包装后的OnRequestReturn
                         servicePromise = async(SupervisorJob()) { requestFn(param) }
                         currentPromiseRef.current = servicePromise
-                        setCachePromise(cacheKey, servicePromise)
+                        setCacheDeferred(cacheKey, servicePromise)
                         OnRequestReturn(servicePromise)
                     }
 

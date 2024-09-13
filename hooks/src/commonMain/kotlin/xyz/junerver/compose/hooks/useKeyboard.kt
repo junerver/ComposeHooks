@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 
 /*
@@ -16,8 +17,10 @@ internal typealias ShowKeyboardFn = () -> Unit
 @Composable
 fun useKeyboard(): Pair<HideKeyboardFn, ShowKeyboardFn> {
     val keyboardController = LocalSoftwareKeyboardController.current
-    return Pair(
-        first = { keyboardController?.hide() },
-        second = { keyboardController?.show() }
-    )
+    return remember {
+        Pair(
+            first = { keyboardController?.hide() },
+            second = { keyboardController?.show() }
+        )
+    }
 }

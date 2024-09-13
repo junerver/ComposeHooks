@@ -14,7 +14,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.NetApi
@@ -73,8 +72,8 @@ fun Auto() {
 fun Manual() {
     val (repoInfo, loading, error, request) = useRequest(
         requestFn = { NetApi.repoInfo(it[0] as String, it[1] as String) },
-        // 这种传参会带来性能问题，请尽快更新使用性能优化版本，那你可以简单的在`optionsOf`后面加`=`来进行替换
-        options = optionsOf {
+        // 使用 `options = optionsOf {}`这种传参会带来性能问题，请尽快更新使用性能优化版本，你可以简单的在`optionsOf`后面加`=`来进行替换
+        optionsOf = {
             println("Configure closure execution!")
             manual = true
             defaultParams = arrayOf("junerver", "ComposeHooks") // Automatically requests must set default parameters

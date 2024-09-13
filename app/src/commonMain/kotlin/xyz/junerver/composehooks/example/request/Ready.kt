@@ -29,17 +29,14 @@ fun Ready() {
     val (userInfo, userLoading) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
-            defaultParams =
-                arrayOf("junerver")
+            defaultParams = arrayOf("junerver")
         }
     )
     val (repoInfo, repoLoading) = useRequest(
-        requestFn = {
-            NetApi.repoInfo(it[0] as String, it[1] as String)
-        },
+        requestFn = { NetApi.repoInfo(it[0] as String, it[1] as String) },
         optionsOf = {
             defaultParams = arrayOf(
-                "junerver",
+                userInfo?.login,
                 "ComposeHooks"
             )
             ready = userInfo.asBoolean()

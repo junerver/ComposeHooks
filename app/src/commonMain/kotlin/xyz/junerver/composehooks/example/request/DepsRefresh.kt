@@ -26,8 +26,7 @@ fun DepsRefresh() {
     val (userInfo, loading, error) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
-            defaultParams =
-                arrayOf("junerver")
+            defaultParams = arrayOf("junerver")
             refreshDeps = arrayOf(state)
         }
     )
