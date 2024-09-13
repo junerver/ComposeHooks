@@ -21,19 +21,18 @@ import kotlinx.datetime.toLocalDateTime
  * @constructor Create empty Timestamp
  * @property value
  */
-@JvmInline
-value class Timestamp(val value: Long) : Comparable<Timestamp> {
+data class Timestamp(
+    val value: Long,
+) : Comparable<Timestamp> {
     override fun compareTo(other: Timestamp): Int = value.compareTo(other.value)
 
     /** Add two [Timestamp]s together. */
     @Stable
-    operator fun plus(other: Timestamp) =
-        Timestamp(value = this.value + other.value)
+    operator fun plus(other: Timestamp) = Timestamp(value = this.value + other.value)
 
     /** Subtract a Timestamp from another one. */
     @Stable
-    operator fun minus(other: Timestamp) =
-        Timestamp(value = this.value - other.value)
+    operator fun minus(other: Timestamp) = Timestamp(value = this.value - other.value)
 
     @Stable
     inline val asTimestampSeconds: Long get() = value / 1000
@@ -47,7 +46,10 @@ value class Timestamp(val value: Long) : Comparable<Timestamp> {
          *
          * @return
          */
-        fun now(): Timestamp = Clock.System.now().toEpochMilliseconds().tsMs
+        fun now(): Timestamp = Clock.System
+            .now()
+            .toEpochMilliseconds()
+            .tsMs
     }
 }
 

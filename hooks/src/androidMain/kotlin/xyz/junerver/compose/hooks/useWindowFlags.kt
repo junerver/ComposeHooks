@@ -26,6 +26,7 @@ fun useWindowFlags(key: String, flags: Int): Tuple3<AddFlagsFn, ClearFlagsFn, Is
         defaultValue = isFlagSet,
         forceUseMemory = true
     )
+
     fun addFlags() {
         window.addFlags(flags)
         setIsAdded(true)

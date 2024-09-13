@@ -17,6 +17,7 @@ internal val String.cacheKey: String
     get() = "${CACHE_KEY_PREFIX}$this"
 
 private const val FORM_KEY_PREFIX = "${KEY_PREFIX}FORM_FIELD_"
+
 internal fun String.genFormFieldKey(formInstance: FormInstance) = "${FORM_KEY_PREFIX}${formInstance}_$this"
 
 private const val PERSISTENT_KEY_PREFIX = "${KEY_PREFIX}USE_PERSISTENT_"

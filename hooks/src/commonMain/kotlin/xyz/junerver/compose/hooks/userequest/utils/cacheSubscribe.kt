@@ -32,5 +32,4 @@ internal fun trigger(key: String, data: RestoreFetchStateData) {
 /**
  * 将 cacheKey-回调函数，注册到监听器列表，返回值是反订阅函数，只要指定返回函数就可以取消订阅
  */
-internal fun subscribe(key: String, listener: CachedDataChangeListener): () -> Unit =
-    EventManager.register(key.cacheKey, listener)
+internal fun subscribe(key: String, listener: CachedDataChangeListener): () -> Unit = EventManager.register(key.cacheKey, listener)

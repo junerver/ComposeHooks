@@ -12,8 +12,9 @@ import xyz.junerver.kotlin.Tuple4
 */
 
 @Composable
-fun<T> useResetState(default: T & Any): Tuple4<T, SetValueFn<T & Any>, GetValueFn<T>, ResetFn> {
+fun <T> useResetState(default: T & Any): Tuple4<T, SetValueFn<T & Any>, GetValueFn<T>, ResetFn> {
     val (state, setState, getState) = useGetState(default)
+
     fun reset() {
         setState(default)
     }

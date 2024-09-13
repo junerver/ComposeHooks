@@ -20,7 +20,6 @@ import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
   Version: v1.0
 */
 private class ThrottlePlugin<TData : Any> : Plugin<TData>() {
-
     override val invoke: GenPluginLifecycleFn<TData>
         get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
             initFetch(fetch, requestOptions)

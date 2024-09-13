@@ -32,6 +32,7 @@ data class MockInfo(
 
 // 伪装的一个
 var count = 0
+
 suspend fun mockRequest(s1: String, s2: String): MockInfo {
     delay(200)
     count++

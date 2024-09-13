@@ -24,7 +24,6 @@ import xyz.junerver.kotlin.tuple
 private typealias DataCache = Tuple2<CachedData<*>, Instant>
 
 internal object CacheManager : CoroutineScope {
-
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + SupervisorJob()
 
@@ -41,6 +40,7 @@ internal object CacheManager : CoroutineScope {
     }
 
     //region for useCachePlugin
+
     /**
      * Save cache
      *
@@ -61,13 +61,11 @@ internal object CacheManager : CoroutineScope {
         }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> getCache(key: String): CachedData<T>? {
-        return cache[key.cacheKey]?.takeIf {
-            currentTime < it.second
-        }?.first as? CachedData<T> ?: run {
-            cache.remove(key.cacheKey)
-            null
-        }
+    fun <T> getCache(key: String): CachedData<T>? = cache[key.cacheKey]?.takeIf {
+        currentTime < it.second
+    }?.first as? CachedData<T> ?: run {
+        cache.remove(key.cacheKey)
+        null
     }
     //endregion
 
@@ -80,8 +78,7 @@ internal object CacheManager : CoroutineScope {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> getCache(key: String, default: T): T =
-        (cache[key]?.first as CachedData<T>?)?.data ?: default
+    fun <T> getCache(key: String, default: T): T = (cache[key]?.first as CachedData<T>?)?.data ?: default
 
     fun clearCache(vararg keys: String) {
         keys.forEach {

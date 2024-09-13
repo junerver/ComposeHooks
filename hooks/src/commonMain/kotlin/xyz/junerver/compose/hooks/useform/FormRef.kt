@@ -33,7 +33,8 @@ internal data class FormRef(
     /** Is all fields in the form are verified successfully */
     val isValidated: Boolean
         get() {
-            return formFieldValidationMap.isEmpty() || formFieldValidationMap.entries.map { it.value }
-                .all { it }
+            return formFieldValidationMap.isEmpty() ||
+                formFieldValidationMap.entries.map { it.value }
+                    .all { it }
         }
 }

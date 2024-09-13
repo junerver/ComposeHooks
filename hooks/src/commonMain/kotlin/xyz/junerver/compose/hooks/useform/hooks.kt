@@ -18,9 +18,7 @@ import xyz.junerver.compose.hooks.useEventSubscribe
 object Form
 
 @Composable
-fun Form.useForm(): FormInstance {
-    return remember { FormInstance() }
-}
+fun Form.useForm(): FormInstance = remember { FormInstance() }
 
 @Deprecated(
     "Please use namespace `Form`, just like`Form.useForm()`",

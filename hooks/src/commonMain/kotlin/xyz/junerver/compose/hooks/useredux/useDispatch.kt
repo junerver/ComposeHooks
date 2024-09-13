@@ -15,11 +15,10 @@ import xyz.junerver.compose.hooks.useContext
  */
 @Suppress("UNCHECKED_CAST")
 @Composable
-inline fun <reified A> useDispatch(alias: String? = null): Dispatch<A> =
-    alias?.let {
-        useContext(context = ReduxContext).third[it]?.second as? Dispatch<A> ?: registerErr("alias:<$alias>")
-    }
-        ?: useContext(context = ReduxContext).second[A::class] as? Dispatch<A> ?: registerErr("type:<${A::class.qualifiedName}>")
+inline fun <reified A> useDispatch(alias: String? = null): Dispatch<A> = alias?.let {
+    useContext(context = ReduxContext).third[it]?.second as? Dispatch<A> ?: registerErr("alias:<$alias>")
+}
+    ?: useContext(context = ReduxContext).second[A::class] as? Dispatch<A> ?: registerErr("type:<${A::class.qualifiedName}>")
 
 internal typealias DispatchCallback<A> = (Dispatch<A>) -> Unit
 

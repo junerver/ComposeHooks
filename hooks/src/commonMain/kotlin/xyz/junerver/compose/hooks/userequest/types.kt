@@ -40,22 +40,20 @@ internal object Keys {
  */
 internal sealed interface Copyable<Self> {
     fun copy(that: Self?): Self
+
     operator fun plus(that: Self?) = this.copy(that)
 }
 
 /** 可覆盖对象列表的覆盖实现 */
-internal fun <T : Copyable<T>> List<T>.cover(): T? {
-    return this.takeIf { it.isNotEmpty() }?.reduce { acc, fetchState -> acc + fetchState }
-}
+internal fun <T : Copyable<T>> List<T>.cover(): T? = this.takeIf { it.isNotEmpty() }?.reduce { acc, fetchState -> acc + fetchState }
 
 /** map中如果有这个key就取值，无论结果是否为null； 没有这个key则取旧值 */
 @Suppress("UNCHECKED_CAST")
-internal fun <T> Map<String, Any?>.getOrElse(key: String, default: T?) =
-    if (this.containsKey(key)) {
-        this[key] as? T
-    } else {
-        default
-    }
+internal fun <T> Map<String, Any?>.getOrElse(key: String, default: T?) = if (this.containsKey(key)) {
+    this[key] as? T
+} else {
+    default
+}
 
 /**
  * 使用密封类或者密封接口，可以避免外部继承实现，但是不影响使用接口声明。
@@ -73,7 +71,9 @@ sealed class IFetchStata<out TData>(
 ) {
     /** [copyMap] 当前对象用于覆盖时的等价map */
     var copyMap: Map<String, Any?> = emptyMap()
+
     abstract fun asNotNullMap(): Map<String, Any?>
+
     abstract fun copy(needCopyMap: Map<String, Any?>?): IFetchStata<TData>
 }
 
@@ -84,7 +84,6 @@ data class FetchState<TData>(
     override var data: TData? = null,
     override var error: Throwable? = null,
 ) : IFetchStata<TData>(), Copyable<FetchState<TData>> {
-
     override fun copy(needCopyMap: Map<String, Any?>?): FetchState<TData> {
         needCopyMap ?: return this
         if (needCopyMap.entries.isEmpty()) return this
@@ -130,7 +129,9 @@ data class FetchState<TData>(
         if (params != null) {
             if (other.params == null) return false
             if (!params.contentEquals(other.params)) return false
-        } else if (other.params != null) return false
+        } else if (other.params != null) {
+            return false
+        }
         if (data != other.data) return false
         if (error != other.error) return false
 
@@ -156,7 +157,6 @@ data class OnBeforeReturn<TData>(
     override val data: TData? = null,
     override val error: Throwable? = null,
 ) : IFetchStata<TData>(), Copyable<OnBeforeReturn<TData>> {
-
     fun asFetchStateMap(): Map<String, Any?> = this.asNotNullMap().filter {
         it.key in Keys.FetchStateKeys
     }
@@ -205,7 +205,9 @@ data class OnBeforeReturn<TData>(
         if (params != null) {
             if (other.params == null) return false
             if (!params.contentEquals(other.params)) return false
-        } else if (other.params != null) return false
+        } else if (other.params != null) {
+            return false
+        }
         if (data != other.data) return false
         if (error != other.error) return false
 
@@ -240,10 +242,15 @@ data class OnRequestReturn<TData>(val requestDeferred: Deferred<TData>? = null) 
 /** 因为[Fetch]的相关操作要同样暴露给插件实例，所以创建一个接口， 这样避免插件实例命名出错，对应调用更直白。 */
 internal sealed interface IFetch<TData> {
     suspend fun _runAsync(params: TParams) {}
+
     fun _run(params: TParams) {}
+
     fun cancel() {}
+
     fun refresh() {}
+
     suspend fun refreshAsync() {}
+
     fun mutate(mutateFn: (TData?) -> TData) {}
 }
 
@@ -285,7 +292,6 @@ typealias GenPluginLifecycleFn<TData> = (Fetch<TData>, RequestOptions<TData>) ->
  * 具体用例可以参考：[useAutoRunPlugin]
  */
 abstract class Plugin<TData : Any> : IFetch<TData>, CoroutineScope {
-
     private var pluginJob: Job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + pluginJob
@@ -333,5 +339,11 @@ fun <T : Any> useEmptyPlugin(): Plugin<T> {
 
 /** 用于判断处理动作 */
 internal enum class Methods {
-    OnBefore, OnRequest, OnSuccess, OnError, OnFinally, OnCancel, OnMutate,
+    OnBefore,
+    OnRequest,
+    OnSuccess,
+    OnError,
+    OnFinally,
+    OnCancel,
+    OnMutate,
 }

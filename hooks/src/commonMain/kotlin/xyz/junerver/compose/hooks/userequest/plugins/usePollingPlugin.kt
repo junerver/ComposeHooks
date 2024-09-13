@@ -30,8 +30,7 @@ private class PollingPlugin<TData : Any> : Plugin<TData>() {
     /**
      * 判断是否正在轮询中
      */
-    private fun isPolling(): Boolean =
-        this::pollingJob.isInitialized && pollingJob.isActive
+    private fun isPolling(): Boolean = this::pollingJob.isInitialized && pollingJob.isActive
 
     /**
      * 轮询任务是一个单独job，应该单独停止。[force]时强制停止

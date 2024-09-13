@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlin.random.Random
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useTimeout
 import xyz.junerver.compose.hooks.useUpdate
@@ -34,7 +35,7 @@ fun UseTimeoutExample() {
 
     Surface {
         Column {
-            Text(text = "current: $state  flag: ${Math.random()}")
+            Text(text = "current: $state  flag: ${Random.nextDouble()}")
 
             TButton(text = "update") {
                 /**

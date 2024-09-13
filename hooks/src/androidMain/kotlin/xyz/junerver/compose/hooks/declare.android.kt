@@ -46,5 +46,4 @@ fun rememberVibrate() = useVibrate()
 fun rememberWakeLock(): Tuple3<RequestFn, ReleaseFn, IsActive> = useWakeLock()
 
 @Composable
-fun rememberWindowFlags(key: String, flags: Int): Tuple3<AddFlagsFn, ClearFlagsFn, IsFlagsAdded> =
-    useWindowFlags(key, flags)
+fun rememberWindowFlags(key: String, flags: Int): Tuple3<AddFlagsFn, ClearFlagsFn, IsFlagsAdded> = useWindowFlags(key, flags)

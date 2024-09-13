@@ -6,6 +6,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import xyz.junerver.compose.hooks.useUpdate
 import xyz.junerver.composehooks.ui.component.TButton
+import xyz.junerver.composehooks.utils.Timestamp
 
 /*
   Description:
@@ -19,7 +20,7 @@ fun UseUpdateExample() {
     val update = useUpdate()
     Surface {
         Column {
-            Text(text = "${System.currentTimeMillis()}")
+            Text(text = "${Timestamp.now()}")
             TButton(text = "update") {
                 update()
             }

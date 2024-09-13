@@ -48,12 +48,11 @@ internal typealias DecFn = (Int) -> Unit
  * }.right())
  * ```
  */
-@Deprecated("Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`")
+@Deprecated(
+    "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
+)
 @Composable
-fun useCounter(
-    initialValue: Int = 0,
-    options: CounterOptions,
-): Tuple5<Int, IncFn, DecFn, SetValueFn<Either<Int, (Int) -> Int>>, ResetFn> {
+fun useCounter(initialValue: Int = 0, options: CounterOptions): Tuple5<Int, IncFn, DecFn, SetValueFn<Either<Int, (Int) -> Int>>, ResetFn> {
     val (current, setCurrent, getCurrent) = useGetState(getTargetValue(initialValue, options))
     val setValue: SetValueFn<Either<Int, (Int) -> Int>> = { value: Either<Int, (Int) -> Int> ->
         val target = value.fold(
@@ -92,9 +91,21 @@ fun useCounter(
 fun useCounter(
     initialValue: Int = 0,
     optionsOf: CounterOptions.() -> Unit,
-): Tuple5<Int, IncFn, DecFn, SetValueFn<Either<Int, (Int) -> Int>>, ResetFn> {
-    return useCounter(initialValue, remember(optionsOf) { CounterOptions.optionOf(optionsOf) })
-}
+): Tuple5<
+    Int,
+    IncFn,
+    DecFn,
+    SetValueFn<
+        Either<
+            Int,
+            (
+                Int,
+            ) -> Int
+        >
+    >,
+    ResetFn
+> =
+    useCounter(initialValue, remember(optionsOf) { CounterOptions.optionOf(optionsOf) })
 
 private fun getTargetValue(value: Int, options: CounterOptions): Int {
     val (min, max) = options
@@ -102,5 +113,5 @@ private fun getTargetValue(value: Int, options: CounterOptions): Int {
 }
 
 operator fun SetValueFn<Either<Int, (Int) -> Int>>.invoke(leftValue: Int) = this(leftValue.left())
-operator fun SetValueFn<Either<Int, (Int) -> Int>>.invoke(rightValue: (Int) -> Int) =
-    this(rightValue.right())
+
+operator fun SetValueFn<Either<Int, (Int) -> Int>>.invoke(rightValue: (Int) -> Int) = this(rightValue.right())

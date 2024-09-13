@@ -45,15 +45,13 @@ import androidx.compose.runtime.*
  */
 @Suppress("UNCHECKED_CAST")
 @Composable
-fun <T> useState(default: T & Any): MutableState<T & Any> {
-    return when (default) {
-        is Int -> useInt(default)
-        is Float -> useFloat(default)
-        is Double -> useDouble(default)
-        is Long -> useLong(default)
-        else -> _useState(default)
-    } as MutableState<T & Any>
-}
+fun <T> useState(default: T & Any): MutableState<T & Any> = when (default) {
+    is Int -> useInt(default)
+    is Float -> useFloat(default)
+    is Double -> useDouble(default)
+    is Long -> useLong(default)
+    else -> _useState(default)
+} as MutableState<T & Any>
 
 /**
  * 用于方便的创建派生状态，派生状态不同于普通的[MutableState]，他是一个只读的状态，

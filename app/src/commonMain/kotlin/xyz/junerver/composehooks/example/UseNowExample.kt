@@ -26,7 +26,8 @@ fun UseNowExample() {
     val customize = useNow(
         optionsOf = {
             format = {
-                it.tsMs.toLocalDateTime()
+                it.tsMs
+                    .toLocalDateTime()
                     .format(
                         LocalDateTime.Format {
                             year()

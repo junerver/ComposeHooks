@@ -67,11 +67,7 @@ internal val InternalMemoryPersistentContext =
  */
 @Suppress("UNCHECKED_CAST")
 @Composable
-fun <T> usePersistent(
-    key: String,
-    defaultValue: T,
-    forceUseMemory: Boolean = false,
-): PersistentHookReturn<T> {
+fun <T> usePersistent(key: String, defaultValue: T, forceUseMemory: Boolean = false): PersistentHookReturn<T> {
     val (get, set, clear) = useContext(context = if (forceUseMemory) InternalMemoryPersistentContext else PersistentContext)
 
     /**
@@ -111,9 +107,7 @@ private fun memorySavePersistent(key: String, value: Any?) {
     notifyDefaultPersistentObserver(key)
 }
 
-private fun memoryGetPersistent(key: String, defaultValue: Any): Any {
-    return CacheManager.getCache(key.persistentKey, defaultValue)
-}
+private fun memoryGetPersistent(key: String, defaultValue: Any): Any = CacheManager.getCache(key.persistentKey, defaultValue)
 
 private fun memoryClearPersistent(key: String) {
     CacheManager.clearCache(key.persistentKey)

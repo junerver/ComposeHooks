@@ -31,7 +31,6 @@ internal class Throttle(
     private val scope: CoroutineScope,
     private val options: ThrottleOptions = ThrottleOptions(),
 ) {
-
     private var calledCount = 0
     private val trailingJobs: MutableList<Job> = arrayListOf()
     private var latestInvokedTime = Instant.DISTANT_PAST
@@ -73,7 +72,9 @@ internal class Throttle(
     }
 }
 
-@Deprecated("Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`")
+@Deprecated(
+    "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
+)
 @Composable
 fun <S> useThrottle(value: S, options: ThrottleOptions = remember { ThrottleOptions() }): S {
     val (throttled, setThrottled) = _useGetState(value)
@@ -87,16 +88,14 @@ fun <S> useThrottle(value: S, options: ThrottleOptions = remember { ThrottleOpti
 }
 
 @Composable
-fun <S> useThrottle(value: S, optionsOf: ThrottleOptions.() -> Unit): S {
-    return useThrottle(value, remember(optionsOf) { ThrottleOptions.optionOf(optionsOf) })
-}
+fun <S> useThrottle(value: S, optionsOf: ThrottleOptions.() -> Unit): S =
+    useThrottle(value, remember(optionsOf) { ThrottleOptions.optionOf(optionsOf) })
 
-@Deprecated("Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`")
+@Deprecated(
+    "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
+)
 @Composable
-fun useThrottleFn(
-    fn: VoidFunction,
-    options: ThrottleOptions = remember { ThrottleOptions() },
-): VoidFunction {
+fun useThrottleFn(fn: VoidFunction, options: ThrottleOptions = remember { ThrottleOptions() }): VoidFunction {
     val latestFn by useLatestState(value = fn)
     val scope = rememberCoroutineScope()
     val throttled = remember {
@@ -106,18 +105,14 @@ fun useThrottleFn(
 }
 
 @Composable
-fun useThrottleFn(
-    fn: VoidFunction,
-    optionsOf: ThrottleOptions.() -> Unit,
-): VoidFunction = useThrottleFn(fn, remember(optionsOf) { ThrottleOptions.optionOf(optionsOf) })
+fun useThrottleFn(fn: VoidFunction, optionsOf: ThrottleOptions.() -> Unit): VoidFunction =
+    useThrottleFn(fn, remember(optionsOf) { ThrottleOptions.optionOf(optionsOf) })
 
-@Deprecated("Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`")
+@Deprecated(
+    "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
+)
 @Composable
-fun useThrottleEffect(
-    vararg keys: Any?,
-    options: ThrottleOptions = remember { ThrottleOptions() },
-    block: SuspendAsyncFn,
-) {
+fun useThrottleEffect(vararg keys: Any?, options: ThrottleOptions = remember { ThrottleOptions() }, block: SuspendAsyncFn) {
     val throttledBlock = useThrottleFn(fn = { params ->
         (params[0] as CoroutineScope).launch {
             this.block()
@@ -130,11 +125,7 @@ fun useThrottleEffect(
 }
 
 @Composable
-fun useThrottleEffect(
-    vararg keys: Any?,
-    optionsOf: ThrottleOptions.() -> Unit,
-    block: SuspendAsyncFn,
-) = useThrottleEffect(
+fun useThrottleEffect(vararg keys: Any?, optionsOf: ThrottleOptions.() -> Unit, block: SuspendAsyncFn) = useThrottleEffect(
     keys = keys,
     remember(optionsOf) { ThrottleOptions.optionOf(optionsOf) },
     block = block

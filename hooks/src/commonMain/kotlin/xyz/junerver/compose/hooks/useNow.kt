@@ -23,7 +23,9 @@ data class UseNowOptions(
     companion object : Options<UseNowOptions>(::UseNowOptions)
 }
 
-@Deprecated("Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`")
+@Deprecated(
+    "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
+)
 @Composable
 fun useNow(options: UseNowOptions = remember { UseNowOptions() }): String {
     val (interval, format) = with(options) { Pair(interval, format) }
@@ -54,9 +56,7 @@ fun useNow(options: UseNowOptions = remember { UseNowOptions() }): String {
 }
 
 @Composable
-fun useNow(optionsOf: UseNowOptions.() -> Unit): String {
-    return useNow(remember(optionsOf) { UseNowOptions.optionOf(optionsOf) })
-}
+fun useNow(optionsOf: UseNowOptions.() -> Unit): String = useNow(remember(optionsOf) { UseNowOptions.optionOf(optionsOf) })
 
 internal fun Long.toLocalDateTime(timeZone: TimeZone = TimeZone.currentSystemDefault()) =
     Instant.fromEpochMilliseconds(this).toLocalDateTime(timeZone)

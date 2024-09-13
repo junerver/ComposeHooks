@@ -23,9 +23,13 @@ data class UndoState<T>(
 )
 
 private sealed interface UndoAction
+
 private data object Undo : UndoAction
+
 private data object Redo : UndoAction
+
 private data class Set<S>(val payload: S) : UndoAction
+
 private data class Reset<S>(val payload: S) : UndoAction
 
 @Suppress("UNCHECKED_CAST")

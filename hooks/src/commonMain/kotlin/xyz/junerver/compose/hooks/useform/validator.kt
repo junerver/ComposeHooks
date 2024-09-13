@@ -17,7 +17,6 @@ private const val REGEX_MESSAGE = "value does not match the regex"
  * @constructor Create empty Validator
  */
 sealed interface Validator {
-
     /**
      * Prompt message after verification failure
      */
@@ -25,10 +24,15 @@ sealed interface Validator {
 }
 
 data class Email(override val message: String = EMAIL_MESSAGE) : Validator
+
 data class Phone(override val message: String = PHONE_MESSAGE) : Validator
+
 data class Mobile(override val message: String = MOBILE_MESSAGE) : Validator
+
 data class Required(override val message: String = REQUIRED_MESSAGE) : Validator
+
 data class Regex(override val message: String = REGEX_MESSAGE, val regex: String) : Validator
+
 abstract class CustomValidator(
     override val message: String,
     val validator: (field: Any?) -> Boolean,
@@ -44,44 +48,36 @@ abstract class CustomValidator(
  * @receiver
  * @return Is pass all validators
  */
-fun Array<Validator>.validateField(
-    fieldValue: Any?,
-    pass: Validator.() -> Boolean,
-    fail: Validator.() -> Boolean,
-): Boolean {
-    return this.map {
-        fun Any?.validate(validator: Validator, condition: Any?.() -> Boolean): Boolean {
-            return if (this.condition()) {
-                validator.pass()
-            } else {
-                validator.fail()
-            }
+fun Array<Validator>.validateField(fieldValue: Any?, pass: Validator.() -> Boolean, fail: Validator.() -> Boolean): Boolean = this.map {
+    fun Any?.validate(validator: Validator, condition: Any?.() -> Boolean): Boolean = if (this.condition()) {
+        validator.pass()
+    } else {
+        validator.fail()
+    }
+
+    when (it) {
+        is Required -> fieldValue.validate(it) {
+            asBoolean()
         }
 
-        when (it) {
-            is Required -> fieldValue.validate(it) {
-                asBoolean()
-            }
-
-            is Email -> fieldValue.validate(it) {
-                !this.asBoolean() || (this is String && this.isEmail())
-            }
-
-            is Phone -> fieldValue.validate(it) {
-                !this.asBoolean() || (this is String && this.isPhone())
-            }
-
-            is Mobile -> fieldValue.validate(it) {
-                !this.asBoolean() || (this is String && this.isMobile())
-            }
-
-            is Regex -> fieldValue.validate(it) {
-                !this.asBoolean() || (this is String && this.matches(Regex(it.regex)))
-            }
-
-            is CustomValidator -> fieldValue.validate(it) {
-                it.validator(this)
-            }
+        is Email -> fieldValue.validate(it) {
+            !this.asBoolean() || (this is String && this.isEmail())
         }
-    }.all { it }
-}
+
+        is Phone -> fieldValue.validate(it) {
+            !this.asBoolean() || (this is String && this.isPhone())
+        }
+
+        is Mobile -> fieldValue.validate(it) {
+            !this.asBoolean() || (this is String && this.isMobile())
+        }
+
+        is Regex -> fieldValue.validate(it) {
+            !this.asBoolean() || (this is String && this.matches(Regex(it.regex)))
+        }
+
+        is CustomValidator -> fieldValue.validate(it) {
+            it.validator(this)
+        }
+    }
+}.all { it }

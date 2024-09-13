@@ -37,7 +37,9 @@ data class CountdownOptions internal constructor(
     companion object : Options<CountdownOptions>(::CountdownOptions)
 }
 
-@Deprecated("Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`")
+@Deprecated(
+    "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
+)
 @Composable
 fun useCountdown(options: CountdownOptions): Pair<Duration, FormattedRes> {
     val (leftTime, targetDate, interval, onEnd) = options
@@ -81,9 +83,8 @@ fun useCountdown(options: CountdownOptions): Pair<Duration, FormattedRes> {
 }
 
 @Composable
-fun useCountdown(optionsOf: CountdownOptions.() -> Unit): Pair<Duration, FormattedRes> {
-    return useCountdown(remember(optionsOf) { CountdownOptions.optionOf(optionsOf) })
-}
+fun useCountdown(optionsOf: CountdownOptions.() -> Unit): Pair<Duration, FormattedRes> =
+    useCountdown(remember(optionsOf) { CountdownOptions.optionOf(optionsOf) })
 
 private fun calcLeft(target: Instant?): Duration {
     if (target == null) return 0.seconds
@@ -99,12 +100,10 @@ data class FormattedRes(
     val milliseconds: Int,
 )
 
-private fun parseDuration(leftTime: Duration): FormattedRes {
-    return FormattedRes(
-        days = (leftTime.inWholeDays).toInt(),
-        hours = ((leftTime.inWholeHours) % 24).toInt(),
-        minutes = ((leftTime.inWholeMinutes) % 60).toInt(),
-        seconds = ((leftTime.inWholeSeconds) % 60).toInt(),
-        milliseconds = (leftTime.inWholeMilliseconds % 1000).toInt()
-    )
-}
+private fun parseDuration(leftTime: Duration): FormattedRes = FormattedRes(
+    days = (leftTime.inWholeDays).toInt(),
+    hours = ((leftTime.inWholeHours) % 24).toInt(),
+    minutes = ((leftTime.inWholeMinutes) % 60).toInt(),
+    seconds = ((leftTime.inWholeSeconds) % 60).toInt(),
+    milliseconds = (leftTime.inWholeMilliseconds % 1000).toInt()
+)

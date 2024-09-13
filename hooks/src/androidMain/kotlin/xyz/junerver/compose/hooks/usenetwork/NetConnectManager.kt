@@ -23,22 +23,21 @@ import androidx.core.content.getSystemService
 @SuppressLint("WrongCommentType")
 sealed class ConnectType(val value: Int) {
     data object Mobile : ConnectType(0)
+
     data object Wifi : ConnectType(1)
+
     data object None : ConnectType(-1)
 
     companion object {
-        fun convert2Type(value: Int): ConnectType {
-            return when (value) {
-                Mobile.value -> Mobile
-                Wifi.value -> Wifi
-                else -> None
-            }
+        fun convert2Type(value: Int): ConnectType = when (value) {
+            Mobile.value -> Mobile
+            Wifi.value -> Wifi
+            else -> None
         }
     }
 }
 
 internal object NetConnectManager {
-
     private var mConnectivityManager: ConnectivityManager? = null
     private val mainHandler = Handler(Looper.getMainLooper())
     private val mNetTypeListener = mutableListOf<NetTypeChangeListener>()
@@ -67,10 +66,7 @@ internal object NetConnectManager {
     /**
      * 两个监听一起注册
      */
-    fun addListener(
-        typeChangeListener: NetTypeChangeListener,
-        statusChangeListener: NetStatusChangeListener,
-    ) {
+    fun addListener(typeChangeListener: NetTypeChangeListener, statusChangeListener: NetStatusChangeListener) {
         addNetTypeChangeListener(typeChangeListener)
         addNetStatusChangeListener(statusChangeListener)
     }
@@ -78,10 +74,7 @@ internal object NetConnectManager {
     /**
      * 两个监听一起移除
      */
-    fun removeListener(
-        typeChangeListener: NetTypeChangeListener,
-        statusChangeListener: NetStatusChangeListener,
-    ) {
+    fun removeListener(typeChangeListener: NetTypeChangeListener, statusChangeListener: NetStatusChangeListener) {
         removeNetTypeChangeListener(typeChangeListener)
         removeNetStatusChangeListener(statusChangeListener)
     }
@@ -146,11 +139,10 @@ internal object NetConnectManager {
             mIsNetAvailable
                 ?: mConnectivityManager?.getNetworkCapabilities(mConnectivityManager?.activeNetwork)
                     ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-            ) == true
+        ) == true
     }
 
     private class DefaultNetConnectCallback : ConnectivityManager.NetworkCallback() {
-
         override fun onLost(network: Network) {
             super.onLost(network)
             mCurrentConnectType = ConnectType.None
@@ -163,10 +155,7 @@ internal object NetConnectManager {
             }, 500)
         }
 
-        override fun onCapabilitiesChanged(
-            network: Network,
-            networkCapabilities: NetworkCapabilities,
-        ) {
+        override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
             super.onCapabilitiesChanged(network, networkCapabilities)
             mainHandler.post {
                 val isConnected =
@@ -178,7 +167,13 @@ internal object NetConnectManager {
 
                 if (isConnected) {
                     val newConnectType =
-                        if (isCellular) ConnectType.Mobile else if (isWifi) ConnectType.Wifi else ConnectType.None
+                        if (isCellular) {
+                            ConnectType.Mobile
+                        } else if (isWifi) {
+                            ConnectType.Wifi
+                        } else {
+                            ConnectType.None
+                        }
                     if (mIsNetAvailable == null || mIsNetAvailable == false) {
                         mIsNetAvailable = true
                         mNetStateListener.forEach { it(true) }

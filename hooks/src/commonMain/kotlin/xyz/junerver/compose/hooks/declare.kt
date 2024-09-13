@@ -34,8 +34,7 @@ inline fun <reified A> rememberDispatchAsync(
 inline fun <reified T> rememberSelector(alias: String? = null): T = useSelector(alias)
 
 @Composable
-inline fun <reified T, R> rememberSelector(alias: String? = null, block: T.() -> R) =
-    useSelector(alias, block)
+inline fun <reified T, R> rememberSelector(alias: String? = null, block: T.() -> R) = useSelector(alias, block)
 //endregion
 
 @Composable
@@ -57,12 +56,10 @@ fun rememberAsync(): AsyncRunFn = useAsync()
 fun <T> rememberAutoReset(default: T & Any, interval: Duration) = useAutoReset(default, interval)
 
 @Composable
-fun rememberBackToFrontEffect(vararg keys: Any?, effect: () -> Unit) =
-    useBackToFrontEffect(*keys, effect = effect)
+fun rememberBackToFrontEffect(vararg keys: Any?, effect: () -> Unit) = useBackToFrontEffect(*keys, effect = effect)
 
 @Composable
-fun rememberFrontToBackEffect(vararg keys: Any?, effect: () -> Unit) =
-    useFrontToBackEffect(*keys, effect = effect)
+fun rememberFrontToBackEffect(vararg keys: Any?, effect: () -> Unit) = useFrontToBackEffect(*keys, effect = effect)
 
 @Composable
 fun rememberBoolean(default: Boolean = false) = useBoolean(default)
@@ -74,45 +71,32 @@ fun rememberClipboard(): Pair<CopyFn, PasteFn> = useClipboard()
 fun <T> rememberContext(context: ReactContext<T>) = useContext(context)
 
 @Composable
-fun rememberCountdown(options: CountdownOptions): Pair<Duration, FormattedRes> =
-    useCountdown(options)
+fun rememberCountdown(options: CountdownOptions): Pair<Duration, FormattedRes> = useCountdown(options)
 
 @Composable
 fun rememberCounter(
     initialValue: Int = 0,
     options: CounterOptions,
-): Tuple5<Int, IncFn, DecFn, SetValueFn<Either<Int, (Int) -> Int>>, ResetFn> =
-    useCounter(initialValue, options)
+): Tuple5<Int, IncFn, DecFn, SetValueFn<Either<Int, (Int) -> Int>>, ResetFn> = useCounter(initialValue, options)
 
 @Composable
-fun <T> rememberCreation(vararg keys: Any?, factory: () -> T) =
-    useCreation(*keys, factory = factory)
+fun <T> rememberCreation(vararg keys: Any?, factory: () -> T) = useCreation(*keys, factory = factory)
 
 //region useDebounce
 @Composable
-fun <S> rememberDebounce(
-    value: S,
-    options: DebounceOptions = remember { DebounceOptions() },
-) = useDebounce(value, options)
+fun <S> rememberDebounce(value: S, options: DebounceOptions = remember { DebounceOptions() }) = useDebounce(value, options)
 
 @Composable
-fun rememberDebounceFn(
-    fn: VoidFunction,
-    options: DebounceOptions = remember { DebounceOptions() },
-) = useDebounceFn(fn, options)
+fun rememberDebounceFn(fn: VoidFunction, options: DebounceOptions = remember { DebounceOptions() }) = useDebounceFn(fn, options)
 
 @Composable
-fun LaunchedDebounceEffect(
-    vararg keys: Any?,
-    options: DebounceOptions = remember { DebounceOptions() },
-    block: SuspendAsyncFn,
-) = useDebounceEffect(*keys, options = options, block = block)
+fun LaunchedDebounceEffect(vararg keys: Any?, options: DebounceOptions = remember { DebounceOptions() }, block: SuspendAsyncFn) =
+    useDebounceEffect(*keys, options = options, block = block)
 //endregion
 
 //region useEvent
 @Composable
-inline fun <reified T : Any> rememberEventSubscribe(noinline subscriber: (T) -> Unit) =
-    useEventSubscribe(subscriber)
+inline fun <reified T : Any> rememberEventSubscribe(noinline subscriber: (T) -> Unit) = useEventSubscribe(subscriber)
 
 @Composable
 inline fun <reified T : Any> rememberEventPublish(): (T) -> Unit = useEventPublish()
@@ -131,17 +115,11 @@ fun <T> _rememberGetState(default: T) = _useGetState(default = default)
 //endregion
 
 @Composable
-fun rememberInterval(
-    options: IntervalOptions = remember { IntervalOptions() },
-    block: () -> Unit,
-) = useInterval(options, block)
+fun rememberInterval(options: IntervalOptions = remember { IntervalOptions() }, block: () -> Unit) = useInterval(options, block)
 
 @Composable
-fun rememberInterval(
-    options: IntervalOptions = remember { IntervalOptions() },
-    ready: Boolean,
-    block: () -> Unit,
-) = useInterval(options, ready, block)
+fun rememberInterval(options: IntervalOptions = remember { IntervalOptions() }, ready: Boolean, block: () -> Unit) =
+    useInterval(options, ready, block)
 
 @Composable
 fun <T> rememberLatestRef(value: T) = useLatestRef(value)
@@ -189,19 +167,14 @@ fun <T> rememberPersistent(key: String, defaultValue: T) = usePersistent(key, de
 fun <T> rememberPrevious(present: T) = usePrevious(present)
 
 @Composable
-fun <S, A> rememberReducer(
-    reducer: Reducer<S, A>,
-    initialState: S,
-    middlewares: Array<Middleware<S, A>> = emptyArray(),
-) =
+fun <S, A> rememberReducer(reducer: Reducer<S, A>, initialState: S, middlewares: Array<Middleware<S, A>> = emptyArray()) =
     useReducer(reducer, initialState, middlewares)
 
 @Composable
 fun <T> rememberRef(default: T) = useRef(default)
 
 @Composable
-fun <T> rememberResetState(default: T & Any): Tuple4<T, SetValueFn<T & Any>, GetValueFn<T>, ResetFn> =
-    useResetState(default)
+fun <T> rememberResetState(default: T & Any): Tuple4<T, SetValueFn<T & Any>, GetValueFn<T>, ResetFn> = useResetState(default)
 
 @Composable
 fun <T> rememberState(default: T & Any) = useState(default)
@@ -211,63 +184,40 @@ fun <T> _rememberState(default: T) = _useState(default)
 
 //region useThrottle
 @Composable
-fun <S> rememberThrottle(value: S, options: ThrottleOptions = remember { ThrottleOptions() }) =
-    useThrottle(value, options)
+fun <S> rememberThrottle(value: S, options: ThrottleOptions = remember { ThrottleOptions() }) = useThrottle(value, options)
 
 @Composable
-fun rememberThrottleFn(
-    fn: VoidFunction,
-    options: ThrottleOptions = remember { ThrottleOptions() },
-) = useThrottleFn(fn, options)
+fun rememberThrottleFn(fn: VoidFunction, options: ThrottleOptions = remember { ThrottleOptions() }) = useThrottleFn(fn, options)
 
 @Composable
-fun LaunchedThrottleEffect(
-    vararg keys: Any?,
-    options: ThrottleOptions = remember { ThrottleOptions() },
-    block: SuspendAsyncFn,
-) = useThrottleEffect(*keys, options = options, block = block)
+fun LaunchedThrottleEffect(vararg keys: Any?, options: ThrottleOptions = remember { ThrottleOptions() }, block: SuspendAsyncFn) =
+    useThrottleEffect(*keys, options = options, block = block)
 //endregion
 
 @Composable
 fun rememberTimeout(delay: Duration = 1.seconds, block: () -> Unit) = useTimeout(delay, block)
 
 @Composable
-fun rememberTimestamp(
-    options: TimestampOptions = remember { TimestampOptions() },
-    autoResume: Boolean = true,
-) = useTimestamp(options, autoResume)
+fun rememberTimestamp(options: TimestampOptions = remember { TimestampOptions() }, autoResume: Boolean = true) =
+    useTimestamp(options, autoResume)
 
 @Composable
-fun rememberTimestampRef(
-    options: TimestampOptions = remember { TimestampOptions() },
-    autoResume: Boolean = true,
-) = useTimestampRef(options, autoResume)
+fun rememberTimestampRef(options: TimestampOptions = remember { TimestampOptions() }, autoResume: Boolean = true) =
+    useTimestampRef(options, autoResume)
 
 //region useToggle
 @Composable
-fun <T> rememberToggle(
-    defaultValue: T? = null,
-    reverseValue: T? = null,
-) = useToggle(defaultValue, reverseValue)
+fun <T> rememberToggle(defaultValue: T? = null, reverseValue: T? = null) = useToggle(defaultValue, reverseValue)
 
 @Composable
-fun <L, R> rememberToggleEither(
-    defaultValue: L? = null,
-    reverseValue: R? = null,
-) = useToggleEither(defaultValue, reverseValue)
+fun <L, R> rememberToggleEither(defaultValue: L? = null, reverseValue: R? = null) = useToggleEither(defaultValue, reverseValue)
 
 @Composable
-fun rememberToggleVisible(
-    isVisible: Boolean = false,
-    content: @Composable () -> Unit,
-) = useToggleVisible(isVisible, content)
+fun rememberToggleVisible(isVisible: Boolean = false, content: @Composable () -> Unit) = useToggleVisible(isVisible, content)
 
 @Composable
-fun rememberToggleVisible(
-    isFirst: Boolean = true,
-    content1: @Composable () -> Unit,
-    content2: @Composable () -> Unit,
-) = useToggleVisible(isFirst, content1, content2)
+fun rememberToggleVisible(isFirst: Boolean = true, content1: @Composable () -> Unit, content2: @Composable () -> Unit) =
+    useToggleVisible(isFirst, content1, content2)
 //endregion
 
 @Composable
@@ -283,5 +233,4 @@ fun rememberUnmountedRef() = useUnmountedRef()
 fun rememberUpdate(): () -> Unit = useUpdate()
 
 @Composable
-fun rememberUpdateEffect(vararg keys: Any?, block: SuspendAsyncFn) =
-    useUpdateEffect(*keys, block = block)
+fun rememberUpdateEffect(vararg keys: Any?, block: SuspendAsyncFn) = useUpdateEffect(*keys, block = block)

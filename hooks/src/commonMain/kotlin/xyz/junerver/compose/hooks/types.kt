@@ -32,6 +32,7 @@ internal typealias NoParamsVoidFunction = KFunction0<Unit>
  * ```
  */
 operator fun <TData> NormalFunction<TData>.invoke(vararg params: Any?) = this(arrayOf(*params))
+
 operator fun VoidFunction.invoke(vararg params: Any?) = this(arrayOf(*params))
 
 internal typealias PauseFn = KFunction0<Unit>

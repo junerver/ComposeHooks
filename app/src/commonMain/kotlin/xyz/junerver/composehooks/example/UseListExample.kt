@@ -48,5 +48,5 @@ fun UseListExample() {
 
 @Composable
 fun RandomItem(index: Int) {
-    Text(text = "$index: ${Math.random()}")
+    Text(text = "$index: ${Random.nextDouble()}")
 }

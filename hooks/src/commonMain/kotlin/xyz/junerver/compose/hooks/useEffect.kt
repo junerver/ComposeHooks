@@ -12,5 +12,4 @@ import androidx.compose.runtime.LaunchedEffect
 */
 
 @Composable
-fun useEffect(vararg deps: Any?, block: SuspendAsyncFn) =
-    LaunchedEffect(keys = deps, block = block)
+fun useEffect(vararg deps: Any?, block: SuspendAsyncFn) = LaunchedEffect(keys = deps, block = block)

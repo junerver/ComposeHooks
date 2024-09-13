@@ -83,7 +83,9 @@ typealias CancelFn = KFunction0<Unit>
  *    请求的配置项，参考[RequestOptions]，以及[ahooks-useRequest](https://ahooks.gitee.io/zh-CN/hooks/use-request/index).
  * @param plugins 自定义的插件，这是一个数组，请通过arrayOf传入
  */
-@Deprecated("Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`")
+@Deprecated(
+    "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
+)
 @Composable
 fun <TData : Any> useRequest(
     requestFn: SuspendNormalFunction<TData>,
@@ -135,13 +137,11 @@ fun <TData : Any> useRequest(
     requestFn: SuspendNormalFunction<TData>,
     optionsOf: RequestOptions<TData>.() -> Unit = {},
     plugins: Array<@Composable (RequestOptions<TData>) -> Plugin<TData>> = emptyArray(),
-): Tuple7<TData?, Boolean, Throwable?, ReqFn, MutateFn<TData>, RefreshFn, CancelFn> {
-    return useRequest(
-        requestFn,
-        remember(optionsOf) { RequestOptions.optionOf(optionsOf) },
-        plugins
-    )
-}
+): Tuple7<TData?, Boolean, Throwable?, ReqFn, MutateFn<TData>, RefreshFn, CancelFn> = useRequest(
+    requestFn,
+    remember(optionsOf) { RequestOptions.optionOf(optionsOf) },
+    plugins
+)
 
 @Composable
 private fun <TData : Any> useRequestPluginsImpl(

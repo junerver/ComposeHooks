@@ -39,7 +39,11 @@ fun UseDeviceInfoExample() {
     val (on, setOn) = useGetState(default = false)
     val (turnOn, turnOff) = useFlashlight()
     val (req, release, isActive) = useWakeLock()
-    val (addFlags, clearFlags, isFlagsAdded) = useWindowFlags(key = "secure&wakelock", flags = WindowManager.LayoutParams.FLAG_SECURE or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    val (addFlags, clearFlags, isFlagsAdded) = useWindowFlags(
+        key = "secure&wakelock",
+        flags =
+            WindowManager.LayoutParams.FLAG_SECURE or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+    )
     val (setBrightness, initValue) = useScreenBrightness()
     val (sliderValue, setSliderValue) = useGetState(default = initValue)
     Surface {

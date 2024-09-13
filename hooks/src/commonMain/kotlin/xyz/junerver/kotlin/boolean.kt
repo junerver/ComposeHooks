@@ -17,18 +17,16 @@ import kotlin.time.DurationUnit
 /**
  * 将任意值转换成布尔，类似JS的 Boolean包装器函数
  */
-fun toBoolean(value: Any?): Boolean {
-    return when (value) {
-        null -> false // 空对象直接返回 false
-        is Boolean -> value // 布尔类型返回自身
-        is Number -> value != 0 // 数值类型非0
-        is String -> value.isNotEmpty() && value != "false" && value != "null" // 空字符、'false'、'null'
-        is Array<*> -> value.size > 0 // 数组、集合必须有元素
-        is Collection<*> -> value.isNotEmpty()
-        is Map<*, *> -> value.isNotEmpty()
-        is Duration -> value.toLong(DurationUnit.MILLISECONDS) > 0 // 如果是时间，时间大于0
-        else -> true
-    }
+fun toBoolean(value: Any?): Boolean = when (value) {
+    null -> false // 空对象直接返回 false
+    is Boolean -> value // 布尔类型返回自身
+    is Number -> value != 0 // 数值类型非0
+    is String -> value.isNotEmpty() && value != "false" && value != "null" // 空字符、'false'、'null'
+    is Array<*> -> value.size > 0 // 数组、集合必须有元素
+    is Collection<*> -> value.isNotEmpty()
+    is Map<*, *> -> value.isNotEmpty()
+    is Duration -> value.toLong(DurationUnit.MILLISECONDS) > 0 // 如果是时间，时间大于0
+    else -> true
 }
 
 @Deprecated("add contract,use fun this.asBoolean()", ReplaceWith("this.asBoolean()"))
@@ -63,10 +61,7 @@ fun Any?.asBoolean(): Boolean {
  * ```
  */
 @OptIn(ExperimentalContracts::class)
-public inline fun <T> Boolean.switches(
-    noinline ifTrue: (Boolean) -> T,
-    noinline ifFalse: (Boolean) -> T,
-): T {
+public inline fun <T> Boolean.switches(noinline ifTrue: (Boolean) -> T, noinline ifFalse: (Boolean) -> T): T {
     contract {
         callsInPlace(ifTrue, InvocationKind.AT_MOST_ONCE)
         callsInPlace(ifFalse, InvocationKind.AT_MOST_ONCE)

@@ -24,17 +24,15 @@ interface ReactContext<T> {
 /**
  * function to create a context object.
  */
-fun <T> createContext(initialValue: T): ReactContext<T> {
-    return object : ReactContext<T> {
-        override val LocalCtx = compositionLocalOf { initialValue }
+fun <T> createContext(initialValue: T): ReactContext<T> = object : ReactContext<T> {
+    override val LocalCtx = compositionLocalOf { initialValue }
 
-        @Composable
-        override fun Provider(value: T, content: @Composable () -> Unit) {
-            CompositionLocalProvider(
-                LocalCtx provides value,
-                content = content
-            )
-        }
+    @Composable
+    override fun Provider(value: T, content: @Composable () -> Unit) {
+        CompositionLocalProvider(
+            LocalCtx provides value,
+            content = content
+        )
     }
 }
 
@@ -44,6 +42,4 @@ fun <T> createContext(initialValue: T): ReactContext<T> {
  * @see [useContext](https://reactjs.org/docs/hooks-reference.html#usecontext)
  */
 @Composable
-fun <T> useContext(context: ReactContext<T>): T {
-    return context.LocalCtx.current
-}
+fun <T> useContext(context: ReactContext<T>): T = context.LocalCtx.current

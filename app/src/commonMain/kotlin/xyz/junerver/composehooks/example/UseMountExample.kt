@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -30,7 +31,7 @@ fun UseMountExample() {
     Surface {
         Column {
             if (visible) {
-                UnmountableChild(text = "${Math.random()}")
+                UnmountableChild(text = "${Random.nextDouble()}")
             }
             TButton(text = "Update") {
                 update()

@@ -25,7 +25,6 @@ import xyz.junerver.kotlin.tuple
   Version: v1.0
 */
 private class CachePlugin<TData : Any> : Plugin<TData>() {
-
     lateinit var unSubscribeRef: MutableRef<(() -> Unit)?>
     lateinit var currentPromiseRef: MutableRef<Deferred<*>?>
 
@@ -168,6 +167,7 @@ internal fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
     if (cacheKey.isEmpty()) {
         return useEmptyPlugin()
     }
+
     fun setCache(key: String, cachedData: CachedData<T>) {
         if (customSetCache.asBoolean()) {
             customSetCache(cachedData)
@@ -184,12 +184,10 @@ internal fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
         )
     }
 
-    fun getCache(key: String, params: TParams = emptyArray()): CachedData<T>? {
-        return if (customGetCache.asBoolean()) {
-            customGetCache(params)
-        } else {
-            CacheManager.getCache(key)
-        }
+    fun getCache(key: String, params: TParams = emptyArray()): CachedData<T>? = if (customGetCache.asBoolean()) {
+        customGetCache(params)
+    } else {
+        CacheManager.getCache(key)
     }
 
     // 反订阅函数

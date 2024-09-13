@@ -110,7 +110,6 @@ data class RequestOptions<TData> internal constructor(
      */
     var setCache: ((data: CachedData<TData>) -> Unit)? = null,
     var getCache: ((params: TParams) -> CachedData<TData>)? = null,
-
     /**
      * 通过设置 options.[loadingDelay] ，可以延迟 [FetchState.loading] 变成 true 的时间，有效防止闪烁。
      * 例如当一个接口正常会较快返回，我们如果常规使用会出现闪烁。从请求发起后，极快的从 false -> true ->false;
@@ -122,10 +121,9 @@ data class RequestOptions<TData> internal constructor(
 ) {
     @Suppress("unused")
     companion object {
-        fun <T> optionOf(opt: RequestOptions<T>.() -> Unit): RequestOptions<T> =
-            RequestOptions<T>().apply {
-                opt()
-            }
+        fun <T> optionOf(opt: RequestOptions<T>.() -> Unit): RequestOptions<T> = RequestOptions<T>().apply {
+            opt()
+        }
     }
 
     override fun equals(other: Any?): Boolean {

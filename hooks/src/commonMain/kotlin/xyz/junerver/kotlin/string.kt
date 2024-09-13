@@ -65,45 +65,37 @@ fun String.isEmail(): Boolean {
 /**
  * 字符串安全转换到整型，转换失败返回0
  */
-fun String.safeConvertToInt(): Int {
-    return try {
-        toInt()
-    } catch (e: Exception) {
-        0
-    }
+fun String.safeConvertToInt(): Int = try {
+    toInt()
+} catch (e: Exception) {
+    0
 }
 
 /**
  * 字符串安全转换到长整型，转换失败返回0
  */
-fun String.safeConvertToLong(): Long {
-    return try {
-        toLong()
-    } catch (e: Exception) {
-        0L
-    }
+fun String.safeConvertToLong(): Long = try {
+    toLong()
+} catch (e: Exception) {
+    0L
 }
 
 /**
  * 字符串安全转换到双精度类型，转换失败返回0
  */
-fun String.safeConvertToDouble(): Double {
-    return try {
-        toDouble()
-    } catch (e: Exception) {
-        0.0
-    }
+fun String.safeConvertToDouble(): Double = try {
+    toDouble()
+} catch (e: Exception) {
+    0.0
 }
 
 /**
  * 字符串安全转换到短整型类型，转换失败返回0
  */
-fun String.safeConvertToShort(): Short {
-    return try {
-        toShort()
-    } catch (e: Exception) {
-        0
-    }
+fun String.safeConvertToShort(): Short = try {
+    toShort()
+} catch (e: Exception) {
+    0
 }
 
 /**

@@ -40,7 +40,9 @@ import xyz.junerver.kotlin.tuple
 data class Todo(val name: String, val id: String)
 
 sealed interface TodoAction
+
 data class AddTodo(val todo: Todo) : TodoAction
+
 data class DelTodo(val id: String) : TodoAction
 
 val todoReducer: Reducer<PersistentList<Todo>, TodoAction> =
@@ -49,7 +51,7 @@ val todoReducer: Reducer<PersistentList<Todo>, TodoAction> =
             is AddTodo -> prevState + action.todo
 
             is DelTodo -> prevState.mutate { mutator ->
-                mutator.removeIf { it.id == action.id }
+                mutator.removeAll { it.id == action.id }
             }
         }
     }
@@ -224,9 +226,16 @@ private fun SubSimpleDataDispatch() {
 }
 
 sealed interface NetFetchResult<out T> {
-    data class Success<T>(val data: T) : NetFetchResult<T>
-    data class Error(val msg: Throwable) : NetFetchResult<Nothing>
+    data class Success<T>(
+        val data: T,
+    ) : NetFetchResult<T>
+
+    data class Error(
+        val msg: Throwable,
+    ) : NetFetchResult<Nothing>
+
     data object Idle : NetFetchResult<Nothing>
+
     data object Loading : NetFetchResult<Nothing>
 }
 
@@ -355,7 +364,6 @@ private fun useFetchError() = useFetchAliasFetch(alias = FetchAlias1, errorRetry
 }
 
 @Composable
-private fun useFetchUserInfo(user: String = "junerver") =
-    useFetchAliasFetch<UserInfo>(alias = FetchAlias2, autoFetch = true) {
-        NetApi.userInfo(user)
-    }
+private fun useFetchUserInfo(user: String = "junerver") = useFetchAliasFetch<UserInfo>(alias = FetchAlias2, autoFetch = true) {
+    NetApi.userInfo(user)
+}

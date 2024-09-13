@@ -9,10 +9,7 @@ import arrow.core.right
  * 用于在两个状态值间切换的 Hook。
  */
 @Composable
-fun <T> useToggle(
-    defaultValue: T? = null,
-    reverseValue: T? = null,
-): Pair<T?, ToggleFn> {
+fun <T> useToggle(defaultValue: T? = null, reverseValue: T? = null): Pair<T?, ToggleFn> {
     val (isLeft, toggle) = useBoolean(true)
     return (if (isLeft) defaultValue else reverseValue) to toggle
 }
@@ -22,10 +19,7 @@ fun <T> useToggle(
  * 调用者在使用时根据实际情况调用 [Either.fold] 函数或者其他函数处理；
  */
 @Composable
-fun <L, R> useToggleEither(
-    defaultValue: L? = null,
-    reverseValue: R? = null,
-): Pair<Either<L?, R?>, ToggleFn> {
+fun <L, R> useToggleEither(defaultValue: L? = null, reverseValue: R? = null): Pair<Either<L?, R?>, ToggleFn> {
     val (isLeft, toggle) = useBoolean(true)
     return (if (isLeft) defaultValue.left() else reverseValue.right()) to toggle
 }
@@ -34,10 +28,7 @@ fun <L, R> useToggleEither(
  * 用于方便的切换控制组件的可见性
  */
 @Composable
-fun useToggleVisible(
-    isVisible: Boolean = false,
-    content: @Composable () -> Unit,
-): Pair<@Composable () -> Unit, ToggleFn> {
+fun useToggleVisible(isVisible: Boolean = false, content: @Composable () -> Unit): Pair<@Composable () -> Unit, ToggleFn> {
     val empty: @Composable () -> Unit = {}
     return useToggleVisible(isVisible, content, empty)
 }

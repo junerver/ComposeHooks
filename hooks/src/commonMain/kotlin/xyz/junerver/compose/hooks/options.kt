@@ -29,16 +29,14 @@ abstract class Options<T>(val creator: () -> T) {
  *
  */
 @Deprecated("This function is not recommended, please use the specific `XxxOptions.optionOf{}` instead")
-inline fun <reified T> optionsOf(noinline opt: T.() -> Unit): T {
-    return when (T::class) {
-        CountdownOptions::class -> CountdownOptions.optionOf(opt as CountdownOptions.() -> Unit)
-        CounterOptions::class -> CounterOptions.optionOf(opt as CounterOptions.() -> Unit)
-        DebounceOptions::class -> DebounceOptions.optionOf(opt as DebounceOptions.() -> Unit)
-        IntervalOptions::class -> IntervalOptions.optionOf(opt as IntervalOptions.() -> Unit)
-        UseNowOptions::class -> UseNowOptions.optionOf(opt as UseNowOptions.() -> Unit)
-        ThrottleOptions::class -> ThrottleOptions.optionOf(opt as ThrottleOptions.() -> Unit)
-        TimestampOptions::class -> TimestampOptions.optionOf(opt as TimestampOptions.() -> Unit)
-        RequestOptions::class -> RequestOptions.optionOf(opt as RequestOptions<Any>.() -> Unit)
-        else -> error("unsupported options!!!!")
-    } as T
-}
+inline fun <reified T> optionsOf(noinline opt: T.() -> Unit): T = when (T::class) {
+    CountdownOptions::class -> CountdownOptions.optionOf(opt as CountdownOptions.() -> Unit)
+    CounterOptions::class -> CounterOptions.optionOf(opt as CounterOptions.() -> Unit)
+    DebounceOptions::class -> DebounceOptions.optionOf(opt as DebounceOptions.() -> Unit)
+    IntervalOptions::class -> IntervalOptions.optionOf(opt as IntervalOptions.() -> Unit)
+    UseNowOptions::class -> UseNowOptions.optionOf(opt as UseNowOptions.() -> Unit)
+    ThrottleOptions::class -> ThrottleOptions.optionOf(opt as ThrottleOptions.() -> Unit)
+    TimestampOptions::class -> TimestampOptions.optionOf(opt as TimestampOptions.() -> Unit)
+    RequestOptions::class -> RequestOptions.optionOf(opt as RequestOptions<Any>.() -> Unit)
+    else -> error("unsupported options!!!!")
+} as T

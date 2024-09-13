@@ -37,11 +37,11 @@ data class BiometricOptions internal constructor(
     companion object : Options<BiometricOptions>(::BiometricOptions)
 }
 
-@Deprecated("Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`")
+@Deprecated(
+    "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
+)
 @Composable
-fun useBiometric(
-    options: BiometricOptions = remember { BiometricOptions() },
-): Tuple2<() -> Unit, Boolean> {
+fun useBiometric(options: BiometricOptions = remember { BiometricOptions() }): Tuple2<() -> Unit, Boolean> {
     val (isAuthed, setIsAuthed) = _useSetState(default = false)
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
@@ -59,11 +59,8 @@ fun useBiometric(
 }
 
 @Composable
-fun useBiometric(
-    optionsOf: BiometricOptions.() -> Unit,
-): Tuple2<() -> Unit, Boolean> {
-    return useBiometric(remember(optionsOf) { BiometricOptions.optionOf(optionsOf) })
-}
+fun useBiometric(optionsOf: BiometricOptions.() -> Unit): Tuple2<() -> Unit, Boolean> =
+    useBiometric(remember(optionsOf) { BiometricOptions.optionOf(optionsOf) })
 
 class BiometricActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -79,19 +76,14 @@ class BiometricActivity : FragmentActivity() {
 
     companion object {
         var options: BiometricOptions by Delegates.notNull()
-        fun newIntent(
-            context: Context,
-            options: BiometricOptions,
-        ) = Intent(context, BiometricActivity::class.java).also {
+
+        fun newIntent(context: Context, options: BiometricOptions) = Intent(context, BiometricActivity::class.java).also {
             this.options = options
         }
     }
 }
 
-private fun createBiometricPrompt(
-    activity: FragmentActivity,
-    options: BiometricOptions,
-): BiometricPrompt {
+private fun createBiometricPrompt(activity: FragmentActivity, options: BiometricOptions): BiometricPrompt {
     val (onAuthenticationError, onAuthenticationFailed, onAuthenticationSucceeded) = options
     val callback = object : BiometricPrompt.AuthenticationCallback() {
         override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {

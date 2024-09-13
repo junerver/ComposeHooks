@@ -82,7 +82,9 @@ public inline fun <T> T.then(block: (T) -> Unit) {
 /**
  * 打印泛型
  */
-inline fun <reified T> printType(@Suppress("UNUSED_PARAMETER") t: T): KType {
+inline fun <reified T> printType(
+    @Suppress("UNUSED_PARAMETER") t: T,
+): KType {
     val type = typeOf<T>()
     println("$TAG:${t.hashCode()} type:$type")
     return type
@@ -106,10 +108,8 @@ inline infix fun <R> Boolean.`？`(ifTrue: R?): WrapBoolean<R> {
     return WrapBoolean(this, result)
 }
 
-inline infix fun <R> WrapBoolean<R>.`：`(ifFalse: R?): R? {
-    return if (!this.condition) {
-        ifFalse
-    } else {
-        this.result
-    }
+inline infix fun <R> WrapBoolean<R>.`：`(ifFalse: R?): R? = if (!this.condition) {
+    ifFalse
+} else {
+    this.result
 }

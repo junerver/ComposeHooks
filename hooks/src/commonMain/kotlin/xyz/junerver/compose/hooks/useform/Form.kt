@@ -55,7 +55,6 @@ class FormScope private constructor(
     private val formRefRef: Ref<FormRef>,
     private val formInstance: FormInstance,
 ) {
-
     @Deprecated(
         "use vararg params",
         ReplaceWith("FormItem(name = name, validators = validators.toTypedArray(), content = content)")
@@ -97,6 +96,7 @@ class FormScope private constructor(
             currentFormRef.formOperationCount.longValue += 1
             @Suppress("UNCHECKED_CAST")
             publish(fieldState.value as? T)
+
             fun Validator.pass(): Boolean {
                 errMsg.remove(this::class)
                 return true
@@ -135,7 +135,6 @@ class FormScope private constructor(
     }
 
     companion object {
-        internal fun getInstance(ref: Ref<FormRef>, formInstance: FormInstance) =
-            FormScope(ref, formInstance)
+        internal fun getInstance(ref: Ref<FormRef>, formInstance: FormInstance) = FormScope(ref, formInstance)
     }
 }

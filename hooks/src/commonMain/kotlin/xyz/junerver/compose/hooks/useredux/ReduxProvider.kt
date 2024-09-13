@@ -17,8 +17,8 @@ val ReduxContext =
             Map<KClass<*>, Any>, // state map
             Map<KClass<*>, Dispatch<Any>>, // dispatch map
             Map<String, Tuple2<Any, Dispatch<Any>>> // alias map
-            >
-        >(Tuple3(mapOf(), mapOf(), mapOf()))
+        >
+    >(Tuple3(mapOf(), mapOf(), mapOf()))
 
 /**
  * Redux provider, you should provide a state store to this Provider by use [createStore]

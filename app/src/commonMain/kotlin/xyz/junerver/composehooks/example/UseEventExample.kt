@@ -44,6 +44,7 @@ fun Container() {
 @Composable
 fun SubComponent(index: Int) {
     val (state, setState) = useGetState(0.0)
+
     fun refresh() {
         setState(Random.nextDouble())
     }

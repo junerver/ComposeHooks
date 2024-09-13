@@ -11,10 +11,27 @@ trim_trailing_whitespace = true
 ij_java_use_single_class_imports = true
 
 [*.{kt,kts}]
+max_line_length = 140
+ij_kotlin_code_style_defaults = KOTLIN_OFFICIAL
 ij_kotlin_imports_layout = *
 ij_kotlin_allow_trailing_comma = true
 ij_kotlin_allow_trailing_comma_on_call_site = false
-
-[hooks/**.{kt,kts}]
+#  Disable wildcard imports entirely
+ij_kotlin_name_count_to_use_star_import = 2147483647
+ij_kotlin_name_count_to_use_star_import_for_members = 2147483647
+ij_kotlin_packages_to_use_import_on_demand = unset
+# 允许小写文件名
 ktlint_standard_filename = disabled
-ktlint_standard_no-wildcard-imports = disabled
+# 禁用函数签名多参数换行
+ktlint_function_signature_rule_force_multiline_when_parameter_count_greater_or_equal_than = 4
+# 函数签名与表达式同行
+ktlint_function_signature_body_expression_wrapping = default
+# 禁用多行表达式换行
+ktlint_standard_multiline-expression-wrapping = disabled
+# 函数体为表达式直接使用 = 替换return
+ktlint_standard_function-expression-body = enabled
+ktlint_standard_binary-expression-wrapping = disabled
+# 类签名禁止多行
+ktlint_standard_class-signature = disabled
+# 链式调用延续
+ktlint_standard_chain-method-continuation = disabled

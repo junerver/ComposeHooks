@@ -88,6 +88,7 @@ private fun ManualMutateRollback() {
             defaultParams = arrayOf("junerver")
         }
     )
+
     fun mockFnChangeName(newName: String) {
         /**
          * request some api to change user name. Generally, it should be the
@@ -118,8 +119,8 @@ private fun ManualMutateRollback() {
             }
 
             TButton(text = "rollback") {
-                /*真实案例应该是监听changeName的onError回调，如果失败则回滚*/
-                /*A real case should be to listen to the onError callback of changeName, and roll back if it fails.*/
+                // 真实案例应该是监听changeName的onError回调，如果失败则回滚
+                // A real case should be to listen to the onError callback of changeName, and roll back if it fails.
                 previous?.let { mutate { _ -> it } }
             }
         }
@@ -141,6 +142,7 @@ private fun AutoRollback() {
             defaultParams = arrayOf("junerver")
         }
     )
+
     fun mockFnChangeName(newName: String) {}
 
     Column {

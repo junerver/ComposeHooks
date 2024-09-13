@@ -34,9 +34,7 @@ data class MockArticle(
     val time: Long,
     val data: String,
 ) {
-    override fun toString(): String {
-        return "last request time=$time\ndata=$data"
-    }
+    override fun toString(): String = "last request time=$time\ndata=$data"
 }
 
 suspend fun mockRequestArticle(): MockArticle {

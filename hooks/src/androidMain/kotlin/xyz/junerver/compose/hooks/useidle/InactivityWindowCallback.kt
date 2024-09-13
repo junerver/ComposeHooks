@@ -26,7 +26,6 @@ internal class InactivityWindowCallback(
     private val interval: Duration = 500.milliseconds,
     private val isTimeoutCallback: (Boolean, Instant) -> Unit,
 ) : Window.Callback {
-
     private var lastActiveTime = currentTime
 
     init {
@@ -48,45 +47,26 @@ internal class InactivityWindowCallback(
     }
 
     // Implement other methods by delegating to originalCallback
-    override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
-        return originalCallback.dispatchKeyEvent(event)
-    }
+    override fun dispatchKeyEvent(event: KeyEvent?): Boolean = originalCallback.dispatchKeyEvent(event)
 
-    override fun dispatchKeyShortcutEvent(event: KeyEvent?): Boolean {
-        return originalCallback.dispatchKeyShortcutEvent(event)
-    }
+    override fun dispatchKeyShortcutEvent(event: KeyEvent?): Boolean = originalCallback.dispatchKeyShortcutEvent(event)
 
-    override fun dispatchTrackballEvent(event: MotionEvent?): Boolean {
-        return originalCallback.dispatchTrackballEvent(event)
-    }
+    override fun dispatchTrackballEvent(event: MotionEvent?): Boolean = originalCallback.dispatchTrackballEvent(event)
 
-    override fun dispatchGenericMotionEvent(event: MotionEvent?): Boolean {
-        return originalCallback.dispatchGenericMotionEvent(event)
-    }
+    override fun dispatchGenericMotionEvent(event: MotionEvent?): Boolean = originalCallback.dispatchGenericMotionEvent(event)
 
-    override fun dispatchPopulateAccessibilityEvent(event: AccessibilityEvent?): Boolean {
-        return originalCallback.dispatchPopulateAccessibilityEvent(event)
-    }
+    override fun dispatchPopulateAccessibilityEvent(event: AccessibilityEvent?): Boolean =
+        originalCallback.dispatchPopulateAccessibilityEvent(event)
 
-    override fun onCreatePanelView(featureId: Int): View? {
-        return originalCallback.onCreatePanelView(featureId)
-    }
+    override fun onCreatePanelView(featureId: Int): View? = originalCallback.onCreatePanelView(featureId)
 
-    override fun onCreatePanelMenu(featureId: Int, menu: Menu): Boolean {
-        return originalCallback.onCreatePanelMenu(featureId, menu)
-    }
+    override fun onCreatePanelMenu(featureId: Int, menu: Menu): Boolean = originalCallback.onCreatePanelMenu(featureId, menu)
 
-    override fun onPreparePanel(featureId: Int, view: View?, menu: Menu): Boolean {
-        return originalCallback.onPreparePanel(featureId, view, menu)
-    }
+    override fun onPreparePanel(featureId: Int, view: View?, menu: Menu): Boolean = originalCallback.onPreparePanel(featureId, view, menu)
 
-    override fun onMenuOpened(featureId: Int, menu: Menu): Boolean {
-        return originalCallback.onMenuOpened(featureId, menu)
-    }
+    override fun onMenuOpened(featureId: Int, menu: Menu): Boolean = originalCallback.onMenuOpened(featureId, menu)
 
-    override fun onMenuItemSelected(featureId: Int, item: MenuItem): Boolean {
-        return originalCallback.onMenuItemSelected(featureId, item)
-    }
+    override fun onMenuItemSelected(featureId: Int, item: MenuItem): Boolean = originalCallback.onMenuItemSelected(featureId, item)
 
     override fun onWindowAttributesChanged(attrs: WindowManager.LayoutParams) {
         originalCallback.onWindowAttributesChanged(attrs)
@@ -112,21 +92,15 @@ internal class InactivityWindowCallback(
         originalCallback.onPanelClosed(featureId, menu)
     }
 
-    override fun onSearchRequested(): Boolean {
-        return originalCallback.onSearchRequested()
-    }
+    override fun onSearchRequested(): Boolean = originalCallback.onSearchRequested()
 
-    override fun onSearchRequested(searchEvent: SearchEvent?): Boolean {
-        return originalCallback.onSearchRequested(searchEvent)
-    }
+    override fun onSearchRequested(searchEvent: SearchEvent?): Boolean = originalCallback.onSearchRequested(searchEvent)
 
-    override fun onWindowStartingActionMode(callback: ActionMode.Callback): ActionMode? {
-        return originalCallback.onWindowStartingActionMode(callback)
-    }
+    override fun onWindowStartingActionMode(callback: ActionMode.Callback): ActionMode? =
+        originalCallback.onWindowStartingActionMode(callback)
 
-    override fun onWindowStartingActionMode(callback: ActionMode.Callback, type: Int): ActionMode? {
-        return originalCallback.onWindowStartingActionMode(callback, type)
-    }
+    override fun onWindowStartingActionMode(callback: ActionMode.Callback, type: Int): ActionMode? =
+        originalCallback.onWindowStartingActionMode(callback, type)
 
     override fun onActionModeStarted(mode: ActionMode) {
         originalCallback.onActionModeStarted(mode)

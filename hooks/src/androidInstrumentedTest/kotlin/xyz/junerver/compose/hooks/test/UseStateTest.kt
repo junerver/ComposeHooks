@@ -23,7 +23,6 @@ import xyz.junerver.compose.hooks.useState
 */
 
 class UseStateTest {
-
     @get:Rule
     val composeTestRule = createComposeRule()
 

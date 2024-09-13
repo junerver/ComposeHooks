@@ -43,8 +43,9 @@ import xyz.junerver.compose.hooks.utils.checkIsLegalParameters
  * @param instance 对应函数的实例，如果是顶层函数可以不传递。
  *
  */
-fun <T> KFunction<T?>.asNoopFn(instance: Any? = null): (TParams) -> T? = fun(params: TParams): T? =
-    this.call(*synthesisParametersAndCheck(instance, params, this))
+fun <T> KFunction<T?>.asNoopFn(instance: Any? = null): (TParams) -> T? = fun(params: TParams): T? = this.call(
+    *synthesisParametersAndCheck(instance, params, this)
+)
 
 /**
  * 将一个 [suspend] 挂起函数转换成[suspend] 版本的 [NormalFunction] 函数。
@@ -52,8 +53,8 @@ fun <T> KFunction<T?>.asNoopFn(instance: Any? = null): (TParams) -> T? = fun(par
  */
 fun <T : Any> KFunction<T>.asSuspendNoopFn(instance: Any? = null): suspend (TParams) -> T {
     require(this.isSuspend) { "The function type is incorrect, and it must be a 'suspend' function" }
-    suspend fun run(params: TParams): T =
-        this.callSuspend(*synthesisParametersAndCheck(instance, params, this))
+
+    suspend fun run(params: TParams): T = this.callSuspend(*synthesisParametersAndCheck(instance, params, this))
     return ::run
 }
 

@@ -10,12 +10,11 @@ import xyz.junerver.compose.hooks.useContext
  * @return
  */
 @Composable
-inline fun <reified T> useSelector(alias: String? = null): T =
-    alias?.let {
-        useContext(context = ReduxContext).third[it]?.first as? T ?: registerErr("alias:<$alias>")
-    } ?: useContext(
-        context = ReduxContext
-    ).first[T::class] as? T ?: registerErr("type:<${T::class.qualifiedName}>")
+inline fun <reified T> useSelector(alias: String? = null): T = alias?.let {
+    useContext(context = ReduxContext).third[it]?.first as? T ?: registerErr("alias:<$alias>")
+} ?: useContext(
+    context = ReduxContext
+).first[T::class] as? T ?: registerErr("type:<${T::class.qualifiedName}>")
 
 /**
  * Use selector, by pass [block], you can also select part of state
@@ -28,5 +27,4 @@ inline fun <reified T> useSelector(alias: String? = null): T =
  * @receiver
  */
 @Composable
-inline fun <reified T, R> useSelector(alias: String? = null, block: T.() -> R) =
-    useSelector<T>(alias).run(block)
+inline fun <reified T, R> useSelector(alias: String? = null, block: T.() -> R) = useSelector<T>(alias).run(block)

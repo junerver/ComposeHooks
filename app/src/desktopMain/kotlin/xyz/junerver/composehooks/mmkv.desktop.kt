@@ -1,9 +1,17 @@
 package xyz.junerver.composehooks
 
 import ca.gosyer.appdirs.AppDirs
-import java.io.*
+import java.io.BufferedReader
+import java.io.BufferedWriter
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.FileReader
+import java.io.InputStreamReader
+import java.io.OutputStreamWriter
 import java.security.MessageDigest
-import java.util.*
+import java.util.Properties
 import javax.crypto.Cipher
 import javax.crypto.CipherInputStream
 import javax.crypto.CipherOutputStream
@@ -100,9 +108,7 @@ class DataSaverProperties(private val filePath: String, private val encryptionKe
         saveProperties()
     }
 
-    fun contains(key: String): Boolean {
-        return properties.containsKey(key)
-    }
+    fun contains(key: String): Boolean = properties.containsKey(key)
 }
 
 object CacheManager {
@@ -114,9 +120,7 @@ object CacheManager {
     var cacheDir: File = baseDir.resolve("cache")
 }
 
-actual fun getKVDelegate(): KeyValueStoreDelegate {
-    return DataSaverProperties(
-        filePath = CacheManager.baseDir.resolve("data_saver.properties").absolutePath,
-        encryptionKey = "OpenSourceMagicKey"
-    )
-}
+actual fun getKVDelegate(): KeyValueStoreDelegate = DataSaverProperties(
+    filePath = CacheManager.baseDir.resolve("data_saver.properties").absolutePath,
+    encryptionKey = "OpenSourceMagicKey"
+)

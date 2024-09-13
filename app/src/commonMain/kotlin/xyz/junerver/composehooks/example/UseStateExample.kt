@@ -108,7 +108,7 @@ private fun UseStateQuestionOne() {
 private fun UseStateQuestionTwo() {
     val directState = useState(default = "direct")
 
-    /* useLatestRef 可以避免闭包问题 */
+    // useLatestRef 可以避免闭包问题
     val (state, setState) = useState("stateRef")
     val stateRef = useLatestRef(state)
 
@@ -207,6 +207,7 @@ private fun useAddCorrect2(default: Int): Tuple2<Int, () -> Unit> {
 @Composable
 private fun useAddCorrect3(default: Int): Tuple2<Int, () -> Unit> {
     val (state, setState, getState) = useGetState(default)
+
     fun add() {
         setState(getState() + 1)
     }
@@ -220,6 +221,7 @@ private fun useAddCorrect3(default: Int): Tuple2<Int, () -> Unit> {
 private fun useAddCorrect4(default: Int): Tuple2<Int, () -> Unit> {
     val (state, setState) = useState(default)
     val stateRef = useLatestRef(state)
+
     fun add() {
         setState(stateRef.current + 1)
     }

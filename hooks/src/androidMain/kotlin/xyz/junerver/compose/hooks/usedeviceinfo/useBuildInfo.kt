@@ -11,12 +11,10 @@ import androidx.compose.runtime.Composable
   Version: v1.0
 */
 @Composable
-fun useBuildInfo(): BuildInfo {
-    return BuildInfo(
-        Build.BRAND,
-        Build.MODEL,
-        Build.VERSION.RELEASE
-    )
-}
+fun useBuildInfo(): BuildInfo = BuildInfo(
+    Build.BRAND,
+    Build.MODEL,
+    Build.VERSION.RELEASE
+)
 
 data class BuildInfo(val brand: String, val model: String, val release: String)

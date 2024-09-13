@@ -151,7 +151,8 @@ private fun FormScope.Sub() {
     Row {
         TButton(text = "submit", enabled = canSubmit) {
             println(
-                formInstance.getAllFields()
+                formInstance
+                    .getAllFields()
                     .toString() + "\nisValidated :" + formInstance.isValidated()
             )
         }

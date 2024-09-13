@@ -1,8 +1,55 @@
 package xyz.junerver.composehooks.route
 
 import androidx.compose.runtime.Composable
-import xyz.junerver.composehooks.example.*
-import xyz.junerver.composehooks.example.request.*
+import xyz.junerver.composehooks.example.HomeScreen
+import xyz.junerver.composehooks.example.RequestExampleList
+import xyz.junerver.composehooks.example.UseAsyncExample
+import xyz.junerver.composehooks.example.UseAutoResetExample
+import xyz.junerver.composehooks.example.UseBooleanExample
+import xyz.junerver.composehooks.example.UseClipboardExample
+import xyz.junerver.composehooks.example.UseContextExample
+import xyz.junerver.composehooks.example.UseCountdownExample
+import xyz.junerver.composehooks.example.UseCounterExample
+import xyz.junerver.composehooks.example.UseCreationExample
+import xyz.junerver.composehooks.example.UseDebounceExample
+import xyz.junerver.composehooks.example.UseEffectExample
+import xyz.junerver.composehooks.example.UseEventExample
+import xyz.junerver.composehooks.example.UseFormExample
+import xyz.junerver.composehooks.example.UseGetStateExample
+import xyz.junerver.composehooks.example.UseIntervalExample
+import xyz.junerver.composehooks.example.UseLatestExample
+import xyz.junerver.composehooks.example.UseListExample
+import xyz.junerver.composehooks.example.UseMapExample
+import xyz.junerver.composehooks.example.UseMountExample
+import xyz.junerver.composehooks.example.UseNowExample
+import xyz.junerver.composehooks.example.UseNumberExample
+import xyz.junerver.composehooks.example.UsePersistentExample
+import xyz.junerver.composehooks.example.UsePreviousExample
+import xyz.junerver.composehooks.example.UseReducerExample
+import xyz.junerver.composehooks.example.UseReduxExample
+import xyz.junerver.composehooks.example.UseRefExample
+import xyz.junerver.composehooks.example.UseResetStateExample
+import xyz.junerver.composehooks.example.UseStateExample
+import xyz.junerver.composehooks.example.UseThrottleExample
+import xyz.junerver.composehooks.example.UseTimeoutExample
+import xyz.junerver.composehooks.example.UseTimestampExample
+import xyz.junerver.composehooks.example.UseToggleExample
+import xyz.junerver.composehooks.example.UseUndoExample
+import xyz.junerver.composehooks.example.UseUpdateEffectExample
+import xyz.junerver.composehooks.example.UseUpdateExample
+import xyz.junerver.composehooks.example.request.AutoManual
+import xyz.junerver.composehooks.example.request.Cache
+import xyz.junerver.composehooks.example.request.Cancel
+import xyz.junerver.composehooks.example.request.Debounce
+import xyz.junerver.composehooks.example.request.DepsRefresh
+import xyz.junerver.composehooks.example.request.ErrorRetry
+import xyz.junerver.composehooks.example.request.Lifecycle
+import xyz.junerver.composehooks.example.request.LoadingDelay
+import xyz.junerver.composehooks.example.request.Mutate
+import xyz.junerver.composehooks.example.request.Polling
+import xyz.junerver.composehooks.example.request.Ready
+import xyz.junerver.composehooks.example.request.Refresh
+import xyz.junerver.composehooks.example.request.Throttle
 import xyz.junerver.composehooks.example.sub.PersistentSub
 
 /*
@@ -52,7 +99,6 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useUnmount" to { UseMountExample() },
     "useUpdate" to { UseUpdateExample() },
     "useUpdateEffect" to { UseUpdateEffectExample() }
-
 ) + androidRoutes
 
 val subRequestRoutes = mapOf<String, @Composable () -> Unit>(

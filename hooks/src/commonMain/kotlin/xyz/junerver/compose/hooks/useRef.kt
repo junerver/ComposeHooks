@@ -58,7 +58,9 @@ class MutableRef<T>(initialValue: T) : Ref<T> {
 @Stable
 sealed interface Ref<T> {
     val current: T
+
     fun observe(observer: Observer<T>) {}
+
     fun removeObserver(observer: Observer<T>) {}
 }
 

@@ -16,17 +16,15 @@ actual fun getKVDelegate(): KeyValueStoreDelegate {
             }
         }
 
-        override fun <T> readData(key: String, default: T): T {
-            return when (default) {
-                is Int -> mmkv.takeInt(key, default)
-                is Long -> mmkv.takeLong(key, default)
-                is Double -> mmkv.takeDouble(key, default)
-                is Float -> mmkv.takeFloat(key, default)
-                is Boolean -> mmkv.takeBoolean(key, default)
-                is String -> mmkv.takeString(key, default)
-                else -> error("wrong type of default value！")
-            } as T
-        }
+        override fun <T> readData(key: String, default: T): T = when (default) {
+            is Int -> mmkv.takeInt(key, default)
+            is Long -> mmkv.takeLong(key, default)
+            is Double -> mmkv.takeDouble(key, default)
+            is Float -> mmkv.takeFloat(key, default)
+            is Boolean -> mmkv.takeBoolean(key, default)
+            is String -> mmkv.takeString(key, default)
+            else -> error("wrong type of default value！")
+        } as T
 
         override fun remove(key: String) {
             mmkv.removeValueForKey(key)
