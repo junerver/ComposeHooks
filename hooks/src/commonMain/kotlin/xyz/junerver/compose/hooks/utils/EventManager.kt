@@ -18,8 +18,7 @@ internal object EventManager {
     @Suppress("UNCHECKED_CAST")
     @PublishedApi
     internal fun <T : Any> register(clazz: KClass<*>, subscriber: (T) -> Unit): () -> Unit {
-        subscriberMap[clazz] ?: run { subscriberMap[clazz] = mutableListOf() }
-        subscriberMap[clazz]!!.add(subscriber as (Any) -> Unit)
+        subscriberMap.getOrPut(clazz) { mutableListOf() }.add(subscriber as (Any) -> Unit)
         return {
             subscriberMap[clazz]?.remove(subscriber)
         }
@@ -33,8 +32,7 @@ internal object EventManager {
 
     @Suppress("UNCHECKED_CAST")
     internal fun <T> register(alias: String, subscriber: (T) -> Unit): () -> Unit {
-        aliasSubscriberMap[alias] ?: run { aliasSubscriberMap[alias] = mutableListOf() }
-        aliasSubscriberMap[alias]!!.add(subscriber as (Any?) -> Unit)
+        aliasSubscriberMap.getOrPut(alias) { mutableListOf() }.add(subscriber as (Any?) -> Unit)
         return {
             aliasSubscriberMap[alias]?.remove(subscriber)
         }
