@@ -110,40 +110,5 @@ android {
 //tasks.dokkaHtml  {
 //    outputDirectory.set(file("$rootDir/docs/api"))
 //    suppressInheritedMembers.set(true)
-//    moduleName.set("hooks")
-//}
-
-
-//dependencies {
-//    api(platform(libs.compose.bom))
-//    androidTestImplementation(platform(libs.compose.bom))
-//
-//    implementation(libs.androidx.core.ktx)
-//    implementation(libs.androidx.activity.compose)
-//    implementation(libs.androidx.appcompat)
-//    implementation(libs.androidx.biometric)
-//    implementation(libs.material)
-//
-//    // Testing dependencies
-//    testImplementation(libs.junit)
-//    androidTestImplementation(libs.androidx.junit)
-//    androidTestImplementation(libs.androidx.espresso.core)
-//
-//    // Compose testing dependencies
-//    androidTestImplementation(libs.compose.ui.test)
-//    androidTestImplementation(libs.compose.ui.test.junit4)
-//    androidTestImplementation(libs.compose.material3)
-//    debugImplementation(libs.compose.ui.test.manifest)
-//
-//    // Compose
-//    api(libs.compose.ui)
-//    api(libs.compose.foundation)
-//    implementation(libs.androidx.lifecycle.runtime.compose)
-//
-//    // Kotlin and extension
-//    implementation(platform(libs.kotlin.bom))
-//    implementation(libs.kotlin.reflect)
-//    api(libs.ktx)
-//    api(libs.kotlinx.datetime)
-//    implementation(libs.kotlinx.collections.immutable)
+//    moduleName.set("hooks2")
 //}
