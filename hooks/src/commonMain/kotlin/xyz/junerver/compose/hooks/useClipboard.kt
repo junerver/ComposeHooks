@@ -5,9 +5,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 
-internal typealias CopyFn = (String) -> Unit
-internal typealias PasteFn = () -> String
-
+/**
+ * 快捷的使用剪切板：复制、粘贴
+ */
 @Composable
 fun useClipboard(): Pair<CopyFn, PasteFn> {
     val clipboardManager = LocalClipboardManager.current

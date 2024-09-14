@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import xyz.junerver.compose.hooks.ComposeComponent
 import xyz.junerver.compose.hooks.createContext
 import xyz.junerver.compose.hooks.useContext
 
@@ -55,7 +56,7 @@ fun useNetwork(): NetworkState {
  * 使用提供器的好处是在整个根组件的范围内，都可以使用[rememberNetwork]获得同一个状态
  */
 @Composable
-fun NetworkProvider(content: @Composable () -> Unit) {
+fun NetworkProvider(content: ComposeComponent) {
     val network = useNetwork()
     NetworkContext.Provider(value = network) {
         content()

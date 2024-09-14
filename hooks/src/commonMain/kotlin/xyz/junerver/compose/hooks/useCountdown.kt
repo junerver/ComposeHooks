@@ -16,8 +16,6 @@ import xyz.junerver.kotlin.asBoolean
   Version: v1.0
 */
 
-internal typealias OnEndCallback = () -> Unit
-
 /**
  * Countdown options
  *

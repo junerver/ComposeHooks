@@ -11,8 +11,6 @@ import xyz.junerver.kotlin.tuple
   Email: junerver@gmail.com
   Version: v1.0
 */
-internal typealias SetTrueFn = () -> Unit
-internal typealias SetFalseFn = () -> Unit
 
 @Composable
 fun useBoolean(default: Boolean = false): Tuple5<Boolean, ToggleFn, SetValueFn<Boolean>, SetTrueFn, SetFalseFn> {

@@ -23,8 +23,6 @@ data class CounterOptions internal constructor(
     companion object : Options<CounterOptions>(::CounterOptions)
 }
 
-internal typealias IncFn = (Int) -> Unit
-internal typealias DecFn = (Int) -> Unit
 
 /**
  * Use counter
@@ -52,7 +50,7 @@ internal typealias DecFn = (Int) -> Unit
     "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
 )
 @Composable
-fun useCounter(initialValue: Int = 0, options: CounterOptions): Tuple5<Int, IncFn, DecFn, SetValueFn<Either<Int, (Int) -> Int>>, ResetFn> {
+fun useCounter(initialValue: Int = 0, options: CounterOptions): Tuple5<Int, IncFn, DecFn, SetValueFn<SetterEither<Int>>, ResetFn> {
     val (current, setCurrent, getCurrent) = useGetState(getTargetValue(initialValue, options))
     val setValue: SetValueFn<Either<Int, (Int) -> Int>> = { value: Either<Int, (Int) -> Int> ->
         val target = value.fold(
@@ -95,7 +93,3 @@ private fun getTargetValue(value: Int, options: CounterOptions): Int {
     val (min, max) = options
     return value.coerceIn(min, max)
 }
-
-operator fun SetValueFn<Either<Int, (Int) -> Int>>.invoke(leftValue: Int) = this(leftValue.left())
-
-operator fun SetValueFn<Either<Int, (Int) -> Int>>.invoke(rightValue: (Int) -> Int) = this(rightValue.right())

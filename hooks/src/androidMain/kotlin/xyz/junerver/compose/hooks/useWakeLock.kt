@@ -14,9 +14,6 @@ import xyz.junerver.kotlin.Tuple3
   Version: v1.0
 */
 
-internal typealias RequestFn = () -> Unit
-internal typealias ReleaseFn = () -> Unit
-
 @Composable
 fun useWakeLock(): Tuple3<RequestFn, ReleaseFn, IsActive> = useWindowFlags(
     key = "${KEY_PREFIX}WAKE_LOCK",

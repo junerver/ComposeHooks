@@ -12,12 +12,19 @@ import xyz.junerver.kotlin.then
   Version: v1.0
 */
 
+/**
+ * Form controller, The [Form] component needs to pass this controller instance so that
+ * the controller can control the component outside.
+ */
 class FormInstance {
     /** after Form Mount ref will assignment */
     internal lateinit var formRef: Ref<FormRef>
     private val currentFormFieldMap: MutableMap<String, MutableState<Any?>>
         get() = formRef.current.formFieldMap
 
+    /**
+     * get the full field content of the form
+     */
     fun getAllFields(): Map<String, Any?> {
         checkRef()
         return currentFormFieldMap.entries.associate {
@@ -25,12 +32,15 @@ class FormInstance {
         }
     }
 
+    /**
+     * all fields of the form pass through the validator
+     */
     fun isValidated() = formRef.current.isValidated
 
     /**
      * Set fields value，it only can be called after component mounted;
      *
-     * @param value
+     * @param value A map consisting of form fields and content
      */
     fun setFieldsValue(value: Map<String, Any>) {
         checkRef()
@@ -39,7 +49,13 @@ class FormInstance {
         }
     }
 
+    /**
+     * Set fields value，it only can be called after component mounted;
+     *
+     * @param pairs
+     */
     fun setFieldsValue(vararg pairs: Pair<String, Any>) {
+        checkRef()
         setFieldsValue(mapOf(pairs = pairs))
     }
 

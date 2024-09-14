@@ -75,7 +75,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                             ).apply {
                                 copyMap = buildMap {
                                     putAll(asNotNullMap())
-                                    Keys.error to null
+                                    this[Keys.error] = null
                                 }
                             }
                         } else {
@@ -86,7 +86,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                             ).apply {
                                 copyMap = buildMap {
                                     putAll(asNotNullMap())
-                                    Keys.error to null
+                                    this[Keys.error] = null
                                 }
                             }
                         }

@@ -18,6 +18,7 @@ typealias ReqFn = VoidFunction
 typealias MutateFn<TData> = KFunction1<(TData?) -> TData, Unit>
 typealias RefreshFn = KFunction0<Unit>
 typealias CancelFn = KFunction0<Unit>
+internal typealias ComposablePluginGenFn<TData> = @Composable (RequestOptions<TData>) -> Plugin<TData>
 /*
   Description:
   Author: Junerver
@@ -92,7 +93,7 @@ typealias CancelFn = KFunction0<Unit>
 fun <TData : Any> useRequest(
     requestFn: SuspendNormalFunction<TData>,
     options: RequestOptions<TData> = remember { RequestOptions() },
-    plugins: Array<@Composable (RequestOptions<TData>) -> Plugin<TData>> = emptyArray(),
+    plugins: Array<ComposablePluginGenFn<TData>> = emptyArray(),
 ): Tuple7<TData?, Boolean, Throwable?, ReqFn, MutateFn<TData>, RefreshFn, CancelFn> {
     val customPluginsRef = useRef<Array<Plugin<TData>>>(emptyArray())
     if (customPluginsRef.current.size != plugins.size) {
@@ -145,7 +146,7 @@ fun <TData : Any> useRequest(
 fun <TData : Any> useRequest(
     requestFn: SuspendNormalFunction<TData>,
     optionsOf: RequestOptions<TData>.() -> Unit = {},
-    plugins: Array<@Composable (RequestOptions<TData>) -> Plugin<TData>> = emptyArray(),
+    plugins: Array<ComposablePluginGenFn<TData>> = emptyArray(),
 ): Tuple7<TData?, Boolean, Throwable?, ReqFn, MutateFn<TData>, RefreshFn, CancelFn> = useRequest(
     requestFn,
     remember(optionsOf) { RequestOptions.optionOf(optionsOf) },

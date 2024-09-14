@@ -3,6 +3,7 @@ package xyz.junerver.compose.hooks.useredux
 import androidx.compose.runtime.Composable
 import xyz.junerver.compose.hooks.Dispatch
 import xyz.junerver.compose.hooks.DispatchAsync
+import xyz.junerver.compose.hooks.DispatchCallback
 import xyz.junerver.compose.hooks.useAsync
 import xyz.junerver.compose.hooks.useContext
 
@@ -20,7 +21,6 @@ inline fun <reified A> useDispatch(alias: String? = null): Dispatch<A> = alias?.
 }
     ?: useContext(context = ReduxContext).second[A::class] as? Dispatch<A> ?: registerErr("type:<${A::class.qualifiedName}>")
 
-internal typealias DispatchCallback<A> = (Dispatch<A>) -> Unit
 
 /**
  * Get a dispatch function that supports asynchronous execution. This

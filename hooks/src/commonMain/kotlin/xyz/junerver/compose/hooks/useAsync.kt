@@ -35,8 +35,6 @@ fun useAsync(fn: SuspendAsyncFn): () -> Unit {
     }
 }
 
-internal typealias AsyncRunFn = (SuspendAsyncFn) -> Unit
-
 /**
  * This is a hook function that simplifies the use of coroutine scope.
  * It's usage similar to the [run] function. Equivalent to `scope.launch { }`

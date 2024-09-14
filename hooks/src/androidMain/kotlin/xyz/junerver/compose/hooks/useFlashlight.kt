@@ -19,9 +19,6 @@ import xyz.junerver.kotlin.Tuple2
   Version: v1.0
 */
 
-internal typealias TurnOnFn = () -> Unit
-internal typealias TurnOffFn = () -> Unit
-
 @Composable
 fun useFlashlight(): Tuple2<TurnOnFn, TurnOffFn> {
     val context = LocalContext.current

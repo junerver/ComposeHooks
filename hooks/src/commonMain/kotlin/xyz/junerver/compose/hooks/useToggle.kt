@@ -31,17 +31,17 @@ fun <L, R> useToggleEither(defaultValue: L? = null, reverseValue: R? = null): Pa
  * 用于方便的切换控制组件的可见性
  */
 @Composable
-fun useToggleVisible(isVisible: Boolean = false, content: @Composable () -> Unit): Pair<@Composable () -> Unit, ToggleFn> {
-    val empty: @Composable () -> Unit = {}
+fun useToggleVisible(isVisible: Boolean = false, content: ComposeComponent): Pair<ComposeComponent, ToggleFn> {
+    val empty: ComposeComponent = {}
     return useToggleVisible(isVisible, content, empty)
 }
 
 @Composable
 fun useToggleVisible(
     isFirst: Boolean = true,
-    content1: @Composable () -> Unit,
-    content2: @Composable () -> Unit,
-): Pair<@Composable () -> Unit, ToggleFn> {
+    content1: ComposeComponent,
+    content2: ComposeComponent,
+): Pair<ComposeComponent, ToggleFn> {
     val (visible, toggle) = useBoolean(isFirst)
     return (if (visible) content1 else content2) to toggle
 }

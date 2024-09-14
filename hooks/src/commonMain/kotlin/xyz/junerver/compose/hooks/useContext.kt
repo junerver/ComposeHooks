@@ -19,7 +19,7 @@ interface ReactContext<T> {
     val LocalCtx: ProvidableCompositionLocal<T>
 
     @Composable
-    fun Provider(value: T, content: @Composable () -> Unit)
+    fun Provider(value: T, content: ComposeComponent)
 }
 
 /**
@@ -29,7 +29,7 @@ fun <T> createContext(initialValue: T): ReactContext<T> = object : ReactContext<
     override val LocalCtx = compositionLocalOf { initialValue }
 
     @Composable
-    override fun Provider(value: T, content: @Composable () -> Unit) {
+    override fun Provider(value: T, content: ComposeComponent) {
         CompositionLocalProvider(
             LocalCtx provides value,
             content = content

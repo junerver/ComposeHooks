@@ -78,11 +78,6 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
     }
 }
 
-internal typealias ResetValueFn<T> = (T) -> Unit
-internal typealias RedoFn = () -> Unit
-internal typealias UndoFn = () -> Unit
-internal typealias CanUndo = Boolean
-internal typealias CanRedo = Boolean
 
 @Composable
 fun <T> useUndo(initialPresent: T): Tuple7<UndoState<T>, SetValueFn<T>, ResetValueFn<T>, UndoFn, RedoFn, CanUndo, CanRedo> {

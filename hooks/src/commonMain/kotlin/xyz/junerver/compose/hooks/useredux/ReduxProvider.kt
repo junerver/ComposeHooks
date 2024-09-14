@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks.useredux
 
 import androidx.compose.runtime.Composable
 import kotlin.reflect.KClass
+import xyz.junerver.compose.hooks.ComposeComponent
 import xyz.junerver.compose.hooks.Dispatch
 import xyz.junerver.compose.hooks.createContext
 import xyz.junerver.compose.hooks.useMap
@@ -28,7 +29,7 @@ val ReduxContext =
  * @receiver
  */
 @Composable
-fun ReduxProvider(store: Store, content: @Composable () -> Unit) {
+fun ReduxProvider(store: Store, content: ComposeComponent) {
     val stateMap: MutableMap<KClass<*>, Any> = useMap()
     val dispatchMap: MutableMap<KClass<*>, Dispatch<Any>> = useMap()
     // alias - state\dispatch

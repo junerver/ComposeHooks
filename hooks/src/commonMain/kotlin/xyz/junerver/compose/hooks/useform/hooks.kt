@@ -1,3 +1,5 @@
+@file:Suppress("UnusedReceiverParameter")
+
 package xyz.junerver.compose.hooks.useform
 
 import androidx.compose.runtime.Composable
@@ -33,8 +35,8 @@ fun useForm(): FormInstance = Form.useForm()
  * Using this Hook you can directly obtain the content [State] of a field
  * outside [FormScope]
  *
- * @param fieldName
- * @param formInstance
+ * @param fieldName the form field to be tracked
+ * @param formInstance form controller instance
  * @param T
  * @return
  */
@@ -50,7 +52,7 @@ fun <T> Form.useWatch(fieldName: String, formInstance: FormInstance): State<T?> 
 /**
  * 方便子组件获取到 [FormInstance]
  *
- * Convenient for sub-components to obtain [FormInstance]
+ * Convenient for subcomponents to obtain [FormInstance]
  *
  * @return
  */

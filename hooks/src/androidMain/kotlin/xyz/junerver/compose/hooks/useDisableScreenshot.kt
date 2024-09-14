@@ -11,9 +11,6 @@ import xyz.junerver.kotlin.Tuple3
   Email: junerver@gmail.com
   Version: v1.0
 */
-internal typealias DisableFn = () -> Unit
-internal typealias EnableFn = () -> Unit
-internal typealias IsDisabled = Boolean
 
 @Composable
 fun useDisableScreenshot(): Tuple3<DisableFn, EnableFn, IsDisabled> = useWindowFlags(

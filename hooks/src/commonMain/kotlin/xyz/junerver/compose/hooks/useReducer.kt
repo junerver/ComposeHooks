@@ -3,7 +3,6 @@ package xyz.junerver.compose.hooks
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.CoroutineScope
 
 /*
   Description:
@@ -18,14 +17,6 @@ import kotlinx.coroutines.CoroutineScope
   update: 2024/3/19 13:48
   action类型从 Any 修改为泛型 A
 */
-
-typealias Reducer<S, A> = (prevState: S, action: A) -> S
-
-typealias Dispatch<A> = (A) -> Unit
-
-typealias DispatchAsync<A> = (block: suspend CoroutineScope.(Dispatch<A>) -> A) -> Unit
-
-typealias Middleware<S, A> = (dispatch: Dispatch<A>, state: S) -> Dispatch<A>
 
 @Composable
 fun <S, A> useReducer(

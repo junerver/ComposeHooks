@@ -11,8 +11,6 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
   Email: junerver@gmail.com
   Version: v1.0
 */
-internal typealias HideKeyboardFn = () -> Unit
-internal typealias ShowKeyboardFn = () -> Unit
 
 @Composable
 fun useKeyboard(): Pair<HideKeyboardFn, ShowKeyboardFn> {

@@ -7,7 +7,6 @@ import androidx.compose.runtime.remember
 import arrow.core.Either
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.useredux.DispatchCallback
 import xyz.junerver.compose.hooks.useredux.useDispatch
 import xyz.junerver.compose.hooks.useredux.useDispatchAsync
 import xyz.junerver.compose.hooks.useredux.useSelector

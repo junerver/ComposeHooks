@@ -13,10 +13,6 @@ import xyz.junerver.kotlin.Tuple3
   Version: v1.0
 */
 
-internal typealias AddFlagsFn = () -> Unit
-internal typealias ClearFlagsFn = () -> Unit
-internal typealias IsFlagsAdded = Boolean
-
 @Composable
 fun useWindowFlags(key: String, flags: Int): Tuple3<AddFlagsFn, ClearFlagsFn, IsFlagsAdded> {
     val window = (LocalContext.current as Activity).window
