@@ -78,19 +78,18 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
     }
 }
 
-
 @Composable
 fun <T> useUndo(initialPresent: T): Tuple7<UndoState<T>, SetValueFn<T>, ResetValueFn<T>, UndoFn, RedoFn, CanUndo, CanRedo> {
     val (state, dispatch) = useReducer(::undoReducer, UndoState(present = initialPresent))
-    val canUndo = state.past.isNotEmpty()
-    val canRedo = state.future.isNotEmpty()
+    val canUndo = state.value.past.isNotEmpty()
+    val canRedo = state.value.future.isNotEmpty()
     val undo = { dispatch(Undo) }
     val redo = { dispatch(Redo) }
     val set = { newPresent: T -> dispatch(Set(newPresent)) }
     val reset = { newPresent: T -> dispatch(Reset(newPresent)) }
 
     return tuple(
-        first = state,
+        first = state.value,
         second = set,
         third = reset,
         fourth = undo,

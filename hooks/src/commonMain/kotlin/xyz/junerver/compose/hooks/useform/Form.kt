@@ -116,7 +116,7 @@ class FormScope private constructor(
         useEffect(errMsg) {
             currentFormRef.formFieldErrorMessagesMap[name] = errMsg.values.toList()
         }
-        content(tuple(fieldState, validate, errMsg.values.toList()))
+        content(tuple(fieldState, validate.value, errMsg.values.toList()))
     }
 
     /**

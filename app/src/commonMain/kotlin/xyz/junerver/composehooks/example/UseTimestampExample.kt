@@ -42,10 +42,10 @@ fun SubState() {
     Column {
         Text(text = "TimestampState: $timestamp")
         Row {
-            TButton(text = "pause", enabled = isActive) {
+            TButton(text = "pause", enabled = isActive.value) {
                 pause()
             }
-            TButton(text = "resume", enabled = !isActive) {
+            TButton(text = "resume", enabled = !isActive.value) {
                 resume()
             }
         }

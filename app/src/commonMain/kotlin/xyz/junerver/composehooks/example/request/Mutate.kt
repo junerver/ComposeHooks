@@ -107,15 +107,15 @@ private fun ManualMutateRollback() {
 
     Column {
         Text("Use `usePrevious` to save the previous data requested, and roll back through `mutate`")
-        OutlinedTextField(value = input, onValueChange = setInput)
+        OutlinedTextField(value = input.value, onValueChange = setInput)
         Row {
             TButton(text = "changeName") {
-                mockFnChangeName(input)
+                mockFnChangeName(input.value)
                 /** 调用 [mutate] 乐观更新 Call [mutate] for optimistic updates */
                 if (userInfo.asBoolean()) {
                     // request user info success
                     mutate {
-                        it!!.copy(name = input)
+                        it!!.copy(name = input.value)
                     }
                 }
                 setInput("")
@@ -154,16 +154,16 @@ private fun AutoRollback() {
 
     Column {
         Text("Extend the rollback function by implementing a custom plug-in")
-        OutlinedTextField(value = input, onValueChange = setInput)
+        OutlinedTextField(value = input.value, onValueChange = setInput)
         Row {
             TButton(text = "changeName") {
-                mockFnChangeName(input)
+                mockFnChangeName(input.value)
                 // 调用 mutate 乐观更新
                 // Call mutate for optimistic updates
                 if (userInfo.asBoolean()) {
                     // request user info success
                     mutate {
-                        it!!.copy(name = input)
+                        it!!.copy(name = input.value)
                     }
                 }
                 setInput("")

@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.LifecycleResumeEffect
+import xyz.junerver.compose.hooks.utils.unwrap
 
 /*
   Description:
@@ -26,7 +27,7 @@ import androidx.lifecycle.compose.LifecycleResumeEffect
 @Composable
 fun useBackToFrontEffect(vararg deps: Any?, effect: () -> Unit) {
     val inBackgroundRef = useRef(default = false)
-    LifecycleResumeEffect(keys = deps) {
+    LifecycleResumeEffect(keys = unwrap(deps)) {
         if (inBackgroundRef.current) {
             effect()
             inBackgroundRef.current = false
@@ -47,7 +48,7 @@ fun useBackToFrontEffect(vararg deps: Any?, effect: () -> Unit) {
 @Composable
 fun useFrontToBackEffect(vararg deps: Any?, effect: () -> Unit) {
     val inBackgroundRef = useRef(default = false)
-    LifecycleResumeEffect(keys = deps) {
+    LifecycleResumeEffect(keys = unwrap(deps)) {
         if (inBackgroundRef.current) {
             inBackgroundRef.current = false
         }

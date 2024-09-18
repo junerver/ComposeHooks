@@ -1,6 +1,9 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -26,6 +29,7 @@ import xyz.junerver.kotlin.asBoolean
  * @property interval countdown interval
  * @property onEnd callback function for end of countdown
  */
+@Stable
 data class CountdownOptions internal constructor(
     var leftTime: Duration? = null,
     var targetDate: Instant? = null,
@@ -39,7 +43,7 @@ data class CountdownOptions internal constructor(
     "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
 )
 @Composable
-fun useCountdown(options: CountdownOptions): Pair<Duration, FormattedRes> {
+fun useCountdown(options: CountdownOptions): Pair<State<Duration>, State<FormattedRes>> {
     val (leftTime, targetDate, interval, onEnd) = options
     val target = useCreation {
         if (leftTime.asBoolean()) {
@@ -49,7 +53,7 @@ fun useCountdown(options: CountdownOptions): Pair<Duration, FormattedRes> {
         }
     }.current
 
-    val (timeLeft, setTimeLeft) = useState(calcLeft(target))
+    val (timeLeft, setTimeLeft) = useGetState(calcLeft(target))
     val onEndRef = useLatestRef(value = onEnd)
     val pauseRef = useRef(default = {})
     val (resume, pause) = useInterval(
@@ -73,15 +77,17 @@ fun useCountdown(options: CountdownOptions): Pair<Duration, FormattedRes> {
         setTimeLeft(calcLeft(target))
         resume()
     }
-
-    return Pair(
-        timeLeft,
-        parseDuration(timeLeft)
-    )
+    val formatRes = derivedStateOf { parseDuration(timeLeft.value) }
+    return remember {
+        Pair(
+            timeLeft,
+            formatRes
+        )
+    }
 }
 
 @Composable
-fun useCountdown(optionsOf: CountdownOptions.() -> Unit): Pair<Duration, FormattedRes> =
+fun useCountdown(optionsOf: CountdownOptions.() -> Unit): Pair<State<Duration>, State<FormattedRes>> =
     useCountdown(remember(optionsOf) { CountdownOptions.optionOf(optionsOf) })
 
 private fun calcLeft(target: Instant?): Duration {

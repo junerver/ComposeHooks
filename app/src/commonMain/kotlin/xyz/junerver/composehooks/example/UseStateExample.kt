@@ -91,7 +91,7 @@ private fun UseStateQuestionOne() {
     Column {
         Text(text = "Question1. Closure problems")
         Text(text = state)
-        Text(text = state2)
+        Text(text = state2.value)
         Text(text = byState)
         Text(text = directState.value)
     }
@@ -128,7 +128,7 @@ private fun UseStateQuestionTwo() {
     Column {
         Text(text = "Question2. modify state very quickly")
         Text(text = state)
-        Text(text = state2)
+        Text(text = state2.value)
         Text(text = byState)
         Text(text = directState.value)
     }
@@ -212,7 +212,7 @@ private fun useAddCorrect3(default: Int): Tuple2<Int, () -> Unit> {
         setState(getState() + 1)
     }
     return tuple(
-        first = state,
+        first = state.value,
         second = ::add
     )
 }

@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -47,7 +48,7 @@ data class TimestampOptions internal constructor(
 fun useTimestamp(
     options: TimestampOptions = remember { TimestampOptions() },
     autoResume: Boolean = true,
-): Tuple4<Long, PauseFn, ResumeFn, IsActive> {
+): Tuple4<Long, PauseFn, ResumeFn, State<IsActive>> {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
     var timestamp by useState(default = currentTime)
     val (resume, pause, isActive) = useInterval(
@@ -61,16 +62,18 @@ fun useTimestamp(
     useMount {
         if (autoResume) resume()
     }
-    return tuple(
-        first = timestamp.toEpochMilliseconds(),
-        second = pause,
-        third = resume,
-        fourth = isActive
-    )
+    return remember {
+        tuple(
+            first = timestamp.toEpochMilliseconds(),
+            second = pause,
+            third = resume,
+            fourth = isActive
+        )
+    }
 }
 
 @Composable
-fun useTimestamp(optionsOf: TimestampOptions.() -> Unit, autoResume: Boolean = true): Tuple4<Long, PauseFn, ResumeFn, IsActive> =
+fun useTimestamp(optionsOf: TimestampOptions.() -> Unit, autoResume: Boolean = true): Tuple4<Long, PauseFn, ResumeFn, State<IsActive>> =
     useTimestamp(remember(optionsOf) { TimestampOptions.optionOf(optionsOf) }, autoResume)
 
 /**
@@ -87,7 +90,7 @@ fun useTimestamp(optionsOf: TimestampOptions.() -> Unit, autoResume: Boolean = t
 fun useTimestampRef(
     options: TimestampOptions = remember { TimestampOptions() },
     autoResume: Boolean = true,
-): Tuple4<Ref<Long>, PauseFn, ResumeFn, IsActive> {
+): Tuple4<Ref<Long>, PauseFn, ResumeFn, State<IsActive>> {
     val (interval, offset, callback) = with(options) { Triple(interval, offset, callback) }
     val timestampRef = useRef(default = currentTime.toEpochMilliseconds())
     val (resume, pause, isActive) = useInterval(
@@ -101,19 +104,23 @@ fun useTimestampRef(
     useMount {
         if (autoResume) resume()
     }
-    return tuple(
-        first = timestampRef,
-        second = pause,
-        third = resume,
-        fourth = isActive
-    )
+    return remember {
+        tuple(
+            first = timestampRef,
+            second = pause,
+            third = resume,
+            fourth = isActive
+        )
+    }
 }
 
 @Composable
-fun useTimestampRef(optionsOf: TimestampOptions.() -> Unit, autoResume: Boolean = true): Tuple4<Ref<Long>, PauseFn, ResumeFn, IsActive> =
-    useTimestampRef(
-        remember(optionsOf) {
-            TimestampOptions.optionOf(optionsOf)
-        },
-        autoResume
-    )
+fun useTimestampRef(
+    optionsOf: TimestampOptions.() -> Unit,
+    autoResume: Boolean = true,
+): Tuple4<Ref<Long>, PauseFn, ResumeFn, State<IsActive>> = useTimestampRef(
+    remember(optionsOf) {
+        TimestampOptions.optionOf(optionsOf)
+    },
+    autoResume
+)

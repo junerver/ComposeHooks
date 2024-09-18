@@ -20,12 +20,12 @@ import xyz.junerver.composehooks.ui.component.TButton
 
 @Composable
 fun UseAsyncExample() {
-    val (state, setState) = useGetState(0)
+    val (state, setState, getState) = useGetState(0)
 
     /** 如果你向[useAsync]传递一个闭包作为参数，那么返回值是 `()->Unit` */
     val async = useAsync {
         delay(1.seconds)
-        setState(state + 1)
+        setState(getState() + 1)
     }
 
     /** 如果不传递参数，则使用另一个重载，返回值是[xyz.junerver.compose.hooks.AsyncRunFn] */
@@ -33,14 +33,14 @@ fun UseAsyncExample() {
 
     Surface {
         Column {
-            Text(text = "count:$state")
+            Text(text = "count:${getState()}")
             TButton(text = "delay +1") {
                 async()
             }
             TButton(text = "delay +1") {
                 asyncRun {
                     delay(1.seconds)
-                    setState(state + 1)
+                    setState(getState() + 1)
                 }
             }
         }

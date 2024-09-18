@@ -22,10 +22,10 @@ import xyz.junerver.compose.hooks.usePrevious
 @Composable
 fun UsePreviousExample() {
     val (input, setInput) = useGetState("")
-    val previous = usePrevious(present = input)
+    val previous = usePrevious(present = input.value)
     Surface {
         Column {
-            OutlinedTextField(value = input, onValueChange = setInput)
+            OutlinedTextField(value = input.value, onValueChange = setInput)
 
             Spacer(modifier = Modifier.height(10.dp))
             Text(text = "Previous: $previous")

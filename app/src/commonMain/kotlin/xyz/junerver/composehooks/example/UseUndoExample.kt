@@ -27,9 +27,9 @@ fun UseUndoExample() {
     val (input, setInput) = useGetState("")
     Surface {
         Column {
-            OutlinedTextField(value = input, onValueChange = setInput)
+            OutlinedTextField(value = input.value, onValueChange = setInput)
             TButton(text = "submit") {
-                set(input)
+                set(input.value)
                 setInput("")
             }
             Row {

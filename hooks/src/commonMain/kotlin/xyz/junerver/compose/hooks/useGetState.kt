@@ -1,8 +1,8 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 
 /*
   Description: Better `useState`
@@ -23,13 +23,15 @@ import androidx.compose.runtime.setValue
  * also supports fast update.
  */
 @Composable
-fun <T> useGetState(default: T & Any): Triple<T, SetValueFn<T & Any>, GetValueFn<T>> {
-    var state: T & Any by useState(default)
-    return Triple(
-        first = state, // state
-        second = { state = it }, // setter
-        third = { state } // getter
-    )
+fun <T> useGetState(default: T & Any): Triple<State<T & Any>, SetValueFn<T & Any>, GetValueFn<T>> {
+    val state = useState(default)
+    return remember {
+        Triple(
+            first = state, // state
+            second = { state.value = it }, // setter
+            third = { state.value } // getter
+        )
+    }
 }
 
 /**
@@ -40,11 +42,13 @@ fun <T> useGetState(default: T & Any): Triple<T, SetValueFn<T & Any>, GetValueFn
  * @return
  */
 @Composable
-fun <T> _useGetState(default: T): Triple<T, SetValueFn<T>, GetValueFn<T>> {
-    var state: T by _useState(default)
-    return Triple(
-        first = state,
-        second = { state = it },
-        third = { state }
-    )
+fun <T> _useGetState(default: T): Triple<State<T>, SetValueFn<T>, GetValueFn<T>> {
+    val state = _useState(default)
+    return remember {
+        Triple(
+            first = state,
+            second = { state.value = it },
+            third = { state.value }
+        )
+    }
 }

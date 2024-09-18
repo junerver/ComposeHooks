@@ -3,6 +3,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import arrow.core.Either
 import kotlin.time.Duration
@@ -30,10 +31,10 @@ inline fun <reified A> rememberDispatchAsync(
 ): DispatchAsync<A> = useDispatchAsync(alias, onBefore, onFinally)
 
 @Composable
-inline fun <reified T> rememberSelector(alias: String? = null): T = useSelector(alias)
+inline fun <reified T> rememberSelector(alias: String? = null): State<T> = useSelector(alias)
 
 @Composable
-inline fun <reified T, R> rememberSelector(alias: String? = null, block: T.() -> R) = useSelector(alias, block)
+inline fun <reified T, R> rememberSelector(alias: String? = null, crossinline block: T.() -> R) = useSelector(alias, block)
 //endregion
 
 @Composable
@@ -70,13 +71,13 @@ fun rememberClipboard(): Pair<CopyFn, PasteFn> = useClipboard()
 fun <T> rememberContext(context: ReactContext<T>) = useContext(context)
 
 @Composable
-fun rememberCountdown(options: CountdownOptions): Pair<Duration, FormattedRes> = useCountdown(options)
+fun rememberCountdown(options: CountdownOptions): Pair<State<Duration>, State<FormattedRes>> = useCountdown(options)
 
 @Composable
 fun rememberCounter(
     initialValue: Int = 0,
     options: CounterOptions,
-): Tuple5<Int, IncFn, DecFn, SetValueFn<Either<Int, (Int) -> Int>>, ResetFn> = useCounter(initialValue, options)
+): Tuple5<State<Int>, IncFn, DecFn, SetValueFn<Either<Int, (Int) -> Int>>, ResetFn> = useCounter(initialValue, options)
 
 @Composable
 fun <T> rememberCreation(vararg keys: Any?, factory: () -> T) = useCreation(*keys, factory = factory)
@@ -173,7 +174,7 @@ fun <S, A> rememberReducer(reducer: Reducer<S, A>, initialState: S, middlewares:
 fun <T> rememberRef(default: T) = useRef(default)
 
 @Composable
-fun <T> rememberResetState(default: T & Any): Tuple4<T, SetValueFn<T & Any>, GetValueFn<T>, ResetFn> = useResetState(default)
+fun <T> rememberResetState(default: T & Any): Tuple4<State<T>, SetValueFn<T & Any>, GetValueFn<T>, ResetFn> = useResetState(default)
 
 @Composable
 fun <T> rememberState(default: T & Any) = useState(default)

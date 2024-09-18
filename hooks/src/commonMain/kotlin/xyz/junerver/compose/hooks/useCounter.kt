@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import arrow.core.Either
 import arrow.core.left
@@ -22,7 +23,6 @@ data class CounterOptions internal constructor(
 ) {
     companion object : Options<CounterOptions>(::CounterOptions)
 }
-
 
 /**
  * Use counter
@@ -50,7 +50,7 @@ data class CounterOptions internal constructor(
     "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
 )
 @Composable
-fun useCounter(initialValue: Int = 0, options: CounterOptions): Tuple5<Int, IncFn, DecFn, SetValueFn<SetterEither<Int>>, ResetFn> {
+fun useCounter(initialValue: Int = 0, options: CounterOptions): Tuple5<State<Int>, IncFn, DecFn, SetValueFn<SetterEither<Int>>, ResetFn> {
     val (current, setCurrent, getCurrent) = useGetState(getTargetValue(initialValue, options))
     val setValue: SetValueFn<Either<Int, (Int) -> Int>> = { value: Either<Int, (Int) -> Int> ->
         val target = value.fold(
@@ -76,13 +76,15 @@ fun useCounter(initialValue: Int = 0, options: CounterOptions): Tuple5<Int, IncF
         setValue(initialValue)
     }
 
-    return tuple(
-        current,
-        ::inc,
-        ::dec,
-        ::set,
-        ::reset
-    )
+    return remember {
+        tuple(
+            current,
+            ::inc,
+            ::dec,
+            ::set,
+            ::reset
+        )
+    }
 }
 
 @Composable

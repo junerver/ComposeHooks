@@ -20,7 +20,7 @@ fun UseBooleanExample() {
     val (state, toggle, _, setTrue, setFalse) = useBoolean(true)
     Surface {
         Column {
-            Text(text = "Effect: $state")
+            Text(text = "Effect: ${state.value}")
             Row {
                 TButton(text = "toggle") {
                     toggle()

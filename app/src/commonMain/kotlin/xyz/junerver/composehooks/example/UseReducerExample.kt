@@ -69,11 +69,11 @@ fun UseReducerExample() {
     val (input, setInput) = useGetState("")
     Surface {
         Column {
-            Text(text = "User: $state")
+            Text(text = "User: ${state.value}")
             Spacer(modifier = Modifier.height(10.dp))
-            OutlinedTextField(value = input, onValueChange = setInput)
+            OutlinedTextField(value = input.value, onValueChange = setInput)
             TButton(text = "changeName") {
-                dispatch(SimpleAction.ChangeName(input))
+                dispatch(SimpleAction.ChangeName(input.value))
             }
             TButton(text = "+1") {
                 dispatch(SimpleAction.AgeIncrease)
@@ -211,7 +211,7 @@ fun TaskApp() {
         Text(text = "Day off in Kyoto", style = MaterialTheme.typography.titleLarge)
         AddTask(onAddTask = ::handleAddTask)
         TaskList(
-            tasks = tasks,
+            tasks = tasks.value,
             onChangeTask = ::handleChangeTask,
             onDeleteTask = ::handleDeleteTask
         )

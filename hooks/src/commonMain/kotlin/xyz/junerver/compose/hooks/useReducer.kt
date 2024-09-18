@@ -1,8 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.State
 
 /*
   Description:
@@ -23,15 +22,15 @@ fun <S, A> useReducer(
     reducer: Reducer<S, A>,
     initialState: S,
     middlewares: Array<Middleware<S, A>> = emptyArray(),
-): Triple<S, Dispatch<A>, DispatchAsync<A>> {
+): Triple<State<S>, Dispatch<A>, DispatchAsync<A>> {
     val asyncRun = useAsync()
-    var state by _useState(initialState)
-    val dispatch = { action: A -> state = reducer(state, action) }
+    val state = _useState(initialState)
+    val dispatch = { action: A -> state.value = reducer(state.value, action) }
     val enhancedDispatch: Dispatch<A> = if (middlewares.isNotEmpty()) {
         { action ->
             var nextDispatch: Dispatch<A> = dispatch
             for (middleware in middlewares) {
-                nextDispatch = middleware(nextDispatch, state)
+                nextDispatch = middleware(nextDispatch, state.value)
             }
             nextDispatch(action)
         }

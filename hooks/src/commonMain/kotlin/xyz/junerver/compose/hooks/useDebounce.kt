@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -89,7 +90,7 @@ internal class Debounce(
     "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
 )
 @Composable
-fun <S> useDebounce(value: S, options: DebounceOptions = remember { DebounceOptions() }): S {
+fun <S> useDebounce(value: S, options: DebounceOptions = remember { DebounceOptions() }): State<S> {
     val (debounced, setDebounced) = _useGetState(value)
     val debouncedSet = useDebounceFn(fn = {
         setDebounced(value)
@@ -101,7 +102,7 @@ fun <S> useDebounce(value: S, options: DebounceOptions = remember { DebounceOpti
 }
 
 @Composable
-fun <S> useDebounce(value: S, optionsOf: DebounceOptions.() -> Unit): S =
+fun <S> useDebounce(value: S, optionsOf: DebounceOptions.() -> Unit): State<S> =
     useDebounce(value, remember(optionsOf) { DebounceOptions.optionOf(optionsOf) })
 
 /**

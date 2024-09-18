@@ -69,11 +69,11 @@ private fun TestSWR() {
         TButton(text = "show/hide") {
             toggle()
         }
-        if (isVisible) {
+        if (isVisible.value) {
             SWR()
         }
         HorizontalDivider(modifier = Modifier.fillMaxWidth())
-        if (isVisible) {
+        if (isVisible.value) {
             SWR(true)
         }
     }
@@ -119,7 +119,7 @@ fun TestStaleTime() {
                 clearCache(cacheKey)
             }
         }
-        if (isVisible) {
+        if (isVisible.value) {
             // 相同 cacheKey 的数据全局同步
             StaleTime(cacheKey)
             StaleTime(cacheKey)

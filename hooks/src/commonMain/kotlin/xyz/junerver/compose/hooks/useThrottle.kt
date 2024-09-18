@@ -1,12 +1,17 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import xyz.junerver.compose.hooks.utils.currentTime
 
@@ -76,7 +81,7 @@ internal class Throttle(
     "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
 )
 @Composable
-fun <S> useThrottle(value: S, options: ThrottleOptions = remember { ThrottleOptions() }): S {
+fun <S> useThrottle(value: S, options: ThrottleOptions = remember { ThrottleOptions() }): State<S> {
     val (throttled, setThrottled) = _useGetState(value)
     val throttledSet = useThrottleFn(fn = {
         setThrottled(value)
@@ -88,7 +93,7 @@ fun <S> useThrottle(value: S, options: ThrottleOptions = remember { ThrottleOpti
 }
 
 @Composable
-fun <S> useThrottle(value: S, optionsOf: ThrottleOptions.() -> Unit): S =
+fun <S> useThrottle(value: S, optionsOf: ThrottleOptions.() -> Unit): State<S> =
     useThrottle(value, remember(optionsOf) { ThrottleOptions.optionOf(optionsOf) })
 
 @Deprecated(

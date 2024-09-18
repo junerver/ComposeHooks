@@ -53,7 +53,7 @@ fun UseDeviceInfoExample() {
             Text(text = screenInfo.toString(), modifier = Modifier.padding(bottom = 20.dp))
             // Control flashlight
             Text(text = "Control flashlight")
-            Switch(checked = on, onCheckedChange = {
+            Switch(checked = on.value, onCheckedChange = {
                 setOn(it)
                 if (it) {
                     turnOn()
@@ -64,7 +64,7 @@ fun UseDeviceInfoExample() {
 
             Spacer(modifier = Modifier.height(20.dp))
             Text(text = "Control screen brightness")
-            Slider(value = sliderValue, onValueChange = {
+            Slider(value = sliderValue.value, onValueChange = {
                 setSliderValue(it)
                 setBrightness(it)
             })

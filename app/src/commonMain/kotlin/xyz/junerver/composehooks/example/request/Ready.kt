@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.kotlin.asBoolean
@@ -26,12 +27,17 @@ import xyz.junerver.kotlin.asBoolean
 
 @Composable
 fun Ready() {
+    val (isReady, setReady) = useGetState(false)
     val (userInfo, userLoading) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
             defaultParams = arrayOf("junerver")
+            onSuccess = { _, _ ->
+                setReady(true)
+            }
         }
     )
+
     val (repoInfo, repoLoading) = useRequest(
         requestFn = { NetApi.repoInfo(it[0] as String, it[1] as String) },
         optionsOf = {
@@ -39,7 +45,7 @@ fun Ready() {
                 userInfo?.login,
                 "ComposeHooks"
             )
-            ready = userInfo.asBoolean()
+            ready = isReady.value
         }
     )
 
