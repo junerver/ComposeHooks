@@ -20,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
+import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useCountdown
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useInterval
@@ -30,6 +31,8 @@ import xyz.junerver.compose.hooks.useredux.ReduxProvider
 import xyz.junerver.compose.hooks.useredux.createStore
 import xyz.junerver.compose.hooks.useredux.useDispatch
 import xyz.junerver.compose.hooks.useredux.useSelector
+import xyz.junerver.compose.hooks.userequest.useRequest
+import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.SimpleContainer
 
 /*
@@ -90,12 +93,20 @@ private fun TestDeferReads() {
         byState += "1"
         ref.current -= 1
     }
+    val (userInfo, loading, error, req) = useRequest(
+//        requestFn = NetApi::userInfo.asSuspendNoopFn(), // Make a request directly through the WebService instance
+        requestFn = { NetApi.userInfo(it[0] as String) }, // Make a request WebService interface
+        optionsOf = {
+            defaultParams =
+                arrayOf("junerver") // Automatically requests must set default parameters
+        }
+    )
     ReduxProvider(
         createStore {
             { p: String, a: String -> a } with "redux"
         }
     ) {
-        Column(modifier = Modifier.randomBackground().size(200.dp, 300.dp)) {
+        Column(modifier = Modifier.randomBackground().size(200.dp, 400.dp)) {
             // by委托
             Button(onClick = {
                 byState += "1"
@@ -109,6 +120,10 @@ private fun TestDeferReads() {
             Button(onClick = {
                 dispatch(stater.value + "rx")
             }) { Text(stater.value) }
+
+            Button(onClick = {
+                req()
+            }) { Text("request") }
 
             val dispatch = useDispatch<String>()
             val selector by useSelector<String>()

@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -25,6 +26,7 @@ import xyz.junerver.compose.hooks.utils.currentTime
  * @property maxWait The maximum time func is allowed to be delayed before
  *    it’s invoked.
  */
+@Stable
 data class DebounceOptions internal constructor(
     var wait: Duration = 1.seconds,
     var leading: Boolean = false,
@@ -34,6 +36,7 @@ data class DebounceOptions internal constructor(
     companion object : Options<DebounceOptions>(::DebounceOptions)
 }
 
+@Stable
 internal class Debounce(
     var fn: VoidFunction,
     private val scope: CoroutineScope,
@@ -103,7 +106,7 @@ fun <S> useDebounce(value: S, options: DebounceOptions = remember { DebounceOpti
 
 @Composable
 fun <S> useDebounce(value: S, optionsOf: DebounceOptions.() -> Unit): State<S> =
-    useDebounce(value, remember(optionsOf) { DebounceOptions.optionOf(optionsOf) })
+    useDebounce(value, remember { DebounceOptions.optionOf(optionsOf) })
 
 /**
  * 需要注意：[Debounce] 不返回计算结果，在 Compose 中我们无法使用 [Debounce] 透传出结算结果，应该使用状态，而非
@@ -120,12 +123,12 @@ fun useDebounceFn(fn: VoidFunction, options: DebounceOptions = remember { Deboun
     val debounced = remember {
         Debounce(latestFn, scope, options)
     }.apply { this.fn = latestFn }
-    return { p1 -> debounced.invoke(p1) }
+    return remember { { p1 -> debounced.invoke(p1) } }
 }
 
 @Composable
 fun useDebounceFn(fn: VoidFunction, optionsOf: DebounceOptions.() -> Unit): VoidFunction =
-    useDebounceFn(fn, remember(optionsOf) { DebounceOptions.optionOf(optionsOf) })
+    useDebounceFn(fn, remember { DebounceOptions.optionOf(optionsOf) })
 
 @Deprecated(
     "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
@@ -146,6 +149,6 @@ fun useDebounceEffect(vararg keys: Any?, options: DebounceOptions = remember { D
 @Composable
 fun useDebounceEffect(vararg keys: Any?, optionsOf: DebounceOptions.() -> Unit, block: SuspendAsyncFn) = useDebounceEffect(
     keys = keys,
-    remember(optionsOf) { DebounceOptions.optionOf(optionsOf) },
+    remember { DebounceOptions.optionOf(optionsOf) },
     block
 )

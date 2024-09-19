@@ -149,7 +149,7 @@ fun <TData : Any> useRequest(
     plugins: Array<ComposablePluginGenFn<TData>> = emptyArray(),
 ): Tuple7<TData?, Boolean, Throwable?, ReqFn, MutateFn<TData>, RefreshFn, CancelFn> = useRequest(
     requestFn,
-    remember(optionsOf) { RequestOptions.optionOf(optionsOf) }.apply(optionsOf),
+    remember { RequestOptions.optionOf(optionsOf) }.apply(optionsOf),
     plugins
 )
 

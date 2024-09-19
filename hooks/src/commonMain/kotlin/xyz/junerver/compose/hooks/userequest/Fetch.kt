@@ -1,9 +1,15 @@
 package xyz.junerver.compose.hooks.userequest
 
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import kotlin.properties.Delegates
 import kotlin.reflect.KFunction
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.SuspendVoidFunction
 import xyz.junerver.compose.hooks.TParams
@@ -19,6 +25,7 @@ import xyz.junerver.compose.hooks.userequest.utils.awaitPlus
 */
 
 @Suppress("unused")
+@Stable
 class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOptions()) :
     IFetch<TData> {
     // 请求的计数器

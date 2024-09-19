@@ -64,7 +64,7 @@ fun useTimestamp(options: TimestampOptions = remember { TimestampOptions() }, au
 
 @Composable
 fun useTimestamp(optionsOf: TimestampOptions.() -> Unit, autoResume: Boolean = true): TimestampHolder =
-    useTimestamp(remember(optionsOf) { TimestampOptions.optionOf(optionsOf) }, autoResume)
+    useTimestamp(remember { TimestampOptions.optionOf(optionsOf) }, autoResume)
 
 /**
  * Use timestamp ref
@@ -96,9 +96,7 @@ fun useTimestampRef(options: TimestampOptions = remember { TimestampOptions() },
 
 @Composable
 fun useTimestampRef(optionsOf: TimestampOptions.() -> Unit, autoResume: Boolean = true): TimestampRefHolder = useTimestampRef(
-    remember(optionsOf) {
-        TimestampOptions.optionOf(optionsOf)
-    },
+    remember { TimestampOptions.optionOf(optionsOf) },
     autoResume
 )
 

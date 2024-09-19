@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import kotlin.time.Duration
@@ -20,6 +21,7 @@ import kotlinx.datetime.toLocalDateTime
   Version: v1.0
 */
 
+@Stable
 data class UseNowOptions(
     var interval: Duration = 1.seconds,
     var format: ((Long) -> String)? = null,
@@ -60,7 +62,7 @@ fun useNow(options: UseNowOptions = remember { UseNowOptions() }): State<String>
 }
 
 @Composable
-fun useNow(optionsOf: UseNowOptions.() -> Unit) = useNow(remember(optionsOf) { UseNowOptions.optionOf(optionsOf) })
+fun useNow(optionsOf: UseNowOptions.() -> Unit) = useNow(remember { UseNowOptions.optionOf(optionsOf) })
 
 internal fun Long.toLocalDateTime(timeZone: TimeZone = TimeZone.currentSystemDefault()) =
     Instant.fromEpochMilliseconds(this).toLocalDateTime(timeZone)

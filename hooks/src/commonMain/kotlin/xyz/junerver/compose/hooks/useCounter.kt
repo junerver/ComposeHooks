@@ -15,7 +15,7 @@ import arrow.core.right
   Email: junerver@gmail.com
   Version: v1.0
 */
-
+@Stable
 data class CounterOptions internal constructor(
     var min: Int = 0,
     var max: Int = 10,
@@ -88,7 +88,7 @@ fun useCounter(initialValue: Int = 0, options: CounterOptions): CounterHolder {
 
 @Composable
 fun useCounter(initialValue: Int = 0, optionsOf: CounterOptions.() -> Unit) =
-    useCounter(initialValue, remember(optionsOf) { CounterOptions.optionOf(optionsOf) })
+    useCounter(initialValue, remember { CounterOptions.optionOf(optionsOf) })
 
 private fun getTargetValue(value: Int, options: CounterOptions): Int {
     val (min, max) = options

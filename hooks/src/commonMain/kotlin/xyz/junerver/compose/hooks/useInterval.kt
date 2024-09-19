@@ -33,6 +33,7 @@ import kotlinx.coroutines.launch
  * @property initialDelay 初始调用延时
  * @property period 调用间隔
  */
+@Stable
 data class IntervalOptions internal constructor(
     var initialDelay: Duration = 0.seconds,
     var period: Duration = 5.seconds,
@@ -93,8 +94,8 @@ fun useInterval(options: IntervalOptions = remember { IntervalOptions() }, block
     }
     return remember {
         IntervalHolder(
-            resume = { interval.resume() },
-            pause = { interval.pause() },
+            resume = interval::resume,
+            pause = interval::pause,
             isActive = isActiveState
         )
     }
@@ -102,7 +103,7 @@ fun useInterval(options: IntervalOptions = remember { IntervalOptions() }, block
 
 @Composable
 fun useInterval(optionsOf: IntervalOptions.() -> Unit, block: () -> Unit): IntervalHolder = useInterval(
-    options = remember(optionsOf) { IntervalOptions.optionOf(optionsOf) },
+    options = remember { IntervalOptions.optionOf(optionsOf) },
     block = block
 )
 
@@ -133,7 +134,7 @@ fun useInterval(options: IntervalOptions = remember { IntervalOptions() }, ready
 
 @Composable
 fun useInterval(optionsOf: IntervalOptions.() -> Unit, ready: Boolean, block: () -> Unit) = useInterval(
-    remember(optionsOf) { IntervalOptions.optionOf(optionsOf) },
+    remember { IntervalOptions.optionOf(optionsOf) },
     ready = ready,
     block = block
 )
