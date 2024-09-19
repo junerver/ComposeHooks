@@ -114,7 +114,7 @@ implementation("xyz.junerver.compose:hooks:<latest_release>")
    ```kotlin
    val (name, setName, getState) = useGetState("")
    OutlinedTextField(
-       value = name,
+       value = getName(), // or `name.value`
        onValueChange = setName,
        label = { Text("Input Name") }
    )

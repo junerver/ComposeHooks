@@ -111,7 +111,7 @@ If used in ComposeMultiplatform, use artifact id: `hooks2`
    ```kotlin
    val (name, setName, getName) = useGetState("")
    OutlinedTextField(
-       value = name,
+       value = getName(), // or `name.value`
        onValueChange = setName,
        label = { Text("Input Name") }
    )
