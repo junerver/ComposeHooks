@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks.usedeviceinfo
 
 import android.os.Build
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 
 /*
   Description:
@@ -17,4 +18,5 @@ fun useBuildInfo(): BuildInfo = BuildInfo(
     Build.VERSION.RELEASE
 )
 
+@Stable
 data class BuildInfo(val brand: String, val model: String, val release: String)

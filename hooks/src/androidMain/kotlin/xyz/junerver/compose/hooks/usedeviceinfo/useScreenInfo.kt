@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks.usedeviceinfo
 
 import android.content.res.Configuration
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -28,6 +29,7 @@ fun useScreenInfo(): ScreenInfo {
     )
 }
 
+@Stable
 data class ScreenInfo(
     val screenDp: IntSize,
     val screenPx: IntSize,

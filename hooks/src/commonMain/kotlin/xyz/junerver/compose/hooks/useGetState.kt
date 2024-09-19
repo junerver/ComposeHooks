@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 
@@ -23,13 +24,13 @@ import androidx.compose.runtime.remember
  * also supports fast update.
  */
 @Composable
-fun <T> useGetState(default: T & Any): Triple<State<T & Any>, SetValueFn<T & Any>, GetValueFn<T>> {
+fun <T> useGetState(default: T & Any): GetStateHolder<T & Any> {
     val state = useState(default)
     return remember {
-        Triple(
-            first = state, // state
-            second = { state.value = it }, // setter
-            third = { state.value } // getter
+        GetStateHolder(
+            state = state,
+            setValue = { state.value = it },
+            getValue = { state.value }
         )
     }
 }
@@ -42,13 +43,20 @@ fun <T> useGetState(default: T & Any): Triple<State<T & Any>, SetValueFn<T & Any
  * @return
  */
 @Composable
-fun <T> _useGetState(default: T): Triple<State<T>, SetValueFn<T>, GetValueFn<T>> {
+fun <T> _useGetState(default: T): GetStateHolder<T> {
     val state = _useState(default)
     return remember {
-        Triple(
-            first = state,
-            second = { state.value = it },
-            third = { state.value }
+        GetStateHolder(
+            state = state,
+            setValue = { state.value = it },
+            getValue = { state.value }
         )
     }
 }
+
+@Stable
+data class GetStateHolder<T>(
+    val state: State<T>,
+    val setValue: SetValueFn<T>,
+    val getValue: GetValueFn<T>,
+)

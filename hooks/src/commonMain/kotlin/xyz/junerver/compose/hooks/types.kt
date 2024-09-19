@@ -3,6 +3,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
@@ -76,8 +77,8 @@ internal typealias IsFlagsAdded = Boolean
 internal typealias ResetValueFn<T> = (T) -> Unit
 internal typealias RedoFn = () -> Unit
 internal typealias UndoFn = () -> Unit
-internal typealias CanUndo = Boolean
-internal typealias CanRedo = Boolean
+internal typealias CanUndo = State<Boolean>
+internal typealias CanRedo = State<Boolean>
 
 // useClipboard
 internal typealias CopyFn = (String) -> Unit

@@ -40,7 +40,7 @@ fun SubState() {
         }
     )
     Column {
-        Text(text = "TimestampState: $timestamp")
+        Text(text = "TimestampState: ${timestamp.value}")
         Row {
             TButton(text = "pause", enabled = isActive.value) {
                 pause()

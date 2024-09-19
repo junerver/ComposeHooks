@@ -80,7 +80,7 @@ private class Interval(private val options: IntervalOptions) {
     "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
 )
 @Composable
-fun useInterval(options: IntervalOptions = remember { IntervalOptions() }, block: () -> Unit): Triple<ResumeFn, PauseFn, State<IsActive>> {
+fun useInterval(options: IntervalOptions = remember { IntervalOptions() }, block: () -> Unit): IntervalHolder {
     val latestFn = useLatestRef(value = block)
     val isActiveState = useState(default = false)
     val scope = rememberCoroutineScope()
@@ -92,16 +92,16 @@ fun useInterval(options: IntervalOptions = remember { IntervalOptions() }, block
         }
     }
     return remember {
-        Triple(
-            first = { interval.resume() },
-            second = { interval.pause() },
-            third = isActiveState
+        IntervalHolder(
+            resume = { interval.resume() },
+            pause = { interval.pause() },
+            isActive = isActiveState
         )
     }
 }
 
 @Composable
-fun useInterval(optionsOf: IntervalOptions.() -> Unit, block: () -> Unit): Triple<ResumeFn, PauseFn, State<IsActive>> = useInterval(
+fun useInterval(optionsOf: IntervalOptions.() -> Unit, block: () -> Unit): IntervalHolder = useInterval(
     options = remember(optionsOf) { IntervalOptions.optionOf(optionsOf) },
     block = block
 )
@@ -136,4 +136,11 @@ fun useInterval(optionsOf: IntervalOptions.() -> Unit, ready: Boolean, block: ()
     remember(optionsOf) { IntervalOptions.optionOf(optionsOf) },
     ready = ready,
     block = block
+)
+
+@Stable
+data class IntervalHolder(
+    val resume: ResumeFn,
+    val pause: PauseFn,
+    val isActive: State<IsActive>,
 )

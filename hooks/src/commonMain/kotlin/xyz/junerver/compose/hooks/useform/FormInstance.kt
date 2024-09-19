@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks.useform
 
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
 import xyz.junerver.compose.hooks.Ref
 import xyz.junerver.kotlin.then
 
@@ -16,6 +17,7 @@ import xyz.junerver.kotlin.then
  * Form controller, The [Form] component needs to pass this controller instance so that
  * the controller can control the component outside.
  */
+@Stable
 class FormInstance {
     /** after Form Mount ref will assignment */
     internal lateinit var formRef: Ref<FormRef>

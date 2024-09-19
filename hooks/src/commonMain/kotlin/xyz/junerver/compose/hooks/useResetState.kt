@@ -1,8 +1,9 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import xyz.junerver.kotlin.Tuple4
+import androidx.compose.runtime.remember
 
 /*
   Description: [useGetState] that provides [reset]
@@ -13,16 +14,19 @@ import xyz.junerver.kotlin.Tuple4
 */
 
 @Composable
-fun <T> useResetState(default: T & Any): Tuple4<State<T>, SetValueFn<T & Any>, GetValueFn<T>, ResetFn> {
+fun <T> useResetState(default: T & Any): ResetStateHolder<T & Any> {
     val (state, setState, getState) = useGetState(default)
 
     fun reset() {
         setState(default)
     }
-    return Tuple4(
-        state,
-        setState,
-        getState,
-        ::reset
-    )
+    return remember { ResetStateHolder(state, setState, getState, ::reset) }
 }
+
+@Stable
+data class ResetStateHolder<T>(
+    val state: State<T>,
+    val setValue: SetValueFn<T>,
+    val getValue: GetValueFn<T>,
+    val reset: ResetFn,
+)

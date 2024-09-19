@@ -11,6 +11,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.useGetState
@@ -103,7 +104,7 @@ private fun ManualMutateRollback() {
      * 使用 [usePrevious] 保存mutate之前的状态，用于回滚 Use [usePrevious] to save the state
      * before mutate for rollback
      */
-    val previous = usePrevious(present = userInfo)
+    val previous by usePrevious(present = userInfo)
 
     Column {
         Text("Use `usePrevious` to save the previous data requested, and roll back through `mutate`")

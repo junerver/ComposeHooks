@@ -3,7 +3,6 @@ package xyz.junerver.compose.hooks
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -43,7 +42,7 @@ data class CountdownOptions internal constructor(
     "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
 )
 @Composable
-fun useCountdown(options: CountdownOptions): Pair<State<Duration>, State<FormattedRes>> {
+fun useCountdown(options: CountdownOptions): CountdownHolder {
     val (leftTime, targetDate, interval, onEnd) = options
     val target = useCreation {
         if (leftTime.asBoolean()) {
@@ -77,25 +76,22 @@ fun useCountdown(options: CountdownOptions): Pair<State<Duration>, State<Formatt
         setTimeLeft(calcLeft(target))
         resume()
     }
-    val formatRes = derivedStateOf { parseDuration(timeLeft.value) }
-    return remember {
-        Pair(
-            timeLeft,
-            formatRes
-        )
-    }
+    val formatRes = useState { parseDuration(timeLeft.value) }
+    return remember { CountdownHolder(timeLeft, formatRes) }
 }
 
 @Composable
-fun useCountdown(optionsOf: CountdownOptions.() -> Unit): Pair<State<Duration>, State<FormattedRes>> =
+fun useCountdown(optionsOf: CountdownOptions.() -> Unit): CountdownHolder =
     useCountdown(remember(optionsOf) { CountdownOptions.optionOf(optionsOf) })
 
+@Stable
 private fun calcLeft(target: Instant?): Duration {
     if (target == null) return 0.seconds
     val left = target - currentTime
     return if (left < 0.seconds) 0.seconds else left
 }
 
+@Stable
 data class FormattedRes(
     val days: Int,
     val hours: Int,
@@ -104,10 +100,17 @@ data class FormattedRes(
     val milliseconds: Int,
 )
 
+@Stable
 private fun parseDuration(leftTime: Duration): FormattedRes = FormattedRes(
     days = (leftTime.inWholeDays).toInt(),
     hours = ((leftTime.inWholeHours) % 24).toInt(),
     minutes = ((leftTime.inWholeMinutes) % 60).toInt(),
     seconds = ((leftTime.inWholeSeconds) % 60).toInt(),
     milliseconds = (leftTime.inWholeMilliseconds % 1000).toInt()
+)
+
+@Stable
+data class CountdownHolder(
+    val timeLeft: State<Duration>,
+    val formatRes: State<FormattedRes>,
 )

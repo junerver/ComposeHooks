@@ -9,7 +9,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.getSystemService
-import xyz.junerver.kotlin.Tuple2
 
 /*
   Description:
@@ -20,7 +19,7 @@ import xyz.junerver.kotlin.Tuple2
 */
 
 @Composable
-fun useFlashlight(): Tuple2<TurnOnFn, TurnOffFn> {
+fun useFlashlight(): Pair<TurnOnFn, TurnOffFn> {
     val context = LocalContext.current
     val cameraManager: CameraManager? = context.getSystemService()
     val cameraId = remember {
@@ -41,8 +40,10 @@ fun useFlashlight(): Tuple2<TurnOnFn, TurnOffFn> {
             }
         }
     }
-    return Tuple2(
-        { isFlashOn = true },
-        { isFlashOn = false }
-    )
+    return remember {
+        Pair(
+            { isFlashOn = true },
+            { isFlashOn = false }
+        )
+    }
 }
