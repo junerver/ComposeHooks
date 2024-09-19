@@ -102,10 +102,10 @@ fun useTimestampRef(optionsOf: TimestampOptions.() -> Unit, autoResume: Boolean 
 
 @Stable
 data class TimestampHolder(
-    val timestamp: State<Long>,
+    val state: State<Long>,
     val pause: PauseFn,
     val resume: ResumeFn,
-    val state: State<IsActive>,
+    val isActive: State<IsActive>,
 )
 
 @Stable
@@ -113,5 +113,5 @@ data class TimestampRefHolder(
     val ref: Ref<Long>,
     val pause: PauseFn,
     val resume: ResumeFn,
-    val state: State<IsActive>,
+    val isActive: State<IsActive>,
 )
