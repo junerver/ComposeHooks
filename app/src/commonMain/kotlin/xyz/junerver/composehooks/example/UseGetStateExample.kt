@@ -20,7 +20,10 @@ import androidx.compose.ui.unit.dp
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
+import xyz.junerver.compose.hooks.component1
+import xyz.junerver.compose.hooks.component2
 import xyz.junerver.compose.hooks.invoke
+import xyz.junerver.compose.hooks.useController
 import xyz.junerver.compose.hooks.useCountdown
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useInterval
@@ -78,7 +81,11 @@ fun UseGetStateExample() {
 @Composable
 private fun TestDeferReads() {
     var byState by useState("default1")
-    val (state, setState, getState) = useGetState("getState")
+    val controller = useController("default")
+    val (setState, getState) = controller
+    val state by useGetState(controller)
+
+//    val (state, setState, getState) = useGetState("getState")
     val (stater, dispatch) = useReducer({ p: String, a: String -> a }, "reducer")
     val ref = useRef(10)
     val (leftTime, formattedRes) = useCountdown(
@@ -115,7 +122,7 @@ private fun TestDeferReads() {
             // triple 解构
             Button(onClick = {
                 setState(getState() + "2")
-            }) { Text(state.value) }
+            }) { Text(state) }
 
             Button(onClick = {
                 dispatch(stater.value + "rx")

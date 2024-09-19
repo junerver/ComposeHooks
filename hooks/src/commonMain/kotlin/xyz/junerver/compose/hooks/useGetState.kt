@@ -60,3 +60,45 @@ data class GetStateHolder<T>(
     val setValue: SetValueFn<T>,
     val getValue: GetValueFn<T>,
 )
+
+@Stable
+class GetStateController<T>(
+    val default: T,
+) {
+    private var setter: SetValueFn<T>? = null
+    private var getter: GetValueFn<T>? = null
+
+    fun setValue(value: T) {
+        setter?.invoke(value)
+    }
+
+
+    fun getValue(): T {
+        return getter?.invoke() ?: default
+    }
+
+    internal fun register(
+        setterFn: SetValueFn<T>? = null,
+        getterFn: GetValueFn<T>? = null,
+    ) {
+        this.setter = setterFn
+        this.getter = getterFn
+    }
+}
+
+operator fun <T> GetStateController<T>.component1() = this::setValue
+operator fun <T> GetStateController<T>.component2() = this::getValue
+
+@Composable
+fun <T> useController(default: T): GetStateController<T> {
+    return  remember { GetStateController(default) }
+}
+
+@Composable
+fun <T> useGetState(controller: GetStateController<T>): State<T> {
+    val (state,setter,getter) = _useGetState(controller.default)
+    useMount {
+        controller.register(setter, getter)
+    }
+    return state
+}
