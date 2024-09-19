@@ -3,17 +3,15 @@ package xyz.junerver.compose.hooks.useidle
 import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.datetime.Instant
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.utils.currentTime
-import xyz.junerver.kotlin.Tuple2
 
 /*
   Description: Tracks whether the user is being inactive.
@@ -24,24 +22,24 @@ import xyz.junerver.kotlin.Tuple2
 */
 
 @Composable
-fun useIdle(timeout: Duration = 5.seconds): Tuple2<Boolean, Instant> {
+fun useIdle(timeout: Duration = 5.seconds): Pair<State<Boolean>, State<Instant>> {
     val window = (LocalContext.current as Activity).window
-    var idle by useState(default = false)
-    var lastActive by useState(default = currentTime)
+    val idle = useState(default = false)
+    val lastActive = useState(default = currentTime)
     val originalCallback = remember { window.callback }
     val scope = rememberCoroutineScope()
     DisposableEffect(key1 = Unit) {
         val inactivityCallback =
             InactivityWindowCallback(originalCallback, scope, timeout) { i, i2 ->
-                idle = i
-                lastActive = i2
+                idle.value = i
+                lastActive.value = i2
             }
         window.callback = inactivityCallback
         onDispose {
             window.callback = originalCallback
         }
     }
-    return Tuple2(
+    return Pair(
         idle,
         lastActive
     )

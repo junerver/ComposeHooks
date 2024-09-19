@@ -12,7 +12,7 @@ import arrow.core.right
 @Composable
 fun <T> useToggle(defaultValue: T? = null, reverseValue: T? = null): Pair<T?, ToggleFn> {
     val (isLeft, toggle) = useBoolean(true)
-    return (if (isLeft) defaultValue else reverseValue) to toggle
+    return (if (isLeft.value) defaultValue else reverseValue) to toggle
 }
 
 /**
@@ -24,7 +24,7 @@ fun <L, R> useToggleEither(defaultValue: L? = null, reverseValue: R? = null): Pa
     val (isLeft, toggle) = useBoolean(true)
     val leftEither = remember { defaultValue.left() }
     val rightEither = remember { reverseValue.right() }
-    return (if (isLeft) leftEither else rightEither) to toggle
+    return (if (isLeft.value) leftEither else rightEither) to toggle
 }
 
 /**
@@ -37,11 +37,7 @@ fun useToggleVisible(isVisible: Boolean = false, content: ComposeComponent): Pai
 }
 
 @Composable
-fun useToggleVisible(
-    isFirst: Boolean = true,
-    content1: ComposeComponent,
-    content2: ComposeComponent,
-): Pair<ComposeComponent, ToggleFn> {
+fun useToggleVisible(isFirst: Boolean = true, content1: ComposeComponent, content2: ComposeComponent): Pair<ComposeComponent, ToggleFn> {
     val (visible, toggle) = useBoolean(isFirst)
-    return (if (visible) content1 else content2) to toggle
+    return (if (visible.value) content1 else content2) to toggle
 }

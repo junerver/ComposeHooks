@@ -3,6 +3,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
@@ -31,8 +32,8 @@ internal typealias NoParamsVoidFunction = KFunction0<Unit>
 
 internal typealias ComposeComponent = @Composable () -> Unit
 
-internal typealias PauseFn = KFunction0<Unit>
-internal typealias ResumeFn = KFunction0<Unit>
+internal typealias PauseFn = () -> Unit
+internal typealias ResumeFn = () -> Unit
 internal typealias IsActive = Boolean
 
 internal typealias ToggleFn = () -> Unit
@@ -76,8 +77,8 @@ internal typealias IsFlagsAdded = Boolean
 internal typealias ResetValueFn<T> = (T) -> Unit
 internal typealias RedoFn = () -> Unit
 internal typealias UndoFn = () -> Unit
-internal typealias CanUndo = Boolean
-internal typealias CanRedo = Boolean
+internal typealias CanUndo = State<Boolean>
+internal typealias CanRedo = State<Boolean>
 
 // useClipboard
 internal typealias CopyFn = (String) -> Unit
@@ -93,6 +94,7 @@ typealias Dispatch<A> = (A) -> Unit
 typealias DispatchAsync<A> = (block: suspend CoroutineScope.(Dispatch<A>) -> A) -> Unit
 typealias Middleware<S, A> = (dispatch: Dispatch<A>, state: S) -> Dispatch<A>
 internal typealias DispatchCallback<A> = (Dispatch<A>) -> Unit
+
 /**
  * 优化函数调用形式，将导出的函数伪装成普通函数的样子，无需对参数进行[arrayOf]，可能需要手动导包：
  * ```

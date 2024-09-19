@@ -10,7 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.*
+import xyz.junerver.compose.hooks.useBoolean
+import xyz.junerver.compose.hooks.useEventPublish
+import xyz.junerver.compose.hooks.useEventSubscribe
+import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useUpdate
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.kotlin.asBoolean
@@ -27,7 +31,7 @@ import xyz.junerver.kotlin.asBoolean
 fun Polling() {
     val (showTips, _, set) = useBoolean(false)
     useEventSubscribe { count: Int ->
-        if (!showTips && count >= 1) {
+        if (!showTips.value && count >= 1) {
             set(true)
         }
     }
@@ -37,7 +41,7 @@ fun Polling() {
             DividerSpacer()
             Sub(true)
             DividerSpacer()
-            if (showTips) {
+            if (showTips.value) {
                 Text(
                     text = "!!! now push 'home' and wait a moment then back to app",
                     color = Color.Magenta

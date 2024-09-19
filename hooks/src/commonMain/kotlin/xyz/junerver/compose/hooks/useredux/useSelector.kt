@@ -1,6 +1,8 @@
 package xyz.junerver.compose.hooks.useredux
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import xyz.junerver.compose.hooks.useContext
 
 /**
@@ -10,11 +12,11 @@ import xyz.junerver.compose.hooks.useContext
  * @return
  */
 @Composable
-inline fun <reified T> useSelector(alias: String? = null): T = alias?.let {
-    useContext(context = ReduxContext).third[it]?.first as? T ?: registerErr("alias:<$alias>")
+inline fun <reified T> useSelector(alias: String? = null): State<T> = alias?.let {
+    useContext(context = ReduxContext).third[it]?.first as? State<T> ?: registerErr("alias:<$alias>")
 } ?: useContext(
     context = ReduxContext
-).first[T::class] as? T ?: registerErr("type:<${T::class.qualifiedName}>")
+).first[T::class] as? State<T> ?: registerErr("type:<${T::class.qualifiedName}>")
 
 /**
  * Use selector, by pass [block], you can also select part of state
@@ -27,4 +29,6 @@ inline fun <reified T> useSelector(alias: String? = null): T = alias?.let {
  * @receiver
  */
 @Composable
-inline fun <reified T, R> useSelector(alias: String? = null, block: T.() -> R) = useSelector<T>(alias).run(block)
+inline fun <reified T, R> useSelector(alias: String? = null, crossinline block: T.() -> R) = useSelector<T>(alias).run {
+    derivedStateOf { this.value.block() }
+}

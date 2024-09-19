@@ -21,7 +21,6 @@ inline fun <reified A> useDispatch(alias: String? = null): Dispatch<A> = alias?.
 }
     ?: useContext(context = ReduxContext).second[A::class] as? Dispatch<A> ?: registerErr("type:<${A::class.qualifiedName}>")
 
-
 /**
  * Get a dispatch function that supports asynchronous execution. This
  * function receives a suspend function whose return value is Action as a

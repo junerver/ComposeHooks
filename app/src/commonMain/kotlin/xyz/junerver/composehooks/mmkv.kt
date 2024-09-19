@@ -1,5 +1,7 @@
 package xyz.junerver.composehooks
 
+import xyz.junerver.compose.hooks.notifyDefaultPersistentObserver
+
 // import com.ctrip.flight.mmkv.defaultMMKV
 
 /*
@@ -16,6 +18,7 @@ val storeDelegate by lazy {
 
 fun mmkvSave(key: String, value: Any?) {
     storeDelegate.saveData(key, value)
+    notifyDefaultPersistentObserver(key) // 别忘记调用该函数通知组件更新
 }
 
 fun mmkvGet(key: String, value: Any): Any = storeDelegate.readData(key, value)

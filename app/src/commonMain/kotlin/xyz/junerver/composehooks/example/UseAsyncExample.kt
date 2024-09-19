@@ -1,9 +1,13 @@
 package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import xyz.junerver.compose.hooks.useAsync
@@ -20,12 +24,12 @@ import xyz.junerver.composehooks.ui.component.TButton
 
 @Composable
 fun UseAsyncExample() {
-    val (state, setState) = useGetState(0)
+    val (state, setState, getState) = useGetState(0)
 
     /** 如果你向[useAsync]传递一个闭包作为参数，那么返回值是 `()->Unit` */
     val async = useAsync {
         delay(1.seconds)
-        setState(state + 1)
+        setState(getState() + 1)
     }
 
     /** 如果不传递参数，则使用另一个重载，返回值是[xyz.junerver.compose.hooks.AsyncRunFn] */
@@ -33,14 +37,17 @@ fun UseAsyncExample() {
 
     Surface {
         Column {
-            Text(text = "count:$state")
-            TButton(text = "delay +1") {
+            Text(text = "count:${getState()}")
+            Spacer(modifier = Modifier.height(20.dp))
+            Text("The asynchronous closure is passed as an argument to `useAsync`")
+            TButton(text = "delay  +1") {
                 async()
             }
+            Text("equivalent to `rememberCoroutineScope`")
             TButton(text = "delay +1") {
                 asyncRun {
                     delay(1.seconds)
-                    setState(state + 1)
+                    setState(getState() + 1)
                 }
             }
         }

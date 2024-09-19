@@ -21,8 +21,8 @@ fun UseIdleExample() {
     val (idle, lastActive) = useIdle()
     Surface {
         Column {
-            Text(text = "Idle : $idle")
-            Text(text = "lastActive : ${lastActive.toLocalDateTime(TimeZone.of("CTT"))}")
+            Text(text = "Idle : ${idle.value}")
+            Text(text = "lastActive : ${lastActive.value.toLocalDateTime(TimeZone.of("CTT"))}")
         }
     }
 }

@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import xyz.junerver.compose.hooks.utils.unwrap
 
 /*
   Description: Alias for [LaunchedEffect]
@@ -12,4 +13,6 @@ import androidx.compose.runtime.LaunchedEffect
 */
 
 @Composable
-fun useEffect(vararg deps: Any?, block: SuspendAsyncFn) = LaunchedEffect(keys = deps, block = block)
+fun useEffect(vararg deps: Any?, block: SuspendAsyncFn) {
+    LaunchedEffect(keys = unwrap(deps), block = block)
+}

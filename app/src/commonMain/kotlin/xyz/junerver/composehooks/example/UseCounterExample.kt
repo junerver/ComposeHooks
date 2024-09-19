@@ -31,7 +31,7 @@ fun UseCounterExample() {
 
     Surface {
         Column {
-            Text(text = "$current [max: 10; min: 1;]")
+            Text(text = "${current.value} [max: 10; min: 1;]")
             Row {
                 TButton(text = "inc()") {
                     inc(1)

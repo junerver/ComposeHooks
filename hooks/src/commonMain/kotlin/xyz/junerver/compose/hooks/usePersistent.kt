@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import xyz.junerver.compose.hooks.utils.CacheManager
 import xyz.junerver.compose.hooks.utils.EventManager
 
@@ -31,7 +32,12 @@ private typealias SaveToPersistent<T> = (T?) -> Unit
  * The final return value of the persistence hook is a tuple like
  * [state,setState]
  */
-private typealias PersistentHookReturn<T> = Triple<T, SaveToPersistent<T>, PersistentClear>
+@Stable
+data class PersistentHookReturn<T>(
+    val value: T,
+    val save: SaveToPersistent<T>,
+    val clear: PersistentClear,
+)
 
 /**
  * By default, [CacheManager.cache] is used for memory persistence.
@@ -82,12 +88,10 @@ fun <T> usePersistent(key: String, defaultValue: T, forceUseMemory: Boolean = fa
     useUnmount {
         unObserver.current()
     }
-    return Triple(
-        first = get(key, defaultValue as Any) as T,
-        second = { value ->
-            set(key, value)
-        },
-        third = clear
+    return PersistentHookReturn(
+        value = get(key, defaultValue as Any) as T,
+        save = { value -> set(key, value) },
+        clear = clear
     )
 }
 

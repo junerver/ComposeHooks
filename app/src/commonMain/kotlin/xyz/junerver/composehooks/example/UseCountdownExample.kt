@@ -34,8 +34,8 @@ fun UseCountdownExample() {
     )
     Surface {
         Column {
-            Text(text = "LeftTime: ${leftTime.inWholeSeconds}")
-            Text(text = formattedRes.toString())
+            Text(text = "LeftTime: ${leftTime.value.inWholeSeconds}")
+            Text(text = formattedRes.value.toString())
             if (show) {
                 Text(text = "countdown on end!!", color = Color.Green)
             }

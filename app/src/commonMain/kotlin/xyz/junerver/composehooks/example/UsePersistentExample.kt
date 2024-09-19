@@ -82,10 +82,10 @@ private fun MMKVPersistent() {
         Column {
             Text(text = "MMKVPersistent : exit app will NOT lose state")
             Text(text = "token: $token")
-            OutlinedTextField(value = state, onValueChange = setState)
+            OutlinedTextField(value = state.value, onValueChange = setState)
             TButton(text = "saveToken") {
                 hideKeyboard()
-                saveToken(state)
+                saveToken(state.value)
                 setState("")
                 println("now you can exit app,and reopen")
             }
@@ -112,12 +112,12 @@ private fun VsViewModel() {
     Column {
         Text(text = "state from persistent: $vsvm")
         Text(text = "state from vm: $vmstate")
-        OutlinedTextField(value = state, onValueChange = setState)
+        OutlinedTextField(value = state.value, onValueChange = setState)
         Row {
             TButton(text = "set state ") {
                 hideKeyboard()
-                saveVsvm(state)
-                vmstate = state
+                saveVsvm(state.value)
+                vmstate = state.value
                 setState("")
             }
             TButton(text = "nav to sub") {

@@ -3,8 +3,8 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
-import arrow.core.Either
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.useredux.useDispatch
@@ -13,8 +13,6 @@ import xyz.junerver.compose.hooks.useredux.useSelector
 import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
-import xyz.junerver.kotlin.Tuple4
-import xyz.junerver.kotlin.Tuple5
 
 /** 更符合 Compose 的函数命名方式 */
 
@@ -30,10 +28,10 @@ inline fun <reified A> rememberDispatchAsync(
 ): DispatchAsync<A> = useDispatchAsync(alias, onBefore, onFinally)
 
 @Composable
-inline fun <reified T> rememberSelector(alias: String? = null): T = useSelector(alias)
+inline fun <reified T> rememberSelector(alias: String? = null): State<T> = useSelector(alias)
 
 @Composable
-inline fun <reified T, R> rememberSelector(alias: String? = null, block: T.() -> R) = useSelector(alias, block)
+inline fun <reified T, R> rememberSelector(alias: String? = null, crossinline block: T.() -> R) = useSelector(alias, block)
 //endregion
 
 @Composable
@@ -64,19 +62,16 @@ fun rememberFrontToBackEffect(vararg keys: Any?, effect: () -> Unit) = useFrontT
 fun rememberBoolean(default: Boolean = false) = useBoolean(default)
 
 @Composable
-fun rememberClipboard(): Pair<CopyFn, PasteFn> = useClipboard()
+fun rememberClipboard() = useClipboard()
 
 @Composable
 fun <T> rememberContext(context: ReactContext<T>) = useContext(context)
 
 @Composable
-fun rememberCountdown(options: CountdownOptions): Pair<Duration, FormattedRes> = useCountdown(options)
+fun rememberCountdown(options: CountdownOptions) = useCountdown(options)
 
 @Composable
-fun rememberCounter(
-    initialValue: Int = 0,
-    options: CounterOptions,
-): Tuple5<Int, IncFn, DecFn, SetValueFn<Either<Int, (Int) -> Int>>, ResetFn> = useCounter(initialValue, options)
+fun rememberCounter(initialValue: Int = 0, options: CounterOptions) = useCounter(initialValue, options)
 
 @Composable
 fun <T> rememberCreation(vararg keys: Any?, factory: () -> T) = useCreation(*keys, factory = factory)
@@ -173,7 +168,7 @@ fun <S, A> rememberReducer(reducer: Reducer<S, A>, initialState: S, middlewares:
 fun <T> rememberRef(default: T) = useRef(default)
 
 @Composable
-fun <T> rememberResetState(default: T & Any): Tuple4<T, SetValueFn<T & Any>, GetValueFn<T>, ResetFn> = useResetState(default)
+fun <T> rememberResetState(default: T & Any) = useResetState(default)
 
 @Composable
 fun <T> rememberState(default: T & Any) = useState(default)

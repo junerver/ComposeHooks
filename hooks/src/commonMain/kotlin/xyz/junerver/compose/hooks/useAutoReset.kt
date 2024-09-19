@@ -17,7 +17,7 @@ import kotlinx.coroutines.delay
 fun <T> useAutoReset(default: T & Any, interval: Duration): MutableState<T & Any> {
     val state = useState(default = default)
     val defaultValue = useCreation { default }
-    useEffect(state.value) {
+    useEffect(state) {
         delay(interval)
         state.value = defaultValue.current
     }

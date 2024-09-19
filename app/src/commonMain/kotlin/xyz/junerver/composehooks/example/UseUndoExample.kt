@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useUndo
+import xyz.junerver.composehooks.ui.component.SimpleContainer
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -26,25 +27,27 @@ fun UseUndoExample() {
     val (state, set, reset, undo, redo, canUndo, canRedo) = useUndo(initialPresent = "")
     val (input, setInput) = useGetState("")
     Surface {
-        Column {
-            OutlinedTextField(value = input, onValueChange = setInput)
-            TButton(text = "submit") {
-                set(input)
-                setInput("")
+        Column(modifier = Modifier.randomBackground()) {
+            SimpleContainer { OutlinedTextField(value = input.value, onValueChange = setInput) }
+            SimpleContainer {
+                TButton(text = "submit") {
+                    set(input.value)
+                    setInput("")
+                }
             }
             Row {
                 TButton(text = "reset") {
                     reset("")
                 }
-                TButton(text = "undo", enabled = canUndo) {
+                TButton(text = "undo", enabled = canUndo.value) {
                     undo()
                 }
-                TButton(text = "redo", enabled = canRedo) {
+                TButton(text = "redo", enabled = canRedo.value) {
                     redo()
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
-            Text(text = "result:\n$state")
+            SimpleContainer { Text(text = "result:\n${state.value}") }
         }
     }
 }

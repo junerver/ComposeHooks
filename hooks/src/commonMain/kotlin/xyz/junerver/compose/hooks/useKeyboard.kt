@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 
@@ -13,12 +14,18 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 */
 
 @Composable
-fun useKeyboard(): Pair<HideKeyboardFn, ShowKeyboardFn> {
+fun useKeyboard(): KeyboardHolder {
     val keyboardController = LocalSoftwareKeyboardController.current
     return remember {
-        Pair(
-            first = { keyboardController?.hide() },
-            second = { keyboardController?.show() }
+        KeyboardHolder(
+            hideKeyboard = { keyboardController?.hide() },
+            showKeyboard = { keyboardController?.show() }
         )
     }
 }
+
+@Stable
+data class KeyboardHolder(
+    val hideKeyboard: HideKeyboardFn,
+    val showKeyboard: ShowKeyboardFn,
+)

@@ -1,8 +1,9 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
-import xyz.junerver.kotlin.Tuple5
-import xyz.junerver.kotlin.tuple
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 
 /*
   Description: A hook to conveniently manage Boolean state
@@ -13,13 +14,24 @@ import xyz.junerver.kotlin.tuple
 */
 
 @Composable
-fun useBoolean(default: Boolean = false): Tuple5<Boolean, ToggleFn, SetValueFn<Boolean>, SetTrueFn, SetFalseFn> {
+fun useBoolean(default: Boolean = false): BooleanHolder {
     val (state, setState, getState) = useGetState(default)
-    return tuple(
-        first = state, // boolean state
-        second = { setState(!getState()) }, // toggle fun
-        third = { b: Boolean -> setState(b) }, // set fun
-        fourth = { setState(true) }, // setTrue
-        fifth = { setState(false) } // setFalse
-    )
+    return remember {
+        BooleanHolder(
+            state = state, // boolean state
+            toggle = { setState(!getState()) }, // toggle fun
+            setValue = { b: Boolean -> setState(b) }, // set fun
+            setTrue = { setState(true) }, // setTrue
+            setFalse = { setState(false) } // setFalse
+        )
+    }
 }
+
+@Stable
+data class BooleanHolder(
+    val state: State<Boolean>,
+    val toggle: ToggleFn,
+    val setValue: SetValueFn<Boolean>,
+    val setTrue: SetTrueFn,
+    val setFalse: SetFalseFn,
+)

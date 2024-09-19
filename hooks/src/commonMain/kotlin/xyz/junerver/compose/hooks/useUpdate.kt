@@ -1,6 +1,9 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
+import xyz.junerver.kotlin.Single
 
 /*
   Description:
@@ -12,9 +15,10 @@ import androidx.compose.runtime.Composable
 
 @Suppress("UNUSED_VARIABLE")
 @Composable
-fun useUpdate(): () -> Unit {
-    val (state, setState, getState) = useGetState(0.0)
-    return fun() {
-        setState(getState() + 1)
+inline fun useUpdate(): () -> Unit {
+    var state by useState(0.0)
+    val (single) = Single(state) // core logic
+    return {
+        state += 1
     }
 }

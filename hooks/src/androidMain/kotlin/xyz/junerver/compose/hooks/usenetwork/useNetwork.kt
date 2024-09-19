@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks.usenetwork
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
@@ -16,6 +17,7 @@ import xyz.junerver.compose.hooks.useContext
   Version: v1.0
 */
 
+@Stable
 data class NetworkState(
     val isConnect: Boolean = false,
     val connectType: ConnectType = ConnectType.None,

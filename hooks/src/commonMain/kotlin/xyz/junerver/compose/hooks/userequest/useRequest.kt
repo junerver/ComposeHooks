@@ -7,11 +7,11 @@ import kotlin.reflect.KFunction0
 import kotlin.reflect.KFunction1
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.VoidFunction
+import xyz.junerver.compose.hooks._useGetState
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUnmount
 import xyz.junerver.compose.hooks.userequest.plugins.*
-import xyz.junerver.compose.hooks.utils._useSetState
 import xyz.junerver.kotlin.Tuple7
 
 typealias ReqFn = VoidFunction
@@ -149,7 +149,7 @@ fun <TData : Any> useRequest(
     plugins: Array<ComposablePluginGenFn<TData>> = emptyArray(),
 ): Tuple7<TData?, Boolean, Throwable?, ReqFn, MutateFn<TData>, RefreshFn, CancelFn> = useRequest(
     requestFn,
-    remember(optionsOf) { RequestOptions.optionOf(optionsOf) },
+    remember { RequestOptions.optionOf(optionsOf) }.apply(optionsOf),
     plugins
 )
 
@@ -159,9 +159,9 @@ private fun <TData : Any> useRequestPluginsImpl(
     options: RequestOptions<TData> = RequestOptions(),
     plugins: Array<Plugin<TData>> = emptyArray(),
 ): Fetch<TData> {
-    val (dataState, setData) = _useSetState<TData?>(null)
-    val (loadingState, setLoading) = _useSetState(false)
-    val (errorState, setError) = _useSetState<Throwable?>(null)
+    val (dataState, setData) = _useGetState<TData?>(null)
+    val (loadingState, setLoading) = _useGetState(false)
+    val (errorState, setError) = _useGetState<Throwable?>(null)
 
     val fetch = remember {
         Fetch(options).apply {

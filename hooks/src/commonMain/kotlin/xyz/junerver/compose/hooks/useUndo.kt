@@ -1,12 +1,13 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.plus
-import xyz.junerver.kotlin.Tuple7
-import xyz.junerver.kotlin.tuple
 
 /*
   Description:
@@ -46,6 +47,7 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
                 future = persistentListOf(present) + future
             )
         }
+
         Redo -> {
             if (future.isEmpty()) return preState
             preState.copy(
@@ -78,24 +80,26 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
     }
 }
 
-
 @Composable
-fun <T> useUndo(initialPresent: T): Tuple7<UndoState<T>, SetValueFn<T>, ResetValueFn<T>, UndoFn, RedoFn, CanUndo, CanRedo> {
+fun <T> useUndo(initialPresent: T): UndoHolder<T> {
     val (state, dispatch) = useReducer(::undoReducer, UndoState(present = initialPresent))
-    val canUndo = state.past.isNotEmpty()
-    val canRedo = state.future.isNotEmpty()
+    val canUndo = useState { state.value.past.isNotEmpty() }
+    val canRedo = useState { state.value.future.isNotEmpty() }
     val undo = { dispatch(Undo) }
     val redo = { dispatch(Redo) }
     val set = { newPresent: T -> dispatch(Set(newPresent)) }
     val reset = { newPresent: T -> dispatch(Reset(newPresent)) }
 
-    return tuple(
-        first = state,
-        second = set,
-        third = reset,
-        fourth = undo,
-        fifth = redo,
-        sixth = canUndo,
-        seventh = canRedo
-    )
+    return remember { UndoHolder(state, set, reset, undo, redo, canUndo, canRedo) }
 }
+
+@Stable
+data class UndoHolder<T>(
+    val undoState: State<UndoState<T>>,
+    val setValue: SetValueFn<T>,
+    val resetValue: ResetValueFn<T>,
+    val undo: UndoFn,
+    val redo: RedoFn,
+    val canUndo: CanUndo,
+    val canRedo: CanRedo,
+)

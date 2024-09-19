@@ -21,7 +21,7 @@ fun UseResetStateExample() {
     val (state, setState, _, reset) = useResetState("default value")
     Surface {
         Column {
-            Text(text = state)
+            Text(text = state.value)
             TButton(text = "set value") {
                 setState("has set new value${Timestamp.now()}")
             }

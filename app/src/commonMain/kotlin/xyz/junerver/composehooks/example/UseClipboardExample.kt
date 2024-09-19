@@ -32,11 +32,11 @@ private fun Copy() {
     val (copy, _) = useClipboard()
     Column {
         TextField(
-            value = state,
+            value = state.value,
             onValueChange = setState,
             label = { Text("Text to copy") }
         )
-        Button(onClick = { copy(state) }) {
+        Button(onClick = { copy(state.value) }) {
             Text("Copy to clipboard")
         }
     }
@@ -47,7 +47,7 @@ private fun Paste() {
     val (state, setState) = useGetState("")
     val (_, paste) = useClipboard()
     Column {
-        Text("$state")
+        Text("${state.value}")
         Button(onClick = { setState(paste()) }) {
             Text("Paste from clipboard")
         }

@@ -30,7 +30,7 @@ fun UseMountExample() {
     val (visible, toggle) = useBoolean()
     Surface {
         Column {
-            if (visible) {
+            if (visible.value) {
                 UnmountableChild(text = "${Random.nextDouble()}")
             }
             TButton(text = "Update") {

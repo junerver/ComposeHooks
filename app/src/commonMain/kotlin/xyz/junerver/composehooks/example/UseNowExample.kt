@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 import kotlinx.datetime.format.DayOfWeekNames
@@ -22,8 +23,8 @@ import xyz.junerver.composehooks.utils.tsMs
 */
 @Composable
 fun UseNowExample() {
-    val now = useNow()
-    val customize = useNow(
+    val now by useNow()
+    val customize by useNow(
         optionsOf = {
             format = {
                 it.tsMs

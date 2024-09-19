@@ -53,7 +53,7 @@ fun SubComponent(index: Int) {
     }
     Column {
         Row {
-            Text(text = "index $index: $state")
+            Text(text = "index $index: ${state.value}")
             TButton(text = "refresh") {
                 refresh()
             }

@@ -2,7 +2,13 @@ package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -11,8 +17,10 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,6 +37,9 @@ import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useInterval
+import xyz.junerver.compose.hooks.useMount
+import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.composehooks.ui.component.SimpleContainer
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -54,10 +65,10 @@ fun UseIntervalExample() {
                     .fillMaxWidth()
                     .padding(20.dp)
             )
-            val (text, setText) = remember { mutableStateOf("") }
+            var text by remember { mutableStateOf("") }
             CustomTextField(
                 text = text,
-                onTextChanged = { setText(it) },
+                onTextChanged = { text = it },
                 onSendClicked = { /* Handle send button click */ }
             )
         }
@@ -67,49 +78,67 @@ fun UseIntervalExample() {
 @Composable
 private fun Manual() {
     // if you prefer to this usage, use `useGetState`
-    val (countDown, setCountDown) = useGetState(60)
+    val (countDown, setCountDown, getCountDown) = useGetState(60)
+    val ref = useRef(10)
     val (resume, pause, isActive) = useInterval(
         optionsOf = {
             initialDelay = 2.seconds
             period = 1.seconds
         }
     ) {
-        setCountDown(countDown - 1)
+        setCountDown(getCountDown() - 1)
+        ref.current -= 1
     }
     useEffect(countDown) {
-        if (countDown == 0) pause()
+        if (getCountDown() == 0) pause()
     }
-    Column {
+    useMount {
+        resume()
+    }
+    Column(modifier = Modifier.randomBackground()) {
         Text(text = "You can get the function by destructuring the return value")
-        Text(text = "current: $countDown")
-        Text(text = "isActive: $isActive")
+        SimpleContainer {
+            Text(text = "current: ${countDown.value}")
+        }
+        SimpleContainer {
+            Text(text = "isActive: ${isActive.value}")
+        }
 
         TButton(text = "resume", onClick = { resume() })
         TButton(text = "pause", onClick = { pause() })
+        Text(text = "current ref: ${ref.current}")
     }
 }
 
 @Composable
 private fun ByReady() {
     val (countDown, setCountDown) = useGetState(60)
-    val (isReady, toggle, setReady) = useBoolean(false)
+    val (isReady, toggle, setReady) = useBoolean(true)
+    val ref = useRef(10)
     useInterval(
         optionsOf = {
             initialDelay = 2.seconds
             period = 1.seconds
         },
-        ready = isReady
+        ready = isReady.value
     ) {
-        setCountDown(countDown - 1)
+        setCountDown(countDown.value - 1)
+        ref.current -= 1
     }
     useEffect(countDown) {
-        if (countDown == 0) setReady(false)
+        if (countDown.value == 0) setReady(false)
     }
     Column {
         Text(text = "You can also control it by switching the `ready` state:")
-        Text(text = "current: $countDown")
-        Text(text = "isReady: $isReady")
+        SimpleContainer {
+            Text(text = "current: ${countDown.value}")
+        }
+        SimpleContainer {
+            Text(text = "isActive: ${isReady.value}")
+        }
+
         TButton(text = "toggle Ready", onClick = { toggle() })
+        Text(text = "current ref: ${ref.current}")
     }
 }
 
@@ -163,12 +192,12 @@ fun MyDecorationBox(
             initialDelay = 1.seconds
             period = 1.seconds
         },
-        ready = isReady
+        ready = isReady.value
     ) {
-        setCountdown(countdown - 1)
+        setCountdown(countdown.value - 1)
     }
     useEffect(countdown) {
-        if (countdown == 0) {
+        if (countdown.value == 0) {
             setCountdown(countDownTimer)
             setReadyFalse()
         }
@@ -196,9 +225,9 @@ fun MyDecorationBox(
                 )
             }
         }
-        if (isReady) {
+        if (isReady.value) {
             Text(
-                text = "${countdown}s",
+                text = "${countdown.value}s",
                 modifier = Modifier
                     .width(40.dp)
                     .padding(end = 12.dp),
@@ -220,7 +249,7 @@ fun MyDecorationBox(
                 ),
                 modifier = Modifier
                     .clickable(onClick = {
-                        if (!isReady) {
+                        if (!isReady.value) {
                             setReadyTrue()
                         }
                         onSendClicked()

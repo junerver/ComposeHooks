@@ -35,7 +35,7 @@ fun UseTimeoutExample() {
 
     Surface {
         Column {
-            Text(text = "current: $state  flag: ${Random.nextDouble()}")
+            Text(text = "current: ${state.value}  flag: ${Random.nextDouble()}")
 
             TButton(text = "update") {
                 /**

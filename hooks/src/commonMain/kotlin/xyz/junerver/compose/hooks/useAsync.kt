@@ -27,9 +27,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun useAsync(fn: SuspendAsyncFn): () -> Unit {
     val latestFn by useLatestState(value = fn)
-    val scope = rememberCoroutineScope()
+    val asyncRunFn = useAsync()
     return fun () {
-        scope.launch {
+        asyncRunFn {
             latestFn()
         }
     }

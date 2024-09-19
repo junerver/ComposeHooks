@@ -11,6 +11,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.useGetState
@@ -103,19 +104,19 @@ private fun ManualMutateRollback() {
      * 使用 [usePrevious] 保存mutate之前的状态，用于回滚 Use [usePrevious] to save the state
      * before mutate for rollback
      */
-    val previous = usePrevious(present = userInfo)
+    val previous by usePrevious(present = userInfo)
 
     Column {
         Text("Use `usePrevious` to save the previous data requested, and roll back through `mutate`")
-        OutlinedTextField(value = input, onValueChange = setInput)
+        OutlinedTextField(value = input.value, onValueChange = setInput)
         Row {
             TButton(text = "changeName") {
-                mockFnChangeName(input)
+                mockFnChangeName(input.value)
                 /** 调用 [mutate] 乐观更新 Call [mutate] for optimistic updates */
                 if (userInfo.asBoolean()) {
                     // request user info success
                     mutate {
-                        it!!.copy(name = input)
+                        it!!.copy(name = input.value)
                     }
                 }
                 setInput("")
@@ -154,16 +155,16 @@ private fun AutoRollback() {
 
     Column {
         Text("Extend the rollback function by implementing a custom plug-in")
-        OutlinedTextField(value = input, onValueChange = setInput)
+        OutlinedTextField(value = input.value, onValueChange = setInput)
         Row {
             TButton(text = "changeName") {
-                mockFnChangeName(input)
+                mockFnChangeName(input.value)
                 // 调用 mutate 乐观更新
                 // Call mutate for optimistic updates
                 if (userInfo.asBoolean()) {
                     // request user info success
                     mutate {
-                        it!!.copy(name = input)
+                        it!!.copy(name = input.value)
                     }
                 }
                 setInput("")

@@ -7,6 +7,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.*
@@ -22,7 +24,7 @@ import xyz.junerver.kotlin.tuple
   Email: junerver@gmail.com
   Version: v1.0
 */
-val initialState = SimpleData("default", 18)
+val initialState: State<SimpleData> = mutableStateOf(SimpleData("default", 18))
 
 /**
  * 上下文的初始值并没有限定，但是我推荐使用[tuple]来传递一个元组
@@ -37,7 +39,7 @@ val SimpleContext = createContext(
 
 @Composable
 fun UseContextExample() {
-    val (state, dispatch) = useReducer(simpleReducer, initialState = initialState)
+    val (state, dispatch) = useReducer(simpleReducer, initialState = initialState.value)
     /**
      * 通过[ReactContext.Provider]向子组件提供上下文，子组件只需要通过[useContext]即可拿到正确的上下文；
      */
@@ -66,18 +68,18 @@ fun UseContextExample() {
 @Composable
 fun ChildOne() {
     val (state) = useContext(context = SimpleContext)
-    Text(text = "state: $state")
+    Text(text = "state: ${state.value}")
 }
 
 @Composable
 fun ChildTwo() {
     val (_, changName, ageIncrease) = useContext(context = SimpleContext)
-    val (state, setState) = useGetState("")
+    val (_, setState, getState) = useGetState("")
 
     Column {
-        OutlinedTextField(value = state, onValueChange = setState)
+        OutlinedTextField(value = getState(), onValueChange = setState)
         TButton(text = "changeName") {
-            changName(state)
+            changName(getState())
             setState("")
         }
         TButton(text = "age +1") {

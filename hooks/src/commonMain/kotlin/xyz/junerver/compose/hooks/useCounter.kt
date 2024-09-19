@@ -1,12 +1,12 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import xyz.junerver.kotlin.Tuple5
-import xyz.junerver.kotlin.tuple
 
 /*
   Description: A hook that manage counter.
@@ -15,14 +15,13 @@ import xyz.junerver.kotlin.tuple
   Email: junerver@gmail.com
   Version: v1.0
 */
-
+@Stable
 data class CounterOptions internal constructor(
     var min: Int = 0,
     var max: Int = 10,
 ) {
     companion object : Options<CounterOptions>(::CounterOptions)
 }
-
 
 /**
  * Use counter
@@ -50,7 +49,7 @@ data class CounterOptions internal constructor(
     "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
 )
 @Composable
-fun useCounter(initialValue: Int = 0, options: CounterOptions): Tuple5<Int, IncFn, DecFn, SetValueFn<SetterEither<Int>>, ResetFn> {
+fun useCounter(initialValue: Int = 0, options: CounterOptions): CounterHolder {
     val (current, setCurrent, getCurrent) = useGetState(getTargetValue(initialValue, options))
     val setValue: SetValueFn<Either<Int, (Int) -> Int>> = { value: Either<Int, (Int) -> Int> ->
         val target = value.fold(
@@ -76,20 +75,31 @@ fun useCounter(initialValue: Int = 0, options: CounterOptions): Tuple5<Int, IncF
         setValue(initialValue)
     }
 
-    return tuple(
-        current,
-        ::inc,
-        ::dec,
-        ::set,
-        ::reset
-    )
+    return remember {
+        CounterHolder(
+            current,
+            ::inc,
+            ::dec,
+            ::set,
+            ::reset
+        )
+    }
 }
 
 @Composable
 fun useCounter(initialValue: Int = 0, optionsOf: CounterOptions.() -> Unit) =
-    useCounter(initialValue, remember(optionsOf) { CounterOptions.optionOf(optionsOf) })
+    useCounter(initialValue, remember { CounterOptions.optionOf(optionsOf) })
 
 private fun getTargetValue(value: Int, options: CounterOptions): Int {
     val (min, max) = options
     return value.coerceIn(min, max)
 }
+
+@Stable
+data class CounterHolder(
+    val state: State<Int>,
+    val inc: IncFn,
+    val dec: DecFn,
+    val setValue: SetValueFn<SetterEither<Int>>,
+    val reset: ResetFn,
+)

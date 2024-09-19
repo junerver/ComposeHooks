@@ -1,5 +1,8 @@
+@file:Suppress("DuplicatedCode")
+
 package xyz.junerver.compose.hooks.userequest
 
+import androidx.compose.runtime.Stable
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
@@ -26,6 +29,7 @@ data class RequestOptions<TData> internal constructor(
      * 默认 false。 即在初始化时自动执行 requestFn。
      * 如果设置为 true，则需要手动调用 run
      */
+    @Stable
     var manual: Boolean = false,
     /**
      * 首次默认执行时，传递给 requestFn 的参数
@@ -34,44 +38,55 @@ data class RequestOptions<TData> internal constructor(
     /**
      * requestFn 执行前触发
      */
+    @Stable
     var onBefore: OnBeforeCallback = {},
     /**
      * requestFn 成功时触发；参数1：请求返回值，参数2：请求参数
      */
+    @Stable
     var onSuccess: OnSuccessCallback<TData> = { _, _ -> },
     /**
      * requestFn 抛出异常时触发
      */
+    @Stable
     var onError: OnErrorCallback = { error, _ -> error.printStackTrace() },
     /**
      * requestFn 执行完成时触发；参数1：请求参数，参数2：返回值，参数3：异常
      */
+    @Stable
     var onFinally: OnFinallyCallback<TData> = { _, _, _ -> },
     /**
      * 错误重试次数。如果设置为 -1，则无限次重试。
      */
+    @Stable
     var retryCount: Int = 0,
     /**
      * 重试时间间隔，单位为毫秒。
      * 如果不设置，默认采用简易的指数退避算法，取 1000 * 2 * retryCount
      */
+    @Stable
     var retryInterval: Duration = 0.milliseconds,
     /**
      * 轮询间隔，单位为毫秒。如果值大于 0，则处于轮询模式。
      */
+    @Stable
     var pollingInterval: Duration = 0.milliseconds,
     /**
      * 在页面隐藏时，是否继续轮询。如果设置为 false，在页面隐藏时会暂时停止轮询，页面重新显示时继续上次轮询。
      */
+    @Stable
     var pollingWhenHidden: Boolean = false,
     /**
      * 轮询错误重试次数。如果设置为 -1，则无限次
      */
+    @Stable
     var pollingErrorRetryCount: Int = -1,
     /**
      * 通过配置自动参数为wait = 0，默认不开启防抖或者节流
      */
+    @Stable
     var debounceOptions: DebounceOptions = DebounceOptions.optionOf { wait = 0.seconds },
+    @Stable
     var throttleOptions: ThrottleOptions = ThrottleOptions.optionOf { wait = 0.seconds },
     /**
      * 通过设置 options.ready，可以控制请求是否发出。当其值为 false 时，请求永远都不会发出。
@@ -94,21 +109,26 @@ data class RequestOptions<TData> internal constructor(
     /**
      * 请求的唯一标识。相同 cacheKey 的数据全局同步（cacheTime、staleTime 参数会使该机制失效
      */
+    @Stable
     var cacheKey: String = "",
     /**
      * 设置缓存数据回收时间。默认缓存数据 5 分钟后回收
      * 如果设置为 `(-1).seconds`, 则表示缓存数据永不过期
      */
+    @Stable
     var cacheTime: Duration = 5.minutes,
     /**
      * 缓存数据保持新鲜时间。在该时间间隔内，认为数据是新鲜的，不会重新发请求
      * 如果设置为 `(-1).seconds`，则表示数据永远新鲜
      */
+    @Stable
     var staleTime: Duration = 0.seconds,
     /**
      * 自定义缓存策略，无则采取默认策略
      */
+    @Stable
     var setCache: ((data: CachedData<TData>) -> Unit)? = null,
+    @Stable
     var getCache: ((params: TParams) -> CachedData<TData>)? = null,
     /**
      * 通过设置 options.[loadingDelay] ，可以延迟 [FetchState.loading] 变成 true 的时间，有效防止闪烁。
@@ -117,6 +137,7 @@ data class RequestOptions<TData> internal constructor(
      * 不会引起闪烁。这种闪烁其实还有一种变形场景，例如一个接口会极快返回，我们不希望用户继续快速点击，我们期望
      * 将loading延时，增加loading的对外表现时间，这种需求接近于节流，又稍有区别
      */
+    @Stable
     var loadingDelay: Duration = 0.seconds,
 ) {
     @Suppress("unused")

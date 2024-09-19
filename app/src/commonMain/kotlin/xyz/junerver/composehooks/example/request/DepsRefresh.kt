@@ -22,18 +22,19 @@ import xyz.junerver.kotlin.asBoolean
  */
 @Composable
 fun DepsRefresh() {
-    val (state, setState) = useGetState(0)
+    val (state, setState, getState) = useGetState(0)
     val (userInfo, loading, error) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
             defaultParams = arrayOf("junerver")
-            refreshDeps = arrayOf(state)
+            refreshDeps = arrayOf(getState())
         }
     )
     Surface {
         Column {
+            Text("deps:${getState()}")
             TButton(text = "+1") {
-                setState(state + 1)
+                setState(getState() + 1)
             }
             if (loading) {
                 Text(text = "Loading ...")

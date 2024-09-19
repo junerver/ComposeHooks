@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
 import xyz.junerver.compose.hooks.useState
@@ -33,6 +34,7 @@ fun useBatteryInfo(): BatteryInfo {
     return BatteryInfo(level, isCharging)
 }
 
+@Stable
 data class BatteryInfo(
     val level: Int,
     val isCharging: Boolean,
