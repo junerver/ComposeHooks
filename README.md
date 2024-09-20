@@ -7,7 +7,7 @@
 English | [简体中文](https://github.com/junerver/ComposeHooks/blob/master/README.zh-CN.md)
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
-[![Version maven-central](https://img.shields.io/maven-central/v/xyz.junerver.compose/hooks)](https://central.sonatype.com/artifact/xyz.junerver.compose/hooks)
+[![Version maven-central](https://img.shields.io/maven-central/v/xyz.junerver.compose/hooks2)](https://central.sonatype.com/artifact/xyz.junerver.compose/hooks2)
 [![latest releast](https://badgen.net/github/release/junerver/ComposeHooks)](https://github.com/junerver/ComposeHooks/releases/latest)
 [![stars](https://badgen.net/github/stars/junerver/ComposeHooks)](https://github.com/junerver/ComposeHooks/releases/latest)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/junerver/ComposeHooks.svg)](http://isitmaintained.com/project/junerver/ComposeHooks "Average time to resolve an issue")
@@ -17,14 +17,12 @@ English | [简体中文](https://github.com/junerver/ComposeHooks/blob/master/RE
 
 [![Star History Chart](https://api.star-history.com/svg?repos=junerver/ComposeHooks&type=Date)](https://star-history.com/#junerver/ComposeHooks&Date)
 
-## KMP Support(preview)
+## KMP Support
 
 > NOTE: The artifact id is `hooks2`
 
 ```kotlin
-maven("https://s01.oss.sonatype.org/content/repositories/snapshots")
-
-implementation("xyz.junerver.compose:hooks2:2.1.0-alpha0-SNAPSHOT")
+implementation("xyz.junerver.compose:hooks2:2.1.0-alpha0")
 ```
 
 Currently only limited targets are supported:
