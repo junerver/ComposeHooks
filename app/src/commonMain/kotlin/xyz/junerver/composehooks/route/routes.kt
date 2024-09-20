@@ -1,6 +1,7 @@
 package xyz.junerver.composehooks.route
 
 import androidx.compose.runtime.Composable
+import xyz.junerver.composehooks.example.DeferReads
 import xyz.junerver.composehooks.example.HomeScreen
 import xyz.junerver.composehooks.example.RequestExampleList
 import xyz.junerver.composehooks.example.UseAsyncExample
@@ -63,6 +64,7 @@ expect val androidRoutes: Map<String, @Composable () -> Unit>
 
 val routes = mapOf<String, @Composable () -> Unit>(
     "/" to { HomeScreen() },
+    "DeferReads" to { DeferReads() },
     "useRequest" to { RequestExampleList() },
     "useAsync" to { UseAsyncExample() },
     "useAutoReset" to { UseAutoResetExample() },

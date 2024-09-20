@@ -32,7 +32,7 @@ fun HomeScreen() {
         // item 和 item 之间的横向间距
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(routes.entries.filter { it.key.startsWith("use") }) { (route, _) ->
+        items(routes.entries.filter { !it.key.contains("/") }) { (route, _) ->
             Button(onClick = { nav.navigate(route) }) {
                 Text(text = route, maxLines = 1)
             }

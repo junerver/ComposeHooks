@@ -44,7 +44,7 @@ data class CountdownOptions internal constructor(
 @Composable
 fun useCountdown(options: CountdownOptions): CountdownHolder {
     val (leftTime, targetDate, interval, onEnd) = options
-    require(leftTime.asBoolean()||targetDate.asBoolean()){
+    require(leftTime.asBoolean() || targetDate.asBoolean()) {
         "'leftTime' or 'targetDate' must be set"
     }
     val target = useCreation {
