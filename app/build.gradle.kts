@@ -78,6 +78,9 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.bundles.ktor)
         }
+        commonTest.dependencies {
+            implementation(libs.kotlin.test)
+        }
     }
 }
 

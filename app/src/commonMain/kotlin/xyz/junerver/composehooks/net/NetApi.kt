@@ -1,17 +1,22 @@
 package xyz.junerver.composehooks.net
 
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.cio.CIO
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.DEFAULT
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logger
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
+import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.headers
-import io.ktor.serialization.kotlinx.json.*
+import io.ktor.http.withCharset
+import io.ktor.serialization.kotlinx.json.json
+import io.ktor.utils.io.charsets.Charsets
 import kotlinx.serialization.json.Json
 import xyz.junerver.composehooks.acc_token
 import xyz.junerver.composehooks.net.bean.RepoInfo
@@ -35,8 +40,8 @@ object NetApi : WebService {
         defaultRequest {
             url(BASE_URL)
             headers {
-                append("Content-Type", "application/json;charset=UTF-8")
-                append("Authorization", "token $acc_token")
+                append(HttpHeaders.ContentType, ContentType.Application.Json.withCharset(Charsets.UTF_8).toString())
+                append(HttpHeaders.Authorization, "token $acc_token")
             }
         }
         install(HttpTimeout) {
