@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.dp
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
+import xyz.junerver.compose.hooks.SetValueFn
 import xyz.junerver.compose.hooks.component1
 import xyz.junerver.compose.hooks.component2
-import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useController
 import xyz.junerver.compose.hooks.useCountdown
 import xyz.junerver.compose.hooks.useGetState
@@ -34,8 +34,6 @@ import xyz.junerver.compose.hooks.useredux.ReduxProvider
 import xyz.junerver.compose.hooks.useredux.createStore
 import xyz.junerver.compose.hooks.useredux.useDispatch
 import xyz.junerver.compose.hooks.useredux.useSelector
-import xyz.junerver.compose.hooks.userequest.useRequest
-import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.SimpleContainer
 
 /*
@@ -85,6 +83,11 @@ private fun TestDeferReads() {
     val (setState, getState) = controller
     val state by useGetState(controller)
 
+    val setStateFnRef = useRef<SetValueFn<String>?>(null)
+    val stateRef by useGetState("getStateWithRef") {
+        this.setValue = setStateFnRef
+    }
+
 //    val (state, setState, getState) = useGetState("getState")
     val (stater, dispatch) = useReducer({ p: String, a: String -> a }, "reducer")
     val ref = useRef(10)
@@ -100,14 +103,7 @@ private fun TestDeferReads() {
         byState += "1"
         ref.current -= 1
     }
-    val (userInfo, loading, error, req) = useRequest(
-//        requestFn = NetApi::userInfo.asSuspendNoopFn(), // Make a request directly through the WebService instance
-        requestFn = { NetApi.userInfo(it[0] as String) }, // Make a request WebService interface
-        optionsOf = {
-            defaultParams =
-                arrayOf("junerver") // Automatically requests must set default parameters
-        }
-    )
+
     ReduxProvider(
         createStore {
             { p: String, a: String -> a } with "redux"
@@ -129,8 +125,8 @@ private fun TestDeferReads() {
             }) { Text(stater.value) }
 
             Button(onClick = {
-                req()
-            }) { Text("request") }
+                setStateFnRef.current?.invoke("$stateRef+")
+            }) { Text(stateRef) }
 
             val dispatch = useDispatch<String>()
             val selector by useSelector<String>()

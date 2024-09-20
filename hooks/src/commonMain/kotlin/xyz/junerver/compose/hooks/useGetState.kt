@@ -61,6 +61,7 @@ data class GetStateHolder<T>(
     val getValue: GetValueFn<T>,
 )
 
+//region 测试代码1
 @Stable
 class GetStateController<T>(
     val default: T,
@@ -72,33 +73,47 @@ class GetStateController<T>(
         setter?.invoke(value)
     }
 
+    fun getValue(): T = getter?.invoke() ?: default
 
-    fun getValue(): T {
-        return getter?.invoke() ?: default
-    }
-
-    internal fun register(
-        setterFn: SetValueFn<T>? = null,
-        getterFn: GetValueFn<T>? = null,
-    ) {
+    internal fun register(setterFn: SetValueFn<T>? = null, getterFn: GetValueFn<T>? = null) {
         this.setter = setterFn
         this.getter = getterFn
     }
 }
 
 operator fun <T> GetStateController<T>.component1() = this::setValue
+
 operator fun <T> GetStateController<T>.component2() = this::getValue
 
 @Composable
-fun <T> useController(default: T): GetStateController<T> {
-    return  remember { GetStateController(default) }
-}
+fun <T> useController(default: T): GetStateController<T> = remember { GetStateController(default) }
 
 @Composable
 fun <T> useGetState(controller: GetStateController<T>): State<T> {
-    val (state,setter,getter) = _useGetState(controller.default)
+    val (state, setter, getter) = _useGetState(controller.default)
     useMount {
         controller.register(setter, getter)
+    }
+    return state
+}
+//endregion
+
+@Stable
+class GetStateBuilder<T> {
+    var default: T? = null
+    var setValue: MutableRef<SetValueFn<T>?>? = null
+    var getValue: MutableRef<GetValueFn<T>?>? = null
+}
+
+@Composable
+fun <T> useGetState(default: T, builder: GetStateBuilder<T>.() -> Unit): State<T> {
+    val (state, setter, getter) = _useGetState(default)
+    val holder = useCreation {
+        GetStateBuilder<T>().apply(builder)
+    }.current
+    useMount {
+        holder.setValue?.current = setter
+        holder.getValue?.current = getter
     }
     return state
 }

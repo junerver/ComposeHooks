@@ -81,8 +81,7 @@ fun useCountdown(options: CountdownOptions): CountdownHolder {
 }
 
 @Composable
-fun useCountdown(optionsOf: CountdownOptions.() -> Unit): CountdownHolder =
-    useCountdown(remember { CountdownOptions.optionOf(optionsOf) })
+fun useCountdown(optionsOf: CountdownOptions.() -> Unit): CountdownHolder = useCountdown(remember { CountdownOptions.optionOf(optionsOf) })
 
 @Stable
 private fun calcLeft(target: Instant?): Duration {
