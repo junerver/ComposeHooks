@@ -221,9 +221,7 @@ data class RequestOptions<TData> internal constructor(
 private class DebounceOptionsDelegate(
     private var configure: DebounceOptions.() -> Unit,
 ) {
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): DebounceOptions.() -> Unit {
-        return configure
-    }
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): DebounceOptions.() -> Unit = configure
 
     operator fun <TData> setValue(requestOptions: RequestOptions<TData>, property: KProperty<*>, function: DebounceOptions.() -> Unit) {
         this.configure = function
@@ -237,9 +235,7 @@ private class DebounceOptionsDelegate(
 private class ThrottleOptionsDelegate(
     private var configure: ThrottleOptions.() -> Unit,
 ) {
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): ThrottleOptions.() -> Unit {
-        return configure
-    }
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): ThrottleOptions.() -> Unit = configure
 
     operator fun <TData> setValue(requestOptions: RequestOptions<TData>, property: KProperty<*>, function: ThrottleOptions.() -> Unit) {
         this.configure = function

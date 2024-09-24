@@ -77,7 +77,7 @@ private fun MMKVPersistent() {
         )
     ) {
         val (hideKeyboard) = useKeyboard()
-        val (token, saveToken) = usePersistent(key = "token", "")
+        var token by usePersistent(key = "token", "")
         val (state, setState) = useGetState("")
         Column {
             Text(text = "MMKVPersistent : exit app will NOT lose state")
@@ -85,7 +85,7 @@ private fun MMKVPersistent() {
             OutlinedTextField(value = state.value, onValueChange = setState)
             TButton(text = "saveToken") {
                 hideKeyboard()
-                saveToken(state.value)
+                token = state.value
                 setState("")
                 println("now you can exit app,and reopen")
             }

@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import kotlin.reflect.KProperty
 import xyz.junerver.compose.hooks.utils.CacheManager
 import xyz.junerver.compose.hooks.utils.EventManager
 
@@ -33,11 +34,17 @@ private typealias SaveToPersistent<T> = (T?) -> Unit
  * [state,setState]
  */
 @Stable
-data class PersistentHookReturn<T>(
+data class PersistentHolder<T>(
     val value: T,
     val save: SaveToPersistent<T>,
     val clear: PersistentClear,
-)
+) {
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T = value
+
+    operator fun setValue(thisRef: Any?, property: KProperty<*>, newValue: T) {
+        save(newValue)
+    }
+}
 
 /**
  * By default, [CacheManager.cache] is used for memory persistence.
@@ -73,7 +80,7 @@ internal val InternalMemoryPersistentContext =
  */
 @Suppress("UNCHECKED_CAST")
 @Composable
-fun <T> usePersistent(key: String, defaultValue: T, forceUseMemory: Boolean = false): PersistentHookReturn<T> {
+fun <T> usePersistent(key: String, defaultValue: T, forceUseMemory: Boolean = false): PersistentHolder<T> {
     val (get, set, clear) = useContext(context = if (forceUseMemory) InternalMemoryPersistentContext else PersistentContext)
 
     /**
@@ -88,7 +95,7 @@ fun <T> usePersistent(key: String, defaultValue: T, forceUseMemory: Boolean = fa
     useUnmount {
         unObserver.current()
     }
-    return PersistentHookReturn(
+    return PersistentHolder(
         value = get(key, defaultValue as Any) as T,
         save = { value -> set(key, value) },
         clear = clear
