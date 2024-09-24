@@ -3,6 +3,7 @@
 package xyz.junerver.compose.hooks.userequest
 
 import androidx.compose.runtime.Stable
+import kotlin.reflect.KProperty
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
@@ -82,10 +83,15 @@ data class RequestOptions<TData> internal constructor(
     @Stable
     var pollingErrorRetryCount: Int = -1,
     /**
-     * 通过配置自动参数为wait = 0，默认不开启防抖或者节流
+     * 通过配置参数为 [DebounceOptions.wait] 开启防抖功能，默认值为0，不开启防抖
      */
+    @Deprecated("Use debounceOptionsOf instead", ReplaceWith("debounceOptionsOf"))
     @Stable
     var debounceOptions: DebounceOptions = DebounceOptions.optionOf { wait = 0.seconds },
+    /**
+     * 通过配置参数为 [ThrottleOptions.wait] 开启节流功能，默认值为0，不开启节流
+     */
+    @Deprecated("Use throttleOptionsOf instead", ReplaceWith("throttleOptionsOf"))
     @Stable
     var throttleOptions: ThrottleOptions = ThrottleOptions.optionOf { wait = 0.seconds },
     /**
@@ -147,6 +153,9 @@ data class RequestOptions<TData> internal constructor(
         }
     }
 
+    var debounceOptionsOf: DebounceOptions.() -> Unit by DebounceOptionsDelegate { wait = 0.seconds }
+    var throttleOptionsOf: ThrottleOptions.() -> Unit by ThrottleOptionsDelegate { wait = 0.seconds }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
@@ -203,5 +212,37 @@ data class RequestOptions<TData> internal constructor(
         result = 31 * result + (getCache?.hashCode() ?: 0)
         result = 31 * result + loadingDelay.hashCode()
         return result
+    }
+}
+
+/**
+ * 使用代理来实现通过函数配置防抖选项
+ */
+private class DebounceOptionsDelegate(
+    private var configure: DebounceOptions.() -> Unit,
+) {
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): DebounceOptions.() -> Unit {
+        return configure
+    }
+
+    operator fun <TData> setValue(requestOptions: RequestOptions<TData>, property: KProperty<*>, function: DebounceOptions.() -> Unit) {
+        this.configure = function
+        requestOptions.debounceOptions = DebounceOptions.optionOf(function)
+    }
+}
+
+/**
+ * 使用代理来实现通过函数配置节流选项
+ */
+private class ThrottleOptionsDelegate(
+    private var configure: ThrottleOptions.() -> Unit,
+) {
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): ThrottleOptions.() -> Unit {
+        return configure
+    }
+
+    operator fun <TData> setValue(requestOptions: RequestOptions<TData>, property: KProperty<*>, function: ThrottleOptions.() -> Unit) {
+        this.configure = function
+        requestOptions.throttleOptions = ThrottleOptions.optionOf(function)
     }
 }

@@ -77,7 +77,7 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
                      *
                      * When you configure [DebounceOptions.wait], anti-shake processing will be performed according to the set value.
                      */
-                    debounceOptions = DebounceOptions.optionOf { wait = 3.seconds }
+                    debounceOptionsOf = { wait = 3.seconds }
                 }
 
                 OptionFunc.Throttle -> runIf(isUsed) {
@@ -86,7 +86,7 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
                      *
                      * When you configure [ThrottleOptions.wait], throttling will be performed according to the set value.
                      */
-                    throttleOptions = ThrottleOptions.optionOf { wait = 3.seconds }
+                    throttleOptionsOf = { wait = 3.seconds }
                 }
             }
         }
