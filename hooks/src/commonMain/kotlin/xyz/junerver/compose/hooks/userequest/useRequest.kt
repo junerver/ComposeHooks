@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks.userequest
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlin.reflect.KFunction0
@@ -12,7 +13,6 @@ import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUnmount
 import xyz.junerver.compose.hooks.userequest.plugins.*
-import xyz.junerver.kotlin.Tuple7
 
 typealias ReqFn = VoidFunction
 typealias MutateFn<TData> = KFunction1<(TData?) -> TData, Unit>
@@ -94,7 +94,7 @@ fun <TData : Any> useRequest(
     requestFn: SuspendNormalFunction<TData>,
     options: RequestOptions<TData> = remember { RequestOptions() },
     plugins: Array<ComposablePluginGenFn<TData>> = emptyArray(),
-): Tuple7<TData?, Boolean, Throwable?, ReqFn, MutateFn<TData>, RefreshFn, CancelFn> {
+): RequestHolder<TData> {
     val customPluginsRef = useRef<Array<Plugin<TData>>>(emptyArray())
     if (customPluginsRef.current.size != plugins.size) {
         customPluginsRef.current = plugins.map {
@@ -126,14 +126,14 @@ fun <TData : Any> useRequest(
     )
 
     return with(fetch) {
-        Tuple7(
-            first = dataState.value,
-            second = loadingState.value,
-            third = errorState.value,
-            fourth = run,
-            fifth = ::mutate,
-            sixth = ::refresh,
-            seventh = ::cancel
+        RequestHolder(
+            data = dataState.value,
+            isLoading = loadingState.value,
+            error = errorState.value,
+            request = run,
+            mutate = ::mutate,
+            refresh = ::refresh,
+            cancel = ::cancel
         )
     }
 }
@@ -147,7 +147,7 @@ fun <TData : Any> useRequest(
     requestFn: SuspendNormalFunction<TData>,
     optionsOf: RequestOptions<TData>.() -> Unit = {},
     plugins: Array<ComposablePluginGenFn<TData>> = emptyArray(),
-): Tuple7<TData?, Boolean, Throwable?, ReqFn, MutateFn<TData>, RefreshFn, CancelFn> = useRequest(
+): RequestHolder<TData> = useRequest(
     requestFn,
     remember { RequestOptions.optionOf(optionsOf) }.apply(optionsOf),
     plugins
@@ -188,3 +188,14 @@ private fun <TData : Any> useRequestPluginsImpl(
 
     return fetch
 }
+
+@Stable
+data class RequestHolder<TData>(
+    val data: TData?,
+    val isLoading: Boolean,
+    val error: Throwable?,
+    val request: ReqFn,
+    val mutate: MutateFn<TData>,
+    val refresh: RefreshFn,
+    val cancel: CancelFn,
+)

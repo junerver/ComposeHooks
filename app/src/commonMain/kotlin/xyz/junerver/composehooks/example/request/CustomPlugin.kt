@@ -17,7 +17,7 @@ import xyz.junerver.compose.hooks.userequest.ReqFn
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.kotlin.Tuple8
-import xyz.junerver.kotlin.plus
+import xyz.junerver.kotlin.tuple
 
 /**
  * Description:
@@ -43,20 +43,29 @@ fun <TData : Any> useCustomPluginRequest(
     optionsOf: RequestOptions<TData>.() -> Unit = {},
 ): Tuple8<TData?, Boolean, Throwable?, ReqFn, MutateFn<TData>, RefreshFn, CancelFn, RollbackFn> {
     val rollbackRef = useRef(default = { })
-    val tuple = useRequest(
+    val requestHolder = useRequest(
         requestFn = requestFn,
         optionsOf = optionsOf,
-        arrayOf({
+        plugins = arrayOf({
             useRollbackPlugin(ref = rollbackRef)
         })
     )
-    return tuple + {
-        rollbackRef.current.invoke()
+    return with(requestHolder) {
+        tuple(
+            data,
+            isLoading,
+            error,
+            request,
+            mutate,
+            refresh,
+            cancel,
+           eighth =  { rollbackRef.current.invoke() }
+        )
     }
 }
 
 @Composable
-private fun <TData : Any> useRollbackPlugin(ref: MutableRef<() -> Unit>) = remember {
+private fun <TData : Any> useRollbackPlugin(ref: MutableRef<() -> Unit>): Plugin<TData> = remember {
     object : Plugin<TData>() {
         var pervState: FetchState<TData>? = null
 
