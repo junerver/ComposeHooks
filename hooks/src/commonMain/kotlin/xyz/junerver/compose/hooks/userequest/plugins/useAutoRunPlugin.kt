@@ -3,9 +3,18 @@ package xyz.junerver.compose.hooks.userequest.plugins
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks.TParams
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.setValue
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useRef
-import xyz.junerver.compose.hooks.userequest.*
+import xyz.junerver.compose.hooks.userequest.Fetch
+import xyz.junerver.compose.hooks.userequest.FetchState
+import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
+import xyz.junerver.compose.hooks.userequest.OnBeforeReturn
+import xyz.junerver.compose.hooks.userequest.Plugin
+import xyz.junerver.compose.hooks.userequest.PluginLifecycle
+import xyz.junerver.compose.hooks.userequest.PluginOnBefore
+import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.kotlin.Tuple5
 import xyz.junerver.kotlin.asBoolean
 import xyz.junerver.kotlin.runIf
@@ -70,8 +79,8 @@ internal fun <T : Any> useAutoRunPlugin(options: RequestOptions<T>): Plugin<T> {
     val (manual, ready, defaultParams, refreshDeps, refreshDepsAction) = with(options) {
         Tuple5(manual, ready, defaultParams, refreshDeps, refreshDepsAction)
     }
-    val hasAutoRun = useRef(default = false)
-    hasAutoRun.current = false
+    var hasAutoRun by useRef(default = false)
+    hasAutoRun = false
     val autoRunPlugin = remember {
         AutoRunPlugin<T>()
     }.apply {
@@ -82,14 +91,14 @@ internal fun <T : Any> useAutoRunPlugin(options: RequestOptions<T>): Plugin<T> {
      */
     useEffect(ready) {
         if (!manual && ready) {
-            hasAutoRun.current = true
+            hasAutoRun = true
             autoRunPlugin._run(defaultParams)
         }
     }
     useEffect(deps = refreshDeps) block@{
-        if (hasAutoRun.current) return@block
+        if (hasAutoRun) return@block
         if (!manual) {
-            hasAutoRun.current = true
+            hasAutoRun = true
             if (refreshDepsAction.asBoolean()) {
                 refreshDepsAction.invoke()
             } else {

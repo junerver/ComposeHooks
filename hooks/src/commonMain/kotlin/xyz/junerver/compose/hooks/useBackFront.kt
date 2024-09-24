@@ -26,13 +26,13 @@ import xyz.junerver.compose.hooks.utils.unwrap
 
 @Composable
 fun useBackToFrontEffect(vararg deps: Any?, effect: () -> Unit) {
-    val inBackgroundRef = useRef(default = false)
+    var inBackgroundRef by useRef(default = false)
     LifecycleResumeEffect(keys = unwrap(deps)) {
-        if (inBackgroundRef.current) {
+        if (inBackgroundRef) {
             effect()
-            inBackgroundRef.current = false
+            inBackgroundRef = false
         }
-        onPauseOrDispose { inBackgroundRef.current = true }
+        onPauseOrDispose { inBackgroundRef = true }
     }
 }
 
@@ -47,14 +47,14 @@ fun useBackToFrontEffect(vararg deps: Any?, effect: () -> Unit) {
 
 @Composable
 fun useFrontToBackEffect(vararg deps: Any?, effect: () -> Unit) {
-    val inBackgroundRef = useRef(default = false)
+    var inBackgroundRef by useRef(default = false)
     LifecycleResumeEffect(keys = unwrap(deps)) {
-        if (inBackgroundRef.current) {
-            inBackgroundRef.current = false
+        if (inBackgroundRef) {
+            inBackgroundRef = false
         }
         onPauseOrDispose {
             effect()
-            inBackgroundRef.current = true
+            inBackgroundRef = true
         }
     }
 }

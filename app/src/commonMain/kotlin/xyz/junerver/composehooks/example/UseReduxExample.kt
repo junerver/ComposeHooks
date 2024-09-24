@@ -22,6 +22,8 @@ import kotlinx.collections.immutable.plus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import xyz.junerver.compose.hooks.Reducer
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.setValue
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useMount
 import xyz.junerver.compose.hooks.useRef
@@ -326,7 +328,7 @@ private fun <T> useFetchAliasFetch(
 ): Tuple2<NetFetchResult<T>, () -> Unit> {
     val fetchResult: NetFetchResult<T> by useSelector(alias)
     val dispatchFetch = useFetch<T>(alias)
-    val retryCount = useRef(errorRetry)
+    var retryCount by useRef(errorRetry)
     val fetch = {
         dispatchFetch(block)
     }
@@ -337,9 +339,9 @@ private fun <T> useFetchAliasFetch(
     // 错误重试
     when (fetchResult) {
         is NetFetchResult.Error -> {
-            if (retryCount.current > 0) {
+            if (retryCount > 0) {
                 fetch()
-                retryCount.current--
+                retryCount -= 1
             }
         }
 

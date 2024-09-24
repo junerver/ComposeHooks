@@ -15,6 +15,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.setValue
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useCountdown
 import xyz.junerver.compose.hooks.useGetState
@@ -54,7 +56,7 @@ private fun TestDeferReads() {
     var byState by useState("delegate:")
     val (state, setState, getState) = useGetState("getState:")
     val (reducerState, reducerDispatch) = useReducer({ p: String, a: String -> a }, "reducer:")
-    val ref = useRef(10)
+    var ref by useRef(10)
     val (leftTime, formattedRes) = useCountdown(
         optionsOf = {
             leftTime = 10.seconds
@@ -66,7 +68,7 @@ private fun TestDeferReads() {
     }, ready.value) {
         reducerDispatch(reducerState.value + "3")
         byState += "1"
-        ref.current -= 1
+        ref -= 1
     }
 
     ReduxProvider(
@@ -94,7 +96,7 @@ private fun TestDeferReads() {
             Button(onClick = {
                 dispatch(selector + "4")
             }) { Text(selector) }
-            Text("current ref : ${ref.current}")
+            Text("current ref : $ref")
             SimpleContainer { Text(text = "LeftTime: ${leftTime.value.inWholeSeconds}") }
             SimpleContainer { Text(text = formattedRes.value.toString()) }
         }

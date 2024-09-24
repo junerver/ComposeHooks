@@ -5,6 +5,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import kotlin.random.Random
+import xyz.junerver.compose.hooks.getValue
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUpdate
@@ -30,15 +31,15 @@ fun UseCreationExample() {
      *
      * When the component is refreshed, [useRef] will create a one-time instance, which may cause some performance issues;
      */
-    val ref = useRef(default = Subject("useRef${Random.nextDouble()}"))
-    val creRef = useCreation {
+    val ref by useRef(default = Subject("useRef${Random.nextDouble()}"))
+    val creRef by useCreation {
         Subject("useCreation${Random.nextDouble()}")
     }
     val update = useUpdate()
     Surface {
         Column {
-            Text(text = ref.current.flag)
-            Text(text = creRef.current.flag)
+            Text(text = ref.flag)
+            Text(text = creRef.flag)
             TButton(text = "update and see log") {
                 update()
             }

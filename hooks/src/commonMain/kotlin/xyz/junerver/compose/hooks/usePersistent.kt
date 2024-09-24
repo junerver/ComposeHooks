@@ -87,13 +87,13 @@ fun <T> usePersistent(key: String, defaultValue: T, forceUseMemory: Boolean = fa
      * Register an observer callback for each component that uses this state,
      * and notify the update component when this storage changes;
      */
-    val unObserver = useRef(default = {})
+    var unObserver by useRef(default = {})
     val update = useUpdate()
     useMount {
-        unObserver.current = memoryAddObserver(key) { update() }
+        unObserver = memoryAddObserver(key) { update() }
     }
     useUnmount {
-        unObserver.current()
+        unObserver()
     }
     return PersistentHolder(
         value = get(key, defaultValue as Any) as T,

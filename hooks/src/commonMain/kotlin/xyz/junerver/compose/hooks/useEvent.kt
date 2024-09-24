@@ -64,14 +64,14 @@ import xyz.junerver.compose.hooks.utils.EventManager
 @Composable
 inline fun <reified T : Any> useEventSubscribe(noinline subscriber: (T) -> Unit) {
     val latest by useLatestState(subscriber)
-    val unSubscribeRef = useRef<(() -> Unit)?>(null)
+    var unSubscribeRef by useRef<(() -> Unit)?>(null)
 
     useMount {
-        unSubscribeRef.current = EventManager.register(T::class, latest)
+        unSubscribeRef = EventManager.register(T::class, latest)
     }
 
     useUnmount {
-        unSubscribeRef.current?.invoke()
+        unSubscribeRef?.invoke()
     }
 }
 
@@ -98,14 +98,14 @@ inline fun <reified T : Any> useEventPublish(): (T) -> Unit = remember {
 @Composable
 internal fun <T> useEventSubscribe(alias: String, subscriber: (T?) -> Unit) {
     val latest by useLatestState(subscriber)
-    val unSubscribeRef = useRef<(() -> Unit)?>(null)
+    var unSubscribeRef by useRef<(() -> Unit)?>(null)
 
     useMount {
-        unSubscribeRef.current = EventManager.register(alias, latest)
+        unSubscribeRef = EventManager.register(alias, latest)
     }
 
     useUnmount {
-        unSubscribeRef.current?.invoke()
+        unSubscribeRef?.invoke()
     }
 }
 

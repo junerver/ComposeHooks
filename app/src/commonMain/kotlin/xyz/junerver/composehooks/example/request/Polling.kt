@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.setValue
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useEventPublish
 import xyz.junerver.compose.hooks.useEventSubscribe
@@ -54,7 +56,7 @@ fun Polling() {
 @Composable
 fun Sub(isPollingWhenHidden: Boolean = false) {
     // By using `useRef` the count is not lost even when the screen is rotated
-    val countRef = useRef(default = 0)
+    var countRef by useRef(default = 0)
     val update = useUpdate()
     val post = useEventPublish<Int>()
     val (userInfo, loading) = useRequest(
@@ -64,14 +66,14 @@ fun Sub(isPollingWhenHidden: Boolean = false) {
             pollingInterval = 3.seconds
             pollingWhenHidden = isPollingWhenHidden
             onSuccess = { _, _ ->
-                countRef.current += 1
-                post(countRef.current)
+                countRef += 1
+                post(countRef)
                 update()
             }
         }
     )
     Column(modifier = Modifier.height(100.dp)) {
-        Text(text = "Polling when hidden: $isPollingWhenHidden count: ${countRef.current}")
+        Text(text = "Polling when hidden: $isPollingWhenHidden count: $countRef")
         Spacer(modifier = Modifier.height(20.dp))
         if (loading) {
             Text(text = "Loading ...")

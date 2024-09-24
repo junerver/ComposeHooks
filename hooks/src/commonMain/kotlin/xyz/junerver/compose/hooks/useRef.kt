@@ -6,6 +6,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import kotlin.properties.Delegates
+import kotlin.reflect.KProperty
 
 /*
   Description: [useRef]可以方便的创建一个不受重组影响的对象引用。另外，它不同于[rememberUpdatedState]
@@ -17,6 +18,22 @@ import kotlin.properties.Delegates
 */
 
 private typealias Observer<T> = (T) -> Unit
+
+/**
+ * Read-only Ref interface
+ *
+ * @param T
+ */
+@Stable
+sealed interface Ref<T> {
+    val current: T
+
+    fun observe(observer: Observer<T>) {}
+
+    fun removeObserver(observer: Observer<T>) {}
+}
+
+operator fun <T> Ref<T>.getValue(thisObj: Any?, property: KProperty<*>): T = current
 
 /**
  * Mutable ref
@@ -50,18 +67,8 @@ class MutableRef<T>(initialValue: T) : Ref<T> {
     }
 }
 
-/**
- * Read-only Ref interface
- *
- * @param T
- */
-@Stable
-sealed interface Ref<T> {
-    val current: T
-
-    fun observe(observer: Observer<T>) {}
-
-    fun removeObserver(observer: Observer<T>) {}
+operator fun <T> MutableRef<T>.setValue(thisObj: Any?, property: KProperty<*>, value: T) {
+    this.current = value
 }
 
 @Composable

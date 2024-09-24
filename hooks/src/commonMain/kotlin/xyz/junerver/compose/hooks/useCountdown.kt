@@ -56,8 +56,8 @@ fun useCountdown(options: CountdownOptions): CountdownHolder {
     }.current
 
     val (timeLeft, setTimeLeft) = useGetState(calcLeft(target))
-    val onEndRef = useLatestRef(value = onEnd)
-    val pauseRef = useRef(default = {})
+    val onEndRef by useLatestRef(value = onEnd)
+    var pauseRef by useRef(default = {})
     val (resume, pause) = useInterval(
         optionsOf = {
             period = interval
@@ -66,11 +66,11 @@ fun useCountdown(options: CountdownOptions): CountdownHolder {
         val targetLeft = calcLeft(target)
         setTimeLeft(targetLeft)
         if (targetLeft == 0.seconds) {
-            pauseRef.current()
-            onEndRef.current?.invoke()
+            pauseRef()
+            onEndRef?.invoke()
         }
     }
-    pauseRef.current = pause
+    pauseRef = pause
     useEffect(interval) {
         if (!target.asBoolean()) {
             setTimeLeft(0.seconds)

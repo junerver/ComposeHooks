@@ -33,6 +33,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.time.Duration.Companion.seconds
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.setValue
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useGetState
@@ -79,7 +81,7 @@ fun UseIntervalExample() {
 private fun Manual() {
     // if you prefer to this usage, use `useGetState`
     val (countDown, setCountDown, getCountDown) = useGetState(60)
-    val ref = useRef(10)
+    var ref by useRef(10)
     val (resume, pause, isActive) = useInterval(
         optionsOf = {
             initialDelay = 2.seconds
@@ -87,7 +89,7 @@ private fun Manual() {
         }
     ) {
         setCountDown(getCountDown() - 1)
-        ref.current -= 1
+        ref -= 1
     }
     useEffect(countDown) {
         if (getCountDown() == 0) pause()
@@ -106,7 +108,7 @@ private fun Manual() {
 
         TButton(text = "resume", onClick = { resume() })
         TButton(text = "pause", onClick = { pause() })
-        Text(text = "current ref: ${ref.current}")
+        Text(text = "current ref: $ref")
     }
 }
 
@@ -114,7 +116,7 @@ private fun Manual() {
 private fun ByReady() {
     val (countDown, setCountDown) = useGetState(60)
     val (isReady, toggle, setReady) = useBoolean(true)
-    val ref = useRef(10)
+    var ref by useRef(10)
     useInterval(
         optionsOf = {
             initialDelay = 2.seconds
@@ -123,7 +125,7 @@ private fun ByReady() {
         ready = isReady.value
     ) {
         setCountDown(countDown.value - 1)
-        ref.current -= 1
+        ref -= 1
     }
     useEffect(countDown) {
         if (countDown.value == 0) setReady(false)
@@ -138,7 +140,7 @@ private fun ByReady() {
         }
 
         TButton(text = "toggle Ready", onClick = { toggle() })
-        Text(text = "current ref: ${ref.current}")
+        Text(text = "current ref: $ref")
     }
 }
 

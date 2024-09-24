@@ -12,10 +12,10 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun useUpdateEffect(vararg deps: Any?, block: SuspendAsyncFn) {
-    val isMounted = useRef(false)
+    var isMounted by useRef(false)
     useEffect(*deps) {
-        if (!isMounted.current) {
-            isMounted.current = true
+        if (!isMounted) {
+            isMounted = true
         } else {
             block()
         }

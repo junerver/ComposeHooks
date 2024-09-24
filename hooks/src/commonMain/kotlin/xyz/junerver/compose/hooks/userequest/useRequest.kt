@@ -9,6 +9,8 @@ import kotlin.reflect.KFunction1
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.VoidFunction
 import xyz.junerver.compose.hooks._useGetState
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.setValue
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUnmount
@@ -95,9 +97,9 @@ fun <TData : Any> useRequest(
     options: RequestOptions<TData> = remember { RequestOptions() },
     plugins: Array<ComposablePluginGenFn<TData>> = emptyArray(),
 ): RequestHolder<TData> {
-    val customPluginsRef = useRef<Array<Plugin<TData>>>(emptyArray())
-    if (customPluginsRef.current.size != plugins.size) {
-        customPluginsRef.current = plugins.map {
+    var customPluginsRef by useRef<Array<Plugin<TData>>>(emptyArray())
+    if (customPluginsRef.size != plugins.size) {
+        customPluginsRef = plugins.map {
             it(options)
         }.toTypedArray()
     }
@@ -108,8 +110,8 @@ fun <TData : Any> useRequest(
     val buildInAutoRunPlugin = useAutoRunPlugin(options)
     val buildInCachePlugin = useCachePlugin(options)
     val buildInRetryPlugin = useRetryPlugin(options)
-    val allPlugins = useCreation(*plugins) {
-        customPluginsRef.current + arrayOf(
+    val allPlugins by useCreation(*plugins) {
+        customPluginsRef + arrayOf(
             buildInDebouncePlugin,
             buildInLoadingDelayPlugin,
             buildInPollingPlugin,
@@ -122,7 +124,7 @@ fun <TData : Any> useRequest(
     val fetch = useRequestPluginsImpl(
         requestFn,
         options,
-        allPlugins.current
+        allPlugins
     )
 
     return with(fetch) {
