@@ -25,6 +25,7 @@ fun mmkvGet(key: String, value: Any): Any = storeDelegate.readData(key, value)
 
 fun mmkvClear(key: String) {
     storeDelegate.remove(key)
+    notifyDefaultPersistentObserver(key)
 }
 
 expect fun getKVDelegate(): KeyValueStoreDelegate

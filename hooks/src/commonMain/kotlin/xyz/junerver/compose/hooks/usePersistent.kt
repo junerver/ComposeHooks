@@ -2,6 +2,8 @@ package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 import kotlin.reflect.KProperty
 import xyz.junerver.compose.hooks.utils.CacheManager
 import xyz.junerver.compose.hooks.utils.EventManager
@@ -26,6 +28,8 @@ private typealias PersistentSave = (String, Any?) -> Unit
 /** Perform clear persistent by pass key */
 private typealias PersistentClear = (String) -> Unit
 
+private typealias HookClear = () -> Unit
+
 /** Perform persistent save */
 private typealias SaveToPersistent<T> = (T?) -> Unit
 
@@ -35,11 +39,11 @@ private typealias SaveToPersistent<T> = (T?) -> Unit
  */
 @Stable
 data class PersistentHolder<T>(
-    val value: T,
+    val state: State<T>,
     val save: SaveToPersistent<T>,
-    val clear: PersistentClear,
+    val clear: HookClear,
 ) {
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): T = value
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): T = state.value
 
     operator fun setValue(thisRef: Any?, property: KProperty<*>, newValue: T) {
         save(newValue)
@@ -51,7 +55,7 @@ data class PersistentHolder<T>(
  * [usePersistent] is a lightweight encapsulation, you need to provide your
  * own persistence solution globally through `PersistentContext.Provider`;
  */
-val PersistentContext =
+val PersistentContext by lazy {
     createContext<Triple<PersistentGet, PersistentSave, PersistentClear>>(
         Triple(
             ::memoryGetPersistent,
@@ -59,8 +63,9 @@ val PersistentContext =
             ::memoryClearPersistent
         )
     )
+}
 
-internal val InternalMemoryPersistentContext =
+internal val InternalMemoryPersistentContext by lazy {
     createContext<Triple<PersistentGet, PersistentSave, PersistentClear>>(
         Triple(
             ::memoryGetPersistent,
@@ -68,6 +73,7 @@ internal val InternalMemoryPersistentContext =
             ::memoryClearPersistent
         )
     )
+}
 
 /**
  * Use persistent
@@ -82,24 +88,29 @@ internal val InternalMemoryPersistentContext =
 @Composable
 fun <T> usePersistent(key: String, defaultValue: T, forceUseMemory: Boolean = false): PersistentHolder<T> {
     val (get, set, clear) = useContext(context = if (forceUseMemory) InternalMemoryPersistentContext else PersistentContext)
+    val getValue = { get(key, defaultValue as Any) as T }
+    val state = _useState(getValue())
 
     /**
      * Register an observer callback for each component that uses this state,
      * and notify the update component when this storage changes;
      */
     var unObserver by useRef(default = {})
-    val update = useUpdate()
     useMount {
-        unObserver = memoryAddObserver(key) { update() }
+        unObserver = memoryAddObserver(key) {
+            state.value = getValue()
+        }
     }
     useUnmount {
         unObserver()
     }
-    return PersistentHolder(
-        value = get(key, defaultValue as Any) as T,
-        save = { value -> set(key, value) },
-        clear = clear
-    )
+    return remember {
+        PersistentHolder(
+            state = state,
+            save = { value -> set(key, value) },
+            clear = { clear(key) }
+        )
+    }
 }
 
 /** Callback function when performing persistence operation */
@@ -122,6 +133,7 @@ private fun memoryGetPersistent(key: String, defaultValue: Any): Any = CacheMana
 
 private fun memoryClearPersistent(key: String) {
     CacheManager.clearCache(key.persistentKey)
+    notifyDefaultPersistentObserver(key)
 }
 
 private fun memoryAddObserver(key: String, observer: SavePersistentCallback): () -> Unit =

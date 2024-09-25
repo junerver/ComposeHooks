@@ -3,7 +3,6 @@ package xyz.junerver.compose.hooks
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlin.properties.Delegates
@@ -143,5 +142,5 @@ fun useInterval(optionsOf: IntervalOptions.() -> Unit, ready: Boolean, block: ()
 data class IntervalHolder(
     val resume: ResumeFn,
     val pause: PauseFn,
-    val isActive: State<IsActive>,
+    val isActive: IsActive,
 )

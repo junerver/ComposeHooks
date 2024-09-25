@@ -105,7 +105,7 @@ data class TimestampHolder(
     val state: State<Long>,
     val pause: PauseFn,
     val resume: ResumeFn,
-    val isActive: State<IsActive>,
+    val isActive: IsActive,
 )
 
 @Stable
@@ -113,5 +113,5 @@ data class TimestampRefHolder(
     val ref: Ref<Long>,
     val pause: PauseFn,
     val resume: ResumeFn,
-    val isActive: State<IsActive>,
+    val isActive: IsActive,
 )

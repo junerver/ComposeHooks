@@ -34,7 +34,7 @@ internal typealias ComposeComponent = @Composable () -> Unit
 
 internal typealias PauseFn = () -> Unit
 internal typealias ResumeFn = () -> Unit
-internal typealias IsActive = Boolean
+internal typealias IsActive = State<Boolean>
 
 internal typealias ToggleFn = () -> Unit
 
@@ -54,7 +54,7 @@ internal typealias DecFn = (Int) -> Unit
 // useDisableScreenshot
 internal typealias DisableFn = () -> Unit
 internal typealias EnableFn = () -> Unit
-internal typealias IsDisabled = Boolean
+internal typealias IsDisabled = State<Boolean>
 
 // useFlashlight
 internal typealias TurnOnFn = () -> Unit
@@ -71,7 +71,7 @@ internal typealias SetFalseFn = () -> Unit
 // useWindowFlag
 internal typealias AddFlagsFn = () -> Unit
 internal typealias ClearFlagsFn = () -> Unit
-internal typealias IsFlagsAdded = Boolean
+internal typealias IsFlagsAdded = State<Boolean>
 
 // useUndo
 internal typealias ResetValueFn<T> = (T) -> Unit

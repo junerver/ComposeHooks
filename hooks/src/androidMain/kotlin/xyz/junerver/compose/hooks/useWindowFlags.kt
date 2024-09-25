@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks
 
 import android.app.Activity
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import xyz.junerver.kotlin.Tuple3
 
@@ -33,9 +34,11 @@ fun useWindowFlags(key: String, flags: Int): Tuple3<AddFlagsFn, ClearFlagsFn, Is
         setIsAdded(false)
     }
 
-    return Tuple3(
-        ::addFlags,
-        ::clearFlags,
-        isAdded
-    )
+    return remember {
+        Tuple3(
+            ::addFlags,
+            ::clearFlags,
+            isAdded
+        )
+    }
 }
