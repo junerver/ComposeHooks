@@ -26,7 +26,7 @@ import xyz.junerver.kotlin.tuple
   Version: v1.0
 */
 
-internal val FormContext = createContext(FormInstance())
+internal val FormContext by lazy { createContext(FormInstance()) }
 
 /**
  * Headless Form Component

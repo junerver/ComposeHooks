@@ -12,7 +12,8 @@ import xyz.junerver.kotlin.Tuple3
 import xyz.junerver.kotlin.plus
 
 /** Redux context */
-val ReduxContext =
+@PublishedApi
+internal val ReduxContext by lazy {
     createContext<
         Tuple3<
             Map<KClass<*>, Any>, // state map
@@ -20,6 +21,7 @@ val ReduxContext =
             Map<String, Tuple2<Any, Dispatch<Any>>> // alias map
         >
     >(Tuple3(mapOf(), mapOf(), mapOf()))
+}
 
 /**
  * Redux provider, you should provide a state store to this Provider by use [createStore]

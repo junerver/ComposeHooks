@@ -23,7 +23,7 @@ data class NetworkState(
     val connectType: ConnectType = ConnectType.None,
 )
 
-val NetworkContext = createContext(NetworkState())
+val NetworkContext by lazy { createContext(NetworkState()) }
 
 /**
  * 直接到处使用该hook会导致大量的监听器回调创建，虽影响不大，但是更建议使用
