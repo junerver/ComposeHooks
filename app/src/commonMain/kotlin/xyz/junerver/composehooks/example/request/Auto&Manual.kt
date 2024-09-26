@@ -18,7 +18,7 @@ import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.TButton
-import xyz.junerver.kotlin.asBoolean
+import xyz.junerver.compose.hooks.utils.asBoolean
 
 /*
   Description:

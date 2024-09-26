@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.*
 import xyz.junerver.composehooks.ui.component.TButton
-import xyz.junerver.kotlin.tuple
 
 /*
   Description: 使用[useContext]可以避免复杂的状态提升，状态由父组件通过[ReactContext.Provider]提供，子组件无论嵌套多少级，都可以使用[useContext]轻松获取上下文
@@ -46,6 +45,9 @@ fun UseContextExample() {
     SimpleContext.Provider(
         value = tuple(
             state,
+            /**
+             * 不建议直接将[dispatch]传递给[Provider]
+             */
             /**
              * 不建议直接将[dispatch]传递给[Provider]
              */

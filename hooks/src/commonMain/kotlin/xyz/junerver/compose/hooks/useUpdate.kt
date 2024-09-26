@@ -3,7 +3,6 @@ package xyz.junerver.compose.hooks
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import xyz.junerver.kotlin.Single
 
 /*
   Description:

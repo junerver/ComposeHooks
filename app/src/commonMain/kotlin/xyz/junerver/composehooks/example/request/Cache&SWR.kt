@@ -24,7 +24,7 @@ import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.compose.hooks.userequest.utils.clearCache
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.composehooks.utils.NanoId
-import xyz.junerver.kotlin.asBoolean
+import xyz.junerver.compose.hooks.utils.asBoolean
 
 /*
   Description:

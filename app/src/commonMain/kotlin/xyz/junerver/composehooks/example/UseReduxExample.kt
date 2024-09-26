@@ -22,8 +22,10 @@ import kotlinx.collections.immutable.plus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import xyz.junerver.compose.hooks.Reducer
+import xyz.junerver.compose.hooks.Tuple2
 import xyz.junerver.compose.hooks.getValue
 import xyz.junerver.compose.hooks.setValue
+import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useMount
 import xyz.junerver.compose.hooks.useRef
@@ -35,8 +37,6 @@ import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.net.bean.UserInfo
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.composehooks.utils.NanoId
-import xyz.junerver.kotlin.Tuple2
-import xyz.junerver.kotlin.tuple
 
 data class Todo(val name: String, val id: String)
 

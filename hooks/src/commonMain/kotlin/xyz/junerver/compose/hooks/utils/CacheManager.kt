@@ -3,13 +3,16 @@ package xyz.junerver.compose.hooks.utils
 import kotlin.coroutines.CoroutineContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import xyz.junerver.compose.hooks.cacheKey
+import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
-import xyz.junerver.kotlin.asBoolean
-import xyz.junerver.kotlin.runIf
-import xyz.junerver.kotlin.tuple
 
 /*
   Description:

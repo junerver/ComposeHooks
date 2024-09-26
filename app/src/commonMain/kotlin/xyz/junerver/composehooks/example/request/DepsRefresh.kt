@@ -8,7 +8,7 @@ import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.TButton
-import xyz.junerver.kotlin.asBoolean
+import xyz.junerver.compose.hooks.utils.asBoolean
 
 /**
  * Description: 当你某个请求发起后需要刷新另一个请求时这会很有用

@@ -16,7 +16,7 @@ import xyz.junerver.compose.hooks.userequest.PluginOnError
 import xyz.junerver.compose.hooks.userequest.PluginOnSuccess
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
-import xyz.junerver.kotlin.asBoolean
+import xyz.junerver.compose.hooks.utils.asBoolean
 
 /*
   Description:

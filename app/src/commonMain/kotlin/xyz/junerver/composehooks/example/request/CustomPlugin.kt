@@ -3,6 +3,8 @@ package xyz.junerver.composehooks.example.request
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks.MutableRef
+import xyz.junerver.compose.hooks.Tuple8
+import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.userequest.CancelFn
 import xyz.junerver.compose.hooks.userequest.Fetch
@@ -16,8 +18,6 @@ import xyz.junerver.compose.hooks.userequest.RefreshFn
 import xyz.junerver.compose.hooks.userequest.ReqFn
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
-import xyz.junerver.kotlin.Tuple8
-import xyz.junerver.kotlin.tuple
 
 /**
  * Description:

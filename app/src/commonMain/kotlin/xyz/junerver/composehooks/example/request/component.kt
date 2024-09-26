@@ -14,8 +14,7 @@ import xyz.junerver.compose.hooks.*
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.TButton
-import xyz.junerver.kotlin.asBoolean
-import xyz.junerver.kotlin.runIf
+import xyz.junerver.compose.hooks.utils.asBoolean
 
 /*
   Description:
@@ -59,7 +58,7 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
         optionsOf = {
             defaultParams = arrayOf("junerver")
             when (optionFunc) {
-                OptionFunc.LoadingDelay -> runIf(isUsed) {
+                OptionFunc.LoadingDelay -> run {
                     /**
                      * 当你配置了[loadingDelay]，如果请求在这个时间之内返回就不会引起loading的变化，
                      * 这可以避免闪烁，适用于接口较为快速返回的场景。
@@ -68,25 +67,25 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
                      * This can avoid flickering and is suitable for scenarios
                      * where the interface returns quickly.
                      */
-                    loadingDelay = 1.seconds
+                    if(isUsed) loadingDelay = 1.seconds
                 }
 
-                OptionFunc.Debounce -> runIf(isUsed) {
+                OptionFunc.Debounce -> run {
                     /**
                      * 当你配置了[DebounceOptions.wait]，会按照设置值进行防抖处理
                      *
                      * When you configure [DebounceOptions.wait], anti-shake processing will be performed according to the set value.
                      */
-                    debounceOptionsOf = { wait = 3.seconds }
+                    if(isUsed) debounceOptionsOf = { wait = 3.seconds }
                 }
 
-                OptionFunc.Throttle -> runIf(isUsed) {
+                OptionFunc.Throttle -> run {
                     /**
                      * 当你配置了[ThrottleOptions.wait]，会按照设置值进行节流处理
                      *
                      * When you configure [ThrottleOptions.wait], throttling will be performed according to the set value.
                      */
-                    throttleOptionsOf = { wait = 3.seconds }
+                    if(isUsed) throttleOptionsOf = { wait = 3.seconds }
                 }
             }
         }

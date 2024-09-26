@@ -14,7 +14,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.datetime.Clock
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.userequest.useRequest
-import xyz.junerver.kotlin.asBoolean
+import xyz.junerver.compose.hooks.utils.asBoolean
 
 /*
   Description:

@@ -10,7 +10,7 @@ import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.userequest.plugins.useAutoRunPlugin
 import xyz.junerver.compose.hooks.userequest.plugins.useDebouncePlugin
-import xyz.junerver.kotlin.isNotNull
+import xyz.junerver.compose.hooks.utils.isNotNull
 
 /*
   Description: Types

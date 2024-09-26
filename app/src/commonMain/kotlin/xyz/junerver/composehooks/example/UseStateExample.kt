@@ -17,13 +17,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
+import xyz.junerver.compose.hooks.Tuple2
 import xyz.junerver.compose.hooks._useState
+import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.composehooks.ui.component.TButton
-import xyz.junerver.kotlin.Tuple2
-import xyz.junerver.kotlin.tuple
 
 /*
   Description: [useState]can make controlled components easier to create

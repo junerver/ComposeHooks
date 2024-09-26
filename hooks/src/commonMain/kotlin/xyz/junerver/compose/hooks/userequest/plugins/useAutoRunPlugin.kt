@@ -3,6 +3,7 @@ package xyz.junerver.compose.hooks.userequest.plugins
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks.TParams
+import xyz.junerver.compose.hooks.Tuple5
 import xyz.junerver.compose.hooks.getValue
 import xyz.junerver.compose.hooks.setValue
 import xyz.junerver.compose.hooks.useEffect
@@ -15,9 +16,8 @@ import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.PluginLifecycle
 import xyz.junerver.compose.hooks.userequest.PluginOnBefore
 import xyz.junerver.compose.hooks.userequest.RequestOptions
-import xyz.junerver.kotlin.Tuple5
-import xyz.junerver.kotlin.asBoolean
-import xyz.junerver.kotlin.runIf
+import xyz.junerver.compose.hooks.utils.asBoolean
+import xyz.junerver.compose.hooks.utils.runIf
 
 /*
   Description:

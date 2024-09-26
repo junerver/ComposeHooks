@@ -3,7 +3,7 @@ package xyz.junerver.compose.hooks.useform
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import xyz.junerver.compose.hooks.Ref
-import xyz.junerver.kotlin.then
+import xyz.junerver.compose.hooks.utils.then
 
 /*
   Description:

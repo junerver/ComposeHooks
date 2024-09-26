@@ -9,6 +9,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import xyz.junerver.compose.hooks.MutableRef
 import xyz.junerver.compose.hooks.TParams
+import xyz.junerver.compose.hooks.Tuple4
+import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUnmount
 import xyz.junerver.compose.hooks.useUpdateEffect
@@ -33,11 +35,9 @@ import xyz.junerver.compose.hooks.userequest.utils.setCacheDeferred
 import xyz.junerver.compose.hooks.userequest.utils.subscribe
 import xyz.junerver.compose.hooks.userequest.utils.trigger
 import xyz.junerver.compose.hooks.utils.CacheManager
+import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.compose.hooks.utils.currentTime
-import xyz.junerver.kotlin.Tuple4
-import xyz.junerver.kotlin.asBoolean
-import xyz.junerver.kotlin.isNotNull
-import xyz.junerver.kotlin.tuple
+import xyz.junerver.compose.hooks.utils.isNotNull
 
 /*
   Description:

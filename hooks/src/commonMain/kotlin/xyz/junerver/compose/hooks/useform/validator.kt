@@ -1,9 +1,9 @@
 package xyz.junerver.compose.hooks.useform
 
-import xyz.junerver.kotlin.asBoolean
-import xyz.junerver.kotlin.isEmail
-import xyz.junerver.kotlin.isMobile
-import xyz.junerver.kotlin.isPhone
+import xyz.junerver.compose.hooks.utils.asBoolean
+import xyz.junerver.compose.hooks.utils.isEmail
+import xyz.junerver.compose.hooks.utils.isMobile
+import xyz.junerver.compose.hooks.utils.isPhone
 
 private const val EMAIL_MESSAGE = "invalid email address"
 private const val PHONE_MESSAGE = "invalid phone number"

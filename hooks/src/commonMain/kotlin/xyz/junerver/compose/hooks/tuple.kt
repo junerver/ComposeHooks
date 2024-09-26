@@ -1,4 +1,4 @@
-package xyz.junerver.kotlin
+package xyz.junerver.compose.hooks
 
 //region 类型别名，不应该用这个名称
 typealias Tuple0 = None
