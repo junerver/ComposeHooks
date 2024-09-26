@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.Ref
 import xyz.junerver.compose.hooks.observeAsState
+import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUpdate
 import xyz.junerver.composehooks.ui.component.TButton
@@ -25,13 +26,17 @@ import xyz.junerver.composehooks.ui.component.TButton
 */
 @Composable
 fun UseRefExample() {
-    val countRef = useRef(0)
+    val countRef = useRef("0")
     val update = useUpdate()
+    // 监听ref执行副作用
+    useEffect(countRef) {
+        println("ref change: ${countRef.current}")
+    }
     Surface {
         Column {
             Text(text = "ref : ${countRef.current}")
             TButton(text = "+1") {
-                countRef.current += 1
+                countRef.current += "1"
             }
             TButton(text = "force update") {
                 update()
@@ -57,7 +62,7 @@ fun UseRefExample() {
  * @param ref Refs exposed to subcomponents should be read-only [Ref] to avoid modifications by subcomponents [Ref.current]
  */
 @Composable
-private fun SubRef(ref: Ref<Int>) {
+private fun SubRef(ref: Ref<String>) {
     val refState by ref.observeAsState()
     Text(text = "parent's Ref is : $refState")
 }

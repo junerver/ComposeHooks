@@ -6,6 +6,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useGetState
+import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -20,18 +21,32 @@ fun UseEffectExample() {
 //    val ctx = LocalContext.current
     useEffect {
         // just like [useMount]
+        println("no dependencies are set, only execute once")
     }
 
     val (state, setState, getState) = useGetState(0)
     useEffect(state) {
-        // when deps change this block will executed
-        println("useEffect deps change")
+        // when deps change this block will execute
+        println("useEffect: state deps change")
     }
+
+    val ref = useRef(0)
+
+    useEffect(ref) {
+        // when deps change this block will execute
+        println("useEffect: ref deps change")
+    }
+
     Surface {
         Column {
-            Text("deps: ${getState()}")
+            Text("state deps: ${getState()}")
             TButton(text = "+1") {
                 setState(state.value + 1)
+            }
+
+            Text("ref deps: ${ref.current}")
+            TButton(text = "ref +1") {
+                ref.current += 1
             }
         }
     }

@@ -1,9 +1,12 @@
 package xyz.junerver.compose.hooks.utils
 
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.observeAsState
+import xyz.junerver.compose.hooks.useEffect
 
 /*
   Description:
@@ -16,10 +19,17 @@ import xyz.junerver.compose.hooks.Ref
 internal val currentTime: Instant
     get() = Clock.System.now()
 
-internal fun unwrap(deps: Array<out Any?>) = deps.map {
+/**
+ * 直接使用[State]、[Ref] 作为依赖项无法触发副作用闭包执行，只有状态值、props入参变化才能正常触发，
+ * 所以需要执行解包装操作，简化对副作用使用时的心智负担。
+ *
+ * 注意：只能监听 [Ref] 实例，如果你使用 `by` 关键字进行了对 [Ref] 的委托，将无法通过 [useEffect] 监听。
+ */
+@Composable
+internal inline fun unwrap(deps: Array<out Any?>) = deps.map {
     when (it) {
         is State<*> -> it.value
-        is Ref<*> -> it.current
+        is Ref<*> -> it.observeAsState().value
         else -> it
     }
 }.toTypedArray()

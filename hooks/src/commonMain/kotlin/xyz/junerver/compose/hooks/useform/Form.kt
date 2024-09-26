@@ -1,3 +1,5 @@
+@file:Suppress("UNCHECKED_CAST", "USELESS_CAST")
+
 package xyz.junerver.compose.hooks.useform
 
 import androidx.compose.runtime.Composable
@@ -15,8 +17,6 @@ import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useEventPublish
 import xyz.junerver.compose.hooks.useMap
 import xyz.junerver.compose.hooks.useState
-import xyz.junerver.kotlin.Tuple3
-import xyz.junerver.kotlin.tuple
 
 /*
   Description: Headless Form Component
@@ -32,15 +32,15 @@ internal val FormContext by lazy { createContext(FormInstance()) }
  * Headless Form Component
  *
  * @param formInstance
- * @param children
+ * @param content
  * @receiver
  */
 @Composable
-fun Form(formInstance: FormInstance = Form.useForm(), children: @Composable FormScope.() -> Unit) {
+fun Form(formInstance: FormInstance = Form.useForm(), content: @Composable FormScope.() -> Unit) {
     val formRef = useCreation { FormRef() }
     formInstance.apply { this.formRef = formRef }
     FormContext.Provider(formInstance) {
-        FormScope.getInstance(formRef, formInstance).children()
+        FormScope.getInstance(formRef, formInstance).content()
     }
 }
 
@@ -63,7 +63,7 @@ class FormScope private constructor(
     fun <T : Any> FormItem(
         name: String,
         validators: List<Validator> = emptyList(),
-        content: @Composable (Tuple3<MutableState<T?>, Boolean, List<String>>) -> Unit,
+        content: @Composable (Triple<MutableState<T?>, Boolean, List<String>>) -> Unit,
     ) = FormItem(
         name = name,
         validators = validators.toTypedArray(),
@@ -71,11 +71,13 @@ class FormScope private constructor(
     )
 
     /**
+     * 表单字段容器组件
+     *
      * FormItem Component
      *
      * @param name
      * @param validators
-     * @param content
+     * @param content 子组件函数，通过参数提供字段状态、是否通过校验、错误信息列表
      * @param T
      * @receiver
      */
@@ -83,7 +85,7 @@ class FormScope private constructor(
     fun <T : Any> FormItem(
         name: String,
         vararg validators: Validator,
-        content: @Composable (Tuple3<MutableState<T?>, Boolean, List<String>>) -> Unit,
+        content: @Composable (Triple<MutableState<T?>, Boolean, List<String>>) -> Unit,
     ) {
         val fieldState = _useState<T?>(default = null)
         val (validate, _, set) = useBoolean()
@@ -92,9 +94,8 @@ class FormScope private constructor(
         @Suppress("UNCHECKED_CAST")
         currentFormRef.formFieldMap[name] = fieldState as MutableState<Any?>
         val publish = useEventPublish<T?>(name.genFormFieldKey(formInstance))
-        useEffect(fieldState.value) {
+        useEffect(fieldState) {
             currentFormRef.formOperationCount.longValue += 1
-            @Suppress("UNCHECKED_CAST")
             publish(fieldState.value as? T)
 
             fun Validator.pass(): Boolean {
@@ -116,7 +117,7 @@ class FormScope private constructor(
         useEffect(errMsg) {
             currentFormRef.formFieldErrorMessagesMap[name] = errMsg.values.toList()
         }
-        content(tuple(fieldState, validate.value, errMsg.values.toList()))
+        content(Triple(fieldState, validate.value, errMsg.values.toList()))
     }
 
     /**
