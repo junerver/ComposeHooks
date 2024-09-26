@@ -7,7 +7,6 @@ import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import xyz.junerver.compose.hooks.utils.currentTime
-import xyz.junerver.kotlin.tuple
 
 /*
   Description:
@@ -45,7 +44,7 @@ data class TimestampOptions internal constructor(
 )
 @Composable
 fun useTimestamp(options: TimestampOptions = remember { TimestampOptions() }, autoResume: Boolean = true): TimestampHolder {
-    val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
+    val (interval, offset, callback) = with(options) { Triple(interval, offset, callback) }
     val timestamp = useState(default = currentTime)
     val (resume, pause, isActive) = useInterval(
         IntervalOptions.optionOf {

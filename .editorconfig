@@ -35,3 +35,5 @@ ktlint_standard_binary-expression-wrapping = disabled
 ktlint_standard_class-signature = disabled
 # 链式调用延续
 ktlint_standard_chain-method-continuation = disabled
+# 通配符导入
+ktlint_standard_no-wildcard-imports = disabled

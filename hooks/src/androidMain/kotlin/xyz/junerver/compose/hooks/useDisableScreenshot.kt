@@ -2,7 +2,6 @@ package xyz.junerver.compose.hooks
 
 import android.view.WindowManager
 import androidx.compose.runtime.Composable
-import xyz.junerver.kotlin.Tuple3
 
 /*
   Description: Disable screenshots for privacy page
@@ -13,7 +12,7 @@ import xyz.junerver.kotlin.Tuple3
 */
 
 @Composable
-fun useDisableScreenshot(): Tuple3<DisableFn, EnableFn, IsDisabled> = useWindowFlags(
+fun useDisableScreenshot(): Triple<DisableFn, EnableFn, IsDisabled> = useWindowFlags(
     key = "${KEY_PREFIX}SCREENSHOT",
     flags = WindowManager.LayoutParams.FLAG_SECURE
 )

@@ -7,8 +7,6 @@ import android.hardware.SensorEvent
 import androidx.compose.runtime.Composable
 import xyz.junerver.compose.hooks.usedeviceinfo.*
 import xyz.junerver.compose.hooks.usevibrate.useVibrate
-import xyz.junerver.kotlin.Tuple2
-import xyz.junerver.kotlin.Tuple3
 
 /** 更符合 Compose 的函数命名方式 */
 
@@ -24,13 +22,13 @@ fun rememberScreenInfo(): ScreenInfo = useScreenInfo()
 //endregion
 
 @Composable
-fun rememberDisableScreenshot(): Tuple3<DisableFn, EnableFn, IsDisabled> = useDisableScreenshot()
+fun rememberDisableScreenshot(): Triple<DisableFn, EnableFn, IsDisabled> = useDisableScreenshot()
 
 @Composable
-fun rememberFlashlight(): Tuple2<TurnOnFn, TurnOffFn> = useFlashlight()
+fun rememberFlashlight(): Pair<TurnOnFn, TurnOffFn> = useFlashlight()
 
 @Composable
-fun rememberScreenBrightness(): Tuple2<SetValueFn<Float>, Float> = useScreenBrightness()
+fun rememberScreenBrightness(): Pair<SetValueFn<Float>, Float> = useScreenBrightness()
 
 @Composable
 fun rememberSensor(
@@ -43,7 +41,7 @@ fun rememberSensor(
 fun rememberVibrate() = useVibrate()
 
 @Composable
-fun rememberWakeLock(): Tuple3<RequestFn, ReleaseFn, IsActive> = useWakeLock()
+fun rememberWakeLock(): Triple<RequestFn, ReleaseFn, IsActive> = useWakeLock()
 
 @Composable
-fun rememberWindowFlags(key: String, flags: Int): Tuple3<AddFlagsFn, ClearFlagsFn, IsFlagsAdded> = useWindowFlags(key, flags)
+fun rememberWindowFlags(key: String, flags: Int): Triple<AddFlagsFn, ClearFlagsFn, IsFlagsAdded> = useWindowFlags(key, flags)

@@ -2,7 +2,6 @@ package xyz.junerver.compose.hooks.usevibrate
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import xyz.junerver.kotlin.Tuple2
 
 /*
   Description:
@@ -13,9 +12,9 @@ import xyz.junerver.kotlin.Tuple2
 */
 
 @Composable
-fun useVibrate(): Tuple2<() -> Unit, () -> Unit> {
+fun useVibrate(): Pair<() -> Unit, () -> Unit> {
     val ctx = LocalContext.current
-    return Tuple2(
+    return Pair(
         first = { ctx.vibrateShort() },
         second = { ctx.vibrateLong() }
     )

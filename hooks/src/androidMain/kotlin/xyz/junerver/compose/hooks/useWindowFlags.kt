@@ -4,7 +4,6 @@ import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
-import xyz.junerver.kotlin.Tuple3
 
 /*
   Description:
@@ -15,7 +14,7 @@ import xyz.junerver.kotlin.Tuple3
 */
 
 @Composable
-fun useWindowFlags(key: String, flags: Int): Tuple3<AddFlagsFn, ClearFlagsFn, IsFlagsAdded> {
+fun useWindowFlags(key: String, flags: Int): Triple<AddFlagsFn, ClearFlagsFn, IsFlagsAdded> {
     val window = (LocalContext.current as Activity).window
     val isFlagSet = (window.attributes.flags and flags) != 0
     val (isAdded, setIsAdded) = usePersistent(
@@ -35,7 +34,7 @@ fun useWindowFlags(key: String, flags: Int): Tuple3<AddFlagsFn, ClearFlagsFn, Is
     }
 
     return remember {
-        Tuple3(
+        Triple(
             ::addFlags,
             ::clearFlags,
             isAdded

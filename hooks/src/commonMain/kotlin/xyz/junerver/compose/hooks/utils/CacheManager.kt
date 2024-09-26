@@ -7,7 +7,6 @@ import kotlinx.coroutines.*
 import kotlinx.datetime.Instant
 import xyz.junerver.compose.hooks.cacheKey
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
-import xyz.junerver.kotlin.Tuple2
 import xyz.junerver.kotlin.asBoolean
 import xyz.junerver.kotlin.runIf
 import xyz.junerver.kotlin.tuple
@@ -21,7 +20,7 @@ import xyz.junerver.kotlin.tuple
 */
 
 /** first: cacheData, seconds: expiration */
-private typealias DataCache = Tuple2<CachedData<*>, Instant>
+private typealias DataCache = Pair<CachedData<*>, Instant>
 
 internal object CacheManager : CoroutineScope {
     override val coroutineContext: CoroutineContext
@@ -53,7 +52,7 @@ internal object CacheManager : CoroutineScope {
     fun <T> saveCache(key: String, duration: Duration, cachedData: CachedData<T>): Boolean =
         (duration.asBoolean() || duration == (-1).seconds).also {
             runIf(it) {
-                cache[key.cacheKey] = tuple(
+                cache[key.cacheKey] = Pair(
                     cachedData,
                     if (duration == (-1).seconds) Instant.DISTANT_FUTURE else cachedData.time + duration
                 )

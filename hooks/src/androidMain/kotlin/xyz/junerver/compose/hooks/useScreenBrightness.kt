@@ -4,7 +4,6 @@ import android.app.Activity
 import android.provider.Settings
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
-import xyz.junerver.kotlin.Tuple2
 
 /*
   Description: Hook used to adjust screen brightness, returns a setting function,
@@ -17,7 +16,7 @@ import xyz.junerver.kotlin.Tuple2
 */
 
 @Composable
-fun useScreenBrightness(): Tuple2<SetValueFn<Float>, Float> {
+fun useScreenBrightness(): Pair<SetValueFn<Float>, Float> {
     val context = LocalContext.current
     val window = (context as Activity).window
     val initBrightness = useCreation {
@@ -35,7 +34,7 @@ fun useScreenBrightness(): Tuple2<SetValueFn<Float>, Float> {
     useUnmount {
         setBrightness(initBrightness)
     }
-    return Tuple2(
+    return Pair(
         ::setBrightness,
         initBrightness
     )
