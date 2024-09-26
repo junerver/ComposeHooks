@@ -8,11 +8,14 @@ import xyz.junerver.composehooks.example.UseNetworkExample
 import xyz.junerver.composehooks.example.UseSensorExample
 import xyz.junerver.composehooks.example.UseVibrateExample
 
-actual val androidRoutes: Map<String, @Composable () -> Unit> = mapOf(
-    "useBiometric" to { UseBiometricExample() },
-    "useDeviceInfo" to { UseDeviceInfoExample() },
-    "useIdle" to { UseIdleExample() },
-    "useNetwork" to { UseNetworkExample() },
-    "useSensor" to { UseSensorExample() },
-    "useVibrate" to { UseVibrateExample() }
-)
+
+actual fun getAndroidRoutes(): Map<String, @Composable () -> Unit> {
+    return mapOf(
+        "useBiometric" to { UseBiometricExample() },
+        "useDeviceInfo" to { UseDeviceInfoExample() },
+        "useIdle" to { UseIdleExample() },
+        "useNetwork" to { UseNetworkExample() },
+        "useSensor" to { UseSensorExample() },
+        "useVibrate" to { UseVibrateExample() }
+    )
+}

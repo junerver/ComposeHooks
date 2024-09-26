@@ -60,7 +60,10 @@ import xyz.junerver.composehooks.example.sub.PersistentSub
   Email: junerver@gmail.com
   Version: v1.0
 */
-expect val androidRoutes: Map<String, @Composable () -> Unit>
+
+expect fun getAndroidRoutes(): Map<String, @Composable () -> Unit>
+
+val androidRoutes: Map<String, @Composable () -> Unit> by lazy { getAndroidRoutes() }
 
 val routes = mapOf<String, @Composable () -> Unit>(
     "/" to { HomeScreen() },

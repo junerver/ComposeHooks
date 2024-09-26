@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.useDisableScreenshot
@@ -35,15 +36,18 @@ fun UseDeviceInfoExample() {
     val batteryInfo = useBatteryInfo()
     val buildInfo = useBuildInfo()
     val screenInfo = useScreenInfo()
-    val (disable, enable, isDisable) = useDisableScreenshot()
+    val (disable, enable, isDisableState) = useDisableScreenshot()
+    val isDisable by isDisableState
     val (on, setOn) = useGetState(default = false)
     val (turnOn, turnOff) = useFlashlight()
-    val (req, release, isActive) = useWakeLock()
-    val (addFlags, clearFlags, isFlagsAdded) = useWindowFlags(
+    val (req, release, isActiveState) = useWakeLock()
+    val isActive by isActiveState
+    val (addFlags, clearFlags, isFlagsAddedState) = useWindowFlags(
         key = "secure&wakelock",
         flags =
             WindowManager.LayoutParams.FLAG_SECURE or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
     )
+    val isFlagsAdded by isFlagsAddedState
     val (setBrightness, initValue) = useScreenBrightness()
     val (sliderValue, setSliderValue) = useGetState(default = initValue)
     Surface {
