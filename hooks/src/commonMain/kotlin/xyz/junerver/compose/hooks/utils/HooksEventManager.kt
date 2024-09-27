@@ -9,8 +9,7 @@ import kotlin.reflect.KClass
   Email: junerver@gmail.com
   Version: v1.0
 */
-@PublishedApi
-internal object EventManager {
+object HooksEventManager {
     private val subscriberMap = mutableMapOf<KClass<*>, MutableList<(Any) -> Unit>>()
     private val aliasSubscriberMap =
         mutableMapOf<String, MutableList<(Any?) -> Unit>>()
@@ -41,4 +40,8 @@ internal object EventManager {
     internal fun <T> post(alias: String, event: T) {
         aliasSubscriberMap[alias]?.forEach { (it as (T?) -> Unit).invoke(event) }
     }
+
+    inline fun <reified T : Any> register(noinline subscriber: (T) -> Unit): () -> Unit = register(T::class, subscriber)
+
+    inline fun <reified T : Any> post(event: T) = post(event, T::class)
 }

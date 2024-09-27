@@ -1,7 +1,7 @@
 package xyz.junerver.compose.hooks.userequest.utils
 
 import xyz.junerver.compose.hooks.cacheKey
-import xyz.junerver.compose.hooks.utils.EventManager
+import xyz.junerver.compose.hooks.utils.HooksEventManager
 
 /*
   Description:
@@ -26,10 +26,10 @@ internal data class RestoreFetchStateData(
  * 触发初测在缓存回调map中的回调函数
  */
 internal fun trigger(key: String, data: RestoreFetchStateData) {
-    EventManager.post(key.cacheKey, data)
+    HooksEventManager.post(key.cacheKey, data)
 }
 
 /**
  * 将 cacheKey-回调函数，注册到监听器列表，返回值是反订阅函数，只要指定返回函数就可以取消订阅
  */
-internal fun subscribe(key: String, listener: CachedDataChangeListener): () -> Unit = EventManager.register(key.cacheKey, listener)
+internal fun subscribe(key: String, listener: CachedDataChangeListener): () -> Unit = HooksEventManager.register(key.cacheKey, listener)

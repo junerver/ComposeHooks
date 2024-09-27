@@ -6,7 +6,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import kotlin.reflect.KProperty
 import xyz.junerver.compose.hooks.utils.CacheManager
-import xyz.junerver.compose.hooks.utils.EventManager
+import xyz.junerver.compose.hooks.utils.HooksEventManager
 
 /*
   Description: A persistence hook that is easy to extend. It uses memory for
@@ -121,7 +121,7 @@ private typealias SavePersistentCallback = (Unit) -> Unit
  * state update
  */
 fun notifyDefaultPersistentObserver(key: String) {
-    EventManager.post(key.persistentKey, Unit)
+    HooksEventManager.post(key.persistentKey, Unit)
 }
 
 private fun memorySavePersistent(key: String, value: Any?) {
@@ -137,4 +137,4 @@ private fun memoryClearPersistent(key: String) {
 }
 
 private fun memoryAddObserver(key: String, observer: SavePersistentCallback): () -> Unit =
-    EventManager.register(key.persistentKey, observer)
+    HooksEventManager.register(key.persistentKey, observer)

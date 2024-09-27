@@ -3,7 +3,7 @@ package xyz.junerver.compose.hooks
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import xyz.junerver.compose.hooks.utils.EventManager
+import xyz.junerver.compose.hooks.utils.HooksEventManager
 
 /*
   Description: More convenient communication between components, just like using EventBus
@@ -67,7 +67,7 @@ inline fun <reified T : Any> useEventSubscribe(noinline subscriber: (T) -> Unit)
     var unSubscribeRef by useRef<(() -> Unit)?>(null)
 
     useMount {
-        unSubscribeRef = EventManager.register(T::class, latest)
+        unSubscribeRef = HooksEventManager.register(T::class, latest)
     }
 
     useUnmount {
@@ -83,7 +83,7 @@ inline fun <reified T : Any> useEventSubscribe(noinline subscriber: (T) -> Unit)
  */
 @Composable
 inline fun <reified T : Any> useEventPublish(): (T) -> Unit = remember {
-    { event: T -> EventManager.post(event, T::class) }
+    { event: T -> HooksEventManager.post(event, T::class) }
 }
 
 /**
@@ -101,7 +101,7 @@ internal fun <T> useEventSubscribe(alias: String, subscriber: (T?) -> Unit) {
     var unSubscribeRef by useRef<(() -> Unit)?>(null)
 
     useMount {
-        unSubscribeRef = EventManager.register(alias, latest)
+        unSubscribeRef = HooksEventManager.register(alias, latest)
     }
 
     useUnmount {
@@ -117,5 +117,5 @@ internal fun <T> useEventSubscribe(alias: String, subscriber: (T?) -> Unit) {
  */
 @Composable
 internal fun <T> useEventPublish(alias: String): (T) -> Unit = remember {
-    { event: T -> EventManager.post(alias, event) }
+    { event: T -> HooksEventManager.post(alias, event) }
 }
