@@ -55,7 +55,7 @@ kotlin {
             implementation(libs.kotlin.reflect)
             api(libs.kotlinx.coroutines)
             api(libs.kotlinx.datetime)
-            implementation(libs.kotlinx.collections.immutable)
+            api(libs.kotlinx.collections.immutable)
 
             api(libs.arrow.core)
         }
