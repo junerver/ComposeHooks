@@ -28,38 +28,3 @@ fun <T> useList(elements: Collection<T>): SnapshotStateList<T> = remember {
 fun <T> useList(vararg elements: T): SnapshotStateList<T> = remember {
     mutableStateListOf(*elements)
 }
-
-private sealed interface ImmutableListAction
-
-private data class Add<T>(val payload: T) : ImmutableListAction
-private data class Remove<T>(val payload: T) : ImmutableListAction
-
-
-private fun <T> immutableListReducer(preState: PersistentList<T>, action: ImmutableListAction): PersistentList<T> {
-    return when (action) {
-        is Add<*> -> preState.mutate {
-            it.add(action.payload as T)
-        }
-
-        is Remove<*> -> preState.mutate {
-            it.remove(action.payload as T)
-        }
-    }
-}
-
-@Composable
-fun <T> useImmutableList(vararg elements: T): ImmutableListHolder<T> {
-    val (state, dispatch) = useReducer(::immutableListReducer, persistentListOf(*elements))
-    val add = { payload: T -> dispatch(Add(payload)) }
-    val remove = { payload: T -> dispatch(Remove(payload)) }
-    return remember(state, add, remove) {
-        ImmutableListHolder(state, add, remove)
-    }
-}
-
-@Stable
-data class ImmutableListHolder<T>(
-    val list: State<PersistentList<T>>,
-    val add: (T) -> Unit,
-    val remove: (T) -> Unit,
-)

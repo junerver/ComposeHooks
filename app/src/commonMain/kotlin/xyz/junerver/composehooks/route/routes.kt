@@ -17,6 +17,7 @@ import xyz.junerver.composehooks.example.UseEffectExample
 import xyz.junerver.composehooks.example.UseEventExample
 import xyz.junerver.composehooks.example.UseFormExample
 import xyz.junerver.composehooks.example.UseGetStateExample
+import xyz.junerver.composehooks.example.UseImmutableListExample
 import xyz.junerver.composehooks.example.UseIntervalExample
 import xyz.junerver.composehooks.example.UseLatestExample
 import xyz.junerver.composehooks.example.UseListExample
@@ -82,6 +83,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useEvent" to { UseEventExample() },
     "useForm" to { UseFormExample() },
     "useGetState" to { UseGetStateExample() },
+    "useImmutableList" to { UseImmutableListExample() },
     "useInterval" to { UseIntervalExample() },
     "useLatest" to { UseLatestExample() },
     "useList" to { UseListExample() },

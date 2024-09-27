@@ -5,50 +5,54 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import kotlin.random.Random
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useImmutableList
-import xyz.junerver.compose.hooks.useList
 import xyz.junerver.composehooks.ui.component.TButton
 
-/*
-  Description:
-  Author: Junerver
-  Date: 2024/3/8-14:35
-  Email: junerver@gmail.com
-  Version: v1.0
-*/
+/**
+ * @Author Junerver
+ * @Date 2024/9/27-19:44
+ * @Email junerver@gmail.com
+ * @Version v1.0
+ * @Description
+ */
+
 @Composable
-fun UseListExample() {
-    val listState = useList(1, 2, 3)
+fun UseImmutableListExample(){
+    val immutableListHolder = useImmutableList(1,2,3)
+    val immutableList by immutableListHolder.list
+    useEffect(immutableList){
+        println("list change")
+    }
+
     Surface {
         Column {
             Row {
                 TButton(text = "+1") {
-                    listState.add(listState.size + 1)
+                    immutableListHolder.mutate {
+                        it.add(immutableList.size+1)
+                    }
                 }
                 TButton(text = "-1") {
-                    if (listState.isNotEmpty()) {
-                        listState.removeLast()
+                    immutableListHolder.mutate {
+                        it.removeLast()
                     }
                 }
                 TButton(text = "change") {
-                    val index = Random.nextInt(listState.lastIndex)
-                    listState[index] = Random.nextInt()
+                    val index = Random.nextInt(immutableList.lastIndex)
+                    immutableListHolder.mutate {
+                        it[index] = Random.nextInt()
+                    }
                 }
             }
             LazyColumn {
-                items(listState) {
+                items(immutableList) {
                     RandomItem(it)
                 }
             }
         }
     }
-}
-
-@Composable
-fun RandomItem(index: Int) {
-    Text(text = "$index: ${Random.nextDouble()}")
 }
