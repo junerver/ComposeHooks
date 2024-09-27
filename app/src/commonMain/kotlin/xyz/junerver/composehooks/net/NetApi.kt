@@ -39,10 +39,10 @@ object NetApi : WebService {
     private val client = HttpClient(CIO) {
         defaultRequest {
             url(BASE_URL)
-            headers {
+            headers.appendAll(headers {
                 append(HttpHeaders.ContentType, ContentType.Application.Json.withCharset(Charsets.UTF_8).toString())
                 append(HttpHeaders.Authorization, "token $acc_token")
-            }
+            })
         }
         install(HttpTimeout) {
             requestTimeoutMillis = 15000L
@@ -61,7 +61,7 @@ object NetApi : WebService {
         }
         install(Logging) {
             logger = Logger.DEFAULT
-            level = LogLevel.INFO
+            level = LogLevel.ALL
         }
     }
 
