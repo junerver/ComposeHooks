@@ -1,8 +1,8 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import kotlinx.collections.immutable.PersistentList
@@ -17,13 +17,6 @@ import kotlinx.collections.immutable.persistentListOf
  * @Description
  */
 
-@Stable
-class ImmutableListHolder<T>(val list: MutableState<PersistentList<T>>) {
-    fun mutate(mutator: (MutableList<T>) -> Unit) {
-        list.value = list.value.mutate(mutator)
-    }
-}
-
 /**
  * 这个 hook 不同于 [useList]。
  *
@@ -37,5 +30,15 @@ class ImmutableListHolder<T>(val list: MutableState<PersistentList<T>>) {
 @Composable
 fun <T> useImmutableList(vararg elements: T): ImmutableListHolder<T> {
     val state = _useState(persistentListOf(*elements))
-    return remember { ImmutableListHolder(state) }
+
+    fun mutate(mutator: (MutableList<T>) -> Unit) {
+        state.value = state.value.mutate(mutator)
+    }
+    return remember { ImmutableListHolder(state, ::mutate) }
 }
+
+@Stable
+data class ImmutableListHolder<T>(
+    val list: State<PersistentList<T>>,
+    val mutate: (mutator: (MutableList<T>) -> Unit) -> Unit,
+)
