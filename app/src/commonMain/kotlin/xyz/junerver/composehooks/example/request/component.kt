@@ -12,9 +12,9 @@ import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.*
 import xyz.junerver.compose.hooks.userequest.useRequest
+import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.TButton
-import xyz.junerver.compose.hooks.utils.asBoolean
 
 /*
   Description:
@@ -67,7 +67,7 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
                      * This can avoid flickering and is suitable for scenarios
                      * where the interface returns quickly.
                      */
-                    if(isUsed) loadingDelay = 1.seconds
+                    if (isUsed) loadingDelay = 1.seconds
                 }
 
                 OptionFunc.Debounce -> run {
@@ -76,7 +76,7 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
                      *
                      * When you configure [DebounceOptions.wait], anti-shake processing will be performed according to the set value.
                      */
-                    if(isUsed) debounceOptionsOf = { wait = 3.seconds }
+                    if (isUsed) debounceOptionsOf = { wait = 3.seconds }
                 }
 
                 OptionFunc.Throttle -> run {
@@ -85,7 +85,7 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
                      *
                      * When you configure [ThrottleOptions.wait], throttling will be performed according to the set value.
                      */
-                    if(isUsed) throttleOptionsOf = { wait = 3.seconds }
+                    if (isUsed) throttleOptionsOf = { wait = 3.seconds }
                 }
             }
         }

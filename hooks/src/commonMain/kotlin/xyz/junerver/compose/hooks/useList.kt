@@ -1,15 +1,10 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
-import kotlinx.collections.immutable.PersistentList
-import kotlinx.collections.immutable.mutate
-import kotlinx.collections.immutable.persistentListOf
 
 /*
   Description: More convenient to use dynamic List state

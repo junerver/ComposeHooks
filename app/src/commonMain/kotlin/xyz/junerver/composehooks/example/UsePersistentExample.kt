@@ -105,10 +105,13 @@ private fun MMKVPersistent() {
 private fun MMKVPersistentSub() {
     val (token, _, clear) = usePersistent(key = "token", "321")
     var clearCount by usePersistent(key = "clearCount", 0, forceUseMemory = true)
-    Text(text = "sub component token: ${token.value} ,click to clear", modifier = Modifier.clickable {
-        clear()
-        clearCount += 1
-    })
+    Text(
+        text = "sub component token: ${token.value} ,click to clear",
+        modifier = Modifier.clickable {
+            clear()
+            clearCount += 1
+        }
+    )
     Text("current clear count: $clearCount")
 }
 

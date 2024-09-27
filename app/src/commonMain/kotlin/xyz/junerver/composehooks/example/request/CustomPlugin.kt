@@ -59,7 +59,7 @@ fun <TData : Any> useCustomPluginRequest(
             mutate,
             refresh,
             cancel,
-           eighth =  { rollbackRef.current.invoke() }
+            eighth = { rollbackRef.current.invoke() }
         )
     }
 }

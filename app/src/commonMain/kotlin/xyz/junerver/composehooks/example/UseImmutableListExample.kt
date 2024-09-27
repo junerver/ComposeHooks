@@ -21,10 +21,10 @@ import xyz.junerver.composehooks.ui.component.TButton
  */
 
 @Composable
-fun UseImmutableListExample(){
-    val immutableListHolder = useImmutableList(1,2,3)
+fun UseImmutableListExample() {
+    val immutableListHolder = useImmutableList(1, 2, 3)
     val immutableList by immutableListHolder.list
-    useEffect(immutableList){
+    useEffect(immutableList) {
         println("list change")
     }
 
@@ -33,7 +33,7 @@ fun UseImmutableListExample(){
             Row {
                 TButton(text = "+1") {
                     immutableListHolder.mutate {
-                        it.add(immutableList.size+1)
+                        it.add(immutableList.size + 1)
                     }
                 }
                 TButton(text = "-1") {

@@ -8,8 +8,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import kotlin.random.Random
-import xyz.junerver.compose.hooks.useEffect
-import xyz.junerver.compose.hooks.useImmutableList
 import xyz.junerver.compose.hooks.useList
 import xyz.junerver.composehooks.ui.component.TButton
 
