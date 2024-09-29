@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks.utils
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
@@ -35,6 +36,7 @@ internal inline fun unwrap(deps: Array<out Any?>) = deps.map {
     when (it) {
         is State<*> -> it.value
         is Ref<*> -> it.observeAsState().value
+        is SnapshotStateList<*> -> it.toList()
         else -> it
     }
 }.toTypedArray()
