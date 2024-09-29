@@ -58,6 +58,7 @@ object NetApi : WebService {
                     isLenient = true
                     ignoreUnknownKeys = true
                     explicitNulls = false
+                    coerceInputValues = true
                 }
             )
         }
