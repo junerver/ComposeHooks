@@ -9,6 +9,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -87,7 +88,7 @@ private fun TestSWR() {
  */
 @Composable
 private fun SWR(useCache: Boolean = false) {
-    val (data, loading) = useRequest(
+    val (dataState, loadingState) = useRequest(
         requestFn = {
             mockRequestArticle()
         },
@@ -95,6 +96,8 @@ private fun SWR(useCache: Boolean = false) {
             if (useCache) cacheKey = "test-swr-key"
         }
     )
+    val data by dataState
+    val loading by loadingState
     Column(modifier = Modifier.height(210.dp)) {
         Text(text = "cache: $useCache", color = Color.Red)
         Text(text = "Background loading: $loading")
@@ -129,7 +132,7 @@ fun TestStaleTime() {
 
 @Composable
 private fun StaleTime(cacheKey: String) {
-    val (data, loading) = useRequest(
+    val (dataState, loadingState) = useRequest(
         requestFn = {
             mockRequestArticle()
         },
@@ -138,6 +141,8 @@ private fun StaleTime(cacheKey: String) {
             staleTime = 5.seconds
         }
     )
+    val data by dataState
+    val loading by loadingState
     Column(modifier = Modifier.height(210.dp)) {
         Text(text = "statleTime: 5s", color = Color.Red)
         Text(text = "Background loading: $loading")

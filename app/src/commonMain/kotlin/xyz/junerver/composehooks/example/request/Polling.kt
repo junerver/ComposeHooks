@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -59,7 +60,7 @@ fun Sub(isPollingWhenHidden: Boolean = false) {
     var countRef by useRef(default = 0)
     val update = useUpdate()
     val post = useEventPublish<Int>()
-    val (userInfo, loading) = useRequest(
+    val (userInfoState, loadingState) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
             defaultParams = arrayOf("junerver")
@@ -72,6 +73,8 @@ fun Sub(isPollingWhenHidden: Boolean = false) {
             }
         }
     )
+    val userInfo by userInfoState
+    val loading by loadingState
     Column(modifier = Modifier.height(100.dp)) {
         Text(text = "Polling when hidden: $isPollingWhenHidden count: $countRef")
         Spacer(modifier = Modifier.height(20.dp))

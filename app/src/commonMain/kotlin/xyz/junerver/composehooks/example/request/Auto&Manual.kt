@@ -11,6 +11,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.invoke
@@ -45,7 +46,7 @@ fun AutoManual() {
 
 @Composable
 fun Auto() {
-    val (userInfo, loading, error) = useRequest(
+    val (userInfoState, loadingState, errorState) = useRequest(
 //        requestFn = NetApi::userInfo.asSuspendNoopFn(), // Make a request directly through the WebService instance
         requestFn = { NetApi.userInfo(it[0] as String) }, // Make a request WebService interface
         optionsOf = {
@@ -53,6 +54,9 @@ fun Auto() {
                 arrayOf("junerver") // Automatically requests must set default parameters
         }
     )
+    val userInfo by userInfoState
+    val loading by loadingState
+    val error by errorState
     Column {
         Text(text = "Auto:")
         Spacer(modifier = Modifier.height(10.dp))
@@ -63,14 +67,14 @@ fun Auto() {
             Text(text = userInfo.toString())
         }
         if (error.asBoolean()) {
-            Text(text = "error: ${error.message}")
+            Text(text = "error: ${error!!.message}")
         }
     }
 }
 
 @Composable
 fun Manual() {
-    val (repoInfo, loading, error, request) = useRequest(
+    val (repoInfoState, loadingState, errorState, request) = useRequest(
         requestFn = { NetApi.repoInfo(it[0] as String, it[1] as String) },
         // 使用 `options = optionsOf {}`这种传参会带来性能问题，请尽快更新使用性能优化版本，你可以简单的在`optionsOf`后面加`=`来进行替换
         optionsOf = {
@@ -79,6 +83,9 @@ fun Manual() {
             defaultParams = arrayOf("junerver", "ComposeHooks") // Automatically requests must set default parameters
         }
     )
+    val repoInfo by repoInfoState
+    val loading by loadingState
+    val error by errorState
     Surface {
         Column {
             Row {
@@ -103,7 +110,7 @@ fun Manual() {
                 Text(text = "user info loading ...")
             }
             if (error.asBoolean()) {
-                Text(text = "error: ${error.message}")
+                Text(text = "error: ${error!!.message}")
             }
             if (repoInfo.asBoolean()) {
                 Text(text = repoInfo.toString())

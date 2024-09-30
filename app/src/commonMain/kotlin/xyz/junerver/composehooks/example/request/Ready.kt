@@ -8,6 +8,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.useGetState
@@ -28,7 +29,7 @@ import xyz.junerver.composehooks.net.NetApi
 @Composable
 fun Ready() {
     val (isReady, setReady) = useGetState(false)
-    val (userInfo, userLoading) = useRequest(
+    val (userInfoState, userLoadingState) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
             defaultParams = arrayOf("junerver")
@@ -37,8 +38,9 @@ fun Ready() {
             }
         }
     )
-
-    val (repoInfo, repoLoading) = useRequest(
+    val userInfo by userInfoState
+    val userLoading by userLoadingState
+    val (repoInfoState, repoLoadingState) = useRequest(
         requestFn = { NetApi.repoInfo(it[0] as String, it[1] as String) },
         optionsOf = {
             defaultParams = arrayOf(
@@ -48,7 +50,8 @@ fun Ready() {
             ready = isReady.value
         }
     )
-
+    val repoInfo by repoInfoState
+    val repoLoading by repoLoadingState
     Surface {
         Column {
             if (userLoading) {

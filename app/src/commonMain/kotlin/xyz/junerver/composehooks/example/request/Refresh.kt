@@ -29,7 +29,7 @@ import xyz.junerver.composehooks.ui.component.TButton
 @Composable
 fun Refresh() {
     var params by useState("")
-    val (userInfo, loading, error, request, _, refresh) = useRequest(
+    val (userInfoState, loadingState, errorState, request, _, refresh) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
             defaultParams = arrayOf("junerver")
@@ -38,6 +38,9 @@ fun Refresh() {
             }
         }
     )
+    val userInfo by userInfoState
+    val loading by loadingState
+    val error by errorState
     Surface {
         Column {
             Text(text = "Refresh: ")
@@ -54,7 +57,7 @@ fun Refresh() {
             Text(text = "current user: $params")
             Spacer(modifier = Modifier.height(15.dp))
             if (error.asBoolean()) {
-                Text(text = "error: ${error.message}")
+                Text(text = "error: ${error?.message}")
             }
             if (loading) {
                 Text(text = "Loading ...")

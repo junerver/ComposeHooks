@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks.userequest
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlin.reflect.KFunction0
@@ -20,7 +21,7 @@ typealias ReqFn = VoidFunction
 typealias MutateFn<TData> = KFunction1<(TData?) -> TData, Unit>
 typealias RefreshFn = KFunction0<Unit>
 typealias CancelFn = KFunction0<Unit>
-internal typealias ComposablePluginGenFn<TData> = @Composable (RequestOptions<TData>) -> Plugin<TData>
+typealias ComposablePluginGenFn<TData> = @Composable (RequestOptions<TData>) -> Plugin<TData>
 /*
   Description:
   Author: Junerver
@@ -129,9 +130,9 @@ fun <TData : Any> useRequest(
 
     return with(fetch) {
         RequestHolder(
-            data = dataState.value,
-            isLoading = loadingState.value,
-            error = errorState.value,
+            data = dataState,
+            isLoading = loadingState,
+            error = errorState,
             request = run,
             mutate = ::mutate,
             refresh = ::refresh,
@@ -193,9 +194,9 @@ private fun <TData : Any> useRequestPluginsImpl(
 
 @Stable
 data class RequestHolder<TData>(
-    val data: TData?,
-    val isLoading: Boolean,
-    val error: Throwable?,
+    val data: State<TData?>,
+    val isLoading: State<Boolean>,
+    val error: State<Throwable?>,
     val request: ReqFn,
     val mutate: MutateFn<TData>,
     val refresh: RefreshFn,

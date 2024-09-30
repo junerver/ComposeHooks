@@ -7,6 +7,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.userequest.useRequest
@@ -23,14 +24,15 @@ import xyz.junerver.composehooks.ui.component.TButton
  */
 @Composable
 fun Cancel() {
-    val (userInfo, loading, _, request, _, _, cancel) = useRequest(
+    val (userInfoState, loadingState, _, request, _, _, cancel) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
             manual = true
             defaultParams = arrayOf("junerver")
         }
     )
-
+    val userInfo by userInfoState
+    val loading by loadingState
     Surface {
         Column {
             Text(text = "loading : $loading")

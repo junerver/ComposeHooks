@@ -53,7 +53,7 @@ suspend fun mockRequest(s1: String, s2: String): MockInfo {
 fun ErrorRetry() {
     var count by useState("")
 
-    val (mockInfo, stuLoading, err) = useRequest(
+    val (mockInfoState, stuLoadingState, errState,) = useRequest(
         requestFn = {
             mockRequest(it[0] as String, it[1] as String)
         },
@@ -66,6 +66,9 @@ fun ErrorRetry() {
             }
         }
     )
+    val mockInfo by mockInfoState
+    val stuLoading by stuLoadingState
+    val err by errState
     Surface {
         Column {
             Text("error time：\n$count")
@@ -74,7 +77,7 @@ fun ErrorRetry() {
             } else if (mockInfo.asBoolean()) {
                 Text("MockSucc：${(mockInfo)}")
             } else if (err.asBoolean()) {
-                Text(text = "Error msg: ${err.message}")
+                Text(text = "Error msg: ${err!!.message}")
             }
         }
     }

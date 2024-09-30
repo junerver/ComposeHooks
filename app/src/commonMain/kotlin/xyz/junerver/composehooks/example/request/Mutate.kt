@@ -85,12 +85,14 @@ fun Mutate() {
 @Composable
 private fun ManualMutateRollback() {
     val (input, setInput) = useGetState("")
-    val (userInfo, loading, _, _, mutate) = useRequest(
+    val (userInfoState, loadingState, _, _, mutate) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
             defaultParams = arrayOf("junerver")
         }
     )
+    val userInfo by userInfoState
+    val loading by loadingState
 
     fun mockFnChangeName(newName: String) {
         /**
@@ -144,13 +146,14 @@ private fun ManualMutateRollback() {
 @Composable
 private fun AutoRollback() {
     val (input, setInput) = useGetState("")
-    val (userInfo, loading, _, _, mutate, _, _, triggerRollback) = useCustomPluginRequest(
+    val (userInfoState, loadingState, _, _, mutate, _, _, triggerRollback) = useCustomPluginRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
             defaultParams = arrayOf("junerver")
         }
     )
-
+    val userInfo by userInfoState
+    val loading by loadingState
     fun mockFnChangeName(newName: String) {}
 
     Column {

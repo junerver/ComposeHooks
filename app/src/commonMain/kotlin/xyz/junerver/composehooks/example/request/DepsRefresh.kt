@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.compose.hooks.utils.asBoolean
@@ -23,13 +24,15 @@ import xyz.junerver.composehooks.ui.component.TButton
 @Composable
 fun DepsRefresh() {
     val (state, setState, getState) = useGetState(0)
-    val (userInfo, loading, error) = useRequest(
+    val (userInfoState, loadingState, errorState) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
             defaultParams = arrayOf("junerver")
             refreshDeps = arrayOf(getState())
         }
     )
+    val userInfo by userInfoState
+    val loading by loadingState
     Surface {
         Column {
             Text("deps:${getState()}")

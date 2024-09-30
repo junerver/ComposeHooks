@@ -23,7 +23,7 @@ internal typealias TParams = Array<Any?> // 原函数可变长度的参数
 
 // 对所有函数固定抽象
 internal typealias NormalFunction<TData> = (TParams) -> TData
-internal typealias SuspendNormalFunction<TData> = suspend (TParams) -> TData
+typealias SuspendNormalFunction<TData> = suspend (TParams) -> TData
 internal typealias VoidFunction = NormalFunction<Unit>
 internal typealias SuspendVoidFunction = SuspendNormalFunction<Unit>
 

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
@@ -53,7 +54,7 @@ fun Container(label: String, optionFunc: OptionFunc) {
 
 @Composable
 fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc) {
-    val (userInfo, loading, _, request) = useRequest(
+    val (userInfoState, loadingState, _, request) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
             defaultParams = arrayOf("junerver")
@@ -93,6 +94,8 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
     useEventSubscribe { _: Unit ->
         request()
     }
+    val userInfo by userInfoState
+    val loading by loadingState
     Column(modifier = Modifier.height(100.dp)) {
         Text(text = "$label:$isUsed")
         if (loading) {
