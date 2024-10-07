@@ -22,7 +22,7 @@ English | [简体中文](https://github.com/junerver/ComposeHooks/blob/master/RE
 > NOTE: The artifact id is `hooks2`
 
 ```kotlin
-implementation("xyz.junerver.compose:hooks2:2.1.0-alpha0")
+implementation("xyz.junerver.compose:hooks2:<latest_release>")
 ```
 
 Currently only limited targets are supported:
@@ -94,11 +94,11 @@ Note: All `use` functions also have the signature of `remember`. If you prefer C
 ## Add to dependencies
 
 ```groovy
-implementation 'xyz.junerver.compose:hooks:<latest_release>'
+implementation 'xyz.junerver.compose:hooks2:<latest_release>'
 ```
 
 ```kotlin
-implementation("xyz.junerver.compose:hooks:<latest_release>")
+implementation("xyz.junerver.compose:hooks2:<latest_release>")
 ```
 
 If used in ComposeMultiplatform, use artifact id: `hooks2`
@@ -120,24 +120,27 @@ If used in ComposeMultiplatform, use artifact id: `hooks2`
 3. Use `useRef` to create object references that are not affected by component recompose
 
    ```kotlin
-   val countRef = useRef(0)
+   val countRef = useRef(0) // or `val countRef by useRef(0)`
    Button(onClick = {
-       countRef.current += 1
+       countRef.current += 1 // or `countRef += 1`
        println(countRef)
    }) {
-       Text(text = "Ref= ${countRef.current}")
+       Text(text = "Ref= ${countRef.current}") // or `countRef`
    }
    ```
 
 4. Use `useRequest` to easily manage **network query state**
 
    ```kotlin
-   val (data, loading, error, run) = useRequest(
+   val (dataState, loadingState, errorState, run) = useRequest(
        requestFn = WebService::login.asRequestFn(), //Encapsulate the corresponding extension functions yourself,to make retrofit friendly
-       optionsOf {
+       optionsOf = {
            manual = true
        }
    )
+   val data by dataState // obtained `value` through delegate
+   val loading  by loadingState
+   val error by errorState
    if (loading) {
        Text(text = "loading ....")
    }

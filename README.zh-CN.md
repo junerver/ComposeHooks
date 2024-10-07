@@ -22,7 +22,7 @@
 > 注意：工件id为 `hooks2`
 
 ```kotlin
-implementation("xyz.junerver.compose:hooks2:2.1.0-alpha0")
+implementation("xyz.junerver.compose:hooks2:<latest_release>")
 ```
 
 目前只支持有限的 target：
@@ -98,11 +98,11 @@ implementation("xyz.junerver.compose:hooks2:2.1.0-alpha0")
 ## 添加依赖
 
 ```groovy
-implementation 'xyz.junerver.compose:hooks:<latest_release>'
+implementation 'xyz.junerver.compose:hooks2:<latest_release>'
 ```
 
 ```kotlin
-implementation("xyz.junerver.compose:hooks:<latest_release>")
+implementation("xyz.junerver.compose:hooks2:<latest_release>")
 ```
 
 ## 快速开始
@@ -123,24 +123,27 @@ implementation("xyz.junerver.compose:hooks:<latest_release>")
 3. 使用 `useRef` 创建不受组件重组影响的对象引用
 
    ```kotlin
-   val countRef = useRef(0)
+   val countRef = useRef(0) // or `val countRef by useRef(0)`
    Button(onClick = {
-       countRef.current += 1
+       countRef.current += 1 // or `countRef += 1`
        println(countRef)
    }) {
-       Text(text = "Ref= ${countRef.current}")
+       Text(text = "Ref= ${countRef.current}") // or `countRef`
    }
    ```
 
 4. 使用 `useRequest` 轻松管理**网络状态**
 
    ```kotlin
-   val (data, loading, error, run) = useRequest(
+   val (dataState, loadingState, errorState, run) = useRequest(
        requestFn = WebService::login.asRequestFn(), //自行封装相应扩展函数
        optionsOf {
            manual = true
        }
    )
+   val data by dataState // 使用委托获取状态的值
+   val loading  by loadingState
+   val error by errorState
    if (loading) {
        Text(text = "loading ....")
    }
