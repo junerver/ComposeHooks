@@ -39,8 +39,5 @@ fun useIdle(timeout: Duration = 5.seconds): Pair<State<Boolean>, State<Instant>>
             window.callback = originalCallback
         }
     }
-    return Pair(
-        idle,
-        lastActive
-    )
+    return remember { Pair(idle, lastActive) }
 }

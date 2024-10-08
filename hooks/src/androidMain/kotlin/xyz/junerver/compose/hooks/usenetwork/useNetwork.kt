@@ -2,10 +2,13 @@ package xyz.junerver.compose.hooks.usenetwork
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import xyz.junerver.compose.hooks.ComposeComponent
+import xyz.junerver.compose.hooks.ReactContext
 import xyz.junerver.compose.hooks.createContext
 import xyz.junerver.compose.hooks.useContext
 
@@ -23,14 +26,14 @@ data class NetworkState(
     val connectType: ConnectType = ConnectType.None,
 )
 
-val NetworkContext by lazy { createContext(NetworkState()) }
+internal val NetworkContext: ReactContext<State<NetworkState>> by lazy { createContext(mutableStateOf(NetworkState())) }
 
 /**
  * 直接到处使用该hook会导致大量的监听器回调创建，虽影响不大，但是更建议使用
  * [NetworkProvider]作为根组件，配合 [rememberNetwork] 来使用。
  */
 @Composable
-fun useNetwork(): NetworkState {
+fun useNetwork(): State<NetworkState> {
     val context = LocalContext.current
     remember {
         NetConnectManager.init(context)
@@ -51,7 +54,7 @@ fun useNetwork(): NetworkState {
         awaitDispose {
             NetConnectManager.removeListener(typeChangeListener, statusChangeListener)
         }
-    }.value
+    }
 }
 
 /**

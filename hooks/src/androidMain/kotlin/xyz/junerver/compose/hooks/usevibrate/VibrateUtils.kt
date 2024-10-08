@@ -14,15 +14,15 @@ import androidx.core.content.getSystemService
 /**
  * 触发短震动
  */
-fun Context.vibrateShort() {
-    vibrate(100)
+fun Context.vibrateShort(milliseconds: Long = 100) {
+    vibrate(milliseconds)
 }
 
 /**
  * 触发长震动
  */
-fun Context.vibrateLong() {
-    vibrate(400)
+fun Context.vibrateLong(milliseconds: Long = 400) {
+    vibrate(milliseconds)
 }
 
 private fun Context.vibrate(milliseconds: Long) {

@@ -12,10 +12,10 @@ import androidx.compose.ui.platform.LocalContext
 */
 
 @Composable
-fun useVibrate(): Pair<() -> Unit, () -> Unit> {
+fun useVibrate(short: Long = 100, long: Long = 400): Pair<() -> Unit, () -> Unit> {
     val ctx = LocalContext.current
     return Pair(
-        first = { ctx.vibrateShort() },
-        second = { ctx.vibrateLong() }
+        first = { ctx.vibrateShort(short) },
+        second = { ctx.vibrateLong(long) }
     )
 }
