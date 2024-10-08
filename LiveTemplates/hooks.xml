@@ -1,12 +1,9 @@
 <templateSet group="hooks">
-    <template name="ur" value="val ($data$, $loading$, $error$, $run$, $mutate$, $refresh$, $cancel$) = useRequest(&#10;    requestFn = $request$,&#10;    optionsOf {&#10;        defaultParams = arrayOf($1$, $2$)&#10;    })" description="useRequest" toReformat="false" toShortenFQNames="true">
+    <template name="ur" value="val ($data$State, $loading$State, $error$State, $req$) = useRequest(&#10;    requestFn = $request$,&#10;    optionsOf = {&#10;        defaultParams = arrayOf($1$, $2$)&#10;    })&#10;val $data$ by $data$State&#10;val $loading$ by $loading$State&#10;val $error$ by $error$State&#10;" description="useRequest" toReformat="false" toShortenFQNames="true">
         <variable name="data" expression="" defaultValue="&quot;data&quot;" alwaysStopAt="true" />
         <variable name="loading" expression="" defaultValue="&quot;loading&quot;" alwaysStopAt="true" />
         <variable name="error" expression="" defaultValue="&quot;error&quot;" alwaysStopAt="true" />
-        <variable name="run" expression="" defaultValue="&quot;run&quot;" alwaysStopAt="true" />
-        <variable name="mutate" expression="" defaultValue="&quot;mutate&quot;" alwaysStopAt="true" />
-        <variable name="refresh" expression="" defaultValue="&quot;refresh&quot;" alwaysStopAt="true" />
-        <variable name="cancel" expression="" defaultValue="&quot;cancel&quot;" alwaysStopAt="true" />
+        <variable name="req" expression="" defaultValue="" alwaysStopAt="true" />
         <variable name="request" expression="" defaultValue="" alwaysStopAt="true" />
         <variable name="1" expression="" defaultValue="" alwaysStopAt="true" />
         <variable name="2" expression="" defaultValue="" alwaysStopAt="true" />
@@ -14,7 +11,7 @@
             <option name="KOTLIN" value="true" />
         </context>
     </template>
-    <template name="us" value="val ($state$, set$State$, get$State$) = useGetState($default$)" description="useGetState" toReformat="false" toShortenFQNames="true">
+    <template name="us" value="val ($state$State, set$State$, get$State$) = useGetState($default$)&#10;val $state$ by $state$State" description="useGetState" toReformat="false" toShortenFQNames="true">
         <variable name="state" expression="" defaultValue="&quot;state&quot;" alwaysStopAt="true" />
         <variable name="State" expression="" defaultValue="capitalize(state)" alwaysStopAt="true" />
         <variable name="default" expression="" defaultValue="" alwaysStopAt="true" />
@@ -39,7 +36,8 @@
             <option name="KOTLIN_STATEMENT" value="true" />
         </context>
     </template>
-    <template name="uun" value="val (state, set, reset, undo, redo, canUndo, canRedo) = useUndo(initialPresent = &quot;&quot;)" description="useUndo" toReformat="false" toShortenFQNames="true">
+    <template name="uun" value="val ($state$State, set, reset, undo, redo, canUndo, canRedo) = useUndo(initialPresent = &quot;&quot;)&#10;val $state$ by $state$State" description="useUndo" toReformat="false" toShortenFQNames="true">
+        <variable name="state" expression="" defaultValue="" alwaysStopAt="true" />
         <context>
             <option name="KOTLIN_STATEMENT" value="true" />
         </context>
