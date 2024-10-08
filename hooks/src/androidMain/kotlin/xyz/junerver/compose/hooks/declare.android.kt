@@ -12,7 +12,7 @@ import xyz.junerver.compose.hooks.usevibrate.useVibrate
 
 //region useDeviceInfo
 @Composable
-fun rememberBatteryInfo(): BatteryInfo = useBatteryInfo()
+fun rememberBatteryInfo() = useBatteryInfo()
 
 @Composable
 fun rememberBuildInfo(): BuildInfo = useBuildInfo()

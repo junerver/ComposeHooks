@@ -33,7 +33,7 @@ import xyz.junerver.composehooks.ui.component.TButton
 */
 @Composable
 fun UseDeviceInfoExample() {
-    val batteryInfo = useBatteryInfo()
+    val batteryInfo by useBatteryInfo()
     val buildInfo = useBuildInfo()
     val screenInfo = useScreenInfo()
     val (disable, enable, isDisableState) = useDisableScreenshot()
