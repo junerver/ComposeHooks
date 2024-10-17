@@ -5,20 +5,20 @@ appcompat = "1.7.0"
 
 arrowCore = "1.2.4"
 kotlinMultiplatformAppdirs = "1.1.1"
-ktorVersion = "2.3.12"
+ktorVersion = "3.0.0"
 mmkvKotlin = "1.2.14"
 navigationComposeVersion = "2.7.0-alpha07"
 logbackClassic = "1.5.6"
 
-activityCompose = "1.9.2"
-androidx-lifecycle = "2.8.2"
+activityCompose = "1.9.3"
+androidx-lifecycle = "2.8.3"
 biometric = "1.2.0-alpha05"
 
-compose-plugin = "1.6.11"
+compose-plugin = "1.7.0"
 kotlinxDatetime = "0.6.1"
 kotlinxCollectionsImmutable = "0.3.7"
-kotlinxCoroutines = "1.8.1"
-kotlinxSerializationJson = "1.7.1"
+kotlinxCoroutines = "1.9.0"
+kotlinxSerializationJson = "1.7.3"
 slf4jAndroid = "1.7.36"
 
 [libraries]
