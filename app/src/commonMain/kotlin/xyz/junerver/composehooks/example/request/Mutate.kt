@@ -154,6 +154,7 @@ private fun AutoRollback() {
     )
     val userInfo by userInfoState
     val loading by loadingState
+
     fun mockFnChangeName(newName: String) {}
 
     Column {

@@ -53,7 +53,7 @@ suspend fun mockRequest(s1: String, s2: String): MockInfo {
 fun ErrorRetry() {
     var count by useState("")
 
-    val (mockInfoState, stuLoadingState, errState,) = useRequest(
+    val (mockInfoState, stuLoadingState, errState) = useRequest(
         requestFn = {
             mockRequest(it[0] as String, it[1] as String)
         },

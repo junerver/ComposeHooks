@@ -11,6 +11,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -48,7 +49,11 @@ fun UseStateExample() {
             Text(text = "this is a simple controlled component:")
             OutlinedTextField(value = state, onValueChange = setState)
             Text(text = "input：$state")
-            Spacer(modifier = Modifier.height(20.dp))
+            HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp))
+            Text(
+                "Don't destructure `useState`, it will cause the following problems：",
+                modifier = Modifier.padding(top = 20.dp, bottom = 20.dp)
+            )
             UseStateQuestionOne()
             Spacer(modifier = Modifier.height(20.dp))
             HorizontalDivider(
@@ -58,7 +63,8 @@ fun UseStateExample() {
             )
             Spacer(modifier = Modifier.height(20.dp))
             UseStateQuestionTwo()
-            Spacer(modifier = Modifier.height(20.dp))
+            HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 20.dp))
+            Text("Demonstrates how to avoid closure problems, please see the sample code")
             HowToAvoidClosureProblems()
         }
     }
@@ -66,22 +72,23 @@ fun UseStateExample() {
 
 @Composable
 private fun UseStateQuestionOne() {
+    val (state, setState) = useState("destructure State")
+
     /** Direct use mutable state */
-    val directState = useState(default = "direct")
-
-    val (state, setState) = useState("state")
-
-    val (state2, setState2, getState) = useGetState("useGetState")
+    val directState = useState(default = "directly read and write the MutableState value")
 
     var byState by useState("by delegate")
+
+    val (state2, setState2, getState) = useGetState("useGetState")
 
     // When using destructuring declarations, you need to pay special attention to coroutine scenarios.
     LaunchedEffect(key1 = Unit) {
         repeat(10) {
             delay(1.seconds)
-            directState.value += "."
-            // Closure problems will occur when using the value of state in a closure function
+            // Closure issues occur when using destructured state values in closure functions
             setState("$state.")
+            // Directly using MutableState to access the state value will not cause closure problems
+            directState.value += "."
             // by delegate, it will not cause closure problems
             byState += "."
             // useState + useLatestRef ,Can avoid closure problems
@@ -91,35 +98,36 @@ private fun UseStateQuestionOne() {
     Column {
         Text(text = "Question1. Closure problems")
         Text(text = state)
-        Text(text = state2.value)
-        Text(text = byState)
         Text(text = directState.value)
+        Text(text = byState)
+        Text(text = state2.value)
     }
 }
 
 /**
  * 如果我们直接对 [MutableState] 进行解构，在快速更新状态的场景会导致状态不更新；
  * 解决方法：
- * 1. 使用 by 委托
- * 2. 直接使用 state.value
+ * 1. 使用 `by` 委托
+ * 2. 直接使用 [MutableState.value]
  * 3. 使用 [useGetState]
  */
 @Composable
 private fun UseStateQuestionTwo() {
-    val directState = useState(default = "direct")
-
     // useLatestRef 可以避免闭包问题
-    val (state, setState) = useState("stateRef")
+    val (state, setState) = useState("destructure State")
     val stateRef = useLatestRef(state)
+
+    val directState = useState(default = "directly read and write the MutableState value")
+
+    var byState by useState("by delegate")
 
     val (state2, setState2, getState) = useGetState("useGetState")
 
-    var byState by useState("by delegate")
     LaunchedEffect(key1 = Unit) {
         repeat(20) {
-            directState.value += "."
             // If you call the set function quickly(millisecond level), there will be a problem of state loss.
             setState("${stateRef.current}.")
+            directState.value += "."
             // if use by delegate, can modify status correctly
             byState += "."
             setState2(getState() + '.')
@@ -128,9 +136,9 @@ private fun UseStateQuestionTwo() {
     Column {
         Text(text = "Question2. modify state very quickly")
         Text(text = state)
-        Text(text = state2.value)
-        Text(text = byState)
         Text(text = directState.value)
+        Text(text = byState)
+        Text(text = state2.value)
     }
 }
 

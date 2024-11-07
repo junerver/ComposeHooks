@@ -2,7 +2,10 @@ package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -48,15 +51,16 @@ fun UseContextExample() {
             /**
              * 不建议直接将[dispatch]传递给[Provider]
              */
-            /**
-             * 不建议直接将[dispatch]传递给[Provider]
-             */
             { newName: String -> dispatch(SimpleAction.ChangeName(newName)) },
             { dispatch(SimpleAction.AgeIncrease) }
         )
     ) {
         Surface {
             Column {
+                Text(
+                    "Use `useContext` to easily pass states or events to child components, avoiding layer-by-layer transmission between components"
+                )
+                HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 20.dp))
                 Text(text = "ChileOne:")
                 ChildOne()
                 Spacer(modifier = Modifier.height(20.dp))
