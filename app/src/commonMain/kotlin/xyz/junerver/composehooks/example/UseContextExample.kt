@@ -2,10 +2,7 @@ package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -15,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.*
+import xyz.junerver.composehooks.example.request.DividerSpacer
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -60,7 +58,7 @@ fun UseContextExample() {
                 Text(
                     "Use `useContext` to easily pass states or events to child components, avoiding layer-by-layer transmission between components"
                 )
-                HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 20.dp))
+                DividerSpacer()
                 Text(text = "ChileOne:")
                 ChildOne()
                 Spacer(modifier = Modifier.height(20.dp))

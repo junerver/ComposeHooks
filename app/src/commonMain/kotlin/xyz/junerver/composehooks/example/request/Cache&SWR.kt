@@ -2,17 +2,11 @@ package xyz.junerver.composehooks.example.request
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import kotlin.coroutines.coroutineContext
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
@@ -56,8 +50,7 @@ fun Cache() {
     Surface {
         Column {
             TestSWR()
-            Spacer(modifier = Modifier.height(20.dp))
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+            DividerSpacer()
             TestStaleTime()
         }
     }
@@ -73,7 +66,7 @@ private fun TestSWR() {
         if (isVisible.value) {
             SWR()
         }
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+        DividerSpacer()
         if (isVisible.value) {
             SWR(true)
         }
@@ -98,7 +91,7 @@ private fun SWR(useCache: Boolean = false) {
     )
     val data by dataState
     val loading by loadingState
-    Column(modifier = Modifier.height(210.dp)) {
+    Column {
         Text(text = "cache: $useCache", color = Color.Red)
         Text(text = "Background loading: $loading")
         if (data.asBoolean()) {
@@ -143,7 +136,7 @@ private fun StaleTime(cacheKey: String) {
     )
     val data by dataState
     val loading by loadingState
-    Column(modifier = Modifier.height(210.dp)) {
+    Column {
         Text(text = "statleTime: 5s", color = Color.Red)
         Text(text = "Background loading: $loading")
         if (data.asBoolean()) {

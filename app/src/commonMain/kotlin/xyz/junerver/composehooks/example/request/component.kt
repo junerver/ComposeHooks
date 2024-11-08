@@ -1,9 +1,9 @@
 package xyz.junerver.composehooks.example.request
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.*
+import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.composehooks.net.NetApi
@@ -27,10 +28,7 @@ import xyz.junerver.composehooks.ui.component.TButton
 
 @Composable
 fun DividerSpacer() {
-    Column {
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
-        Spacer(modifier = Modifier.height(20.dp))
-    }
+    HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 20.dp))
 }
 
 enum class OptionFunc {
@@ -61,9 +59,9 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
             when (optionFunc) {
                 OptionFunc.LoadingDelay -> run {
                     /**
-                     * 当你配置了[loadingDelay]，如果请求在这个时间之内返回就不会引起loading的变化，
+                     * 当你配置了[RequestOptions.loadingDelay]，如果请求在这个时间之内返回就不会引起loading的变化，
                      * 这可以避免闪烁，适用于接口较为快速返回的场景。
-                     * When you configure [loadingDelay], if the request response within this duration,
+                     * When you configure [RequestOptions.loadingDelay], if the request response within this duration,
                      * it will not cause loading state changes.
                      * This can avoid flickering and is suitable for scenarios
                      * where the interface returns quickly.
@@ -97,7 +95,7 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
     val userInfo by userInfoState
     val loading by loadingState
     Column(modifier = Modifier.height(100.dp)) {
-        Text(text = "$label:$isUsed")
+        Text(text = "$label:$isUsed${if (isUsed) " $label wait 3seconds" else ""}")
         if (loading) {
             Text(text = "Loading ...")
         } else if (userInfo.asBoolean()) {

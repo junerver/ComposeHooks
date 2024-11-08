@@ -2,10 +2,8 @@ package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -24,6 +22,7 @@ import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.useState
+import xyz.junerver.composehooks.example.request.DividerSpacer
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -49,21 +48,17 @@ fun UseStateExample() {
             Text(text = "this is a simple controlled component:")
             OutlinedTextField(value = state, onValueChange = setState)
             Text(text = "input：$state")
-            HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp))
+            DividerSpacer()
             Text(
                 "Don't destructure `useState`, it will cause the following problems：",
                 modifier = Modifier.padding(top = 20.dp, bottom = 20.dp)
             )
             UseStateQuestionOne()
             Spacer(modifier = Modifier.height(20.dp))
-            HorizontalDivider(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(20.dp)
-            )
+            DividerSpacer()
             Spacer(modifier = Modifier.height(20.dp))
             UseStateQuestionTwo()
-            HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 20.dp))
+            DividerSpacer()
             Text("Demonstrates how to avoid closure problems, please see the sample code")
             HowToAvoidClosureProblems()
         }

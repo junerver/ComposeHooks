@@ -1,23 +1,19 @@
 package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import xyz.junerver.compose.hooks.useCountdown
 import xyz.junerver.compose.hooks.useState
+import xyz.junerver.composehooks.example.request.DividerSpacer
 
 /*
   Description:
@@ -32,7 +28,7 @@ fun UseCountdownExample() {
     Surface {
         Column {
             SimpleOne()
-            HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 20.dp))
+            DividerSpacer()
             SimpleTwo()
         }
     }

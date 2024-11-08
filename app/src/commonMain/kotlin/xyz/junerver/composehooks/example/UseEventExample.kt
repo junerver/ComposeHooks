@@ -2,16 +2,14 @@ package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
 import kotlin.random.Random
 import xyz.junerver.compose.hooks.useEventPublish
 import xyz.junerver.compose.hooks.useEventSubscribe
 import xyz.junerver.compose.hooks.useGetState
+import xyz.junerver.composehooks.example.request.DividerSpacer
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -58,6 +56,6 @@ fun SubComponent(index: Int) {
                 refresh()
             }
         }
-        HorizontalDivider(modifier = Modifier.fillMaxWidth())
+        DividerSpacer()
     }
 }

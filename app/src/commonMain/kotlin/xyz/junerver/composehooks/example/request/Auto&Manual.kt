@@ -3,11 +3,9 @@ package xyz.junerver.composehooks.example.request
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,7 +36,7 @@ fun AutoManual() {
         ) {
             Auto()
             Spacer(modifier = Modifier.height(10.dp))
-            HorizontalDivider(modifier = Modifier.fillMaxWidth())
+            DividerSpacer()
             Manual()
         }
     }
