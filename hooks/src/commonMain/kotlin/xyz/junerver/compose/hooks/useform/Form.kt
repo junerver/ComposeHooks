@@ -55,12 +55,8 @@ class FormScope private constructor(
     private val formRefRef: Ref<FormRef>,
     private val formInstance: FormInstance,
 ) {
-    @Deprecated(
-        "use vararg params",
-        ReplaceWith("FormItem(name = name, validators = validators.toTypedArray(), content = content)")
-    )
     @Composable
-    fun <T : Any> FormItem(
+    private fun <T : Any> FormItem(
         name: String,
         validators: List<Validator> = emptyList(),
         content: @Composable (Triple<MutableState<T?>, Boolean, List<String>>) -> Unit,

@@ -83,18 +83,6 @@ data class RequestOptions<TData> internal constructor(
     @Stable
     var pollingErrorRetryCount: Int = -1,
     /**
-     * 通过配置参数为 [DebounceOptions.wait] 开启防抖功能，默认值为0，不开启防抖
-     */
-    @Deprecated("Use debounceOptionsOf instead", ReplaceWith("debounceOptionsOf"))
-    @Stable
-    var debounceOptions: DebounceOptions = DebounceOptions.optionOf { wait = 0.seconds },
-    /**
-     * 通过配置参数为 [ThrottleOptions.wait] 开启节流功能，默认值为0，不开启节流
-     */
-    @Deprecated("Use throttleOptionsOf instead", ReplaceWith("throttleOptionsOf"))
-    @Stable
-    var throttleOptions: ThrottleOptions = ThrottleOptions.optionOf { wait = 0.seconds },
-    /**
      * 通过设置 options.ready，可以控制请求是否发出。当其值为 false 时，请求永远都不会发出。
      *
      * 其具体行为如下：
@@ -153,7 +141,22 @@ data class RequestOptions<TData> internal constructor(
         }
     }
 
+    /**
+     * 通过配置参数为 [DebounceOptions.wait] 开启防抖功能，默认值为0，不开启防抖
+     */
+    @Stable
+    internal var debounceOptions: DebounceOptions = DebounceOptions.optionOf { wait = 0.seconds }
+
+    /**
+     * 通过配置参数为 [ThrottleOptions.wait] 开启节流功能，默认值为0，不开启节流
+     */
+    @Stable
+    internal var throttleOptions: ThrottleOptions = ThrottleOptions.optionOf { wait = 0.seconds }
+
+    @Stable
     var debounceOptionsOf: DebounceOptions.() -> Unit by DebounceOptionsDelegate { wait = 0.seconds }
+
+    @Stable
     var throttleOptionsOf: ThrottleOptions.() -> Unit by ThrottleOptionsDelegate { wait = 0.seconds }
 
     override fun equals(other: Any?): Boolean {

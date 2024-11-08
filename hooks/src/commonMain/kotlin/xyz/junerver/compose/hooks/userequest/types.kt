@@ -338,12 +338,18 @@ fun <T : Any> useEmptyPlugin(): Plugin<T> {
 }
 
 /** 用于判断处理动作 */
-internal enum class Methods {
-    OnBefore,
-    OnRequest,
-    OnSuccess,
-    OnError,
-    OnFinally,
-    OnCancel,
-    OnMutate,
+internal sealed interface Methods {
+    class OnBefore(val params: TParams) : Methods
+
+    class OnRequest<TData>(var requestFn: SuspendNormalFunction<TData>, val params: TParams) : Methods
+
+    class OnSuccess<TData>(val result: TData, val params: TParams) : Methods
+
+    class OnError(var error: Throwable, val params: TParams) : Methods
+
+    class OnFinally<TData>(val params: TParams, val result: TData?, val error: Throwable?) : Methods
+
+    data object OnCancel : Methods
+
+    class OnMutate<TData>(val result: TData) : Methods
 }

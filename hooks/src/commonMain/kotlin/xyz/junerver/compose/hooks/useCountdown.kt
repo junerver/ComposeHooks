@@ -38,11 +38,8 @@ data class CountdownOptions internal constructor(
     companion object : Options<CountdownOptions>(::CountdownOptions)
 }
 
-@Deprecated(
-    "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
-)
 @Composable
-fun useCountdown(options: CountdownOptions): CountdownHolder {
+private fun useCountdown(options: CountdownOptions): CountdownHolder {
     val (leftTime, targetDate, interval, onEnd) = options
     require(leftTime.asBoolean() || targetDate.asBoolean()) {
         "'leftTime' or 'targetDate' must be set"

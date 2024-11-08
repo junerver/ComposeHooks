@@ -122,7 +122,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
             returnNow = false
         ).copy(
             // 如果列表不为空，则说明onBefore有返回，返回的对象必须实现copy函数，来达成用后一个的值覆盖前一个
-            (runPluginHandler(Methods.OnBefore, latestParams) as List<OnBeforeReturn<TData>>).cover()
+            (runPluginHandler(Methods.OnBefore(latestParams)) as List<OnBeforeReturn<TData>>).cover()
                 ?.asNotNullMap()
         )
         val (stopNow, returnNow) = onBeforeReturn
@@ -146,9 +146,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
             var (serviceDeferred) = OnRequestReturn<TData>().copy(
                 (
                     runPluginHandler(
-                        Methods.OnRequest,
-                        requestFn,
-                        latestParams
+                        Methods.OnRequest(requestFn, latestParams)
                     ) as List<OnRequestReturn<TData>>
                 ).cover()
             )
@@ -162,11 +160,11 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
                 Keys.error to null
             )
             options.onSuccess.invoke(result, latestParams)
-            runPluginHandler(Methods.OnSuccess, result, latestParams)
+            runPluginHandler(Methods.OnSuccess(result, latestParams))
             // 回调finally
             options.onFinally.invoke(latestParams, result, null)
             if (currentCount == count) {
-                runPluginHandler(Methods.OnFinally, latestParams, result, null)
+                runPluginHandler(Methods.OnFinally(latestParams, result, null))
             }
         } catch (error: Throwable) {
             if (currentCount != count) return@coroutineScope
@@ -175,10 +173,10 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
                 Keys.error to error
             )
             options.onError.invoke(error, latestParams)
-            runPluginHandler(Methods.OnError, error, latestParams)
+            runPluginHandler(Methods.OnError(error, latestParams))
             options.onFinally.invoke(latestParams, null, error)
             if (currentCount == count) {
-                runPluginHandler(Methods.OnFinally, latestParams, null, error)
+                runPluginHandler(Methods.OnFinally(latestParams, null, error))
             }
         }
     }
@@ -221,49 +219,49 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
      */
     override fun mutate(mutateFn: (TData?) -> TData) {
         val targetData = mutateFn(fetchState.data)
-        runPluginHandler(Methods.OnMutate, targetData)
+        runPluginHandler(Methods.OnMutate(targetData))
         setState(Keys.data to targetData)
     }
 
     @Suppress("UNCHECKED_CAST")
-    private fun runPluginHandler(method: Methods, vararg rest: Any?): List<*> = pluginImpls.mapNotNull {
+    private fun runPluginHandler(method: Methods): List<*> = pluginImpls.mapNotNull {
         when (method) {
-            Methods.OnBefore -> {
-                it.onBefore?.invoke(rest[0] as TParams)
+            is Methods.OnBefore -> {
+                it.onBefore?.invoke(method.params)
             }
 
-            Methods.OnRequest -> {
+            is Methods.OnRequest<*> -> {
                 it.onRequest?.invoke(
-                    rest[0] as SuspendNormalFunction<TData>,
-                    rest[1] as TParams
+                    method.requestFn as SuspendNormalFunction<TData>,
+                    method.params
                 )
             }
             /**
              * 参数1：请求的返回值，参数2：请求使用的参数
              */
-            Methods.OnSuccess -> {
+            is Methods.OnSuccess<*> -> {
                 it.onSuccess?.invoke(
-                    rest[0] as TData,
-                    rest[1] as TParams
+                    method.result as TData,
+                    method.params
                 )
             }
             /**
              * 参数1：错误，参数2：请求使用的参数
              */
-            Methods.OnError -> {
+            is Methods.OnError -> {
                 it.onError?.invoke(
-                    rest[0] as Throwable,
-                    rest[1] as TParams
+                    method.error,
+                    method.params
                 )
             }
             /**
              * 参数1：请求使用的参数，参数2：请求的返回值，参数3：错误
              */
-            Methods.OnFinally -> {
+            is Methods.OnFinally<*> -> {
                 it.onFinally?.invoke(
-                    rest[0] as TParams,
-                    rest[1] as TData?,
-                    rest[2] as Throwable?
+                    method.params,
+                    method.result as TData?,
+                    method.error
                 )
             }
 
@@ -273,8 +271,8 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
             /**
              * 参数1：要修改的目标数据
              */
-            Methods.OnMutate -> {
-                it.onMutate?.invoke(rest[0] as TData)
+            is Methods.OnMutate<*> -> {
+                it.onMutate?.invoke(method.result as TData)
             }
         }
     }

@@ -45,11 +45,8 @@ data class CounterOptions internal constructor(
  * }.right())
  * ```
  */
-@Deprecated(
-    "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
-)
 @Composable
-fun useCounter(initialValue: Int = 0, options: CounterOptions): CounterHolder {
+private fun useCounter(initialValue: Int = 0, options: CounterOptions): CounterHolder {
     val (current, setCurrent, getCurrent) = useGetState(getTargetValue(initialValue, options))
     val setValue: SetValueFn<Either<Int, (Int) -> Int>> = { value: Either<Int, (Int) -> Int> ->
         val target = value.fold(

@@ -89,11 +89,23 @@ internal class Debounce(
     }
 }
 
-@Deprecated(
-    "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
-)
 @Composable
-fun <S> useDebounce(value: S, options: DebounceOptions = remember { DebounceOptions() }): State<S> {
+fun <S> useDebounce(value: S, optionsOf: DebounceOptions.() -> Unit = {}): State<S> =
+    useDebounce(value, remember { DebounceOptions.optionOf(optionsOf) })
+
+@Composable
+fun useDebounceFn(fn: VoidFunction, optionsOf: DebounceOptions.() -> Unit = {}): VoidFunction =
+    useDebounceFn(fn, remember { DebounceOptions.optionOf(optionsOf) })
+
+@Composable
+fun useDebounceEffect(vararg keys: Any?, optionsOf: DebounceOptions.() -> Unit = {}, block: SuspendAsyncFn) = useDebounceEffect(
+    keys = keys,
+    remember { DebounceOptions.optionOf(optionsOf) },
+    block
+)
+
+@Composable
+private fun <S> useDebounce(value: S, options: DebounceOptions = remember { DebounceOptions() }): State<S> {
     val (debounced, setDebounced) = _useGetState(value)
     val debouncedSet = useDebounceFn(fn = {
         setDebounced(value)
@@ -104,20 +116,13 @@ fun <S> useDebounce(value: S, options: DebounceOptions = remember { DebounceOpti
     return debounced
 }
 
-@Composable
-fun <S> useDebounce(value: S, optionsOf: DebounceOptions.() -> Unit): State<S> =
-    useDebounce(value, remember { DebounceOptions.optionOf(optionsOf) })
-
 /**
  * 需要注意：[Debounce] 不返回计算结果，在 Compose 中我们无法使用 [Debounce] 透传出结算结果，应该使用状态，而非
  * [Debounce] 的返回值。 例如我们有一个计算函数，我们应该设置一个状态作为结果的保存。函数计算后的结果，通过调用对应的
  * `setState(state:T)` 函数来传递。保证结算结果（状态）与计算解耦。 这样我们的[Debounce] 就可以无缝接入。
  */
-@Deprecated(
-    "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
-)
 @Composable
-fun useDebounceFn(fn: VoidFunction, options: DebounceOptions = remember { DebounceOptions() }): VoidFunction {
+private fun useDebounceFn(fn: VoidFunction, options: DebounceOptions = remember { DebounceOptions() }): VoidFunction {
     val latestFn by useLatestState(value = fn)
     val scope = rememberCoroutineScope()
     val debounced = remember {
@@ -127,14 +132,7 @@ fun useDebounceFn(fn: VoidFunction, options: DebounceOptions = remember { Deboun
 }
 
 @Composable
-fun useDebounceFn(fn: VoidFunction, optionsOf: DebounceOptions.() -> Unit): VoidFunction =
-    useDebounceFn(fn, remember { DebounceOptions.optionOf(optionsOf) })
-
-@Deprecated(
-    "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
-)
-@Composable
-fun useDebounceEffect(vararg keys: Any?, options: DebounceOptions = remember { DebounceOptions() }, block: SuspendAsyncFn) {
+private fun useDebounceEffect(vararg keys: Any?, options: DebounceOptions = remember { DebounceOptions() }, block: SuspendAsyncFn) {
     val debouncedBlock = useDebounceFn(fn = { params ->
         (params[0] as CoroutineScope).launch {
             this.block()
@@ -145,10 +143,3 @@ fun useDebounceEffect(vararg keys: Any?, options: DebounceOptions = remember { D
         debouncedBlock(scope)
     }
 }
-
-@Composable
-fun useDebounceEffect(vararg keys: Any?, optionsOf: DebounceOptions.() -> Unit, block: SuspendAsyncFn) = useDebounceEffect(
-    keys = keys,
-    remember { DebounceOptions.optionOf(optionsOf) },
-    block
-)

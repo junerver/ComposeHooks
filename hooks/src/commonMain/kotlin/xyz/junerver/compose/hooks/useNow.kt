@@ -29,11 +29,14 @@ data class UseNowOptions(
     companion object : Options<UseNowOptions>(::UseNowOptions)
 }
 
-@Deprecated(
-    "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
-)
 @Composable
-fun useNow(options: UseNowOptions = remember { UseNowOptions() }): State<String> {
+fun useNow(optionsOf: UseNowOptions.() -> Unit = {}) = useNow(remember { UseNowOptions.optionOf(optionsOf) })
+
+internal fun Long.toLocalDateTime(timeZone: TimeZone = TimeZone.currentSystemDefault()) =
+    Instant.fromEpochMilliseconds(this).toLocalDateTime(timeZone)
+
+@Composable
+private fun useNow(options: UseNowOptions = remember { UseNowOptions() }): State<String> {
     val (interval, format) = with(options) { Pair(interval, format) }
     val sdfRef = remember {
         LocalDateTime.Format {
@@ -51,7 +54,7 @@ fun useNow(options: UseNowOptions = remember { UseNowOptions() }): State<String>
         }
     }
     val (time) = useTimestamp(
-        TimestampOptions.optionOf {
+        optionsOf = {
             this.interval = interval
         }
     )
@@ -60,9 +63,3 @@ fun useNow(options: UseNowOptions = remember { UseNowOptions() }): State<String>
     }
     return date
 }
-
-@Composable
-fun useNow(optionsOf: UseNowOptions.() -> Unit) = useNow(remember { UseNowOptions.optionOf(optionsOf) })
-
-internal fun Long.toLocalDateTime(timeZone: TimeZone = TimeZone.currentSystemDefault()) =
-    Instant.fromEpochMilliseconds(this).toLocalDateTime(timeZone)

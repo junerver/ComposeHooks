@@ -22,12 +22,8 @@ object Form
 @Composable
 fun Form.useForm(): FormInstance = remember { FormInstance() }
 
-@Deprecated(
-    "Please use namespace `Form`, just like`Form.useForm()`",
-    ReplaceWith("Form.useForm()", "xyz.junerver.compose.hooks.useform.Form")
-)
 @Composable
-fun useForm(): FormInstance = Form.useForm()
+private fun useForm(): FormInstance = Form.useForm()
 
 /**
  * 使用这个 Hook 你可以在 [FormScope] 外直接获取一个字段的内容**状态**

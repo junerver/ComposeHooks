@@ -32,69 +32,12 @@ data class TimestampOptions internal constructor(
     companion object : Options<TimestampOptions>(::TimestampOptions)
 }
 
-/**
- * Use timestamp
- *
- * @param options
- * @param autoResume If automatically execute resume when entering the component
- * @return
- */
-@Deprecated(
-    "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
-)
 @Composable
-fun useTimestamp(options: TimestampOptions = remember { TimestampOptions() }, autoResume: Boolean = true): TimestampHolder {
-    val (interval, offset, callback) = with(options) { Triple(interval, offset, callback) }
-    val timestamp = useState(default = currentTime)
-    val (resume, pause, isActive) = useInterval(
-        IntervalOptions.optionOf {
-            period = interval
-        }
-    ) {
-        timestamp.value = currentTime + offset
-        callback?.invoke(timestamp.value.toEpochMilliseconds())
-    }
-    useMount {
-        if (autoResume) resume()
-    }
-    val timestampState = useState { timestamp.value.toEpochMilliseconds() }
-    return remember { TimestampHolder(timestampState, pause, resume, isActive) }
-}
-
-@Composable
-fun useTimestamp(optionsOf: TimestampOptions.() -> Unit, autoResume: Boolean = true): TimestampHolder =
+fun useTimestamp(optionsOf: TimestampOptions.() -> Unit = {}, autoResume: Boolean = true): TimestampHolder =
     useTimestamp(remember { TimestampOptions.optionOf(optionsOf) }, autoResume)
 
-/**
- * Use timestamp ref
- *
- * @param options
- * @param autoResume If automatically execute resume when entering the component
- * @return
- */
-@Deprecated(
-    "Please use the performance-optimized version. Do not pass the Options instance directly. You can simply switch by adding `=` after the `optionsOf` function. If you need to use an older version, you need to explicitly declare the parameters as `options`"
-)
 @Composable
-fun useTimestampRef(options: TimestampOptions = remember { TimestampOptions() }, autoResume: Boolean = true): TimestampRefHolder {
-    val (interval, offset, callback) = with(options) { Triple(interval, offset, callback) }
-    val timestampRef = useRef(default = currentTime.toEpochMilliseconds())
-    val (resume, pause, isActive) = useInterval(
-        IntervalOptions.optionOf {
-            period = interval
-        }
-    ) {
-        timestampRef.current = (currentTime + offset).toEpochMilliseconds()
-        callback?.invoke(timestampRef.current)
-    }
-    useMount {
-        if (autoResume) resume()
-    }
-    return remember { TimestampRefHolder(timestampRef, pause, resume, isActive) }
-}
-
-@Composable
-fun useTimestampRef(optionsOf: TimestampOptions.() -> Unit, autoResume: Boolean = true): TimestampRefHolder = useTimestampRef(
+fun useTimestampRef(optionsOf: TimestampOptions.() -> Unit = {}, autoResume: Boolean = true): TimestampRefHolder = useTimestampRef(
     remember { TimestampOptions.optionOf(optionsOf) },
     autoResume
 )
@@ -114,3 +57,54 @@ data class TimestampRefHolder(
     val resume: ResumeFn,
     val isActive: IsActive,
 )
+
+/**
+ * Use timestamp
+ *
+ * @param options
+ * @param autoResume If automatically execute resume when entering the component
+ * @return
+ */
+@Composable
+private fun useTimestamp(options: TimestampOptions = remember { TimestampOptions() }, autoResume: Boolean = true): TimestampHolder {
+    val (interval, offset, callback) = with(options) { Triple(interval, offset, callback) }
+    val timestamp = useState(default = currentTime)
+    val (resume, pause, isActive) = useInterval(
+        optionsOf = {
+            period = interval
+        }
+    ) {
+        timestamp.value = currentTime + offset
+        callback?.invoke(timestamp.value.toEpochMilliseconds())
+    }
+    useMount {
+        if (autoResume) resume()
+    }
+    val timestampState = useState { timestamp.value.toEpochMilliseconds() }
+    return remember { TimestampHolder(timestampState, pause, resume, isActive) }
+}
+
+/**
+ * Use timestamp ref
+ *
+ * @param options
+ * @param autoResume If automatically execute resume when entering the component
+ * @return
+ */
+@Composable
+private fun useTimestampRef(options: TimestampOptions = remember { TimestampOptions() }, autoResume: Boolean = true): TimestampRefHolder {
+    val (interval, offset, callback) = with(options) { Triple(interval, offset, callback) }
+    val timestampRef = useRef(default = currentTime.toEpochMilliseconds())
+    val (resume, pause, isActive) = useInterval(
+        optionsOf = {
+            period = interval
+        }
+    ) {
+        timestampRef.current = (currentTime + offset).toEpochMilliseconds()
+        callback?.invoke(timestampRef.current)
+    }
+    useMount {
+        if (autoResume) resume()
+    }
+    return remember { TimestampRefHolder(timestampRef, pause, resume, isActive) }
+}
