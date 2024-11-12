@@ -22,6 +22,9 @@ fun rememberScreenInfo(): ScreenInfo = useScreenInfo()
 //endregion
 
 @Composable
+fun rememberBiometric(optionsOf: BiometricOptions.() -> Unit = {}) = useBiometric(optionsOf)
+
+@Composable
 fun rememberDisableScreenshot(): Triple<DisableFn, EnableFn, IsDisabled> = useDisableScreenshot()
 
 @Composable
