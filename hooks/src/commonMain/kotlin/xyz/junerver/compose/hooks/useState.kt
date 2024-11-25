@@ -1,6 +1,11 @@
 package xyz.junerver.compose.hooks
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 
 /*
   Description:
@@ -14,7 +19,7 @@ import androidx.compose.runtime.*
  * Description: 在compose中使用state需要写一点模板代码，虽然谈不上有多麻烦，但是还是能简化一下的；
  * 返回值是[MutableState]，可以解构后使用。如果是可空对象需要显示声明：
  * ```
- * val (state,setState) = useState<Boolean?>(null)
+ * val (state,setState) = _useState<Boolean?>(null)
  * val otherState by useState("")
  * ```
  * 这样做还有一个好处就是减少闭包层级，我们可以轻松的构造一些简单的受控组件：
