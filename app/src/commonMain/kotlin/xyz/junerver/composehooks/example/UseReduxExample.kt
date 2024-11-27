@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlin.math.pow
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate
@@ -90,13 +91,13 @@ fun UseReduxExample() {
                     .fillMaxWidth()
                     .padding(top = 20.dp, bottom = 20.dp)
             )
-            UseReduxFetch()
+            UseReduxFetchSample()
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 20.dp, bottom = 20.dp)
             )
-            UseReduxFetch2()
+            UseReduxFetch2Sample()
         }
     }
 }
@@ -236,7 +237,7 @@ sealed interface NetFetchResult<out T> {
 }
 
 @Composable
-fun UseReduxFetch() {
+private fun UseReduxFetchSample() {
     val (fetchResult, fetch) = useFetchError()
     Column {
         Text(text = "delay 2 seconds, throw error\nresult: $fetchResult")
@@ -247,7 +248,7 @@ fun UseReduxFetch() {
 }
 
 @Composable
-fun UseReduxFetch2() {
+private fun UseReduxFetch2Sample() {
     val (fetchResult, fetch) = useFetchUserInfo()
     Column {
         TButton(text = "fetch2") {
@@ -330,7 +331,11 @@ private fun <T> useFetchAliasFetch(
     val dispatchFetch = useFetch<T>(alias)
     var retryCount by useRef(errorRetry)
     val fetch = {
-        dispatchFetch(block)
+        val count = errorRetry - retryCount
+        dispatchFetch {
+            delay((1.seconds * 2f.pow(count).toInt()).coerceAtMost(30.seconds))
+            block()
+        }
     }
     // 挂载时自动请求
     useMount {
@@ -343,6 +348,9 @@ private fun <T> useFetchAliasFetch(
                 fetch()
                 retryCount -= 1
             }
+        }
+        is NetFetchResult.Success -> {
+            retryCount = errorRetry
         }
 
         else -> {}
