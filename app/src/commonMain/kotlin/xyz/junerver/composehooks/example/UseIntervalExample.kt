@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.setValue
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useEffect
@@ -88,7 +89,7 @@ private fun Manual() {
             period = 1.seconds
         }
     ) {
-        setCountDown(getCountDown() - 1)
+        setCountDown { it - 1 }
         ref -= 1
     }
     useEffect(countDown) {
@@ -124,7 +125,7 @@ private fun ByReady() {
         },
         ready = isReady.value
     ) {
-        setCountDown(countDown.value - 1)
+        setCountDown { it - 1 }
         ref -= 1
     }
     useEffect(countDown) {
@@ -196,7 +197,7 @@ fun MyDecorationBox(
         },
         ready = isReady.value
     ) {
-        setCountdown(countdown.value - 1)
+        setCountdown { it - 1 }
     }
     useEffect(countdown) {
         if (countdown.value == 0) {

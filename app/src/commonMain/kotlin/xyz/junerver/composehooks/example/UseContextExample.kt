@@ -11,7 +11,14 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import xyz.junerver.compose.hooks.*
+import xyz.junerver.compose.hooks.ReactContext
+import xyz.junerver.compose.hooks.createContext
+import xyz.junerver.compose.hooks.invoke
+import xyz.junerver.compose.hooks.left
+import xyz.junerver.compose.hooks.tuple
+import xyz.junerver.compose.hooks.useContext
+import xyz.junerver.compose.hooks.useGetState
+import xyz.junerver.compose.hooks.useReducer
 import xyz.junerver.composehooks.example.request.DividerSpacer
 import xyz.junerver.composehooks.ui.component.TButton
 
@@ -81,7 +88,7 @@ fun ChildTwo() {
     val (_, setState, getState) = useGetState("")
 
     Column {
-        OutlinedTextField(value = getState(), onValueChange = setState)
+        OutlinedTextField(value = getState(), onValueChange = setState.left())
         TButton(text = "changeName") {
             changName(getState())
             setState("")

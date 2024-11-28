@@ -47,7 +47,7 @@ class DataSaverProperties(private val filePath: String, private val encryptionKe
                 )
                 properties.load(decryptedReader)
             }
-        } catch (e: FileNotFoundException) {
+        } catch (_: FileNotFoundException) {
             // Handle file not found exception
         } catch (e: Exception) {
             // Handle other exceptions
@@ -90,6 +90,7 @@ class DataSaverProperties(private val filePath: String, private val encryptionKe
         saveProperties()
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T> readData(key: String, default: T): T {
         val value = properties.getProperty(key) ?: return default
         return when (default) {

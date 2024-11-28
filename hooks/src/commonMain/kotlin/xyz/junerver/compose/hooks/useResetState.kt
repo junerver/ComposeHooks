@@ -26,7 +26,7 @@ fun <T> useResetState(default: T & Any): ResetStateHolder<T & Any> {
 @Stable
 data class ResetStateHolder<T>(
     val state: State<T>,
-    val setValue: SetValueFn<T>,
+    val setValue: SetValueFn<SetterEither<T>>,
     val getValue: GetValueFn<T>,
     val reset: ResetFn,
 )

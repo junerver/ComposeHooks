@@ -28,11 +28,11 @@ import xyz.junerver.composehooks.utils.subStringIf
 */
 @Composable
 fun UseDebounceExample() {
-    val (state, setState, getState) = useGetState(0)
+    val (state, setState) = useGetState(0)
     val debouncedState by useDebounce(value = state.value)
 
-    val (stateFn, setStateFn, getStateFn) = useGetState(0)
-    val debouncedFn = useDebounceFn(fn = { setStateFn(getStateFn() + 1) })
+    val (stateFn, setStateFn) = useGetState(0)
+    val debouncedFn = useDebounceFn(fn = { setStateFn { it + 1 } })
 
     // for debounceEffect
     val (stateEf, setStateEf) = useGetState(0)

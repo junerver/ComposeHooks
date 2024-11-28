@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.random.Random
+import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useTimeout
 import xyz.junerver.compose.hooks.useUpdate
@@ -24,13 +25,13 @@ import xyz.junerver.composehooks.ui.component.TButton
 
 @Composable
 fun UseTimeoutExample() {
-    val (state, setState, getState) = useGetState(10)
+    val (state, setState) = useGetState(10)
     val update = useUpdate()
     /**
      * When the component is mounted, the closure block function is executed with a delay of 1s(default).
      */
     useTimeout {
-        setState(getState() - 1)
+        setState { it - 1 }
     }
 
     Surface {

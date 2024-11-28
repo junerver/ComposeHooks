@@ -18,6 +18,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import xyz.junerver.compose.hooks.Tuple2
 import xyz.junerver.compose.hooks._useState
+import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useLatestRef
@@ -74,7 +75,7 @@ private fun UseStateQuestionOne() {
 
     var byState by useState("by delegate")
 
-    val (state2, setState2, getState) = useGetState("useGetState")
+    val (state2, setState2) = useGetState("useGetState")
 
     // When using destructuring declarations, you need to pay special attention to coroutine scenarios.
     LaunchedEffect(key1 = Unit) {
@@ -87,7 +88,7 @@ private fun UseStateQuestionOne() {
             // by delegate, it will not cause closure problems
             byState += "."
             // useState + useLatestRef ,Can avoid closure problems
-            setState2("${getState()}.")
+            setState2 { "$it." }
         }
     }
     Column {
@@ -116,7 +117,7 @@ private fun UseStateQuestionTwo() {
 
     var byState by useState("by delegate")
 
-    val (state2, setState2, getState) = useGetState("useGetState")
+    val (state2, setState2) = useGetState("useGetState")
 
     LaunchedEffect(key1 = Unit) {
         repeat(20) {
@@ -125,7 +126,7 @@ private fun UseStateQuestionTwo() {
             directState.value += "."
             // if use by delegate, can modify status correctly
             byState += "."
-            setState2(getState() + '.')
+            setState2 { "$it." }
         }
     }
     Column {
@@ -209,10 +210,10 @@ private fun useAddCorrect2(default: Int): Tuple2<Int, () -> Unit> {
  */
 @Composable
 private fun useAddCorrect3(default: Int): Tuple2<Int, () -> Unit> {
-    val (state, setState, getState) = useGetState(default)
+    val (state, setState) = useGetState(default)
 
     fun add() {
-        setState(getState() + 1)
+        setState { it + 1 }
     }
     return tuple(
         first = state.value,

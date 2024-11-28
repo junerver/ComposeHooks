@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
+import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useAsync
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.composehooks.ui.component.TButton
@@ -24,12 +25,12 @@ import xyz.junerver.composehooks.ui.component.TButton
 
 @Composable
 fun UseAsyncExample() {
-    val (state, setState, getState) = useGetState(0)
+    val (_, setState, getState) = useGetState(0)
 
     /** 如果你向[useAsync]传递一个闭包作为参数，那么返回值是 `()->Unit` */
     val async = useAsync {
         delay(1.seconds)
-        setState(getState() + 1)
+        setState { it + 1 }
     }
 
     /** 如果不传递参数，则使用另一个重载，返回值是[xyz.junerver.compose.hooks.AsyncRunFn] */
@@ -47,7 +48,7 @@ fun UseAsyncExample() {
             TButton(text = "delay +1") {
                 asyncRun {
                     delay(1.seconds)
-                    setState(getState() + 1)
+                    setState { it + 1 }
                 }
             }
         }

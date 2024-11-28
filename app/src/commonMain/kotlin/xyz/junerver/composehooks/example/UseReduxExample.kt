@@ -25,6 +25,8 @@ import kotlinx.coroutines.delay
 import xyz.junerver.compose.hooks.Reducer
 import xyz.junerver.compose.hooks.Tuple2
 import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.invoke
+import xyz.junerver.compose.hooks.left
 import xyz.junerver.compose.hooks.setValue
 import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.useGetState
@@ -139,7 +141,7 @@ private fun Header() {
     Row {
         OutlinedTextField(
             value = input.value,
-            onValueChange = setInput
+            onValueChange = setInput.left()
         )
         TButton(text = "add") {
             dispatch(AddTodo(Todo(input.value, NanoId.generate())))
@@ -204,7 +206,7 @@ private fun SubSimpleDataDispatch() {
      */
     val asyncDispatch = useDispatchAsync<SimpleAction>()
     Column {
-        OutlinedTextField(value = input.value, onValueChange = setInput)
+        OutlinedTextField(value = input.value, onValueChange = setInput.left())
         Row {
             TButton(text = "changeName") {
                 dispatch(SimpleAction.ChangeName(input.value))

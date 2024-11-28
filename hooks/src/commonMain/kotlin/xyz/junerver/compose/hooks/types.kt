@@ -10,6 +10,7 @@ import arrow.core.right
 import kotlin.reflect.KFunction0
 import kotlinx.coroutines.CoroutineScope
 
+
 /*
   Description: Types
   Author: Junerver
@@ -123,6 +124,11 @@ operator fun VoidFunction.invoke(vararg params: Any?) = this(arrayOf(*params))
  */
 internal typealias SetterEither<T> = Either<T, (T) -> T>
 
-operator fun SetValueFn<SetterEither<Int>>.invoke(leftValue: Int) = this(leftValue.left())
+operator fun <T> SetValueFn<SetterEither<T>>.invoke(leftValue: T) = this(leftValue.left())
 
-operator fun SetValueFn<SetterEither<Int>>.invoke(rightValue: (Int) -> Int) = this(rightValue.right())
+operator fun <T> SetValueFn<SetterEither<T>>.invoke(rightValue: (T) -> T) = this(rightValue.right())
+
+/**
+ * 退化函数调用，将[SetValueFn<SetterEither<T>>]转换为[SetValueFn<T>]，方便使用
+ */
+fun <T> SetValueFn<SetterEither<T>>.left(): SetValueFn<T> = { leftValue -> this(leftValue.left()) }

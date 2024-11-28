@@ -5,6 +5,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.compose.hooks.utils.asBoolean
@@ -23,8 +24,8 @@ import xyz.junerver.composehooks.ui.component.TButton
  */
 @Composable
 fun DepsRefresh() {
-    val (state, setState, getState) = useGetState(0)
-    val (userInfoState, loadingState, errorState) = useRequest(
+    val (_, setState, getState) = useGetState(0)
+    val (userInfoState, loadingState) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
             defaultParams = arrayOf("junerver")
@@ -37,7 +38,7 @@ fun DepsRefresh() {
         Column {
             Text("deps:${getState()}")
             TButton(text = "+1") {
-                setState(getState() + 1)
+                setState { it + 1 }
             }
             if (loading) {
                 Text(text = "Loading ...")

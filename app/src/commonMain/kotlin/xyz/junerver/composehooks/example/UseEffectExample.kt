@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useRef
@@ -41,7 +42,7 @@ fun UseEffectExample() {
         Column {
             Text("state deps: ${getState()}")
             TButton(text = "+1") {
-                setState(state.value + 1)
+                setState { it + 1 }
             }
 
             Text("ref deps: ${ref.current}")

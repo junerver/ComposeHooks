@@ -27,6 +27,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.plus
 import xyz.junerver.compose.hooks.Middleware
 import xyz.junerver.compose.hooks.Reducer
+import xyz.junerver.compose.hooks.left
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useReducer
 import xyz.junerver.composehooks.ui.component.TButton
@@ -71,7 +72,7 @@ fun UseReducerExample() {
         Column {
             Text(text = "User: ${state.value}")
             Spacer(modifier = Modifier.height(10.dp))
-            OutlinedTextField(value = input.value, onValueChange = setInput)
+            OutlinedTextField(value = input.value, onValueChange = setInput.left())
             TButton(text = "changeName") {
                 dispatch(SimpleAction.ChangeName(input.value))
             }

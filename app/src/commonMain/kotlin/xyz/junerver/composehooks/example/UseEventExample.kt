@@ -6,6 +6,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import kotlin.random.Random
+import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useEventPublish
 import xyz.junerver.compose.hooks.useEventSubscribe
 import xyz.junerver.compose.hooks.useGetState

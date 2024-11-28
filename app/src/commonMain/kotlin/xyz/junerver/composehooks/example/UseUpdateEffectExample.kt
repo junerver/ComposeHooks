@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Text
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useUpdateEffect
 import xyz.junerver.composehooks.ui.component.TButton
@@ -28,7 +29,7 @@ fun UseUpdateEffectExample() {
         Column {
             Text("deps: ${state.value}")
             TButton(text = "+1") {
-                setState(state.value + 1)
+                setState { it + 1 }
             }
         }
     }

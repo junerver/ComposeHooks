@@ -14,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import xyz.junerver.compose.hooks.invoke
+import xyz.junerver.compose.hooks.left
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.usePrevious
 import xyz.junerver.compose.hooks.userequest.useRequest
@@ -110,7 +112,7 @@ private fun ManualMutateRollback() {
 
     Column {
         Text("Use `usePrevious` to save the previous data requested, and roll back through `mutate`")
-        OutlinedTextField(value = input.value, onValueChange = setInput)
+        OutlinedTextField(value = input.value, onValueChange = setInput.left())
         Row {
             TButton(text = "changeName") {
                 mockFnChangeName(input.value)
@@ -159,7 +161,7 @@ private fun AutoRollback() {
 
     Column {
         Text("Extend the rollback function by implementing a custom plug-in")
-        OutlinedTextField(value = input.value, onValueChange = setInput)
+        OutlinedTextField(value = input.value, onValueChange = setInput.left())
         Row {
             TButton(text = "changeName") {
                 mockFnChangeName(input.value)

@@ -29,7 +29,10 @@ fun <T> useGetState(default: T & Any): GetStateHolder<T & Any> {
     return remember {
         GetStateHolder(
             state = state,
-            setValue = { state.value = it },
+            setValue = { value: SetterEither<T & Any> ->
+                val newValue = value.fold({ it }, { it(state.value) })
+                state.value = newValue
+            },
             getValue = { state.value }
         )
     }
@@ -48,7 +51,10 @@ fun <T> _useGetState(default: T): GetStateHolder<T> {
     return remember {
         GetStateHolder(
             state = state,
-            setValue = { state.value = it },
+            setValue = { value: SetterEither<T> ->
+                val newValue = value.fold({ it }, { it(state.value) })
+                state.value = newValue
+            },
             getValue = { state.value }
         )
     }
@@ -57,6 +63,6 @@ fun <T> _useGetState(default: T): GetStateHolder<T> {
 @Stable
 data class GetStateHolder<T>(
     val state: State<T>,
-    val setValue: SetValueFn<T>,
+    val setValue: SetValueFn<SetterEither<T>>,
     val getValue: GetValueFn<T>,
 )

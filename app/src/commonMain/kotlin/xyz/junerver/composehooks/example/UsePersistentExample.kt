@@ -16,6 +16,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.junerver.compose.hooks.PersistentContext
+import xyz.junerver.compose.hooks.invoke
+import xyz.junerver.compose.hooks.left
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useKeyboard
 import xyz.junerver.compose.hooks.usePersistent
@@ -89,7 +91,7 @@ private fun MMKVPersistent() {
         Column {
             Text(text = "MMKVPersistent : exit app will NOT lose state")
             Text(text = "token: $token")
-            OutlinedTextField(value = state.value, onValueChange = setState)
+            OutlinedTextField(value = state.value, onValueChange = setState.left())
             TButton(text = "saveToken") {
                 hideKeyboard()
                 token = state.value
@@ -127,7 +129,7 @@ private fun VsViewModel() {
     Column {
         Text(text = "state from persistent: $vsvm")
         Text(text = "state from vm: $vmstate")
-        OutlinedTextField(value = state.value, onValueChange = setState)
+        OutlinedTextField(value = state.value, onValueChange = setState.left())
         Row {
             TButton(text = "set state ") {
                 hideKeyboard()

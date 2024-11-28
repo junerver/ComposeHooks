@@ -11,11 +11,18 @@ import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.VoidFunction
 import xyz.junerver.compose.hooks._useGetState
 import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.left
 import xyz.junerver.compose.hooks.setValue
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUnmount
-import xyz.junerver.compose.hooks.userequest.plugins.*
+import xyz.junerver.compose.hooks.userequest.plugins.useAutoRunPlugin
+import xyz.junerver.compose.hooks.userequest.plugins.useCachePlugin
+import xyz.junerver.compose.hooks.userequest.plugins.useDebouncePlugin
+import xyz.junerver.compose.hooks.userequest.plugins.useLoadingDelayPlugin
+import xyz.junerver.compose.hooks.userequest.plugins.usePollingPlugin
+import xyz.junerver.compose.hooks.userequest.plugins.useRetryPlugin
+import xyz.junerver.compose.hooks.userequest.plugins.useThrottlePlugin
 
 typealias ReqFn = VoidFunction
 typealias MutateFn<TData> = KFunction1<(TData?) -> TData, Unit>
@@ -166,11 +173,11 @@ private fun <TData : Any> useRequestPluginsImpl(
     val fetch = remember {
         Fetch(options).apply {
             this.dataState = dataState
-            this.setData = setData
+            this.setData = setData.left<TData?>()
             this.loadingState = loadingState
-            this.setLoading = setLoading
+            this.setLoading = setLoading.left<Boolean>()
             this.errorState = errorState
-            this.setError = setError
+            this.setError = setError.left<Throwable?>()
             this.requestFn = requestFn
 
             this.fetchState = plugins.mapNotNull {

@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.setValue
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useCountdown
@@ -54,7 +55,7 @@ fun DeferReads() {
 private fun TestDeferReads() {
     val (ready, toggle) = useBoolean(true)
     var byState by useState("delegate:")
-    val (state, setState, getState) = useGetState("getState:")
+    val (state, setState) = useGetState("getState:")
     val (reducerState, reducerDispatch) = useReducer({ p: String, a: String -> a }, "reducer:")
     var ref by useRef(10)
     val (leftTime, formattedRes) = useCountdown(
@@ -84,7 +85,7 @@ private fun TestDeferReads() {
 
             // triple 解构
             Button(onClick = {
-                setState(getState() + "2")
+                setState { it + "2" }
             }) { Text(state.value) }
 
             Button(onClick = {
