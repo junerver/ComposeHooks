@@ -1,6 +1,7 @@
 package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -24,6 +25,7 @@ import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.composehooks.example.request.DividerSpacer
+import xyz.junerver.composehooks.ui.component.SimpleContainer
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -62,6 +64,9 @@ fun UseStateExample() {
             DividerSpacer()
             Text("Demonstrates how to avoid closure problems, please see the sample code")
             HowToAvoidClosureProblems()
+            DividerSpacer()
+            Text("Computed Properties")
+            Computed()
         }
     }
 }
@@ -233,4 +238,23 @@ private fun useAddCorrect4(default: Int): Tuple2<Int, () -> Unit> {
         first = state,
         second = ::add
     )
+}
+
+/**
+ * 派生状态的演示，当你点击`+1`时三个子组件都会重组，背景颜色发生变化；
+ * 当你点击`+2`时只有1、2子组件会重新组合，因为第三个子组件的状态是通过state派生得到的，计算结果没有变化，所以不会重新组合。
+ */
+@Composable
+private fun Computed() {
+    val (state, setState) = useGetState(default = 0)
+    val isEven by useState { state.value % 2 == 0 }
+    Column {
+        Row {
+            TButton(text = "add1", onClick = { setState { it + 1 } })
+            TButton(text = "add2", onClick = { setState { it + 2 } })
+        }
+        SimpleContainer { Text("current: ${state.value}", modifier = Modifier.randomBackground()) }
+        SimpleContainer { Text("isEven: ${state.value % 2 == 0}", modifier = Modifier.randomBackground()) }
+        SimpleContainer { Text("isEven: $isEven", modifier = Modifier.randomBackground()) }
+    }
 }
