@@ -66,7 +66,65 @@
   <div class="cover ">
     <h1 class="cover"><span><span>invoke</span></span></h1>
   </div>
-  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="invoke.html">TData</a><span class="token operator">&gt; </span><span data-unresolved-link="xyz.junerver.compose.hooks/NormalFunction///PointingToDeclaration/">NormalFunction</span><span class="token operator">&lt;</span><a href="invoke.html">TData</a><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="invoke.html"><span class="token function">invoke</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">vararg </span>params<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="invoke.html">TData</a></div><p class="paragraph">优化函数调用形式，将导出的函数伪装成普通函数的样子，无需对参数进行<a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/index.html">arrayOf</a>，可能需要手动导包：</p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">import xyz.junerver.compose.hooks.invoke</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><hr><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><span data-unresolved-link="xyz.junerver.compose.hooks/VoidFunction///PointingToDeclaration/">VoidFunction</span><span class="token punctuation">.</span><a href="invoke.html"><span class="token function">invoke</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">vararg </span>params<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><span data-unresolved-link="xyz.junerver.compose.hooks/SetValueFn///PointingToDeclaration/">SetValueFn</span><span class="token operator">&lt;</span><span data-unresolved-link="xyz.junerver.compose.hooks/SetterEither///PointingToDeclaration/">SetterEither</span><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="invoke.html"><span class="token function">invoke</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">leftValue<span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span></div><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><span data-unresolved-link="xyz.junerver.compose.hooks/SetValueFn///PointingToDeclaration/">SetValueFn</span><span class="token operator">&lt;</span><span data-unresolved-link="xyz.junerver.compose.hooks/SetterEither///PointingToDeclaration/">SetterEither</span><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span><span class="token punctuation">.</span><a href="invoke.html"><span class="token function">invoke</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">rightValue<span class="token operator">: </span><span class="token punctuation">(</span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-int/index.html">Int</a></span></span><span class="token punctuation">)</span></div></div></div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted">
+        <div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/commonMain">
+            <div class="symbol monospace"><span class="token keyword">operator </span><span
+                class="token keyword">fun </span><span class="token operator">&lt;</span><a href="invoke.html">TData</a><span
+                class="token operator">&gt; </span><span
+                data-unresolved-link="xyz.junerver.compose.hooks/NormalFunction///PointingToDeclaration/">NormalFunction</span><span
+                class="token operator">&lt;</span><a href="invoke.html">TData</a><span
+                class="token operator">&gt;</span><span class="token punctuation">.</span><a href="invoke.html"><span
+                class="token function">invoke</span></a><span class="token punctuation">(</span><span
+                class="parameters "><span class="parameter "><span class="token keyword">vararg </span>params<span
+                class="token operator">: </span><a
+                href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span
+                class="token operator">?</span></span></span><span class="token punctuation">)</span><span
+                class="token operator">: </span><a href="invoke.html">TData</a></div>
+            <p class="paragraph">优化函数调用形式，将导出的函数伪装成普通函数的样子，无需对参数进行<a
+                href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/index.html">arrayOf</a>，可能需要手动导包：</p>
+            <div class="sample-container">
+                <pre><code class="block lang-kotlin" theme="idea">import xyz.junerver.compose.hooks.invoke</code></pre>
+                <span class="top-right-position"><span class="copy-icon"></span><div
+                    class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span>
+            </div>
+            <hr>
+            <div class="symbol monospace"><span class="token keyword">operator </span><span
+                class="token keyword">fun </span><span
+                data-unresolved-link="xyz.junerver.compose.hooks/VoidFunction///PointingToDeclaration/">VoidFunction</span><span
+                class="token punctuation">.</span><a href="invoke.html"><span
+                class="token function">invoke</span></a><span class="token punctuation">(</span><span
+                class="parameters "><span class="parameter "><span class="token keyword">vararg </span>params<span
+                class="token operator">: </span><a
+                href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span
+                class="token operator">?</span></span></span><span class="token punctuation">)</span></div>
+            <div class="symbol monospace"><span class="token keyword">operator </span><span
+                class="token keyword">fun </span><span class="token operator">&lt;</span><a
+                href="invoke.html">T</a><span class="token operator">&gt; </span><span
+                data-unresolved-link="xyz.junerver.compose.hooks/SetValueFn///PointingToDeclaration/">SetValueFn</span><span
+                class="token operator">&lt;</span><span
+                data-unresolved-link="xyz.junerver.compose.hooks/SetterEither///PointingToDeclaration/">SetterEither</span><span
+                class="token operator">&lt;</span><a href="invoke.html">T</a><span
+                class="token operator">&gt;</span><span class="token operator">&gt;</span><span
+                class="token punctuation">.</span><a href="invoke.html"><span
+                class="token function">invoke</span></a><span class="token punctuation">(</span><span
+                class="parameters "><span class="parameter ">leftValue<span class="token operator">: </span><a
+                href="invoke.html">T</a></span></span><span class="token punctuation">)</span></div>
+            <div class="symbol monospace"><span class="token keyword">operator </span><span
+                class="token keyword">fun </span><span class="token operator">&lt;</span><a
+                href="invoke.html">T</a><span class="token operator">&gt; </span><span
+                data-unresolved-link="xyz.junerver.compose.hooks/SetValueFn///PointingToDeclaration/">SetValueFn</span><span
+                class="token operator">&lt;</span><span
+                data-unresolved-link="xyz.junerver.compose.hooks/SetterEither///PointingToDeclaration/">SetterEither</span><span
+                class="token operator">&lt;</span><a href="invoke.html">T</a><span
+                class="token operator">&gt;</span><span class="token operator">&gt;</span><span
+                class="token punctuation">.</span><a href="invoke.html"><span
+                class="token function">invoke</span></a><span class="token punctuation">(</span><span
+                class="parameters "><span class="parameter ">rightValue<span class="token operator">: </span><span
+                class="token punctuation">(</span><a href="invoke.html">T</a><span
+                class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="invoke.html">T</a></span></span><span
+                class="token punctuation">)</span></div>
+        </div>
+    </div>
 </div>
       <div class="footer">
         <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span
