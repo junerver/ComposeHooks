@@ -129,6 +129,6 @@ operator fun <T> SetValueFn<SetterEither<T>>.invoke(leftValue: T) = this(leftVal
 operator fun <T> SetValueFn<SetterEither<T>>.invoke(rightValue: (T) -> T) = this(rightValue.right())
 
 /**
- * 退化函数调用，将[SetValueFn<SetterEither<T>>]转换为[SetValueFn<T>]，方便使用
+ * 退化函数调用，将`SetValueFn<SetterEither<T>>`转换为`SetValueFn<T>`，方便使用
  */
 fun <T> SetValueFn<SetterEither<T>>.left(): SetValueFn<T> = { leftValue -> this(leftValue.left()) }
