@@ -10,7 +10,6 @@ import arrow.core.right
 import kotlin.reflect.KFunction0
 import kotlinx.coroutines.CoroutineScope
 
-
 /*
   Description: Types
   Author: Junerver
