@@ -7,15 +7,13 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import xyz.junerver.compose.hooks.ReactContext
-import xyz.junerver.compose.hooks.createContext
-import xyz.junerver.compose.hooks.useContext
-import xyz.junerver.compose.hooks.useGetState
-import xyz.junerver.compose.hooks.useReducer
+import arrow.core.left
+import xyz.junerver.compose.hooks.*
 import xyz.junerver.composehooks.ui.component.TButton
-import xyz.junerver.kotlin.tuple
 
 /*
   Description: 使用[useContext]可以避免复杂的状态提升，状态由父组件通过[ReactContext.Provider]提供，子组件无论嵌套多少级，都可以使用[useContext]轻松获取上下文
@@ -26,7 +24,7 @@ import xyz.junerver.kotlin.tuple
   Email: junerver@gmail.com
   Version: v1.0
 */
-val initialState = SimpleData("default", 18)
+val initialState: State<SimpleData> = mutableStateOf(SimpleData("default", 18))
 
 /**
  * 上下文的初始值并没有限定，但是我推荐使用[tuple]来传递一个元组
@@ -41,7 +39,7 @@ val SimpleContext = createContext(
 
 @Composable
 fun UseContextExample() {
-    val (state, dispatch) = useReducer(simpleReducer, initialState = initialState)
+    val (state, dispatch) = useReducer(simpleReducer, initialState = initialState.value)
     /**
      * 通过[ReactContext.Provider]向子组件提供上下文，子组件只需要通过[useContext]即可拿到正确的上下文；
      */
@@ -70,7 +68,7 @@ fun UseContextExample() {
 @Composable
 fun ChildOne() {
     val (state) = useContext(context = SimpleContext)
-    Text(text = "state: $state")
+    Text(text = "state: ${state.value}")
 }
 
 @Composable
@@ -79,10 +77,10 @@ fun ChildTwo() {
     val (state, setState) = useGetState("")
 
     Column {
-        OutlinedTextField(value = state, onValueChange = setState)
+        OutlinedTextField(value = state.value, onValueChange = setState.left<String>())
         TButton(text = "changeName") {
-            changName(state)
-            setState("")
+            changName(state.value)
+            setState("".left())
         }
         TButton(text = "age +1") {
             ageIncrease()

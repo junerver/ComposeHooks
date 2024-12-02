@@ -4,11 +4,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import kotlin.time.Duration.Companion.seconds
+import arrow.core.right
 import kotlinx.coroutines.delay
 import xyz.junerver.compose.hooks.useAsync
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.composehooks.ui.component.TButton
+import kotlin.time.Duration.Companion.seconds
 
 /*
   Description:
@@ -25,7 +26,7 @@ fun UseAsyncExample() {
     /** 如果你向[useAsync]传递一个闭包作为参数，那么返回值是 `()->Unit` */
     val async = useAsync {
         delay(1.seconds)
-        setState(state + 1)
+        setState({ it: Int -> it + 1 }.right())
     }
 
     /** 如果不传递参数，则使用另一个重载，返回值是[xyz.junerver.compose.hooks.AsyncRunFn] */
@@ -33,14 +34,14 @@ fun UseAsyncExample() {
 
     Surface {
         Column {
-            Text(text = "count:$state")
+            Text(text = "count:${state.value}")
             TButton(text = "delay +1") {
                 async()
             }
             TButton(text = "delay +1") {
                 asyncRun {
                     delay(1.seconds)
-                    setState(state + 1)
+                    setState({ it: Int -> it + 1 }.right())
                 }
             }
         }

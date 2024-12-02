@@ -2,13 +2,7 @@ package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -17,6 +11,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -30,8 +25,9 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import arrow.core.left
+import arrow.core.right
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useGetState
@@ -74,15 +70,17 @@ fun UseIntervalExample() {
 @Composable
 private fun Manual() {
     // if you prefer to this usage, use `useGetState`
-    val (countDown, setCountDown) = useGetState(60)
-    val (resume, pause, isActive) = useInterval(
-        optionsOf {
+    val (countDownState, setCountDown) = useGetState(60)
+    val countDown by countDownState
+    val (resume, pause, isActiveState) = useInterval(
+        optionsOf = {
             initialDelay = 2.seconds
             period = 1.seconds
         }
     ) {
-        setCountDown(countDown - 1)
+        setCountDown({ it: Int -> it - 1 }.right())
     }
+    val isActive by isActiveState
     useEffect(countDown) {
         if (countDown == 0) pause()
     }
@@ -98,16 +96,17 @@ private fun Manual() {
 
 @Composable
 private fun ByReady() {
-    val (countDown, setCountDown) = useGetState(60)
+    val (countDownState, setCountDown) = useGetState(60)
+    val countDown by countDownState
     val (isReady, toggle, setReady) = useBoolean(false)
     useInterval(
-        options = optionsOf {
+        optionsOf = {
             initialDelay = 2.seconds
             period = 1.seconds
         },
-        ready = isReady
+        ready = isReady.value
     ) {
-        setCountDown(countDown - 1)
+        setCountDown({ it: Int -> it - 1 }.right())
     }
     useEffect(countDown) {
         if (countDown == 0) setReady(false)
@@ -115,7 +114,7 @@ private fun ByReady() {
     Column {
         Text(text = "You can also control it by switching the `ready` state:")
         Text(text = "current: $countDown")
-        Text(text = "isReady: $isReady")
+        Text(text = "isReady: ${isReady.value}")
         TButton(text = "toggle Ready", onClick = { toggle() })
     }
 }
@@ -163,20 +162,22 @@ fun MyDecorationBox(
     buttonText: String,
     onSendClicked: () -> Unit,
 ) {
-    val (isReady, _, _, setReadyTrue, setReadyFalse) = useBoolean(false)
-    val (countdown, setCountdown) = useGetState(countDownTimer)
+    val (isReadyState, _, _, setReadyTrue, setReadyFalse) = useBoolean(false)
+    val isReady by isReadyState
+    val (countdownState, setCountdown) = useGetState(countDownTimer)
+    val countdown by countdownState
     useInterval(
-        optionsOf {
+        optionsOf = {
             initialDelay = 1.seconds
             period = 1.seconds
         },
         ready = isReady
     ) {
-        setCountdown(countdown - 1)
+        setCountdown({ it: Int -> it - 1 }.right())
     }
     useEffect(countdown) {
         if (countdown == 0) {
-            setCountdown(countDownTimer)
+            setCountdown(countDownTimer.left())
             setReadyFalse()
         }
     }

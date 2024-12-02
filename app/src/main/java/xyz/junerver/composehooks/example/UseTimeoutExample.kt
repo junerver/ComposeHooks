@@ -8,6 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import arrow.core.right
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useTimeout
 import xyz.junerver.compose.hooks.useUpdate
@@ -23,18 +24,18 @@ import xyz.junerver.composehooks.ui.component.TButton
 
 @Composable
 fun UseTimeoutExample() {
-    val (state, setState, getState) = useGetState(10)
+    val (state, setState) = useGetState(10)
     val update = useUpdate()
     /**
      * When the component is mounted, the closure block function is executed with a delay of 1s(default).
      */
     useTimeout {
-        setState(getState() - 1)
+        setState({ it: Int -> it - 1 }.right())
     }
 
     Surface {
         Column {
-            Text(text = "current: $state  ${Math.random()}")
+            Text(text = "current: ${state.value}  ${Math.random()}")
 
             TButton(text = "update") {
                 /**

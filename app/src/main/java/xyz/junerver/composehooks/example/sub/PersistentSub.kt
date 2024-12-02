@@ -21,7 +21,7 @@ import xyz.junerver.compose.hooks.usePersistent
 
 @Composable
 fun PersistentSub() {
-    val (vsvm, _) = usePersistent(key = "vsVm", "")
+    val vsvm by usePersistent(key = "vsVm", "")
     val vm: PersistentVm = viewModel()
     val vmstate by vm.vmState
 

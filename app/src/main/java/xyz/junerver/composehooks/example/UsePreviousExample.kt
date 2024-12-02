@@ -7,8 +7,10 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import xyz.junerver.compose.hooks.left
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.usePrevious
 
@@ -22,10 +24,10 @@ import xyz.junerver.compose.hooks.usePrevious
 @Composable
 fun UsePreviousExample() {
     val (input, setInput) = useGetState("")
-    val previous = usePrevious(present = input)
+    val previous by usePrevious(present = input.value)
     Surface {
         Column {
-            OutlinedTextField(value = input, onValueChange = setInput)
+            OutlinedTextField(value = input.value, onValueChange = setInput.left())
 
             Spacer(modifier = Modifier.height(10.dp))
             Text(text = "Previous: $previous")

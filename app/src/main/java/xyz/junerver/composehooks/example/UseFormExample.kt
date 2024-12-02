@@ -1,10 +1,6 @@
 package xyz.junerver.composehooks.example
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -16,19 +12,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import java.util.regex.Pattern
 import xyz.junerver.compose.hooks.useMount
-import xyz.junerver.compose.hooks.useform.CustomValidator
-import xyz.junerver.compose.hooks.useform.Email
-import xyz.junerver.compose.hooks.useform.Form
-import xyz.junerver.compose.hooks.useform.FormInstance
-import xyz.junerver.compose.hooks.useform.FormScope
-import xyz.junerver.compose.hooks.useform.Mobile
-import xyz.junerver.compose.hooks.useform.Phone
-import xyz.junerver.compose.hooks.useform.Required
-import xyz.junerver.compose.hooks.useform.useForm
-import xyz.junerver.compose.hooks.useform.useFormInstance
-import xyz.junerver.compose.hooks.useform.useWatch
+import xyz.junerver.compose.hooks.useform.*
+import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.composehooks.ui.component.TButton
-import xyz.junerver.kotlin.asBoolean
 
 /*
   Description:

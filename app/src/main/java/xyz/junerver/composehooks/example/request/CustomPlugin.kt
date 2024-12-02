@@ -1,24 +1,13 @@
 package xyz.junerver.composehooks.example.request
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks.MutableRef
-import xyz.junerver.compose.hooks.defaultOption
+import xyz.junerver.compose.hooks.Tuple8
+import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.useRef
-import xyz.junerver.compose.hooks.userequest.CancelFn
-import xyz.junerver.compose.hooks.userequest.Fetch
-import xyz.junerver.compose.hooks.userequest.FetchState
-import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
-import xyz.junerver.compose.hooks.userequest.MutateFn
-import xyz.junerver.compose.hooks.userequest.Plugin
-import xyz.junerver.compose.hooks.userequest.PluginLifecycle
-import xyz.junerver.compose.hooks.userequest.PluginOnMutate
-import xyz.junerver.compose.hooks.userequest.RefreshFn
-import xyz.junerver.compose.hooks.userequest.RequestOptions
-import xyz.junerver.compose.hooks.userequest.RunFn
-import xyz.junerver.compose.hooks.userequest.useRequest
-import xyz.junerver.kotlin.Tuple8
-import xyz.junerver.kotlin.plus
+import xyz.junerver.compose.hooks.userequest.*
 
 /**
  * Description:
@@ -41,23 +30,32 @@ typealias RollbackFn = () -> Unit
 @Composable
 fun <TData : Any> useCustomPluginRequest(
     requestFn: suspend (TParams) -> TData,
-    options: RequestOptions<TData> = defaultOption(),
-): Tuple8<TData?, Boolean, Throwable?, RunFn, MutateFn<TData>, RefreshFn, CancelFn, RollbackFn> {
+    optionsOf: RequestOptions<TData>.() -> Unit = {},
+): Tuple8<State<TData?>, State<Boolean>, State<Throwable?>, ReqFn, MutateFn<TData>, RefreshFn, CancelFn, RollbackFn> {
     val rollbackRef = useRef(default = { })
-    val tuple = useRequest(
+    val requestHolder = useRequest(
         requestFn = requestFn,
-        options = options,
-        arrayOf({
+        optionsOf = optionsOf,
+        plugins = arrayOf({
             useRollbackPlugin(ref = rollbackRef)
         })
     )
-    return tuple + {
-        rollbackRef.current.invoke()
+    return with(requestHolder) {
+        tuple(
+            data,
+            isLoading,
+            error,
+            request,
+            mutate,
+            refresh,
+            cancel,
+            eighth = { rollbackRef.current.invoke() }
+        )
     }
 }
 
 @Composable
-private fun <TData : Any> useRollbackPlugin(ref: MutableRef<() -> Unit>) = remember {
+private fun <TData : Any> useRollbackPlugin(ref: MutableRef<() -> Unit>): Plugin<TData> = remember {
     object : Plugin<TData>() {
         var pervState: FetchState<TData>? = null
 

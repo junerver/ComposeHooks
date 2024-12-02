@@ -4,13 +4,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import xyz.junerver.compose.hooks.optionsOf
+import arrow.core.right
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.userequest.useRequest
+import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.composehooks.net.WebService
 import xyz.junerver.composehooks.net.asRequestFn
 import xyz.junerver.composehooks.ui.component.TButton
-import xyz.junerver.kotlin.asBoolean
 
 /**
  * Description: 当你某个请求发起后需要刷新另一个请求时这会很有用
@@ -27,7 +27,7 @@ fun DepsRefresh() {
     val (state, setState) = useGetState(0)
     val (userInfo, loading, error) = useRequest(
         requestFn = WebService::userInfo.asRequestFn(),
-        optionsOf {
+        optionsOf = {
             defaultParams =
                 arrayOf("junerver")
             refreshDeps = arrayOf(state)
@@ -36,9 +36,9 @@ fun DepsRefresh() {
     Surface {
         Column {
             TButton(text = "+1") {
-                setState(state + 1)
+                setState({ it: Int -> it + 1 }.right())
             }
-            if (loading) {
+            if (loading.value) {
                 Text(text = "Loading ...")
             } else if (userInfo.asBoolean()) {
                 Text(text = "$userInfo".substring(0..100))

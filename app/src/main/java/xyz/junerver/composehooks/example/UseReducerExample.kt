@@ -1,23 +1,8 @@
 package xyz.junerver.composehooks.example
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Button
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -27,10 +12,7 @@ import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.plus
 import kotlinx.coroutines.delay
-import xyz.junerver.compose.hooks.Middleware
-import xyz.junerver.compose.hooks.Reducer
-import xyz.junerver.compose.hooks.useGetState
-import xyz.junerver.compose.hooks.useReducer
+import xyz.junerver.compose.hooks.*
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -70,11 +52,11 @@ fun UseReducerExample() {
     val (input, setInput) = useGetState("")
     Surface {
         Column {
-            Text(text = "User: $state")
+            Text(text = "User: ${state.value}")
             Spacer(modifier = Modifier.height(10.dp))
-            OutlinedTextField(value = input, onValueChange = setInput)
+            OutlinedTextField(value = input.value, onValueChange = setInput.left<String>())
             TButton(text = "changeName") {
-                dispatch(SimpleAction.ChangeName(input))
+                dispatch(SimpleAction.ChangeName(input.value))
             }
             TButton(text = "+1") {
                 dispatch(SimpleAction.AgeIncrease)
@@ -209,7 +191,7 @@ fun TaskApp() {
         Text(text = "Day off in Kyoto", style = MaterialTheme.typography.titleLarge)
         AddTask(onAddTask = ::handleAddTask)
         TaskList(
-            tasks = tasks,
+            tasks = tasks.value,
             onChangeTask = ::handleChangeTask,
             onDeleteTask = ::handleDeleteTask
         )

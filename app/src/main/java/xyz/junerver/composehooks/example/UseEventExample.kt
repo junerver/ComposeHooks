@@ -8,6 +8,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import arrow.core.left
 import kotlin.random.Random
 import xyz.junerver.compose.hooks.useEventPublish
 import xyz.junerver.compose.hooks.useEventSubscribe
@@ -45,14 +46,14 @@ fun Container() {
 fun SubComponent(index: Int) {
     val (state, setState) = useGetState(0.0)
     fun refresh() {
-        setState(Random.nextDouble())
+        setState(Random.nextDouble().left())
     }
     useEventSubscribe { _: Unit ->
         refresh()
     }
     Column {
         Row {
-            Text(text = "index $index: $state")
+            Text(text = "index $index: ${state.value}")
             TButton(text = "refresh") {
                 refresh()
             }

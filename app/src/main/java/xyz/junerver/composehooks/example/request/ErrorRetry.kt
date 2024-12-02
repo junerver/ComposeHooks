@@ -14,10 +14,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.parcelize.Parcelize
 import xyz.junerver.compose.hooks.asSuspendNoopFn
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.userequest.useRequest
-import xyz.junerver.kotlin.asBoolean
+import xyz.junerver.compose.hooks.utils.asBoolean
 
 /*
   Description:
@@ -56,9 +55,9 @@ suspend fun mockRequest(s1: String, s2: String): MockInfo {
 fun ErrorRetry() {
     var count by useState("")
 
-    val (mockInfo, stuLoading, err) = useRequest(
+    val (mockInfoState, stuLoadingState, errState) = useRequest(
         requestFn = ::mockRequest.asSuspendNoopFn(),
-        optionsOf {
+        optionsOf = {
             defaultParams = arrayOf("1", "2")
             retryCount = 5
             retryInterval = 2.seconds
@@ -67,6 +66,9 @@ fun ErrorRetry() {
             }
         }
     )
+    val mockInfo by mockInfoState
+    val stuLoading by stuLoadingState
+    val err by errState
     Surface {
         Column {
             Text("error time：\n$count")
@@ -75,7 +77,7 @@ fun ErrorRetry() {
             } else if (mockInfo.asBoolean()) {
                 Text("MockSucc：${(mockInfo)}")
             } else if (err.asBoolean()) {
-                Text(text = "Error msg: ${err.message}")
+                Text(text = "Error msg: ${err!!.message}")
             }
         }
     }

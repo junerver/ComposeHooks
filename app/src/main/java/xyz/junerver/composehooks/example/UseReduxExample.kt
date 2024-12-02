@@ -1,16 +1,12 @@
 package xyz.junerver.composehooks.example
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -22,10 +18,7 @@ import kotlinx.collections.immutable.plus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import xyz.junerver.compose.hooks.Reducer
-import xyz.junerver.compose.hooks.useGetState
-import xyz.junerver.compose.hooks.useMount
-import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.*
 import xyz.junerver.compose.hooks.useredux.createStore
 import xyz.junerver.compose.hooks.useredux.useDispatch
 import xyz.junerver.compose.hooks.useredux.useDispatchAsync
@@ -34,8 +27,6 @@ import xyz.junerver.composehooks.MainActivity
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.composehooks.utils.NanoId
-import xyz.junerver.kotlin.Tuple2
-import xyz.junerver.kotlin.tuple
 
 data class Todo(val name: String, val id: String)
 
@@ -114,7 +105,7 @@ fun TodoList() {
      * The corresponding state object saved in the store can be quickly
      * obtained through the [useSelector] function;
      */
-    val todos = useSelector<PersistentList<Todo>>()
+    val todos by useSelector<PersistentList<Todo>>()
     Column {
         todos.map {
             TodoItem(item = it)
@@ -131,11 +122,12 @@ private fun Header() {
      * through [useDispatch]
      */
     val dispatch = useDispatch<TodoAction>()
-    val (input, setInput) = useGetState("")
+    val (inputState, setInput) = useGetState("")
+    val input by inputState
     Row {
         OutlinedTextField(
             value = input,
-            onValueChange = setInput
+            onValueChange = setInput.left()
         )
         TButton(text = "add") {
             dispatch(AddTodo(Todo(input, NanoId.generate())))
@@ -174,19 +166,20 @@ private fun SubSimpleDataStateText() {
      * state, or only take some attributes of the state object as the state you
      * want to focus on;
      */
-    val name = useSelector<SimpleData, String> { name }
+    val name by useSelector<SimpleData, String> { name }
     Text(text = "User Name: $name")
 }
 
 @Composable
 private fun SubSimpleDataStateText2() {
-    val age = useSelector<SimpleData, String> { "age : $age" }
+    val age by useSelector<SimpleData, String> { "age : $age" }
     Text(text = "User $age")
 }
 
 @Composable
 private fun SubSimpleDataDispatch() {
-    val (input, setInput) = useGetState("")
+    val (inputState, setInput) = useGetState("")
+    val input by inputState
     val dispatch = useDispatch<SimpleAction>()
 
     /**
@@ -200,7 +193,7 @@ private fun SubSimpleDataDispatch() {
      */
     val asyncDispatch = useDispatchAsync<SimpleAction>()
     Column {
-        OutlinedTextField(value = input, onValueChange = setInput)
+        OutlinedTextField(value = input, onValueChange = setInput.left())
         Row {
             val scope = rememberCoroutineScope()
             TButton(text = "changeName") {
@@ -321,7 +314,7 @@ private fun <T> useFetchAliasFetch(
     errorRetry: Int = 0,
     block: suspend CoroutineScope.() -> T,
 ): Tuple2<NetFetchResult<T>, () -> Unit> {
-    val fetchResult: NetFetchResult<T> = useSelector(alias)
+    val fetchResult: NetFetchResult<T> by useSelector(alias)
     val dispatchFetch = useFetch<T>(alias)
     val retryCount = useRef(errorRetry)
     val fetch = {

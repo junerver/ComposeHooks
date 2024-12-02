@@ -1,15 +1,12 @@
 package xyz.junerver.composehooks.example.request
 
 import android.os.Parcelable
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -21,14 +18,13 @@ import kotlinx.coroutines.isActive
 import kotlinx.datetime.Clock
 import kotlinx.parcelize.Parcelize
 import xyz.junerver.compose.hooks.asSuspendNoopFn
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.compose.hooks.userequest.utils.clearCache
+import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.composehooks.utils.NanoId
-import xyz.junerver.kotlin.asBoolean
 
 /*
   Description:
@@ -71,7 +67,8 @@ fun Cache() {
 
 @Composable
 private fun TestSWR() {
-    val (isVisible, toggle) = useBoolean(true)
+    val (isVisibleState, toggle) = useBoolean(true)
+    val isVisible by isVisibleState
     Column {
         TButton(text = "show/hide") {
             toggle()
@@ -96,7 +93,7 @@ private fun TestSWR() {
 private fun SWR(useCache: Boolean = false) {
     val (data, loading) = useRequest(
         requestFn = ::mockRequestArticle.asSuspendNoopFn(),
-        optionsOf {
+        optionsOf = {
             if (useCache) cacheKey = "test-swr-key"
         }
     )
@@ -111,7 +108,8 @@ private fun SWR(useCache: Boolean = false) {
 
 @Composable
 fun TestStaleTime() {
-    val (isVisible, toggle) = useBoolean(true)
+    val (isVisibleState, toggle) = useBoolean(true)
+    val isVisible by isVisibleState
     val cacheKey = "test-stale-key"
     Column {
         Row {
@@ -135,7 +133,7 @@ fun TestStaleTime() {
 private fun StaleTime(cacheKey: String) {
     val (data, loading) = useRequest(
         requestFn = ::mockRequestArticle.asSuspendNoopFn(),
-        optionsOf {
+        optionsOf = {
             this.cacheKey = cacheKey
             staleTime = 5.seconds
         }
@@ -143,7 +141,7 @@ private fun StaleTime(cacheKey: String) {
     Column(modifier = Modifier.height(210.dp)) {
         Text(text = "statleTime: 5s", color = Color.Red)
         Text(text = "Background loading: $loading")
-        if (data.asBoolean()) {
+        if (data.value.asBoolean()) {
             Text(text = "$data")
         }
     }

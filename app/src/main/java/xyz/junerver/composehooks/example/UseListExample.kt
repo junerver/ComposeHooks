@@ -29,7 +29,7 @@ fun UseListExample() {
                 }
                 TButton(text = "-1") {
                     if (listState.isNotEmpty()) {
-                        listState.removeLast()
+                        listState.removeAt(listState.lastIndex)
                     }
                 }
                 TButton(text = "change") {

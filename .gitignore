@@ -26,6 +26,7 @@ output.json
 misc.xml
 deploymentTargetDropDown.xml
 render.experimental.xml
+.kotlin
 
 # Keystore files
 *.jks
@@ -37,5 +38,4 @@ google-services.json
 # Android Profiling
 *.hprof
 
-gradle.properties
 secring.gpg

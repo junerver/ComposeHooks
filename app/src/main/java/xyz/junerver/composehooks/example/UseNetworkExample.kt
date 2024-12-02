@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import xyz.junerver.compose.hooks.usenetwork.NetworkProvider
 import xyz.junerver.compose.hooks.usenetwork.rememberNetwork
 
@@ -17,7 +18,7 @@ import xyz.junerver.compose.hooks.usenetwork.rememberNetwork
 @Composable
 fun UseNetworkExample() {
     NetworkProvider {
-        val networkState = rememberNetwork()
+        val networkState by rememberNetwork()
         Surface {
             Column {
                 Text(text = "$networkState")

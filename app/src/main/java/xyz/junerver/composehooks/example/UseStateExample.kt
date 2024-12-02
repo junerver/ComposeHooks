@@ -1,10 +1,6 @@
 package xyz.junerver.composehooks.example
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -17,13 +13,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
-import xyz.junerver.compose.hooks._useState
-import xyz.junerver.compose.hooks.useGetState
-import xyz.junerver.compose.hooks.useLatestRef
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.*
 import xyz.junerver.composehooks.ui.component.TButton
-import xyz.junerver.kotlin.Tuple2
-import xyz.junerver.kotlin.tuple
 
 /*
   Description: [useState]can make controlled components easier to create
@@ -91,7 +82,7 @@ private fun UseStateQuestionOne() {
     Column {
         Text(text = "Question1. Closure problems")
         Text(text = state)
-        Text(text = state2)
+        Text(text = state2.value)
         Text(text = byState)
         Text(text = directState.value)
     }
@@ -121,7 +112,7 @@ private fun UseStateQuestionTwo() {
     Column {
         Text(text = "Question2. modify state very quickly")
         Text(text = state)
-        Text(text = state2)
+        Text(text = state2.value)
         Text(text = byState)
         Text(text = directState.value)
     }
@@ -204,7 +195,7 @@ private fun useAddCorrect3(default: Int): Tuple2<Int, () -> Unit> {
         setState(getState() + 1)
     }
     return tuple(
-        first = state,
+        first = state.value,
         second = ::add
     )
 }

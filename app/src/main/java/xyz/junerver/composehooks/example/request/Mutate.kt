@@ -9,17 +9,19 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import xyz.junerver.compose.hooks.optionsOf
+import arrow.core.left
+import xyz.junerver.compose.hooks.left
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.usePrevious
 import xyz.junerver.compose.hooks.userequest.useRequest
+import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.composehooks.net.WebService
 import xyz.junerver.composehooks.net.asRequestFn
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.composehooks.utils.subStringIf
-import xyz.junerver.kotlin.asBoolean
 
 /*
   Description:
@@ -83,13 +85,16 @@ fun Mutate() {
 
 @Composable
 private fun ManualMutateRollback() {
-    val (input, setInput) = useGetState("")
-    val (userInfo, loading, _, _, mutate) = useRequest(
+    val (inputState, setInput) = useGetState("")
+    val input by inputState
+    val (userInfoState, loadingState, _, _, mutate) = useRequest(
         requestFn = WebService::userInfo.asRequestFn(),
-        optionsOf {
+        optionsOf = {
             defaultParams = arrayOf("junerver")
         }
     )
+    val userInfo by userInfoState
+    val loading by loadingState
     fun mockFnChangeName(newName: String) {
         /**
          * request some api to change user name. Generally, it should be the
@@ -105,7 +110,7 @@ private fun ManualMutateRollback() {
     val previous = usePrevious(present = userInfo)
 
     Column {
-        OutlinedTextField(value = input, onValueChange = setInput)
+        OutlinedTextField(value = input, onValueChange = setInput.left())
         Row {
             TButton(text = "changeName") {
                 mockFnChangeName(input)
@@ -116,13 +121,13 @@ private fun ManualMutateRollback() {
                         it!!.copy(name = input)
                     }
                 }
-                setInput("")
+                setInput("".left())
             }
 
             TButton(text = "rollback") {
                 /*真实案例应该是监听changeName的onError回调，如果失败则回滚*/
                 /*A real case should be to listen to the onError callback of changeName, and roll back if it fails.*/
-                previous?.let { mutate { _ -> it } }
+                previous.value?.let { mutate { _ -> it } }
             }
         }
 
@@ -136,17 +141,20 @@ private fun ManualMutateRollback() {
 
 @Composable
 private fun AutoRollback() {
-    val (input, setInput) = useGetState("")
-    val (userInfo, loading, _, _, mutate, _, _, triggerRollback) = useCustomPluginRequest(
+    val (inputState, setInput) = useGetState("")
+    val input by inputState
+    val (userInfoState, loadingState, _, _, mutate, _, _, triggerRollback) = useCustomPluginRequest(
         requestFn = WebService::userInfo.asRequestFn(),
-        optionsOf {
+        optionsOf = {
             defaultParams = arrayOf("junerver")
         }
     )
+    val userInfo by userInfoState
+    val loading by loadingState
     fun mockFnChangeName(newName: String) {}
 
     Column {
-        OutlinedTextField(value = input, onValueChange = setInput)
+        OutlinedTextField(value = input, onValueChange = setInput.left())
         Row {
             TButton(text = "changeName") {
                 mockFnChangeName(input)
@@ -157,7 +165,7 @@ private fun AutoRollback() {
                         it!!.copy(name = input)
                     }
                 }
-                setInput("")
+                setInput("".left())
             }
 
             TButton(text = "rollback") {

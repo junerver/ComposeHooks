@@ -6,6 +6,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import arrow.core.left
+import xyz.junerver.compose.hooks.left
 import xyz.junerver.compose.hooks.useClipboard
 import xyz.junerver.compose.hooks.useGetState
 
@@ -32,11 +34,11 @@ private fun Copy() {
     val (copy, _) = useClipboard()
     Column {
         TextField(
-            value = state,
-            onValueChange = setState,
+            value = state.value,
+            onValueChange = setState.left(),
             label = { Text("Text to copy") }
         )
-        Button(onClick = { copy(state) }) {
+        Button(onClick = { copy(state.value) }) {
             Text("Copy to clipboard")
         }
     }
@@ -47,8 +49,8 @@ private fun Paste() {
     val (state, setState) = useGetState("")
     val (_, paste) = useClipboard()
     Column {
-        Text("$state")
-        Button(onClick = { setState(paste()) }) {
+        Text(state.value)
+        Button(onClick = { setState(paste().left()) }) {
             Text("Paste from clipboard")
         }
     }

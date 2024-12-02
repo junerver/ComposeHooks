@@ -11,15 +11,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useEventPublish
 import xyz.junerver.compose.hooks.useEventSubscribe
 import xyz.junerver.compose.hooks.userequest.useRequest
+import xyz.junerver.compose.hooks.utils.asBoolean
+import xyz.junerver.compose.hooks.utils.runIf
 import xyz.junerver.composehooks.net.WebService
 import xyz.junerver.composehooks.net.asRequestFn
 import xyz.junerver.composehooks.ui.component.TButton
-import xyz.junerver.kotlin.asBoolean
-import xyz.junerver.kotlin.runIf
 
 /*
   Description:
@@ -60,7 +59,7 @@ fun Container(label: String, optionFunc: OptionFunc) {
 fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc) {
     val (userInfo, loading, _, request) = useRequest(
         requestFn = WebService::userInfo.asRequestFn(),
-        optionsOf {
+        optionsOf = {
             defaultParams = arrayOf("junerver")
             when (optionFunc) {
                 OptionFunc.LoadingDelay -> runIf(isUsed) {
@@ -81,7 +80,7 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
                      *
                      * When you configure [DebounceOptions.wait], anti-shake processing will be performed according to the set value.
                      */
-                    debounceOptions = optionsOf { wait = 3.seconds }
+                    debounceOptionsOf = { wait = 3.seconds }
                 }
 
                 OptionFunc.Throttle -> runIf(isUsed) {
@@ -90,7 +89,7 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
                      *
                      * When you configure [ThrottleOptions.wait], throttling will be performed according to the set value.
                      */
-                    throttleOptions = optionsOf { wait = 3.seconds }
+                    throttleOptionsOf = { wait = 3.seconds }
                 }
             }
         }
@@ -100,7 +99,7 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
     }
     Column(modifier = Modifier.height(100.dp)) {
         Text(text = "$label:$isUsed")
-        if (loading) {
+        if (loading.value) {
             Text(text = "Loading ...")
         } else if (userInfo.asBoolean()) {
             Text(text = "$userInfo".substring(0..100))

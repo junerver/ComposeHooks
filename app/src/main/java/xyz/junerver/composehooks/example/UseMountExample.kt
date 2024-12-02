@@ -10,11 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import xyz.junerver.compose.hooks.useBoolean
-import xyz.junerver.compose.hooks.useMount
-import xyz.junerver.compose.hooks.useUnmount
-import xyz.junerver.compose.hooks.useUnmountedRef
-import xyz.junerver.compose.hooks.useUpdate
+import xyz.junerver.compose.hooks.*
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -30,7 +26,7 @@ fun UseMountExample() {
     val (visible, toggle) = useBoolean()
     Surface {
         Column {
-            if (visible) {
+            if (visible.value) {
                 UnmountableChild(text = "${Math.random()}")
             }
             TButton(text = "Update") {

@@ -6,8 +6,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useTimestamp
 import xyz.junerver.compose.hooks.useTimestampRef
 import xyz.junerver.composehooks.example.request.DividerSpacer
@@ -33,16 +33,17 @@ fun UseTimestampExample() {
 
 @Composable
 fun SubState() {
-    val (timestamp, pause, resume, isActive) = useTimestamp(
-        optionsOf {
+    val (timestamp, pause, resume, isActiveState) = useTimestamp(
+        optionsOf = {
             interval = 1.seconds
             callback = {
                 Log.d("UseTimestampExample", "UseTimestampExample: $it")
             }
         }
     )
+    val isActive by isActiveState
     Column {
-        Text(text = "TimestampState: $timestamp")
+        Text(text = "TimestampState: ${timestamp.value}")
         Row {
             TButton(text = "pause", enabled = isActive) {
                 pause()
@@ -57,7 +58,7 @@ fun SubState() {
 @Composable
 fun SubRef() {
     val (timestamp, _, resume) = useTimestampRef(
-        optionsOf {
+        optionsOf = {
             interval = 1.seconds
         }
     )

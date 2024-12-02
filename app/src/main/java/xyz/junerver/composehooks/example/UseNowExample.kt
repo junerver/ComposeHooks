@@ -4,10 +4,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 import kotlinx.datetime.format.DayOfWeekNames
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useNow
 import xyz.junerver.composehooks.example.request.DividerSpacer
 import xyz.junerver.composehooks.utils.CHINESE_FULL
@@ -23,9 +23,9 @@ import xyz.junerver.composehooks.utils.tsMs
 */
 @Composable
 fun UseNowExample() {
-    val now = useNow()
-    val customize = useNow(
-        optionsOf {
+    val now by useNow()
+    val customize by useNow(
+        optionsOf = {
             format = {
                 it.tsMs.toLocalDateTime()
                     .format(

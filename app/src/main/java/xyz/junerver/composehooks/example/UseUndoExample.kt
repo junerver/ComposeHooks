@@ -8,8 +8,11 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import arrow.core.left
+import xyz.junerver.compose.hooks.left
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useUndo
 import xyz.junerver.composehooks.ui.component.TButton
@@ -24,27 +27,28 @@ import xyz.junerver.composehooks.ui.component.TButton
 @Composable
 fun UseUndoExample() {
     val (state, set, reset, undo, redo, canUndo, canRedo) = useUndo(initialPresent = "")
-    val (input, setInput) = useGetState("")
+    val (inputState, setInput) = useGetState("")
+    val input by inputState
     Surface {
         Column {
-            OutlinedTextField(value = input, onValueChange = setInput)
+            OutlinedTextField(value = input, onValueChange = setInput.left())
             TButton(text = "submit") {
                 set(input)
-                setInput("")
+                setInput("".left())
             }
             Row {
                 TButton(text = "reset") {
                     reset("")
                 }
-                TButton(text = "undo", enabled = canUndo) {
+                TButton(text = "undo", enabled = canUndo.value) {
                     undo()
                 }
-                TButton(text = "redo", enabled = canRedo) {
+                TButton(text = "redo", enabled = canRedo.value) {
                     redo()
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
-            Text(text = "result:\n$state")
+            Text(text = "result:\n${state.value}")
         }
     }
 }

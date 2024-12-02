@@ -8,13 +8,13 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.userequest.useRequest
+import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.composehooks.net.WebService
 import xyz.junerver.composehooks.net.asRequestFn
-import xyz.junerver.kotlin.asBoolean
 
 /*
   Description: 通过使用 Ready 你可以轻松的创建链式请求
@@ -28,16 +28,18 @@ import xyz.junerver.kotlin.asBoolean
 
 @Composable
 fun Ready() {
-    val (userInfo, userLoading) = useRequest(
+    val (userInfoState, userLoadingState) = useRequest(
         requestFn = WebService::userInfo.asRequestFn(),
-        optionsOf {
+        optionsOf = {
             defaultParams =
                 arrayOf("junerver")
         }
     )
-    val (repoInfo, repoLoading) = useRequest(
+    val userInfo by userInfoState
+    val userLoading by userLoadingState
+    val (repoInfoState, repoLoadingState) = useRequest(
         requestFn = WebService::repoInfo.asRequestFn(),
-        optionsOf {
+        optionsOf = {
             defaultParams = arrayOf(
                 "junerver",
                 "ComposeHooks"
@@ -45,7 +47,8 @@ fun Ready() {
             ready = userInfo.asBoolean()
         }
     )
-
+    val repoInfo by repoInfoState
+    val repoLoading by repoLoadingState
     Surface {
         Column {
             if (userLoading) {

@@ -1,10 +1,6 @@
 package xyz.junerver.composehooks.example.request
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
@@ -15,14 +11,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.optionsOf
-import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
+import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.net.WebService
 import xyz.junerver.composehooks.net.asRequestFn
 import xyz.junerver.composehooks.ui.component.TButton
-import xyz.junerver.kotlin.asBoolean
 
 /*
   Description:
@@ -52,7 +46,7 @@ fun Auto() {
     val (userInfo, loading, error) = useRequest(
 //        requestFn = NetApi.SERVICE::userInfo.asSuspendNoopFn(), // Make a request directly through the WebService instance
         requestFn = WebService::userInfo.asRequestFn(), // Make a request WebService interface
-        optionsOf {
+        optionsOf = {
             defaultParams =
                 arrayOf("junerver") // Automatically requests must set default parameters
         }
@@ -60,14 +54,14 @@ fun Auto() {
     Column {
         Text(text = "Auto:")
         Spacer(modifier = Modifier.height(10.dp))
-        if (loading) {
+        if (loading.value) {
             Text(text = "user info loading ...")
         }
         if (userInfo.asBoolean()) {
             Text(text = userInfo.toString())
         }
-        if (error.asBoolean()) {
-            Text(text = "error: ${error.message}")
+        if (error.value.asBoolean()) {
+            Text(text = "error: ${error.value?.message}")
         }
     }
 }
@@ -79,7 +73,7 @@ fun Manual() {
         requestFn = {
             NetApi.SERVICE.repoInfo(it[0] as String, it[1] as String)
         },
-        RequestOptions.optionOf {
+        optionsOf = {
             manual = true
             defaultParams =
                 arrayOf(
@@ -108,11 +102,11 @@ fun Manual() {
                 }
             }
             Spacer(modifier = Modifier.height(10.dp))
-            if (loading) {
+            if (loading.value) {
                 Text(text = "user info loading ...")
             }
-            if (error.asBoolean()) {
-                Text(text = "error: ${error.message}")
+            if (error.value.asBoolean()) {
+                Text(text = "error: ${error.value?.message}")
             }
             if (repoInfo.asBoolean()) {
                 Text(text = repoInfo.toString())

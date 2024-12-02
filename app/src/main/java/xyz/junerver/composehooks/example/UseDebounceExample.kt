@@ -9,11 +9,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.useDebounce
-import xyz.junerver.compose.hooks.useDebounceEffect
-import xyz.junerver.compose.hooks.useDebounceFn
-import xyz.junerver.compose.hooks.useGetState
+import arrow.core.right
+import xyz.junerver.compose.hooks.*
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.composehooks.utils.subStringIf
@@ -28,10 +25,10 @@ import xyz.junerver.composehooks.utils.subStringIf
 @Composable
 fun UseDebounceExample() {
     val (state, setState) = useGetState(0)
-    val debouncedState = useDebounce(value = state)
+    val debouncedState = useDebounce(value = state.value)
 
     val (stateFn, setStateFn) = useGetState(0)
-    val debouncedFn = useDebounceFn(fn = { setStateFn(stateFn + 1) })
+    val debouncedFn = useDebounceFn(fn = { setStateFn({ it: Int -> it + 1 }.right()) })
 
     // for debounceEffect
     val (stateEf, setStateEf) = useGetState(0)
@@ -44,17 +41,17 @@ fun UseDebounceExample() {
 
     Surface {
         Column {
-            Text(text = "current: $state")
-            Text(text = "debounced: $debouncedState")
+            Text(text = "current: ${state.value}")
+            Text(text = "debounced: ${debouncedState.value}")
             TButton(text = "+1") {
-                setState(state + 1)
+                setState({ it: Int -> it + 1 }.right())
             }
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(20.dp)
             )
-            Text(text = "current: $stateFn")
+            Text(text = "current: ${stateFn.value}")
             TButton(text = "debounced +1") {
                 /** Manual import：`import xyz.junerver.compose.hooks.invoke` */
                 debouncedFn()
@@ -64,11 +61,11 @@ fun UseDebounceExample() {
                     .fillMaxWidth()
                     .padding(20.dp)
             )
-            Text(text = "deps: $stateEf")
+            Text(text = "deps: ${stateEf.value}")
             TButton(text = "+1 trigger effect execute") {
-                setStateEf(stateEf + 1)
+                setStateEf({ it: Int -> it + 1 }.right())
             }
-            Text(text = result)
+            Text(text = result.value)
         }
     }
 }

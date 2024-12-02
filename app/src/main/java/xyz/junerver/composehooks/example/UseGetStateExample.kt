@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import arrow.core.right
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import xyz.junerver.compose.hooks.useGetState
@@ -28,25 +29,25 @@ fun UseGetStateExample() {
             Spacer(modifier = Modifier.height(20.dp))
             Text(text = "Question1. Closure problems")
             // in pass, you need to use [useLatestRef] to get latest value of state
-            val (state, setState, getState) = useGetState("getState")
+            val (state, setState) = useGetState("getState")
             LaunchedEffect(key1 = Unit) {
                 repeat(10) {
                     delay(1.seconds)
                     // Now there is no need to use [useLatestRef] to get the latest value directly through [getter]
-                    setState("${getState()}.")
+                    setState({ it: String -> "$it." }.right())
                 }
             }
-            Text(text = state)
+            Text(text = state.value)
 
             Spacer(modifier = Modifier.height(20.dp))
             Text(text = "Question2. modify state very quickly")
-            val (state2, setState2, getState2) = useGetState("getState2")
+            val (state2, setState2) = useGetState("getState2")
             LaunchedEffect(key1 = Unit) {
                 repeat(20) {
-                    setState2("${getState2()}.")
+                    setState2({ it: String -> "$it." }.right())
                 }
             }
-            Text(text = state2)
+            Text(text = state2.value)
         }
     }
 }

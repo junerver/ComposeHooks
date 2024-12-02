@@ -22,7 +22,7 @@ fun UseBiometricExample() {
             TButton(text = "open fingerprint auth") {
                 open()
             }
-            Text(text = "IsAuthed: $isAuthed")
+            Text(text = "IsAuthed: ${isAuthed.value}")
         }
     }
 }

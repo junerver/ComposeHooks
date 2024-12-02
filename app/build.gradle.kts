@@ -32,6 +32,7 @@ android {
         }
     }
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
@@ -49,13 +50,13 @@ android {
 }
 
 dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.3")
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
-
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.navigation.compose)
 
@@ -68,13 +69,16 @@ dependencies {
     debugImplementation(libs.compose.ui.test.manifest)
     androidTestImplementation(libs.compose.ui.test.junit4)
 
+    implementation(libs.kotlinx.collections.immutable)
+    implementation(libs.kotlinx.datetime)
+
     implementation(libs.okhttp)
     implementation(libs.gson)
     implementation(libs.bundles.retrofit){
         exclude(group = "com.squareup.okhttp3",module = "okhttp")
     }
     implementation("com.tencent:mmkv:1.3.4")
-    implementation(projects.hooks)
 
-    implementation(libs.kotlinx.collections.immutable)
+//    implementation(projects.hooks)
+    implementation("xyz.junerver.compose:hooks2-android:2.1.0-beta1")
 }

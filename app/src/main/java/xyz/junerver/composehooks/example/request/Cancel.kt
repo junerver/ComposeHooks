@@ -9,12 +9,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.userequest.useRequest
+import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.composehooks.net.WebService
 import xyz.junerver.composehooks.net.asRequestFn
 import xyz.junerver.composehooks.ui.component.TButton
-import xyz.junerver.kotlin.asBoolean
 
 /**
  * Description:
@@ -27,7 +26,7 @@ import xyz.junerver.kotlin.asBoolean
 fun Cancel() {
     val (userInfo, loading, _, request, _, _, cancel) = useRequest(
         requestFn = WebService::userInfo.asRequestFn(),
-        optionsOf {
+        optionsOf = {
             manual = true
             defaultParams = arrayOf("junerver")
         }
@@ -47,7 +46,7 @@ fun Cancel() {
             }
             HorizontalDivider(modifier = Modifier.fillMaxWidth())
 
-            if (loading) {
+            if (loading.value) {
                 Text(text = "Loading ...")
             } else if (userInfo.asBoolean()) {
                 Text(text = "$userInfo")

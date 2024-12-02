@@ -8,7 +8,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.optionsOf
 import xyz.junerver.compose.hooks.useCountdown
 import xyz.junerver.compose.hooks.useState
 
@@ -24,7 +23,7 @@ import xyz.junerver.compose.hooks.useState
 fun UseCountdownExample() {
     var show by useState(default = false)
     val (leftTime, formattedRes) = useCountdown(
-        options = optionsOf {
+        optionsOf = {
             leftTime = 10.seconds
 //            targetDate = Clock.System.now() + 10.seconds
 //            interval = 3.seconds
@@ -35,8 +34,8 @@ fun UseCountdownExample() {
     )
     Surface {
         Column {
-            Text(text = "LeftTime: ${leftTime.inWholeSeconds}")
-            Text(text = formattedRes.toString())
+            Text(text = "LeftTime: ${leftTime.value.inWholeSeconds}")
+            Text(text = formattedRes.value.toString())
             if (show) {
                 Text(text = "countdown on end!!", color = Color.Green)
             }

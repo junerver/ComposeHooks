@@ -6,20 +6,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.optionsOf
-import xyz.junerver.compose.hooks.useBoolean
-import xyz.junerver.compose.hooks.useEventPublish
-import xyz.junerver.compose.hooks.useEventSubscribe
-import xyz.junerver.compose.hooks.useRef
-import xyz.junerver.compose.hooks.useUpdate
+import xyz.junerver.compose.hooks.*
 import xyz.junerver.compose.hooks.userequest.useRequest
+import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.composehooks.net.WebService
 import xyz.junerver.composehooks.net.asRequestFn
-import xyz.junerver.kotlin.asBoolean
 
 /*
   Description:
@@ -31,7 +27,8 @@ import xyz.junerver.kotlin.asBoolean
 
 @Composable
 fun Polling() {
-    val (showTips, _, set) = useBoolean(false)
+    val (showTipsState, _, set) = useBoolean(false)
+    val showTips by showTipsState
     useEventSubscribe { count: Int ->
         if (!showTips && count >= 1) {
             set(true)
@@ -59,9 +56,9 @@ fun Sub(isPollingWhenHidden: Boolean = false) {
     val countRef = useRef(default = 0)
     val update = useUpdate()
     val post = useEventPublish<Int>()
-    val (userInfo, loading) = useRequest(
+    val (userInfoState, loadingState) = useRequest(
         requestFn = WebService::userInfo.asRequestFn(),
-        optionsOf {
+        optionsOf = {
             defaultParams = arrayOf("junerver")
             pollingInterval = 3.seconds
             pollingWhenHidden = isPollingWhenHidden
@@ -72,6 +69,8 @@ fun Sub(isPollingWhenHidden: Boolean = false) {
             }
         }
     )
+    val userInfo by userInfoState
+    val loading by loadingState
     Column(modifier = Modifier.height(100.dp)) {
         Text(text = "Polling when hidden: $isPollingWhenHidden count: ${countRef.current}")
         Spacer(modifier = Modifier.height(20.dp))
