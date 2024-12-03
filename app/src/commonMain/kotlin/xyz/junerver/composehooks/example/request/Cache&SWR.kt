@@ -18,6 +18,7 @@ import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.compose.hooks.userequest.utils.clearCache
 import xyz.junerver.compose.hooks.utils.asBoolean
+import xyz.junerver.composehooks.ui.component.ScrollColumn
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.composehooks.utils.NanoId
 
@@ -48,7 +49,7 @@ suspend fun mockRequestArticle(): MockArticle {
 @Composable
 fun Cache() {
     Surface {
-        Column {
+        ScrollColumn {
             TestSWR()
             DividerSpacer()
             TestStaleTime()

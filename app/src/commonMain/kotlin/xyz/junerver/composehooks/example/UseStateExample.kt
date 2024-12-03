@@ -25,6 +25,7 @@ import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.composehooks.example.request.DividerSpacer
+import xyz.junerver.composehooks.ui.component.ScrollColumn
 import xyz.junerver.composehooks.ui.component.SimpleContainer
 import xyz.junerver.composehooks.ui.component.TButton
 
@@ -47,7 +48,7 @@ fun UseStateExample() {
     val (state, setState) = useState("")
 
     Surface {
-        Column {
+        ScrollColumn {
             Text(text = "this is a simple controlled component:")
             OutlinedTextField(value = state, onValueChange = setState)
             Text(text = "input：$state")

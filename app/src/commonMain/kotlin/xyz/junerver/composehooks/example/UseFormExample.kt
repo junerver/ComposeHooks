@@ -13,6 +13,7 @@ import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.useMount
 import xyz.junerver.compose.hooks.useform.*
 import xyz.junerver.compose.hooks.utils.asBoolean
+import xyz.junerver.composehooks.ui.component.ScrollColumn
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -34,7 +35,7 @@ fun UseFormExample() {
     val name by Form.useWatch<String>(fieldName = "name", formInstance = form)
 
     Surface {
-        Column {
+        ScrollColumn {
             Form(form) {
                 FormItem<String>(name = "name") { (state, validate, msgs) ->
                     var string by state

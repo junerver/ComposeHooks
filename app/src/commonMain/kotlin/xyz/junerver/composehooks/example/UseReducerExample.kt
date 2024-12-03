@@ -30,6 +30,7 @@ import xyz.junerver.compose.hooks.Reducer
 import xyz.junerver.compose.hooks.left
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useReducer
+import xyz.junerver.composehooks.ui.component.ScrollColumn
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -69,7 +70,7 @@ fun UseReducerExample() {
     )
     val (input, setInput) = useGetState("")
     Surface {
-        Column {
+        ScrollColumn {
             Text(text = "User: ${state.value}")
             Spacer(modifier = Modifier.height(10.dp))
             OutlinedTextField(value = input.value, onValueChange = setInput.left())

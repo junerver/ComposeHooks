@@ -38,6 +38,7 @@ import xyz.junerver.compose.hooks.useredux.useDispatchAsync
 import xyz.junerver.compose.hooks.useredux.useSelector
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.net.bean.UserInfo
+import xyz.junerver.composehooks.ui.component.ScrollColumn
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.composehooks.utils.NanoId
 
@@ -77,7 +78,7 @@ val simpleStore = createStore(arrayOf(logMiddleware())) {
 fun UseReduxExample() {
     /** store provide by root component,see at [MainActivity] */
     Surface {
-        Column(
+        ScrollColumn(
             modifier = Modifier
                 .padding(20.dp)
         ) {
