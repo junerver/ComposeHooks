@@ -338,18 +338,18 @@ fun <T : Any> useEmptyPlugin(): Plugin<T> {
 }
 
 /** 用于判断处理动作 */
-internal sealed interface Methods {
-    class OnBefore(val params: TParams) : Methods
+internal sealed interface Methods<out TData> {
+    class OnBefore(val params: TParams) : Methods<Nothing>
 
-    class OnRequest<TData>(var requestFn: SuspendNormalFunction<TData>, val params: TParams) : Methods
+    class OnRequest<TData>(var requestFn: SuspendNormalFunction<TData>, val params: TParams) : Methods<TData>
 
-    class OnSuccess<TData>(val result: TData, val params: TParams) : Methods
+    class OnSuccess<TData>(val result: TData, val params: TParams) : Methods<TData>
 
-    class OnError(var error: Throwable, val params: TParams) : Methods
+    class OnError(var error: Throwable, val params: TParams) : Methods<Nothing>
 
-    class OnFinally<TData>(val params: TParams, val result: TData?, val error: Throwable?) : Methods
+    class OnFinally<TData>(val params: TParams, val result: TData?, val error: Throwable?) : Methods<TData>
 
-    data object OnCancel : Methods
+    data object OnCancel : Methods<Nothing>
 
-    class OnMutate<TData>(val result: TData) : Methods
+    class OnMutate<TData>(val result: TData) : Methods<TData>
 }

@@ -223,25 +223,24 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
         setState(Keys.data to targetData)
     }
 
-    @Suppress("UNCHECKED_CAST")
-    private fun runPluginHandler(method: Methods): List<*> = pluginImpls.mapNotNull {
+    private fun runPluginHandler(method: Methods<TData>): List<*> = pluginImpls.mapNotNull {
         when (method) {
             is Methods.OnBefore -> {
                 it.onBefore?.invoke(method.params)
             }
 
-            is Methods.OnRequest<*> -> {
+            is Methods.OnRequest -> {
                 it.onRequest?.invoke(
-                    method.requestFn as SuspendNormalFunction<TData>,
+                    method.requestFn,
                     method.params
                 )
             }
             /**
              * 参数1：请求的返回值，参数2：请求使用的参数
              */
-            is Methods.OnSuccess<*> -> {
+            is Methods.OnSuccess -> {
                 it.onSuccess?.invoke(
-                    method.result as TData,
+                    method.result,
                     method.params
                 )
             }
@@ -257,10 +256,10 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
             /**
              * 参数1：请求使用的参数，参数2：请求的返回值，参数3：错误
              */
-            is Methods.OnFinally<*> -> {
+            is Methods.OnFinally -> {
                 it.onFinally?.invoke(
                     method.params,
-                    method.result as TData?,
+                    method.result,
                     method.error
                 )
             }
@@ -271,8 +270,8 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
             /**
              * 参数1：要修改的目标数据
              */
-            is Methods.OnMutate<*> -> {
-                it.onMutate?.invoke(method.result as TData)
+            is Methods.OnMutate -> {
+                it.onMutate?.invoke(method.result)
             }
         }
     }
