@@ -1,7 +1,9 @@
-name: Build & Test & Publish
+name: Publish
 
 on:
-    workflow_dispatch:
+    push:
+        tags:
+            - '**'
 
 env:
     ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.SONATYPE_USERNAME }}
@@ -40,11 +42,5 @@ jobs:
                       ~/.konan
                   key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle.kts') }}
 
-            - name: Build All
-              run: ./gradlew :hooks:assemble
-
-            - name: Gradle Cache
-              uses: gradle/gradle-build-action@v2
-
             - name: Publish to MavenCentral
-              run: ./gradlew :hooks:publishAndReleaseToMavenCentral
+              run: ./gradlew :hooks:publishAllPublicationsToMavenCentralRepository
