@@ -2,9 +2,6 @@ name: Publish
 
 on:
     push:
-        branches:
-            - 'master'
-            - 'legacy_hooks'
         tags:
             - '**'
 
@@ -44,6 +41,9 @@ jobs:
                       ~/.gradle/caches
                       ~/.konan
                   key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle.kts') }}
+
+            - name: Give gradlew execute permissions
+              run: chmod +x ./gradlew
 
             - name: Publish to MavenCentral
               run: ./gradlew :hooks:publishAllPublicationsToMavenCentralRepository
