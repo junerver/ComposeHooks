@@ -5,6 +5,7 @@ package xyz.junerver.compose.hooks
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import arrow.core.Either
 import arrow.core.Tuple4
 import arrow.core.Tuple5
@@ -32,7 +33,7 @@ import xyz.junerver.kotlin.Tuple3
 
 //region useDeviceInfo
 @Composable
-fun rememberBatteryInfo(): BatteryInfo = useBatteryInfo()
+fun rememberBatteryInfo(): State<BatteryInfo> = useBatteryInfo()
 
 @Composable
 fun rememberBuildInfo(): BuildInfo = useBuildInfo()

@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.useDisableScreenshot
@@ -32,7 +33,7 @@ import xyz.junerver.composehooks.ui.component.TButton
 */
 @Composable
 fun UseDeviceInfoExample() {
-    val batteryInfo = useBatteryInfo()
+    val batteryInfo by useBatteryInfo()
     val buildInfo = useBuildInfo()
     val screenInfo = useScreenInfo()
     val (disable, enable, isDisable) = useDisableScreenshot()

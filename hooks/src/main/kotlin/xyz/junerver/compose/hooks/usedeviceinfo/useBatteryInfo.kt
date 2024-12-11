@@ -1,12 +1,15 @@
 package xyz.junerver.compose.hooks.usedeviceinfo
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.produceState
 import androidx.compose.ui.platform.LocalContext
-import xyz.junerver.compose.hooks.useState
 
 /*
   Description:
@@ -16,24 +19,29 @@ import xyz.junerver.compose.hooks.useState
   Version: v1.0
 */
 @Composable
-fun useBatteryInfo(): BatteryInfo {
-    val batteryStatus = LocalContext.current.registerReceiver(
-        null,
-        IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-    )
-    val level by useState {
-        val level = batteryStatus?.getIntExtra(BatteryManager.EXTRA_LEVEL, 0) ?: 0
-        val scale = batteryStatus?.getIntExtra(BatteryManager.EXTRA_SCALE, 0) ?: 0
-        (level / scale.toFloat() * 100).toInt()
+fun useBatteryInfo(): State<BatteryInfo> {
+    val context = LocalContext.current
+    return produceState(initialValue = BatteryInfo()) {
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+                val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
+                val originLevel = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, 0) ?: 0
+                val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, 0) ?: 0
+                val level = (originLevel / scale.toFloat() * 100).toInt()
+                value = BatteryInfo(level, isCharging)
+            }
+        }
+        context.registerReceiver(receiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+
+        awaitDispose {
+            context.unregisterReceiver(receiver)
+        }
     }
-    val isCharging by useState {
-        val status = batteryStatus?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
-        status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
-    }
-    return BatteryInfo(level, isCharging)
 }
 
+@Stable
 data class BatteryInfo(
-    val level: Int,
-    val isCharging: Boolean,
+    val level: Int = -1,
+    val isCharging: Boolean = false,
 )
