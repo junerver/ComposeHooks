@@ -1,7 +1,7 @@
 package xyz.junerver.composehooks.route
 
 import androidx.compose.runtime.Composable
-import xyz.junerver.composehooks.HomeScreen
+import xyz.junerver.composehooks.example.HomeScreen
 import xyz.junerver.composehooks.example.RequestExampleList
 import xyz.junerver.composehooks.example.UseAsyncExample
 import xyz.junerver.composehooks.example.UseAutoResetExample

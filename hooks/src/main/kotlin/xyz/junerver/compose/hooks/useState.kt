@@ -76,7 +76,7 @@ fun <T> useState(default: T & Any): MutableState<T & Any> {
  * @receiver
  */
 @Composable
-fun <T> useState(vararg keys: Any, factory: () -> T): State<T> = remember(keys = keys) {
+fun <T> useState(vararg keys: Any?, factory: () -> T): State<T> = remember(keys = keys) {
     derivedStateOf(factory)
 }
 
