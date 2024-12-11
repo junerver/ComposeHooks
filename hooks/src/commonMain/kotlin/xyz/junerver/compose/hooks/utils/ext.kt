@@ -49,7 +49,7 @@ public inline fun <T, R> T.runIf(condition: Boolean = true, noinline block: T.()
         callsInPlace(block, InvocationKind.AT_MOST_ONCE)
         returnsNotNull() implies condition
     }
-    return this.run { block.takeIf { condition }?.invoke(this) }
+    return if (condition) block(this) else null
 }
 
 /**
@@ -72,8 +72,8 @@ fun toBoolean(value: Any?): Boolean = when (value) {
     null -> false // 空对象直接返回 false
     is Boolean -> value // 布尔类型返回自身
     is Number -> value != 0 // 数值类型非0
-    is String -> value.isNotEmpty() && value != "false" && value != "null" // 空字符、'false'、'null'
-    is Array<*> -> value.size > 0 // 数组、集合必须有元素
+    is String -> value.isNotEmpty() && value != "false" && value != "null" && value != "undefined"  // 空字符、'false'、'null'
+    is Array<*> -> value.isNotEmpty() // 数组、集合必须有元素
     is Collection<*> -> value.isNotEmpty()
     is Map<*, *> -> value.isNotEmpty()
     is Duration -> value.toLong(DurationUnit.MILLISECONDS) > 0 // 如果是时间，时间大于0
