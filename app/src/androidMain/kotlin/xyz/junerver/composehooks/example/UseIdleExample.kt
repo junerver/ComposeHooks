@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import xyz.junerver.compose.hooks.useidle.useIdle
@@ -18,11 +19,11 @@ import xyz.junerver.compose.hooks.useidle.useIdle
 
 @Composable
 fun UseIdleExample() {
-    val (idle, lastActive) = useIdle()
+    val state by useIdle()
     Surface {
         Column {
-            Text(text = "Idle : ${idle.value}")
-            Text(text = "lastActive : ${lastActive.value.toLocalDateTime(TimeZone.of("CTT"))}")
+            Text(text = "Idle : ${state.idle}")
+            Text(text = "lastActive : ${state.lastActive.toLocalDateTime(TimeZone.of("CTT"))}")
         }
     }
 }

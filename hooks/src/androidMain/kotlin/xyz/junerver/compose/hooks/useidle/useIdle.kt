@@ -3,7 +3,9 @@ package xyz.junerver.compose.hooks.useidle
 import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
@@ -22,22 +24,24 @@ import xyz.junerver.compose.hooks.utils.currentTime
 */
 
 @Composable
-fun useIdle(timeout: Duration = 5.seconds): Pair<State<Boolean>, State<Instant>> {
+fun useIdle(timeout: Duration = 5.seconds): State<IdleInfo> {
     val window = (LocalContext.current as Activity).window
-    val idle = useState(default = false)
-    val lastActive = useState(default = currentTime)
     val originalCallback = remember { window.callback }
     val scope = rememberCoroutineScope()
-    DisposableEffect(key1 = Unit) {
+    return produceState(initialValue = IdleInfo()) {
         val inactivityCallback =
             InactivityWindowCallback(originalCallback, scope, timeout) { i, i2 ->
-                idle.value = i
-                lastActive.value = i2
+                value = IdleInfo(i, i2)
             }
         window.callback = inactivityCallback
-        onDispose {
+        awaitDispose {
             window.callback = originalCallback
         }
     }
-    return remember { Pair(idle, lastActive) }
 }
+
+@Stable
+data class IdleInfo(
+    val idle: Boolean = false,
+    val lastActive: Instant = Instant.DISTANT_PAST,
+)
