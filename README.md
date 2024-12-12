@@ -97,6 +97,8 @@ Note: All `use` functions also have the signature of `remember`. If you prefer C
 > Functions marked with `*` can only be used on Android
 ## Add to dependencies
 
+**KMP project**
+
 ```
 // groovy
 implementation 'xyz.junerver.compose:hooks2:<latest_release>'
@@ -104,7 +106,7 @@ implementation 'xyz.junerver.compose:hooks2:<latest_release>'
 implementation("xyz.junerver.compose:hooks2:<latest_release>")
 ```
 
-**Use In Android**
+**Use `hooks2` In Android**
 
 For pure Android projects, please use the following dependencies（Artifact id：`hooks2-android`）：
 ```kotlin
@@ -112,6 +114,17 @@ implementation("xyz.junerver.compose:hooks2-android:<latest_release>")
 ```
 
 If used in ComposeMultiplatform, use artifact id: `hooks2`
+
+**Old version hooks continue to support**
+
+If your project does not have performance issues due to recompose , you can continue to use the old version in the **Android project**, and the bugfix will be synchronized to the old version in subsequent development.
+
+```kotlin
+implementation("xyz.junerver.compose:hooks:2.0.3")
+```
+
+
+
 ## Quick Setup
 
 1. Use `useGetState` to quickly create controlled components

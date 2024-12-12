@@ -98,8 +98,9 @@ implementation("xyz.junerver.compose:hooks2:<latest_release>")
 
 
 
-
 ## 添加依赖
+
+**KMP项目**
 
 ```
 // groovy
@@ -108,13 +109,23 @@ implementation 'xyz.junerver.compose:hooks2:<latest_release>'
 implementation("xyz.junerver.compose:hooks2:<latest_release>")
 ```
 
-**纯 Android 项目**
+**纯 Android 项目引入 hooks2**
 
 纯Android项目请使用如下依赖（即工件id：`hooks2-android`）：
 
 ```kotlin
 implementation("xyz.junerver.compose:hooks2-android:<latest_release>")
 ```
+
+**旧版本 hooks 继续支持**
+
+如果你的项目并没有出现因为重组导致性能问题，你可以继续在 **Android项目** 中使用旧版本，后续开发中会同步 bugfix 到旧版本。
+
+```kotlin
+implementation("xyz.junerver.compose:hooks:2.0.3")
+```
+
+
 
 ## 快速开始
 
