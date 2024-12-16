@@ -5,6 +5,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import org.jetbrains.compose.reload.DevelopmentEntryPoint
 import xyz.junerver.compose.hooks.useredux.ReduxProvider
 import xyz.junerver.compose.hooks.useredux.plus
 import xyz.junerver.composehooks.example.fetchStore
@@ -25,14 +26,16 @@ import xyz.junerver.composehooks.ui.theme.ComposeHooksTheme
 
 @Composable
 fun App() {
-    ComposeHooksTheme {
-        // provide store for all components
-        ReduxProvider(store = simpleStore + fetchStore) {
-            Surface(
-                modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background
-            ) {
-                useRoutes(routes = routes + subRequestRoutes + otherSubRoutes)
+    DevelopmentEntryPoint {
+        ComposeHooksTheme {
+            // provide store for all components
+            ReduxProvider(store = simpleStore + fetchStore) {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    useRoutes(routes = routes + subRequestRoutes + otherSubRoutes)
+                }
             }
         }
     }

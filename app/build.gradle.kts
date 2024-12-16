@@ -1,4 +1,6 @@
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
+import org.jetbrains.compose.reload.ComposeHotRun
+import org.jetbrains.kotlin.compose.compiler.gradle.ComposeFeatureFlag
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -7,7 +9,11 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.kotlinSerialization)
+    alias(libs.plugins.compose.reload)
+}
+
+composeCompiler {
+    featureFlags.add(ComposeFeatureFlag.OptimizeNonSkippingGroups)
 }
 
 kotlin {
@@ -34,6 +40,7 @@ kotlin {
     sourceSets {
         val desktopMain by getting {
             dependencies {
+                implementation(compose.desktop.common)
                 implementation(compose.desktop.currentOs)
                 implementation(libs.kotlin.multiplatform.appdirs)
                 implementation(libs.kotlinx.coroutines.swing)
@@ -142,3 +149,6 @@ compose.desktop {
     }
 }
 
+tasks.register<ComposeHotRun>("runHot") {
+    mainClass.set("xyz.junerver.composehooks.MainKt")
+}
