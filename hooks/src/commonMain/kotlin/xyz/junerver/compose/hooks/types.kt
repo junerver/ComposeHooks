@@ -88,6 +88,18 @@ internal typealias PasteFn = () -> String
 internal typealias HideKeyboardFn = () -> Unit
 internal typealias ShowKeyboardFn = () -> Unit
 
+// usePersistent
+/** pass in the key to get the persistent object */
+internal typealias PersistentGet = (String, Any) -> Any
+/** Pass in the key, persist the object, and perform persistence */
+internal typealias PersistentSave = (String, Any?) -> Unit
+/** Perform clear persistent by pass key */
+internal typealias PersistentClear = (String) -> Unit
+internal typealias HookClear = () -> Unit
+/** Perform persistent save */
+internal typealias SaveToPersistent<T> = (T?) -> Unit
+internal typealias PersistentContextValue = Triple<PersistentGet, PersistentSave, PersistentClear>
+
 // useRedux
 typealias Reducer<S, A> = (prevState: S, action: A) -> S
 typealias Dispatch<A> = (A) -> Unit

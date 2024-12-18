@@ -19,19 +19,6 @@ import xyz.junerver.compose.hooks.utils.HooksEventManager
   Version: v1.0
 */
 
-/** pass in the key to get the persistent object */
-private typealias PersistentGet = (String, Any) -> Any
-
-/** Pass in the key, persist the object, and perform persistence */
-private typealias PersistentSave = (String, Any?) -> Unit
-
-/** Perform clear persistent by pass key */
-private typealias PersistentClear = (String) -> Unit
-
-private typealias HookClear = () -> Unit
-
-/** Perform persistent save */
-private typealias SaveToPersistent<T> = (T?) -> Unit
 
 /**
  * The final return value of the persistence hook is a tuple like
@@ -56,7 +43,7 @@ data class PersistentHolder<T>(
  * own persistence solution globally through `PersistentContext.Provider`;
  */
 val PersistentContext by lazy {
-    createContext<Triple<PersistentGet, PersistentSave, PersistentClear>>(
+    createContext<PersistentContextValue>(
         Triple(
             ::memoryGetPersistent,
             ::memorySavePersistent,
@@ -66,7 +53,7 @@ val PersistentContext by lazy {
 }
 
 internal val InternalMemoryPersistentContext by lazy {
-    createContext<Triple<PersistentGet, PersistentSave, PersistentClear>>(
+    createContext<PersistentContextValue>(
         Triple(
             ::memoryGetPersistent,
             ::memorySavePersistent,

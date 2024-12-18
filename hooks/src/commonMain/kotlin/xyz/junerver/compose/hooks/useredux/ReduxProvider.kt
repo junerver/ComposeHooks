@@ -8,16 +8,17 @@ import xyz.junerver.compose.hooks.createContext
 import xyz.junerver.compose.hooks.useMap
 import xyz.junerver.compose.hooks.useReducer
 
+@PublishedApi
+internal data class ReduxContextValue(
+    val stateMap: Map<KClass<*>, Any>,
+    val dispatchMap: Map<KClass<*>, Dispatch<Any>>,
+    val aliasMap: Map<String, Pair<Any, Dispatch<Any>>>,
+)
+
 /** Redux context */
 @PublishedApi
 internal val ReduxContext by lazy {
-    createContext<
-        Triple<
-            Map<KClass<*>, Any>, // state map
-            Map<KClass<*>, Dispatch<Any>>, // dispatch map
-            Map<String, Pair<Any, Dispatch<Any>>> // alias map
-        >
-    >(Triple(mapOf(), mapOf(), mapOf()))
+    createContext(ReduxContextValue(mapOf(), mapOf(), mapOf()))
 }
 
 /**
@@ -43,7 +44,7 @@ fun ReduxProvider(store: Store, content: ComposeComponent) {
         dispatchMap[entry.actionType] = dispatch
         aliasMap[entry.alias] = state to dispatch
     }
-    ReduxContext.Provider(value = Triple(stateMap, dispatchMap, aliasMap)) {
+    ReduxContext.Provider(value = ReduxContextValue(stateMap, dispatchMap, aliasMap)) {
         content()
     }
 }
