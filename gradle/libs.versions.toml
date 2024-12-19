@@ -1,6 +1,6 @@
 [versions]
 agp = "8.5.2"
-kotlin = "2.1.0"
+kotlin = "2.1.0-firework.32"
 appcompat = "1.7.0"
 
 arrowCore = "1.2.4"
@@ -15,7 +15,6 @@ androidx-lifecycle = "2.8.3"
 biometric = "1.2.0-alpha05"
 
 compose-plugin = "1.7.1"
-compose-reload-kotlin = "2.1.0-firework.31"
 kotlinxDatetime = "0.6.1"
 kotlinxCollectionsImmutable = "0.3.7"
 kotlinxCoroutines = "1.9.0"
@@ -39,10 +38,10 @@ androidx-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle
 
 # kotlin
 kotlin-bom = { group = "org.jetbrains.kotlin", name = "kotlin-bom", version.ref = "kotlin" }
-kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" }
-kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" }
-kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test" }
-kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit" }
+kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib" , version.ref = "kotlin"}
+kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect" , version.ref = "kotlin"}
+kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
+kotlin-test-junit = { module = "org.jetbrains.kotlin:kotlin-test-junit" , version.ref = "kotlin"}
 kotlin-compiler-embeddable = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
 # kotlinX
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
@@ -74,8 +73,8 @@ mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.30.0" }
 kotlinter = { id = "org.jmailen.kotlinter", version = "4.5.0" }
 dokka = { id = "org.jetbrains.dokka", version = "1.9.20" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
-compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "compose-reload-kotlin" }
-kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "compose-reload-kotlin" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
+kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlinSerialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose-reload = { id = "org.jetbrains.compose-hot-reload", version = "1.0.0-dev.31.8"}

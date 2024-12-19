@@ -55,7 +55,7 @@ kotlin {
             api(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.runtime.compose)
 
-            implementation(project.dependencies.platform(libs.kotlin.bom))
+//            implementation(project.dependencies.platform(libs.kotlin.bom))
             api(libs.kotlin.stdlib)
             implementation(libs.kotlin.reflect)
             api(libs.kotlinx.coroutines)
