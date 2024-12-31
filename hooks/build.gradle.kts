@@ -43,11 +43,11 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             api(compose.runtime)
-            api(compose.foundation)
-            api(compose.material)
             api(compose.ui)
-            api(compose.components.resources)
-            api(compose.components.uiToolingPreview)
+            //api(compose.foundation)
+            //api(compose.material)
+            //api(compose.components.resources)
+            //api(compose.components.uiToolingPreview)
             implementation(libs.androidx.lifecycle.runtime.compose)
 
             implementation(project.dependencies.platform(libs.kotlin.bom))
