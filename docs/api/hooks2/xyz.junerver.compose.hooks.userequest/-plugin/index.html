@@ -26,46 +26,89 @@
 <link href="../../../styles/prism.css" rel="Stylesheet">
 <link href="../../../styles/logo-styles.css" rel="Stylesheet">
 <link href="../../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<link href="../../../ui-kit/ui-kit.min.css" rel="Stylesheet">
 <script type="text/javascript" src="../../../scripts/clipboard.js" async="async"></script>
 <script type="text/javascript" src="../../../scripts/navigation-loader.js" async="async"></script>
 <script type="text/javascript" src="../../../scripts/platform-content-handler.js" async="async"></script>
 <script type="text/javascript" src="../../../scripts/main.js" defer="defer"></script>
 <script type="text/javascript" src="../../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../../ui-kit/ui-kit.min.js" defer="defer"></script>
 <script type="text/javascript" src="../../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
 </head>
 <body>
     <div class="root">
-<nav class="navigation" id="navigation-wrapper">
-    <div class="navigation--inner">
-        <div class="navigation-title">
-            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
-            <div class="library-name">
-                    <a class="library-name--link" href="../../../index.html">
-                            hooks2
-                    </a>
-            </div>
-            <div class="library-version">
+    <nav class="navigation theme-dark" id="navigation-wrapper">
+            <a class="library-name--link" href="../../../index.html">
+                    hooks2
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+        </div>
+        <div class="navigation-controls">
+        <div class="filter-section filter-section_loading" id="filter-section">
+                <button class="platform-tag platform-selector common-like" data-active=""
+                        data-filter=":hooks:dokkaHtml/commonMain">common</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox">
+                    <div class="dropdown--header"><span>Platform filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close platform filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":hooks:dokkaHtml/commonMain"
+                                       data-filter=":hooks:dokkaHtml/commonMain"/>
+                                <span class="checkbox--icon"></span>
+                                common
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
             </div>
         </div>
-        <div class="filter-section" id="filter-section">
-                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":hooks:dokkaHtml/commonMain">common</button>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
         </div>
-    </div>
-    <div class="navigation-controls">
-        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
-        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
-    </div>
-</nav>
+    </nav>
         <div id="container">
             <div class="sidebar" id="leftColumn">
-                <div class="sidebar--inner" id="sideMenu"></div>
+                <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                    <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                        data-role="dropdown-listbox">
+                        <div class="dropdown--header">
+                            <span>
+                                    hooks2
+                            </span>
+                            <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                                <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                            </button>
+                        </div>
+                        <div class="sidebar--inner" id="sideMenu"></div>
+                    </ul>
+                    <div class="dropdown--overlay"></div>
+                </div>
             </div>
             <div id="main">
 <div class="main-content" data-page-type="classlike" id="content" pageIds="hooks2::xyz.junerver.compose.hooks.userequest/Plugin///PointingToDeclaration//-1372190576">
   <div class="breadcrumbs"><a href="../../../index.html">hooks2</a><span class="delimiter">/</span><a href="../index.html">xyz.junerver.compose.hooks.userequest</a><span class="delimiter">/</span><span class="current">Plugin</span></div>
   <div class="cover ">
     <h1 class="cover"><span><span>Plugin</span></span></h1>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="index.html">Plugin</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span> : <span data-unresolved-link="xyz.junerver.compose.hooks.userequest/IFetch///PointingToDeclaration/">IFetch</span><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt; </span>, <span data-unresolved-link="kotlinx.coroutines/CoroutineScope///PointingToDeclaration/">CoroutineScope</span></div><p class="paragraph">插件函数 <code class="lang-kotlin">useXXXPlugin</code> 的返回值是真实的插件<a href="index.html">Plugin</a>对象， 可以通过在<span data-unresolved-link="xyz.junerver.compose.hooks.userequest//useRequestPluginsImpl/#kotlin.coroutines.SuspendFunction1[kotlin.Array[kotlin.Any?],TypeParam(bounds=[kotlin.Any])]#xyz.junerver.compose.hooks.userequest.RequestOptions[TypeParam(bounds=[kotlin.Any])]#kotlin.Array[xyz.junerver.compose.hooks.userequest.Plugin[TypeParam(bounds=[kotlin.Any])]]/PointingToDeclaration/">useRequestPluginsImpl</span>中调用<a href="on-init.html">onInit</a>函数，用来初始化 <a href="../-fetch/fetch-state.html">Fetch.fetchState</a>状态。 插件对象自身实现了协程作用域<span data-unresolved-link="kotlinx.coroutines/CoroutineScope///PointingToDeclaration/">CoroutineScope</span>，持有<a href="../-fetch/index.html">Fetch</a>的实例、请求<a href="../-request-options/index.html">RequestOptions</a>配置等内容。 按需实现<span data-unresolved-link="xyz.junerver.compose.hooks.userequest/IFetch///PointingToDeclaration/">IFetch</span>对应<a href="../-fetch/index.html">Fetch</a>中的各个函数调用，就可以在插件函数<code class="lang-kotlin">useXXXPlugin</code>中需要使用副作用函数时，间接回调<a href="../-fetch/index.html">Fetch</a>实例。 具体用例可以参考：<span data-unresolved-link="xyz.junerver.compose.hooks.userequest.plugins//useAutoRunPlugin/#xyz.junerver.compose.hooks.userequest.RequestOptions[TypeParam(bounds=[kotlin.Any])]/PointingToDeclaration/">useAutoRunPlugin</span></p></div></div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="index.html">Plugin</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator"> : </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span> : <span data-unresolved-link="xyz.junerver.compose.hooks.userequest/IFetch///PointingToDeclaration/">IFetch</span><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt; </span>, <span data-unresolved-link="kotlinx.coroutines/CoroutineScope///PointingToDeclaration/">CoroutineScope</span></div><p class="paragraph">插件函数 <code class="lang-kotlin">useXXXPlugin</code> 的返回值是真实的插件<a href="index.html">Plugin</a>对象， 可以通过在<span data-unresolved-link="xyz.junerver.compose.hooks.userequest//useRequestPluginsImpl/#kotlin.coroutines.SuspendFunction1[kotlin.Array[kotlin.Any?],TypeParam(bounds=[kotlin.Any])]#xyz.junerver.compose.hooks.userequest.RequestOptions[TypeParam(bounds=[kotlin.Any])]#kotlin.Array[xyz.junerver.compose.hooks.userequest.Plugin[TypeParam(bounds=[kotlin.Any])]]/PointingToDeclaration/">useRequestPluginsImpl</span>中调用<a href="on-init.html">onInit</a>函数，用来初始化 <a href="../-fetch/fetch-state.html">Fetch.fetchState</a>状态。 插件对象自身实现了协程作用域<span data-unresolved-link="kotlinx.coroutines/CoroutineScope///PointingToDeclaration/">CoroutineScope</span>，持有<a href="../-fetch/index.html">Fetch</a>的实例、请求<a href="../-request-options/index.html">RequestOptions</a>配置等内容。 按需实现<span data-unresolved-link="xyz.junerver.compose.hooks.userequest/IFetch///PointingToDeclaration/">IFetch</span>对应<a href="../-fetch/index.html">Fetch</a>中的各个函数调用，就可以在插件函数<code class="lang-kotlin">useXXXPlugin</code>中需要使用副作用函数时，间接回调<a href="../-fetch/index.html">Fetch</a>实例。 具体用例可以参考：<span data-unresolved-link="xyz.junerver.compose.hooks.userequest.plugins//useAutoRunPlugin/#xyz.junerver.compose.hooks.userequest.RequestOptions[TypeParam(bounds=[kotlin.Any])]/PointingToDeclaration/">useAutoRunPlugin</span></p></div></div>
   </div>
   <div class="tabbedcontent">
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
@@ -101,7 +144,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="coroutine-context.html">coroutineContext</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin.coroutines/-coroutine-context/index.html">CoroutineContext</a></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">override </span><span class="token keyword">val </span><a href="coroutine-context.html">coroutineContext</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.coroutines/-coroutine-context/index.html">CoroutineContext</a></div></div></div>
                 </div>
               </div>
             </div>
@@ -205,11 +248,16 @@
     </div>
   </div>
 </div>
-      <div class="footer">
-        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span
-                class="pull-right"><span>Generated by </span><a
-                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
-      </div>
+    <div class="footer">
+        <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+        <span>© 2025 Copyright</span>
+        <span class="pull-right">
+            <span>Generated by </span>
+            <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                <span>dokka</span>
+            </a>
+        </span>
+    </div>
             </div>
         </div>
     </div>

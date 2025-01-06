@@ -26,39 +26,82 @@
 <link href="../../styles/prism.css" rel="Stylesheet">
 <link href="../../styles/logo-styles.css" rel="Stylesheet">
 <link href="../../styles/font-jb-sans-auto.css" rel="Stylesheet">
+<link href="../../ui-kit/ui-kit.min.css" rel="Stylesheet">
 <script type="text/javascript" src="../../scripts/clipboard.js" async="async"></script>
 <script type="text/javascript" src="../../scripts/navigation-loader.js" async="async"></script>
 <script type="text/javascript" src="../../scripts/platform-content-handler.js" async="async"></script>
 <script type="text/javascript" src="../../scripts/main.js" defer="defer"></script>
 <script type="text/javascript" src="../../scripts/prism.js" async="async"></script>
+<script type="text/javascript" src="../../ui-kit/ui-kit.min.js" defer="defer"></script>
 <script type="text/javascript" src="../../scripts/symbol-parameters-wrapper_deferred.js" defer="defer"></script>
 </head>
 <body>
     <div class="root">
-<nav class="navigation" id="navigation-wrapper">
-    <div class="navigation--inner">
-        <div class="navigation-title">
-            <button class="menu-toggle" id="menu-toggle" type="button">toggle menu</button>
-            <div class="library-name">
-                    <a class="library-name--link" href="../../index.html">
-                            hooks2
-                    </a>
-            </div>
-            <div class="library-version">
+    <nav class="navigation theme-dark" id="navigation-wrapper">
+            <a class="library-name--link" href="../../index.html">
+                    hooks2
+            </a>
+        <button class="navigation-controls--btn navigation-controls--btn_toc ui-kit_mobile-only" id="toc-toggle"
+                type="button">Toggle table of contents
+        </button>
+        <div class="navigation-controls--break ui-kit_mobile-only"></div>
+        <div class="library-version" id="library-version">
+        </div>
+        <div class="navigation-controls">
+        <div class="filter-section filter-section_loading" id="filter-section">
+                <button class="platform-tag platform-selector common-like" data-active=""
+                        data-filter=":hooks:dokkaHtml/commonMain">common</button>
+            <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
+                <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
+                        data-role="dropdown-toggle"
+                        aria-controls="platform-tags-listbox"
+                        aria-haspopup="listbox"
+                        aria-expanded="false"
+                        aria-label="Toggle source sets"
+                ></button>
+                <ul role="listbox" id="platform-tags-listbox" class="dropdown--list" data-role="dropdown-listbox">
+                    <div class="dropdown--header"><span>Platform filter</span>
+                        <button class="button" data-role="dropdown-toggle" aria-label="Close platform filter">
+                            <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                        </button>
+                    </div>
+                        <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
+                            <label class="checkbox">
+                                <input type="checkbox" class="checkbox--input" id=":hooks:dokkaHtml/commonMain"
+                                       data-filter=":hooks:dokkaHtml/commonMain"/>
+                                <span class="checkbox--icon"></span>
+                                common
+                            </label>
+                        </li>
+                </ul>
+                <div class="dropdown--overlay"></div>
             </div>
         </div>
-        <div class="filter-section" id="filter-section">
-                <button class="platform-tag platform-selector common-like" data-active="" data-filter=":hooks:dokkaHtml/commonMain">common</button>
+            <button class="navigation-controls--btn navigation-controls--btn_theme" id="theme-toggle-button"
+                    type="button">Switch theme
+            </button>
+            <div class="navigation-controls--btn navigation-controls--btn_search" id="searchBar" role="button">Search in
+                API
+            </div>
         </div>
-    </div>
-    <div class="navigation-controls">
-        <button class="navigation-controls--btn navigation-controls--theme" id="theme-toggle-button" type="button">switch theme</button>
-        <div class="navigation-controls--btn navigation-controls--search" id="searchBar" role="button">search in API</div>
-    </div>
-</nav>
+    </nav>
         <div id="container">
             <div class="sidebar" id="leftColumn">
-                <div class="sidebar--inner" id="sideMenu"></div>
+                <div class="dropdown theme-dark_mobile" data-role="dropdown" id="toc-dropdown">
+                    <ul role="listbox" id="toc-listbox" class="dropdown--list dropdown--list_toc-list"
+                        data-role="dropdown-listbox">
+                        <div class="dropdown--header">
+                            <span>
+                                    hooks2
+                            </span>
+                            <button class="button" data-role="dropdown-toggle" aria-label="Close table of contents">
+                                <i class="ui-kit-icon ui-kit-icon_cross"></i>
+                            </button>
+                        </div>
+                        <div class="sidebar--inner" id="sideMenu"></div>
+                    </ul>
+                    <div class="dropdown--overlay"></div>
+                </div>
             </div>
             <div id="main">
 <div class="main-content" data-page-type="member" id="content" pageIds="hooks2::xyz.junerver.compose.hooks//useState/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration//-1372190576">
@@ -66,126 +109,18 @@
   <div class="cover ">
     <h1 class="cover"><span>use</span><wbr></wbr><span><span>State</span></span></h1>
   </div>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted">
-        <div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/commonMain">
-            <div class="symbol monospace">
-                <div class="block">
-                    <div class="block"><span class="token annotation builtin">@</span><a
-                        href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span
-                        class="token annotation builtin">Composable</span></a></div>
-                </div>
-                <span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="use-state.html">T</a><span
-                class="token operator">&gt; </span><a href="use-state.html"><span class="token function">useState</span></a><span
-                class="token punctuation">(</span><span class="parameters "><span class="parameter ">default<span
-                class="token operator">: </span><a href="use-state.html">T</a><span
-                class="token operator"> &amp; </span><a
-                href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a></span></span><span
-                class="token punctuation">)</span><span class="token operator">: </span><a
-                href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/MutableState.html">MutableState</a><span
-                class="token operator">&lt;</span><a href="use-state.html">T</a><span
-                class="token operator"> &amp; </span><a
-                href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span
-                class="token operator">&gt;</span></div>
-            <p class="paragraph">Description: 在compose中使用state需要写一点模板代码，虽然谈不上有多麻烦，但是还是能简化一下的；
-                返回值是<a
-                    href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/MutableState.html">MutableState</a>，可以解构后使用。如果是可空对象需要显示声明：
-            </p>
-            <div class="sample-container">
-                <pre><code class="block lang-kotlin" theme="idea">val (state,setState) = _useState&lt;Boolean?&gt;(null)<br>val otherState by useState(&quot;&quot;)</code></pre>
-                <span class="top-right-position"><span class="copy-icon"></span><div
-                    class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span>
-            </div>
-            <p class="paragraph">这样做还有一个好处就是减少闭包层级，我们可以轻松的构造一些简单的受控组件：</p>
-            <div class="sample-container">
-                <pre><code class="block lang-kotlin" theme="idea">val (state, setState) = useState(&quot;&quot;)<br>OutlinedTextField(<br>    value = name,<br>    onValueChange = setState,<br>    label = { Text(&quot;Name&quot;) }<br>)</code></pre>
-                <span class="top-right-position"><span class="copy-icon"></span><div
-                    class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span>
-            </div>
-            <p class="paragraph">重要提示：这种方式在便捷的同时也有俩个缺陷：</p>
-            <ol>
-                <li><p class="paragraph">带来闭包问题，当我们在某个闭包函数中使用状态，会出现闭包问题，需要使用<a
-                    href="use-latest-ref.html">useLatestRef</a>避免。</p></li>
-                <li><p class="paragraph">当你快速的（毫秒级）调用set函数时，会触发 Compose 的重组优化，导致状态丢失。</p>
-                </li>
-            </ol>
-            <p class="paragraph">这种情况下，可以退回到使用 <code class="lang-kotlin">by</code> 委托来获取状态对象</p>
-            <p class="paragraph">Important note: While this method is convenient, it also has two flaws:</p>
-            <ol>
-                <li><p class="paragraph">It causes closure problems. When we use state in a closure function, closure
-                    problems will occur, need to use <a href="use-latest-ref.html">useLatestRef</a> to avoid.</p></li>
-                <li><p class="paragraph">When you call the set function quickly(millisecond level), Compose's recompose
-                    optimization will be triggered, resulting in state loss.</p></li>
-            </ol>
-            <p class="paragraph">In this case, you can fall back to using the <code class="lang-kotlin">by</code>
-                delegate to get the state object</p>
-            <hr>
-            <div class="symbol monospace">
-                <div class="block">
-                    <div class="block"><span class="token annotation builtin">@</span><a
-                        href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span
-                        class="token annotation builtin">Composable</span></a></div>
-                </div>
-                <span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="use-state.html">T</a><span
-                class="token operator">&gt; </span><a href="use-state.html"><span class="token function">useState</span></a><span
-                class="token punctuation">(</span><span class="parameters "><span class="parameter "><span
-                class="token keyword">vararg </span>keys<span class="token operator">: </span><a
-                href="https://kotlinlang.org/api/latest/jvm/stdlib/kotlin/-any/index.html">Any</a><span
-                class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">factory<span
-                class="token operator">: </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span
-                class="token operator"> -&gt; </span><a href="use-state.html">T</a></span></span><span
-                class="token punctuation">)</span><span class="token operator">: </span><a
-                href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/State.html">State</a><span
-                class="token operator">&lt;</span><a href="use-state.html">T</a><span class="token operator">&gt;</span>
-            </div>
-            <p class="paragraph">用于方便的创建派生状态，派生状态不同于普通的<a
-                href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/MutableState.html">MutableState</a>，他是一个只读的状态，
-                它只会在依赖发生变化时重新计算改变状态，在其他的框架中也称之为计算属性或者计算状态。</p>
-            <p class="paragraph">Used to conveniently create derived states. Derived state is different from ordinary <a
-                href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/MutableState.html">MutableState</a>.
-                It is a read-only state. It will only recalculate the changed state when dependencies change. It is also
-                called a <i>Computed Properties</i> in other frameworks.</p><span class="kdoc-tag"><h4
-            class="">Receiver</h4></span><h4 class="">Parameters</h4>
-            <div class="table">
-                <div class="table-row" data-filterable-current=":hooks:dokkaHtml/commonMain"
-                     data-filterable-set=":hooks:dokkaHtml/commonMain">
-                    <div class="main-subrow keyValue ">
-                        <div class=""><span class="inline-flex"><div><u><span><span>T</span></span></u></div></span>
-                        </div>
-                        <div>
-                            <div class="title"><p class="paragraph">Derived object type</p></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="table-row" data-filterable-current=":hooks:dokkaHtml/commonMain"
-                     data-filterable-set=":hooks:dokkaHtml/commonMain">
-                    <div class="main-subrow keyValue ">
-                        <div class=""><span class="inline-flex"><div><u><span><span>keys</span></span></u></div></span>
-                        </div>
-                        <div>
-                            <div class="title"><p class="paragraph">Dependencies, calculations will be reinitiated when
-                                they change, changing the derived state</p></div>
-                        </div>
-                    </div>
-                </div>
-                <div class="table-row" data-filterable-current=":hooks:dokkaHtml/commonMain"
-                     data-filterable-set=":hooks:dokkaHtml/commonMain">
-                    <div class="main-subrow keyValue ">
-                        <div class=""><span class="inline-flex"><div><u><span><span>factory</span></span></u></div></span>
-                        </div>
-                        <div>
-                            <div class="title"><p class="paragraph">Function used to generate derived objects</p></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="use-state.html">T</a><span class="token operator">&gt; </span><a href="use-state.html"><span class="token function">useState</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">default<span class="token operator">: </span><a href="use-state.html">T</a><span class="token operator"> &amp; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/MutableState.html">MutableState</a><span class="token operator">&lt;</span><a href="use-state.html">T</a><span class="token operator"> &amp; </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span></div><p class="paragraph">Description: 在compose中使用state需要写一点模板代码，虽然谈不上有多麻烦，但是还是能简化一下的； 返回值是<a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/MutableState.html">MutableState</a>，可以解构后使用。如果是可空对象需要显示声明：</p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">val (state,setState) = _useState&lt;Boolean?&gt;(null)<br>val otherState by useState(&quot;&quot;)</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">这样做还有一个好处就是减少闭包层级，我们可以轻松的构造一些简单的受控组件：</p><div class="sample-container"><pre><code class="block lang-kotlin" theme="idea">val (state, setState) = useState(&quot;&quot;)<br>OutlinedTextField(<br>    value = name,<br>    onValueChange = setState,<br>    label = { Text(&quot;Name&quot;) }<br>)</code></pre><span class="top-right-position"><span class="copy-icon"></span><div class="copy-popup-wrapper popup-to-left"><span class="copy-popup-icon"></span><span>Content copied to clipboard</span></div></span></div><p class="paragraph">重要提示：这种方式在便捷的同时也有俩个缺陷：</p><ol><li><p class="paragraph">带来闭包问题，当我们在某个闭包函数中使用状态，会出现闭包问题，需要使用<a href="use-latest-ref.html">useLatestRef</a>避免。</p></li><li><p class="paragraph">当你快速的（毫秒级）调用set函数时，会触发 Compose 的重组优化，导致状态丢失。</p></li></ol><p class="paragraph">这种情况下，可以退回到使用 <code class="lang-kotlin">by</code> 委托来获取状态对象</p><p class="paragraph">Important note: While this method is convenient, it also has two flaws:</p><ol><li><p class="paragraph">It causes closure problems. When we use state in a closure function, closure problems will occur, need to use <a href="use-latest-ref.html">useLatestRef</a> to avoid.</p></li><li><p class="paragraph">When you call the set function quickly(millisecond level), Compose's recompose optimization will be triggered, resulting in state loss.</p></li></ol><p class="paragraph">In this case, you can fall back to using the <code class="lang-kotlin">by</code> delegate to get the state object</p><hr><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Composable.html"><span class="token annotation builtin">Composable</span></a></div></div><span class="token keyword">fun </span><span class="token operator">&lt;</span><a href="use-state.html">T</a><span class="token operator">&gt; </span><a href="use-state.html"><span class="token function">useState</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter "><span class="token keyword">vararg </span>keys<span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">?</span><span class="token punctuation">, </span></span><span class="parameter ">factory<span class="token operator">: </span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token operator"> -&gt; </span><a href="use-state.html">T</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/State.html">State</a><span class="token operator">&lt;</span><a href="use-state.html">T</a><span class="token operator">&gt;</span></div><p class="paragraph">用于方便的创建派生状态，派生状态不同于普通的<a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/MutableState.html">MutableState</a>，他是一个只读的状态， 它只会在依赖发生变化时重新计算改变状态，在其他的框架中也称之为计算属性或者计算状态。</p><p class="paragraph">Used to conveniently create derived states. Derived state is different from ordinary <a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/MutableState.html">MutableState</a>. It is a read-only state. It will only recalculate the changed state when dependencies change. It is also called a <i>Computed Properties</i> in other frameworks.</p><span class="kdoc-tag"><h4 class="">Receiver</h4></span><h4 class="">Parameters</h4><div class="table"><div class="table-row" data-filterable-current=":hooks:dokkaHtml/commonMain" data-filterable-set=":hooks:dokkaHtml/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>T</span></span></u></div></span></div><div><div class="title"><p class="paragraph">Derived object type</p></div></div></div></div><div class="table-row" data-filterable-current=":hooks:dokkaHtml/commonMain" data-filterable-set=":hooks:dokkaHtml/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>keys</span></span></u></div></span></div><div><div class="title"><p class="paragraph">Dependencies, calculations will be reinitiated when they change, changing the derived state</p></div></div></div></div><div class="table-row" data-filterable-current=":hooks:dokkaHtml/commonMain" data-filterable-set=":hooks:dokkaHtml/commonMain"><div class="main-subrow keyValue "><div class=""><span class="inline-flex"><div><u><span><span>factory</span></span></u></div></span></div><div><div class="title"><p class="paragraph">Function used to generate derived objects</p></div></div></div></div></div></div></div>
 </div>
-      <div class="footer">
-        <span class="go-to-top-icon"><a href="#content" id="go-to-top-link"></a></span><span>© 2024 Copyright</span><span
-                class="pull-right"><span>Generated by </span><a
-                href="https://github.com/Kotlin/dokka"><span>dokka</span><span class="padded-icon"></span></a></span>
-      </div>
+    <div class="footer">
+        <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
+        <span>© 2025 Copyright</span>
+        <span class="pull-right">
+            <span>Generated by </span>
+            <a class="footer--link footer--link_external" href="https://github.com/Kotlin/dokka">
+                <span>dokka</span>
+            </a>
+        </span>
+    </div>
             </div>
         </div>
     </div>

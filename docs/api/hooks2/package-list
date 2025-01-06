@@ -65,6 +65,10 @@ $dokka.location:xyz.junerver.compose.hooks.useform/Validator///PointingToDeclara
 $dokka.location:xyz.junerver.compose.hooks.useform/Validator/message/#/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks.useform/-validator/message.html
 $dokka.location:xyz.junerver.compose.hooks.useidle////PointingToDeclaration/hooks2/xyz.junerver.compose.hooks.useidle/index.html
 $dokka.location:xyz.junerver.compose.hooks.useidle//useIdle/#kotlin.time.Duration/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks.useidle/use-idle.html
+$dokka.location:xyz.junerver.compose.hooks.useidle/IdleInfo///PointingToDeclaration/hooks2/xyz.junerver.compose.hooks.useidle/-idle-info/index.html
+$dokka.location:xyz.junerver.compose.hooks.useidle/IdleInfo/IdleInfo/#kotlin.Boolean#kotlinx.datetime.Instant/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks.useidle/-idle-info/-idle-info.html
+$dokka.location:xyz.junerver.compose.hooks.useidle/IdleInfo/idle/#/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks.useidle/-idle-info/idle.html
+$dokka.location:xyz.junerver.compose.hooks.useidle/IdleInfo/lastActive/#/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks.useidle/-idle-info/last-active.html
 $dokka.location:xyz.junerver.compose.hooks.usenetwork////PointingToDeclaration/hooks2/xyz.junerver.compose.hooks.usenetwork/index.html
 $dokka.location:xyz.junerver.compose.hooks.usenetwork//NetworkProvider/#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks.usenetwork/-network-provider.html
 $dokka.location:xyz.junerver.compose.hooks.usenetwork//rememberNetwork/#/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks.usenetwork/remember-network.html
@@ -317,8 +321,8 @@ $dokka.location:xyz.junerver.compose.hooks//rememberFloat/#kotlin.Float/Pointing
 $dokka.location:xyz.junerver.compose.hooks//rememberFrontToBackEffect/#kotlin.Array[kotlin.Any?]#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/remember-front-to-back-effect.html
 $dokka.location:xyz.junerver.compose.hooks//rememberGetState/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/remember-get-state.html
 $dokka.location:xyz.junerver.compose.hooks//rememberInt/#kotlin.Int/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/remember-int.html
-$dokka.location:xyz.junerver.compose.hooks//rememberInterval/#kotlin.Function1[xyz.junerver.compose.hooks.IntervalOptions,kotlin.Unit]#kotlin.Boolean#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/remember-interval.html
-$dokka.location:xyz.junerver.compose.hooks//rememberInterval/#kotlin.Function1[xyz.junerver.compose.hooks.IntervalOptions,kotlin.Unit]#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/remember-interval.html
+$dokka.location:xyz.junerver.compose.hooks//rememberInterval/#kotlin.Function1[xyz.junerver.compose.hooks.IntervalOptions,kotlin.Unit]#kotlin.Boolean#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/remember-interval.html
+$dokka.location:xyz.junerver.compose.hooks//rememberInterval/#kotlin.Function1[xyz.junerver.compose.hooks.IntervalOptions,kotlin.Unit]#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/remember-interval.html
 $dokka.location:xyz.junerver.compose.hooks//rememberKeyboard/#/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/remember-keyboard.html
 $dokka.location:xyz.junerver.compose.hooks//rememberLatestRef/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/remember-latest-ref.html
 $dokka.location:xyz.junerver.compose.hooks//rememberList/#kotlin.Array[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/remember-list.html
@@ -412,8 +416,8 @@ $dokka.location:xyz.junerver.compose.hooks//useFrontToBackEffect/#kotlin.Array[k
 $dokka.location:xyz.junerver.compose.hooks//useGetState/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/use-get-state.html
 $dokka.location:xyz.junerver.compose.hooks//useImmutableList/#kotlin.Array[TypeParam(bounds=[kotlin.Any?])]/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/use-immutable-list.html
 $dokka.location:xyz.junerver.compose.hooks//useInt/#kotlin.Int/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/use-int.html
-$dokka.location:xyz.junerver.compose.hooks//useInterval/#kotlin.Function1[xyz.junerver.compose.hooks.IntervalOptions,kotlin.Unit]#kotlin.Boolean#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/use-interval.html
-$dokka.location:xyz.junerver.compose.hooks//useInterval/#kotlin.Function1[xyz.junerver.compose.hooks.IntervalOptions,kotlin.Unit]#kotlin.Function0[kotlin.Unit]/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/use-interval.html
+$dokka.location:xyz.junerver.compose.hooks//useInterval/#kotlin.Function1[xyz.junerver.compose.hooks.IntervalOptions,kotlin.Unit]#kotlin.Boolean#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/use-interval.html
+$dokka.location:xyz.junerver.compose.hooks//useInterval/#kotlin.Function1[xyz.junerver.compose.hooks.IntervalOptions,kotlin.Unit]#kotlin.coroutines.SuspendFunction1[kotlinx.coroutines.CoroutineScope,kotlin.Unit]/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/use-interval.html
 $dokka.location:xyz.junerver.compose.hooks//useKeyboard/#/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/use-keyboard.html
 $dokka.location:xyz.junerver.compose.hooks//useLatestRef/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/use-latest-ref.html
 $dokka.location:xyz.junerver.compose.hooks//useLatestState/#TypeParam(bounds=[kotlin.Any?])/PointingToDeclaration/hooks2/xyz.junerver.compose.hooks/use-latest-state.html
@@ -635,4 +639,3 @@ xyz.junerver.compose.hooks.userequest
 xyz.junerver.compose.hooks.userequest.utils
 xyz.junerver.compose.hooks.usevibrate
 xyz.junerver.compose.hooks.utils
-
