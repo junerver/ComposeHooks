@@ -106,8 +106,12 @@ android {
     }
 }
 
-tasks.dokkaHtml {
-    outputDirectory.set(file("$rootDir/docs/api"))
-    suppressInheritedMembers.set(true)
+dokka {
+    dokkaPublications.html {
+        outputDirectory.set(file("$rootDir/docs/api"))
+    }
+    dokkaPublications.configureEach {
+        suppressInheritedMembers.set(true)
+    }
     moduleName.set("hooks2")
 }

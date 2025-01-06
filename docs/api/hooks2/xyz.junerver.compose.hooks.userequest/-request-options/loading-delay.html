@@ -50,7 +50,7 @@
         <div class="navigation-controls">
         <div class="filter-section filter-section_loading" id="filter-section">
                 <button class="platform-tag platform-selector common-like" data-active=""
-                        data-filter=":hooks:dokkaHtml/commonMain">common</button>
+                        data-filter=":hooks/commonMain">common</button>
             <div class="dropdown filter-section--dropdown" data-role="dropdown" id="filter-section-dropdown">
                 <button class="button button_dropdown filter-section--dropdown-toggle" role="combobox"
                         data-role="dropdown-toggle"
@@ -67,8 +67,8 @@
                     </div>
                         <li role="option" class="dropdown--option platform-selector-option common-like" tabindex="0">
                             <label class="checkbox">
-                                <input type="checkbox" class="checkbox--input" id=":hooks:dokkaHtml/commonMain"
-                                       data-filter=":hooks:dokkaHtml/commonMain"/>
+                                <input type="checkbox" class="checkbox--input" id=":hooks/commonMain"
+                                       data-filter=":hooks/commonMain"/>
                                 <span class="checkbox--icon"></span>
                                 common
                             </label>
@@ -104,12 +104,12 @@
                 </div>
             </div>
             <div id="main">
-<div class="main-content" data-page-type="member" id="content" pageIds="hooks2::xyz.junerver.compose.hooks.userequest/RequestOptions/loadingDelay/#/PointingToDeclaration//-1372190576">
+<div class="main-content" data-page-type="member" id="content" pageIds="hooks2::xyz.junerver.compose.hooks.userequest/RequestOptions/loadingDelay/#/PointingToDeclaration//775740265">
   <div class="breadcrumbs"><a href="../../../index.html">hooks2</a><span class="delimiter">/</span><a href="../index.html">xyz.junerver.compose.hooks.userequest</a><span class="delimiter">/</span><a href="index.html">RequestOptions</a><span class="delimiter">/</span><span class="current">loadingDelay</span></div>
   <div class="cover ">
     <h1 class="cover"><span>loading</span><wbr></wbr><span><span>Delay</span></span></h1>
   </div>
-  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks:dokkaHtml/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><a href="https://developer.android.com/reference/kotlin/androidx/compose/runtime/Stable.html"><span class="token annotation builtin">Stable</span></a></div></div><span class="token keyword">var </span><a href="loading-delay.html">loadingDelay</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.time/-duration/index.html">Duration</a></div><p class="paragraph">通过设置 options.<a href="loading-delay.html">loadingDelay</a> ，可以延迟 <a href="../-fetch-state/loading.html">FetchState.loading</a> 变成 true 的时间，有效防止闪烁。 例如当一个接口正常会较快返回，我们如果常规使用会出现闪烁。从请求发起后，极快的从 false -> true ->false; 我们可以设置一个大于这个返回时长的<a href="loading-delay.html">loadingDelay</a>，例如<span data-unresolved-link="////PointingToDeclaration/">50.milliseconds</span>，这样在50ms内返回的接口， 不会引起闪烁。这种闪烁其实还有一种变形场景，例如一个接口会极快返回，我们不希望用户继续快速点击，我们期望 将loading延时，增加loading的对外表现时间，这种需求接近于节流，又稍有区别</p></div></div>
+  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><div class="block"><div class="block"><span class="token annotation builtin">@</span><span data-unresolved-link="androidx.compose.runtime/Stable///PointingToDeclaration/"><span class="token annotation builtin">Stable</span></span></div></div><span class="token keyword">var </span><a href="loading-delay.html">loadingDelay</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.time/-duration/index.html">Duration</a></div><p class="paragraph">通过设置 options.<a href="loading-delay.html">loadingDelay</a> ，可以延迟 <a href="../-fetch-state/loading.html">FetchState.loading</a> 变成 true 的时间，有效防止闪烁。 例如当一个接口正常会较快返回，我们如果常规使用会出现闪烁。从请求发起后，极快的从 false -> true ->false; 我们可以设置一个大于这个返回时长的<a href="loading-delay.html">loadingDelay</a>，例如<span data-unresolved-link="////PointingToDeclaration/">50.milliseconds</span>，这样在50ms内返回的接口， 不会引起闪烁。这种闪烁其实还有一种变形场景，例如一个接口会极快返回，我们不希望用户继续快速点击，我们期望 将loading延时，增加loading的对外表现时间，这种需求接近于节流，又稍有区别</p></div></div>
 </div>
     <div class="footer">
         <a href="#content" id="go-to-top-link" class="footer--button footer--button_go-to-top"></a>
