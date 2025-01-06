@@ -5,16 +5,16 @@ appcompat = "1.7.0"
 
 arrowCore = "1.2.4"
 kotlinMultiplatformAppdirs = "1.1.1"
-ktorVersion = "3.0.0"
+ktorVersion = "3.0.3"
 mmkvKotlin = "1.2.14"
 navigationComposeVersion = "2.7.0-alpha07"
-logbackClassic = "1.5.6"
+logbackClassic = "1.5.9"
 
 activityCompose = "1.9.3"
-androidx-lifecycle = "2.8.3"
+androidx-lifecycle = "2.8.4"
 biometric = "1.2.0-alpha05"
 
-compose-plugin = "1.7.0"
+compose-plugin = "1.7.3"
 kotlinxDatetime = "0.6.1"
 kotlinxCollectionsImmutable = "0.3.7"
 kotlinxCoroutines = "1.9.0"
@@ -71,7 +71,7 @@ jetbrainsKotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "k
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 mavenPublish = { id = "com.vanniktech.maven.publish", version = "0.30.0" }
 kotlinter = { id = "org.jmailen.kotlinter", version = "4.5.0" }
-dokka = { id = "org.jetbrains.dokka", version = "1.9.20" }
+dokka = { id = "org.jetbrains.dokka", version = "2.0.0" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jetbrainsCompose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
