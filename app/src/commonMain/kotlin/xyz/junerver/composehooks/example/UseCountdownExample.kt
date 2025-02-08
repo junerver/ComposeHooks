@@ -58,7 +58,7 @@ private fun SimpleOne() {
 private fun SimpleTwo() {
     val (leftTime, formattedRes) = useCountdown(
         optionsOf = {
-            targetDate = LocalDateTime.parse("2025-01-29T00:00:00").toInstant(TimeZone.of("UTC+8"))
+            targetDate = LocalDateTime.parse("2026-02-17T00:00:00").toInstant(TimeZone.of("UTC+8"))
             interval = 1.seconds
         }
     )
