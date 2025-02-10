@@ -1,7 +1,7 @@
 package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.Text
+import androidx.compose.material3.Text
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import xyz.junerver.compose.hooks.invoke
