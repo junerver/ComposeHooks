@@ -44,7 +44,6 @@ fun useBackToFrontEffect(vararg deps: Any?, effect: () -> Unit) {
  * @param effect
  * @receiver
  */
-
 @Composable
 fun useFrontToBackEffect(vararg deps: Any?, effect: () -> Unit) {
     var inBackgroundRef by useRef(default = false)

@@ -11,4 +11,4 @@ import androidx.compose.runtime.Composable
 */
 
 @Composable
-fun useMount(fn: SuspendAsyncFn) = useEffect(Unit) { fn() }
+fun useMount(block: SuspendAsyncFn) = useEffect(Unit) { block() }

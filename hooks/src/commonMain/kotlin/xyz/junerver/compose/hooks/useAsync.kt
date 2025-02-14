@@ -20,13 +20,13 @@ import kotlinx.coroutines.launch
  * async()
  * ```
  *
- * @param fn
+ * @param block
  * @return
  * @receiver
  */
 @Composable
-fun useAsync(fn: SuspendAsyncFn): () -> Unit {
-    val latestFn by useLatestState(value = fn)
+fun useAsync(block: SuspendAsyncFn): () -> Unit {
+    val latestFn by useLatestState(value = block)
     val asyncRunFn = useAsync()
     return fun () {
         asyncRunFn {

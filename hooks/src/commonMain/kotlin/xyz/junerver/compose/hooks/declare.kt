@@ -42,7 +42,7 @@ fun <TData : Any> rememberRequest(
 
 //region useAsync
 @Composable
-fun rememberAsync(fn: SuspendAsyncFn) = useAsync(fn)
+fun rememberAsync(block: SuspendAsyncFn) = useAsync(block)
 
 @Composable
 fun rememberAsync(): AsyncRunFn = useAsync()
@@ -133,7 +133,7 @@ fun <K, V> rememberMap(pairs: Iterable<Pair<K, V>>) = useMap(pairs)
 //endregion
 
 @Composable
-fun rememberMount(fn: SuspendAsyncFn) = useMount(fn)
+fun rememberMount(block: SuspendAsyncFn) = useMount(block)
 
 @Composable
 fun rememberNow(optionsOf: UseNowOptions.() -> Unit = {}) = useNow(optionsOf)
