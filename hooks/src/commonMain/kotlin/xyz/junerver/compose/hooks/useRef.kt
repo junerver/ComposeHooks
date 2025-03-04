@@ -20,28 +20,69 @@ import kotlin.reflect.KProperty
 private typealias Observer<T> = (T) -> Unit
 
 /**
- * Read-only Ref interface
+ * A read-only reference interface that provides access to a value without triggering recomposition.
  *
- * @param T
+ * Unlike [rememberUpdatedState], modifying the value through this interface does not cause
+ * component recomposition. It's useful for storing values that shouldn't trigger UI updates.
+ *
+ * @param T The type of the referenced value
  */
 @Stable
 sealed interface Ref<T> {
+    /** The current value of the reference */
     val current: T
 
+    /**
+     * Registers an observer to be notified of value changes.
+     * By default, no observers are registered.
+     *
+     * @param observer The callback to be invoked when the value changes
+     */
     fun observe(observer: Observer<T>) {}
 
+    /**
+     * Removes a previously registered observer.
+     * By default, no observers are removed.
+     *
+     * @param observer The observer to remove
+     */
     fun removeObserver(observer: Observer<T>) {}
 }
 
+/**
+ * Property delegate operator for [Ref] to access the current value.
+ *
+ * @param thisObj The object on which the property is being accessed
+ * @param property The property being accessed
+ * @return The current value of the reference
+ */
 operator fun <T> Ref<T>.getValue(thisObj: Any?, property: KProperty<*>): T = current
 
 /**
- * Mutable ref
+ * A mutable reference that supports value changes and observer notifications.
  *
- * @param T
- * @constructor
+ * This class provides a way to store and update values without triggering recomposition,
+ * while still allowing components to observe changes when needed.
  *
- * @param initialValue
+ * @param T The type of the referenced value
+ * @param initialValue The initial value of the reference
+ *
+ * @example
+ * ```kotlin
+ * val ref = useRef(0)
+ * 
+ * // Update value without triggering recomposition
+ * ref.current = 42
+ * 
+ * // Use property delegation
+ * var value by ref
+ * value = 100
+ * 
+ * // Observe changes
+ * ref.observe { newValue ->
+ *     println("Value changed to: $newValue")
+ * }
+ * ```
  */
 @Stable
 class MutableRef<T>(initialValue: T) : Ref<T> {
@@ -67,20 +108,62 @@ class MutableRef<T>(initialValue: T) : Ref<T> {
     }
 }
 
+/**
+ * Property delegate operator for [MutableRef] to set the current value.
+ *
+ * @param thisObj The object on which the property is being set
+ * @param property The property being set
+ * @param value The new value to set
+ */
 operator fun <T> MutableRef<T>.setValue(thisObj: Any?, property: KProperty<*>, value: T) {
     this.current = value
 }
 
+/**
+ * A hook for creating a mutable reference that persists across recompositions.
+ *
+ * This hook creates a [MutableRef] that maintains its value even when the component
+ * recomposes. It's useful for storing values that shouldn't trigger UI updates but
+ * need to persist between recompositions.
+ *
+ * @param default The initial value of the reference
+ * @return A [MutableRef] containing the value
+ *
+ * @example
+ * ```kotlin
+ * // Create a reference
+ * val counterRef = useRef(0)
+ * 
+ * // Update without triggering recomposition
+ * counterRef.current++
+ * 
+ * // Use in callbacks
+ * Button(onClick = { counterRef.current++ }) {
+ *     Text("Increment")
+ * }
+ * ```
+ */
 @Composable
 fun <T> useRef(default: T): MutableRef<T> = remember {
     MutableRef(default)
 }
 
 /**
- * Observe Ref as State
+ * Converts a [Ref] into a [State] that can be observed in the UI.
  *
- * @param T
- * @return
+ * This function creates a [State] that updates whenever the reference value changes,
+ * allowing the UI to react to changes in the reference value.
+ *
+ * @return A [State] containing the current value of the reference
+ *
+ * @example
+ * ```kotlin
+ * val ref = useRef(0)
+ * val state = ref.observeAsState()
+ * 
+ * // UI will update when ref.current changes
+ * Text("Value: ${state.value}")
+ * ```
  */
 @Composable
 fun <T> Ref<T>.observeAsState(): State<T> {

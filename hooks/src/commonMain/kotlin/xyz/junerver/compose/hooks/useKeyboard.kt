@@ -13,6 +13,26 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
   Version: v1.0
 */
 
+/**
+ * A hook for managing the software keyboard in Compose.
+ *
+ * This hook provides a convenient way to control the software keyboard,
+ * allowing you to show and hide it programmatically. It wraps the
+ * [LocalSoftwareKeyboardController] functionality in a more ergonomic API.
+ *
+ * @return A [KeyboardHolder] containing functions to control the keyboard
+ *
+ * @example
+ * ```kotlin
+ * val (hideKeyboard, showKeyboard) = useKeyboard()
+ * 
+ * // Hide the keyboard
+ * hideKeyboard()
+ * 
+ * // Show the keyboard
+ * showKeyboard()
+ * ```
+ */
 @Composable
 fun useKeyboard(): KeyboardHolder {
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -24,6 +44,12 @@ fun useKeyboard(): KeyboardHolder {
     }
 }
 
+/**
+ * Holder class for keyboard control functions.
+ *
+ * @property hideKeyboard Function to hide the software keyboard
+ * @property showKeyboard Function to show the software keyboard
+ */
 @Stable
 data class KeyboardHolder(
     val hideKeyboard: HideKeyboardFn,

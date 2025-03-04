@@ -5,7 +5,16 @@ import xyz.junerver.compose.hooks.Middleware
 import xyz.junerver.compose.hooks.Reducer
 
 /**
- * A state-stored record that is used to hold a single record
+ * A record class that holds a single state store configuration.
+ *
+ * This class encapsulates all the necessary information for a single state store,
+ * including its reducer, initial state, type information, and alias.
+ *
+ * @property reducer The reducer function for state updates
+ * @property initialState The initial state value
+ * @property stateType The Kotlin class of the state type
+ * @property actionType The Kotlin class of the action type
+ * @property alias Optional name for identifying the store
  */
 data class StoreRecord
     @PublishedApi
@@ -18,7 +27,13 @@ data class StoreRecord
     )
 
 /**
- * all states are finally stored to this class
+ * The main store class that holds all state records and middlewares.
+ *
+ * This class is the central state container that manages all registered reducers
+ * and their associated states, along with any middleware for state processing.
+ *
+ * @property middlewares Array of middleware functions for processing actions
+ * @property records List of store records containing state configurations
  */
 data class Store internal constructor(
     val middlewares: Array<Middleware<Any, Any>>,
@@ -43,6 +58,12 @@ data class Store internal constructor(
     }
 }
 
+/**
+ * A scope class for building store configurations.
+ *
+ * This class provides a DSL for configuring stores with reducers, initial states,
+ * and aliases in a type-safe manner.
+ */
 class StoreScope private constructor(val list: MutableList<StoreRecord>) {
     @Suppress("UNCHECKED_CAST")
     inline fun <reified S : Any, reified A : Any> add(pair: Pair<Reducer<S, A>, S>, alias: String? = null) {
@@ -76,22 +97,42 @@ class StoreScope private constructor(val list: MutableList<StoreRecord>) {
 }
 
 /**
- * A function used to construct a state `Store` instance,
- * you can easily use [StoreScope.with] in the tail closure function to create a [StoreRecord].
+ * Creates a new Redux store with the specified middlewares and state configurations.
  *
- * You can also use the [StoreScope.named] function to add a store with a specified name
+ * This function provides a DSL for creating a Redux store with multiple reducers and
+ * their associated states. It supports both unnamed and named store configurations.
  *
- * ```
- * val simpleStore = createStore(arrayOf(logMiddleware())) {
- *     simpleReducer with SimpleData("default", 18)
- *     named("todolist"){ todoReducer with persistentListOf() }
+ * @param middlewares Array of middleware functions for processing actions
+ * @param fn Configuration block for defining store records
+ * @return A configured [Store] instance
+ *
+ * @example
+ * ```kotlin
+ * // Create a store with middleware and multiple reducers
+ * val store = createStore(arrayOf(logMiddleware())) {
+ *     // Simple reducer with default state
+ *     counterReducer with 0
+ *     
+ *     // Named reducer for better identification
+ *     named("todos") { 
+ *         todoReducer with emptyList<Todo>() 
+ *     }
+ *     
+ *     // Complex state with custom initial value
+ *     userReducer with UserState(
+ *         name = "",
+ *         age = 0,
+ *         isLoggedIn = false
+ *     )
+ * }
+ * 
+ * // Use in a component
+ * ReduxProvider(store = store) {
+ *     // Child components can access the store
+ *     TodoList()
+ *     UserProfile()
  * }
  * ```
- *
- *
- * @param fn
- * @return
- * @receiver
  */
 fun createStore(middlewares: Array<Middleware<Any, Any>> = emptyArray(), fn: StoreScope.() -> Unit): Store {
     val list = mutableListOf<StoreRecord>()
@@ -100,7 +141,10 @@ fun createStore(middlewares: Array<Middleware<Any, Any>> = emptyArray(), fn: Sto
 }
 
 /**
- * friendly error message
+ * Helper function for generating friendly error messages when store registration fails.
+ *
+ * @param target The name of the missing or incorrectly registered component
+ * @throws IllegalStateException with a descriptive error message
  */
 @PublishedApi
 internal fun registerErr(target: String): Nothing {
@@ -108,22 +152,44 @@ internal fun registerErr(target: String): Nothing {
 }
 
 /**
- * [Store] 实例的创建并不要求一次性创建，你可以创建多个[Store]实例，然后使用这个扩展操作符进行组合。
+ * Combines two stores into a single store.
  *
- * [Store] instances don't need to be created all at once, you can create multiple
- * [Store] instances and then use this extension operator [Store.plus] to combine
+ * This operator allows you to combine multiple stores, which is useful when you want
+ * to split your store configurations into logical groups or modules.
  *
+ * @param other The store to combine with this store
+ * @return A new store containing all middlewares and records from both stores
+ *
+ * @example
  * ```kotlin
- * // provide store for all components
- * ReduxProvider(store = simpleStore + fetchStore) {
- *      // sub components
+ * // Create separate stores for different features
+ * val userStore = createStore { userReducer with UserState() }
+ * val todoStore = createStore { todoReducer with TodoState() }
+ * 
+ * // Combine stores when providing to the app
+ * ReduxProvider(store = userStore + todoStore) {
+ *     App()
  * }
  * ```
- *
  */
 operator fun Store.plus(other: Store): Store = Store(this.middlewares + other.middlewares, this.records + other.records)
 
 /**
- * 等同于使用扩展操作符
+ * Combines multiple stores into a single store.
+ *
+ * This function provides an alternative to the plus operator when you need to
+ * combine more than two stores at once.
+ *
+ * @param stores Variable number of stores to combine
+ * @return A new store containing all middlewares and records from all input stores
+ *
+ * @example
+ * ```kotlin
+ * val combinedStore = combineStores(
+ *     userStore,
+ *     todoStore,
+ *     settingsStore
+ * )
+ * ```
  */
 fun combineStores(vararg stores: Store): Store = stores.reduce { acc, store -> acc + store }

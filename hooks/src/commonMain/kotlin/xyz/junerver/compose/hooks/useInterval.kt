@@ -26,11 +26,11 @@ import kotlinx.coroutines.launch
 */
 
 /**
- * Interval options
+ * Interval options for configuring the interval behavior.
  *
  * @constructor Create empty Interval options
- * @property initialDelay initial call delay
- * @property period call interval
+ * @property initialDelay The delay before the first execution
+ * @property period The time between subsequent executions
  */
 @Stable
 data class IntervalOptions internal constructor(
@@ -40,6 +40,15 @@ data class IntervalOptions internal constructor(
     companion object : Options<IntervalOptions>(::IntervalOptions)
 }
 
+/**
+ * Internal class to manage interval execution.
+ *
+ * @property ready Whether the interval is ready to execute
+ * @property scope The coroutine scope for interval execution
+ * @property isActiveState The state tracking if the interval is currently active
+ * @property intervalFn The function to be executed in each interval
+ * @property intervalJob The job managing the interval execution
+ */
 @Stable
 private class Interval(private val options: IntervalOptions) {
     var ready = true
@@ -77,14 +86,37 @@ private class Interval(private val options: IntervalOptions) {
 }
 
 /**
- * A Composable function to periodically execute a block of code within Jetpack Compose.
+ * A hook for executing code at regular intervals.
  *
- * This function allows users to define a set of interval options and repeatedly execute the specified operation.
- * It returns an [IntervalHolder] that can be used to manage the interval.
+ * This hook provides a way to create and manage intervals that execute code periodically,
+ * similar to RxJava's `Observable.interval()`. It supports configurable initial delay,
+ * period, and provides control functions to resume and pause the interval.
  *
- * @param optionsOf A lambda expression used to configure IntervalOptions, defining the interval and animation type, etc.
- * @param block A suspend function that defines the operation to be executed in each interval cycle.
- * @return An [IntervalHolder] that manages the interval.
+ * @param optionsOf A lambda to configure the interval options
+ * @param block The suspend function to be executed in each interval
+ * @return An [IntervalHolder] containing control functions for the interval
+ *
+ * @example
+ * ```kotlin
+ * val (resume, pause, isActive) = useInterval {
+ *     initialDelay = 1.seconds
+ *     period = 2.seconds
+ * } {
+ *     // This block will be executed every 2 seconds
+ *     println("Interval executed")
+ * }
+ * 
+ * // Start the interval
+ * resume()
+ * 
+ * // Pause the interval
+ * pause()
+ * 
+ * // Check if interval is running
+ * if (isActive.value) {
+ *     // Interval is currently running
+ * }
+ * ```
  */
 @Composable
 fun useInterval(optionsOf: IntervalOptions.() -> Unit = {}, block: SuspendAsyncFn): IntervalHolder = useInterval(
@@ -93,14 +125,30 @@ fun useInterval(optionsOf: IntervalOptions.() -> Unit = {}, block: SuspendAsyncF
 )
 
 /**
- * A Composable function to periodically execute a block of code within Jetpack Compose.
+ * A hook for executing code at regular intervals with a ready state.
  *
- * This function allows users to define a set of interval options and repeatedly execute the specified operation when conditions are met.
- * It is suitable for scenarios where animations need to be created or the UI needs to be updated periodically.
+ * This version of the interval hook allows you to control the interval execution
+ * based on a ready state. The interval will automatically start when ready becomes
+ * true and stop when it becomes false.
  *
- * @param optionsOf A lambda expression used to configure IntervalOptions, defining the interval and animation type, etc.
- * @param ready A boolean value indicating whether the interval operation should start.
- * @param block A suspend function that defines the operation to be executed in each interval cycle.
+ * @param optionsOf A lambda to configure the interval options
+ * @param ready A boolean state that controls whether the interval should run
+ * @param block The suspend function to be executed in each interval
+ *
+ * @example
+ * ```kotlin
+ * var isReady by remember { mutableStateOf(false) }
+ * 
+ * useInterval(
+ *     optionsOf = {
+ *         period = 1.seconds
+ *     },
+ *     ready = isReady
+ * ) {
+ *     // This block will be executed every second when isReady is true
+ *     println("Interval executed")
+ * }
+ * ```
  */
 @Composable
 fun useInterval(optionsOf: IntervalOptions.() -> Unit = {}, ready: Boolean, block: SuspendAsyncFn): Unit = useInterval(
@@ -110,9 +158,11 @@ fun useInterval(optionsOf: IntervalOptions.() -> Unit = {}, ready: Boolean, bloc
 )
 
 /**
- * @param resume A function used to resume the process.
- * @param pause A function used to pause the process.
- * @param isActive A function used to check if the process is currently active.
+ * Holder class for interval control functions.
+ *
+ * @property resume Function to start or resume the interval
+ * @property pause Function to pause the interval
+ * @property isActive State indicating whether the interval is currently running
  */
 @Stable
 data class IntervalHolder(
@@ -121,6 +171,13 @@ data class IntervalHolder(
     val isActive: IsActive,
 )
 
+/**
+ * Internal implementation of the interval hook.
+ *
+ * @param options The interval options
+ * @param block The suspend function to be executed in each interval
+ * @return An [IntervalHolder] containing control functions for the interval
+ */
 @Composable
 private fun useInterval(options: IntervalOptions = remember { IntervalOptions() }, block: SuspendAsyncFn): IntervalHolder {
     val latestFn = useLatestRef(value = block)
@@ -142,6 +199,13 @@ private fun useInterval(options: IntervalOptions = remember { IntervalOptions() 
     }
 }
 
+/**
+ * Internal implementation of the interval hook with ready state.
+ *
+ * @param options The interval options
+ * @param ready A boolean state that controls whether the interval should run
+ * @param block The suspend function to be executed in each interval
+ */
 @Composable
 private fun useInterval(options: IntervalOptions = remember { IntervalOptions() }, ready: Boolean, block: SuspendAsyncFn) {
     val latestFn = useLatestRef(value = block)

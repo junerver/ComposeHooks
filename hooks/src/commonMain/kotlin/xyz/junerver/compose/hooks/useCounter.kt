@@ -15,6 +15,14 @@ import arrow.core.right
   Email: junerver@gmail.com
   Version: v1.0
 */
+
+/**
+ * Counter options for configuring the counter behavior.
+ *
+ * @constructor Create empty Counter options
+ * @property min The minimum value of the counter (inclusive)
+ * @property max The maximum value of the counter (inclusive)
+ */
 @Stable
 data class CounterOptions internal constructor(
     var min: Int = 0,
@@ -83,15 +91,65 @@ private fun useCounter(initialValue: Int = 0, options: CounterOptions): CounterH
     }
 }
 
+/**
+ * A hook for managing a counter with min/max bounds.
+ *
+ * This hook provides a way to create and manage a counter with various operations
+ * such as increment, decrement, set value, and reset. The counter value is always
+ * constrained between the specified min and max values.
+ *
+ * @param initialValue The starting value of the counter
+ * @param optionsOf A lambda to configure the counter options
+ * @return A [CounterHolder] containing the counter state and control functions
+ *
+ * @example
+ * ```kotlin
+ * val counter = useCounter(initialValue = 5) {
+ *     min = 0
+ *     max = 10
+ * }
+ *
+ * // Increment by 2
+ * counter.inc(2)
+ * 
+ * // Decrement by 1
+ * counter.dec(1)
+ * 
+ * // Set value directly
+ * counter.setValue(3.left())
+ * 
+ * // Set value using a function
+ * counter.setValue { current -> current * 2 }.right()
+ * 
+ * // Reset to initial value
+ * counter.reset()
+ * ```
+ */
 @Composable
 fun useCounter(initialValue: Int = 0, optionsOf: CounterOptions.() -> Unit) =
     useCounter(initialValue, remember { CounterOptions.optionOf(optionsOf) })
 
+/**
+ * Ensures the value is within the specified min/max bounds.
+ *
+ * @param value The value to constrain
+ * @param options The counter options containing min/max bounds
+ * @return The constrained value
+ */
 private fun getTargetValue(value: Int, options: CounterOptions): Int {
     val (min, max) = options
     return value.coerceIn(min, max)
 }
 
+/**
+ * Holder class for counter state and control functions.
+ *
+ * @property state The current counter value as a [State]
+ * @property inc Function to increment the counter by a specified amount
+ * @property dec Function to decrement the counter by a specified amount
+ * @property setValue Function to set the counter value (can be direct value or function)
+ * @property reset Function to reset the counter to its initial value
+ */
 @Stable
 data class CounterHolder(
     val state: State<Int>,

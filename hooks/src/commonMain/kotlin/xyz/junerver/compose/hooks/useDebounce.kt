@@ -89,14 +89,36 @@ internal class Debounce(
     }
 }
 
+/**
+ * useDebounce
+ *
+ * @param value value
+ * @param optionsOf options
+ * @return
+ */
 @Composable
 fun <S> useDebounce(value: S, optionsOf: DebounceOptions.() -> Unit = {}): State<S> =
     useDebounce(value, remember { DebounceOptions.optionOf(optionsOf) })
 
+/**
+ * useDebounceFn
+ *
+ * @param fn fn
+ * @param optionsOf options
+ * @return
+ */
 @Composable
 fun useDebounceFn(fn: VoidFunction, optionsOf: DebounceOptions.() -> Unit = {}): VoidFunction =
     useDebounceFn(fn, remember { DebounceOptions.optionOf(optionsOf) })
 
+/**
+ * useDebounceEffect
+ *
+ * @param keys keys
+ * @param optionsOf options
+ * @param block block
+ * @return
+ */
 @Composable
 fun useDebounceEffect(vararg keys: Any?, optionsOf: DebounceOptions.() -> Unit = {}, block: SuspendAsyncFn) = useDebounceEffect(
     keys = keys,

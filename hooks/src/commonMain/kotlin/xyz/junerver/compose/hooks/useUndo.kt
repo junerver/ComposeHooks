@@ -17,22 +17,46 @@ import kotlinx.collections.immutable.plus
   Version: v1.0
 */
 
+/**
+ * A state class for managing undo/redo functionality.
+ *
+ * This class maintains the history of values with past, present, and future states,
+ * allowing for undo and redo operations.
+ *
+ * @property past The list of previous values
+ * @property present The current value
+ * @property future The list of future values (after undo)
+ */
 data class UndoState<T>(
     var past: PersistentList<T> = persistentListOf(),
     var present: T,
     var future: PersistentList<T> = persistentListOf(),
 )
 
+/** Sealed interface for undo/redo actions */
 private sealed interface UndoAction
 
+/** Action to perform an undo operation */
 private data object Undo : UndoAction
 
+/** Action to perform a redo operation */
 private data object Redo : UndoAction
 
+/** Action to set a new value */
 private data class Set<S>(val payload: S) : UndoAction
 
+/** Action to reset the state to a new value */
 private data class Reset<S>(val payload: S) : UndoAction
 
+/**
+ * Reducer function for handling undo/redo actions.
+ *
+ * This function manages the state transitions for undo, redo, set, and reset operations.
+ *
+ * @param preState The current state before the action
+ * @param action The action to perform
+ * @return The new state after the action
+ */
 @Suppress("UNCHECKED_CAST")
 private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoState<T> {
     val (past, present, future) = preState
@@ -80,6 +104,39 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
     }
 }
 
+/**
+ * A hook for implementing undo/redo functionality.
+ *
+ * This hook provides a way to manage a value with undo and redo capabilities.
+ * It's useful for implementing features like text editing history or form state management.
+ *
+ * @param initialPresent The initial value
+ * @return An [UndoHolder] containing the state and control functions
+ *
+ * @example
+ * ```kotlin
+ * val (state, setValue, resetValue, undo, redo, canUndo, canRedo) = useUndo("")
+ * 
+ * // Update value
+ * setValue("New value")
+ * 
+ * // Undo last change
+ * if (canUndo()) {
+ *     undo()
+ * }
+ * 
+ * // Redo last undone change
+ * if (canRedo()) {
+ *     redo()
+ * }
+ * 
+ * // Reset to initial state
+ * resetValue("")
+ * 
+ * // Display current value
+ * Text(state.value.present)
+ * ```
+ */
 @Composable
 fun <T> useUndo(initialPresent: T): UndoHolder<T> {
     val (state, dispatch) = useReducer(::undoReducer, UndoState(present = initialPresent))
@@ -93,6 +150,20 @@ fun <T> useUndo(initialPresent: T): UndoHolder<T> {
     return remember { UndoHolder(state, set, reset, undo, redo, canUndo, canRedo) }
 }
 
+/**
+ * A holder class for undo/redo state and control functions.
+ *
+ * This class provides access to the undo/redo state and functions for controlling
+ * the undo/redo functionality.
+ *
+ * @param undoState The current undo/redo state
+ * @param setValue Function to set a new value
+ * @param resetValue Function to reset the state
+ * @param undo Function to perform an undo operation
+ * @param redo Function to perform a redo operation
+ * @param canUndo Function to check if undo is available
+ * @param canRedo Function to check if redo is available
+ */
 @Stable
 data class UndoHolder<T>(
     val undoState: State<UndoState<T>>,

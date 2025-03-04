@@ -19,6 +19,49 @@ import androidx.compose.runtime.remember
   action类型从 Any 修改为泛型 A
 */
 
+/**
+ * A hook for managing complex state logic using the reducer pattern.
+ *
+ * This hook implements a Redux-like state management pattern, allowing you to handle
+ * complex state updates through actions and reducers. It supports middleware for
+ * extending functionality and async actions.
+ *
+ * @param reducer The reducer function that determines how state changes based on actions
+ * @param initialState The initial state value
+ * @param middlewares Optional array of middleware functions to enhance dispatch behavior
+ * @return A [ReducerHolder] containing the state and dispatch functions
+ *
+ * @example
+ * ```kotlin
+ * // Define actions
+ * sealed class CounterAction {
+ *     object Increment : CounterAction()
+ *     object Decrement : CounterAction()
+ *     data class SetValue(val value: Int) : CounterAction()
+ * }
+ * 
+ * // Define reducer
+ * val counterReducer: Reducer<Int, CounterAction> = { state, action ->
+ *     when (action) {
+ *         is CounterAction.Increment -> state + 1
+ *         is CounterAction.Decrement -> state - 1
+ *         is CounterAction.SetValue -> action.value
+ *     }
+ * }
+ * 
+ * // Use the hook
+ * val (state, dispatch, dispatchAsync) = useReducer(counterReducer, 0)
+ * 
+ * // Dispatch actions
+ * dispatch(CounterAction.Increment)
+ * 
+ * // Async action
+ * dispatchAsync { dispatch ->
+ *     delay(1000)
+ *     dispatch(CounterAction.SetValue(10))
+ * }
+ * ```
+ */
 @Composable
 fun <S, A> useReducer(reducer: Reducer<S, A>, initialState: S, middlewares: Array<Middleware<S, A>> = emptyArray()): ReducerHolder<S, A> {
     val asyncRun = useAsync()
@@ -43,6 +86,33 @@ fun <S, A> useReducer(reducer: Reducer<S, A>, initialState: S, middlewares: Arra
     return remember { ReducerHolder(state, enhancedDispatch, enhancedDispatchAsync) }
 }
 
+/**
+ * A holder class for the reducer state and dispatch functions.
+ *
+ * This class provides access to the current state and dispatch functions for
+ * updating the state through actions.
+ *
+ * @param state The current state value
+ * @param dispatch Function to dispatch synchronous actions
+ * @param dispatchAsync Function to dispatch asynchronous actions
+ *
+ * @example
+ * ```kotlin
+ * val (state, dispatch, dispatchAsync) = useReducer(reducer, initialState)
+ * 
+ * // Access state
+ * val currentValue = state.value
+ * 
+ * // Dispatch sync action
+ * dispatch(MyAction.DoSomething)
+ * 
+ * // Dispatch async action
+ * dispatchAsync { dispatch ->
+ *     // Perform async operation
+ *     dispatch(MyAction.UpdateFromAsync)
+ * }
+ * ```
+ */
 @Stable
 data class ReducerHolder<S, A>(
     val state: State<S>,

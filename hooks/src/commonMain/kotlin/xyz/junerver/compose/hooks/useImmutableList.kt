@@ -18,14 +18,34 @@ import kotlinx.collections.immutable.persistentListOf
  */
 
 /**
- * 这个 hook 不同于 [useList]。
+ * A hook for managing immutable lists in Compose.
  *
- * 使用 [useList]，你将会得到一个[SnapshotStateList]，它能带来类似
- * 操作 [MutableList] 一样的体验。但是你无法使用直接使用 [useEffect]
- * 去监听他的变化，需要通过[SnapshotStateList.toList]，触发副作用。
+ * This hook is different from [useList]. While [useList] provides a [SnapshotStateList]
+ * that offers a [MutableList]-like experience, it requires using [SnapshotStateList.toList]
+ * to trigger side effects with [useEffect].
  *
- * 但是使用[useImmutableList]，你无需考虑那么多，直接当作一般的状态即可，
- * 调用[ImmutableListHolder.mutate]函数，操作不可变列表即可。
+ * [useImmutableList] simplifies this by treating the list as a regular state,
+ * allowing direct mutation through the [ImmutableListHolder.mutate] function.
+ *
+ * @param elements Initial elements of the list
+ * @return An [ImmutableListHolder] containing the immutable list and mutation function
+ *
+ * @example
+ * ```kotlin
+ * val (list, mutate) = useImmutableList(1, 2, 3)
+ * 
+ * // Add an element
+ * mutate { it.add(4) }
+ * 
+ * // Remove elements
+ * mutate { it.removeAll { it > 2 } }
+ * 
+ * // Update elements
+ * mutate { it.replaceAll { it * 2 } }
+ * 
+ * // Access the current list
+ * val currentList = list.value
+ * ```
  */
 @Composable
 fun <T> useImmutableList(vararg elements: T): ImmutableListHolder<T> {
@@ -37,6 +57,12 @@ fun <T> useImmutableList(vararg elements: T): ImmutableListHolder<T> {
     return remember { ImmutableListHolder(state, ::mutate) }
 }
 
+/**
+ * Holder class for immutable list state and mutation operations.
+ *
+ * @property list The current immutable list as a [State]
+ * @property mutate Function to modify the list using a mutator function
+ */
 @Stable
 data class ImmutableListHolder<T>(
     val list: State<PersistentList<T>>,

@@ -13,6 +13,36 @@ import kotlinx.coroutines.delay
   Version: v1.0
 */
 
+/**
+ * A hook for executing a task after a specified delay.
+ *
+ * This hook provides a way to schedule a task to run after a given time period.
+ * It's useful for implementing timeouts, delayed actions, or cleanup operations.
+ *
+ * @param delay The time to wait before executing the task
+ * @param block The task to execute after the delay
+ *
+ * @example
+ * ```kotlin
+ * // Show a loading indicator for 2 seconds
+ * useTimeout(2.seconds) {
+ *     // Hide loading indicator
+ *     hideLoading()
+ * }
+ * 
+ * // Implement a cleanup timeout
+ * useTimeout(5.minutes) {
+ *     // Clean up resources
+ *     cleanupResources()
+ * }
+ * 
+ * // Show a temporary message
+ * useTimeout(3.seconds) {
+ *     // Clear the message
+ *     clearMessage()
+ * }
+ * ```
+ */
 @Composable
 fun useTimeout(delay: Duration = 1.seconds, block: () -> Unit) {
     useEffect {

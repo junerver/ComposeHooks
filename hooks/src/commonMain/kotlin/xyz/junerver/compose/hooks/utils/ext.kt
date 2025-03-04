@@ -22,14 +22,39 @@ import xyz.junerver.compose.hooks.useEffect
   Version: v1.0
 */
 
+/**
+ * Utility extension functions and properties for the Compose Hooks library.
+ */
+
+/**
+ * Gets the current system time as an [Instant].
+ * This is a convenience property that wraps [Clock.System.now].
+ */
 internal val currentTime: Instant
     get() = Clock.System.now()
 
 /**
- * 直接使用[State]、[Ref] 作为依赖项无法触发副作用闭包执行，只有状态值、props入参变化才能正常触发，
- * 所以需要执行解包装操作，简化对副作用使用时的心智负担。
+ * Unwraps state objects for use in effect dependencies.
+ * 
+ * Direct use of [State], [Ref], or other state holders as effect dependencies won't
+ * trigger the effect when their internal values change. This function unwraps these
+ * objects to their actual values for proper dependency tracking.
  *
- * 注意：只能监听 [Ref] 实例，如果你使用 `by` 关键字进行了对 [Ref] 的委托，将无法通过 [useEffect] 监听。
+ * Note: Only works with [Ref] instances directly. Using property delegation with `by`
+ * on a [Ref] will prevent proper monitoring through [useEffect].
+ *
+ * @param deps Array of dependencies to unwrap
+ * @return Array of unwrapped values suitable for effect dependencies
+ *
+ * @example
+ * ```kotlin
+ * val state = remember { mutableStateOf("value") }
+ * val ref = useRef("ref value")
+ * 
+ * useEffect(unwrap(arrayOf(state, ref))) {
+ *     // This effect will trigger when state.value or ref.current changes
+ * }
+ * ```
  */
 @Composable
 internal inline fun unwrap(deps: Array<out Any?>) = deps.map {
@@ -41,8 +66,30 @@ internal inline fun unwrap(deps: Array<out Any?>) = deps.map {
     }
 }.toTypedArray()
 
+/**
+ * Extension property to check if a nullable value is not null.
+ * Provides a more readable alternative to the `!= null` check.
+ */
 val Any?.isNotNull get() = this != null
 
+/**
+ * Conditionally executes a block of code on the receiver object.
+ * Similar to [let], but with a condition parameter.
+ *
+ * @param T The type of the receiver object
+ * @param R The return type of the block
+ * @param condition Boolean condition that determines if the block should execute
+ * @param block The code block to execute if condition is true
+ * @return The result of the block if condition is true, null otherwise
+ *
+ * @example
+ * ```kotlin
+ * val value = "test"
+ * value.runIf(value.length > 3) {
+ *     println("Value is longer than 3 characters")
+ * }
+ * ```
+ */
 @OptIn(ExperimentalContracts::class)
 public inline fun <T, R> T.runIf(condition: Boolean = true, noinline block: T.() -> R): R? {
     contract {
@@ -53,8 +100,19 @@ public inline fun <T, R> T.runIf(condition: Boolean = true, noinline block: T.()
 }
 
 /**
- * 一个返回Unit的扩展函数，只保障闭包执行，可以看成是无返回值的 [let] 函数，
- * 在一些需要函数返回值的场景可以用来替代显式书写的[Unit]。
+ * Executes a block of code on the receiver object and returns Unit.
+ * Similar to [let] but always returns Unit, useful for avoiding explicit [Unit] returns.
+ *
+ * @param T The type of the receiver object
+ * @param block The code block to execute
+ *
+ * @example
+ * ```kotlin
+ * someOperation().then {
+ *     // Handle the result without returning anything
+ *     println("Operation completed with: $it")
+ * }
+ * ```
  */
 @OptIn(ExperimentalContracts::class)
 public inline fun <T> T.then(block: (T) -> Unit) {
@@ -66,20 +124,58 @@ public inline fun <T> T.then(block: (T) -> Unit) {
 }
 
 /**
- * 将任意值转换成布尔，类似JS的 Boolean包装器函数
+ * Converts any value to a boolean, similar to JavaScript's Boolean function.
+ * This function implements type-specific conversion logic for common types.
+ *
+ * Conversion rules:
+ * - null -> false
+ * - Boolean -> value itself
+ * - Number -> true if non-zero
+ * - String -> true if non-empty and not "false"/"null"/"undefined"
+ * - Array/Collection/Map -> true if non-empty
+ * - Duration -> true if positive
+ * - Other types -> true
+ *
+ * @param value The value to convert to boolean
+ * @return The boolean representation of the value
+ *
+ * @example
+ * ```kotlin
+ * toBoolean(null) // false
+ * toBoolean(0) // false
+ * toBoolean("") // false
+ * toBoolean("false") // false
+ * toBoolean([1, 2, 3]) // true
+ * toBoolean("hello") // true
+ * ```
  */
 fun toBoolean(value: Any?): Boolean = when (value) {
-    null -> false // 空对象直接返回 false
-    is Boolean -> value // 布尔类型返回自身
-    is Number -> value != 0 // 数值类型非0
-    is String -> value.isNotEmpty() && value != "false" && value != "null" && value != "undefined"  // 空字符、'false'、'null'
-    is Array<*> -> value.isNotEmpty() // 数组、集合必须有元素
+    null -> false
+    is Boolean -> value
+    is Number -> value != 0
+    is String -> value.isNotEmpty() && value != "false" && value != "null" && value != "undefined"
+    is Array<*> -> value.isNotEmpty()
     is Collection<*> -> value.isNotEmpty()
     is Map<*, *> -> value.isNotEmpty()
-    is Duration -> value.toLong(DurationUnit.MILLISECONDS) > 0 // 如果是时间，时间大于0
+    is Duration -> value.toLong(DurationUnit.MILLISECONDS) > 0
     else -> true
 }
 
+/**
+ * Extension function that converts any value to a boolean.
+ * Uses [toBoolean] internally but adds contract information for null safety.
+ *
+ * @return Boolean representation of the value
+ *
+ * @example
+ * ```kotlin
+ * val value: String? = "test"
+ * if (value.asBoolean()) {
+ *     // Compiler knows value is not null here
+ *     println(value.length)
+ * }
+ * ```
+ */
 @OptIn(ExperimentalContracts::class)
 fun Any?.asBoolean(): Boolean {
     contract {
@@ -89,7 +185,23 @@ fun Any?.asBoolean(): Boolean {
 }
 
 /**
- * 验证是否手机
+ * Validates if a string matches a mobile phone number pattern.
+ * Supports international format with optional country code.
+ *
+ * Valid formats:
+ * - Optional country code starting with +
+ * - Followed by 1
+ * - Followed by digits 3,4,5,7,8
+ * - Followed by 9 digits
+ *
+ * @return true if the string matches the mobile phone pattern
+ *
+ * @example
+ * ```kotlin
+ * "13812345678".isMobile() // true
+ * "+8613812345678".isMobile() // true
+ * "12345".isMobile() // false
+ * ```
  */
 fun String.isMobile(): Boolean {
     val regex = "(\\+\\d+)?1[34578]\\d{9}$"
@@ -97,7 +209,23 @@ fun String.isMobile(): Boolean {
 }
 
 /**
- * 验证是否电话
+ * Validates if a string matches a phone number pattern.
+ * Supports both landline and mobile formats.
+ *
+ * Valid formats:
+ * - Optional country code
+ * - Optional area code (3-4 digits)
+ * - Optional hyphen
+ * - 7-8 digits
+ *
+ * @return true if the string matches the phone pattern
+ *
+ * @example
+ * ```kotlin
+ * "0571-12345678".isPhone() // true
+ * "057112345678".isPhone() // true
+ * "+86-0571-12345678".isPhone() // true
+ * ```
  */
 fun String.isPhone(): Boolean {
     val regex = "(\\+\\d+)?(\\d{3,4}\\-?)?\\d{7,8}$"
@@ -105,7 +233,24 @@ fun String.isPhone(): Boolean {
 }
 
 /**
- * 验证是否邮箱
+ * Validates if a string matches an email address pattern.
+ * Uses a comprehensive regex pattern that follows RFC 5322 standards.
+ *
+ * The pattern validates:
+ * - Local part (before @)
+ * - Domain part (after @)
+ * - Special characters
+ * - Quoted strings
+ * - Multiple domains
+ *
+ * @return true if the string matches the email pattern
+ *
+ * @example
+ * ```kotlin
+ * "user@example.com".isEmail() // true
+ * "user.name+tag@example.co.uk".isEmail() // true
+ * "invalid.email".isEmail() // false
+ * ```
  */
 fun String.isEmail(): Boolean {
     val emailPattern = Regex(

@@ -80,9 +80,39 @@ private fun useCountdown(options: CountdownOptions): CountdownHolder {
     return remember { CountdownHolder(timeLeft, formatRes) }
 }
 
+/**
+ * A hook for managing countdown functionality.
+ *
+ * This hook provides a way to create and manage countdown timers with various options
+ * such as setting a target date or remaining time, custom intervals, and end callbacks.
+ *
+ * @param optionsOf A lambda to configure the countdown options
+ * @return A [CountdownHolder] containing the current time left and formatted result
+ *
+ * @example
+ * ```kotlin
+ * val countdown = useCountdown {
+ *     leftTime = 60.seconds  // Set initial countdown time
+ *     interval = 1.seconds   // Update every second
+ *     onEnd = {             // Callback when countdown ends
+ *         println("Countdown finished!")
+ *     }
+ * }
+ *
+ * // Access the countdown values
+ * val timeLeft = countdown.timeLeft.value
+ * val formatted = countdown.formatRes.value
+ * ```
+ */
 @Composable
 fun useCountdown(optionsOf: CountdownOptions.() -> Unit): CountdownHolder = useCountdown(remember { CountdownOptions.optionOf(optionsOf) })
 
+/**
+ * Calculates the remaining time until the target date.
+ *
+ * @param target The target date to calculate remaining time from
+ * @return The remaining duration, or 0 seconds if target is null or in the past
+ */
 @Stable
 private fun calcLeft(target: Instant?): Duration {
     if (target == null) return 0.seconds
@@ -90,6 +120,15 @@ private fun calcLeft(target: Instant?): Duration {
     return if (left < 0.seconds) 0.seconds else left
 }
 
+/**
+ * Represents formatted countdown time components.
+ *
+ * @property days Number of days remaining
+ * @property hours Number of hours remaining (0-23)
+ * @property minutes Number of minutes remaining (0-59)
+ * @property seconds Number of seconds remaining (0-59)
+ * @property milliseconds Number of milliseconds remaining (0-999)
+ */
 @Stable
 data class FormattedRes(
     val days: Int,
@@ -99,6 +138,12 @@ data class FormattedRes(
     val milliseconds: Int,
 )
 
+/**
+ * Parses a duration into formatted time components.
+ *
+ * @param leftTime The duration to parse
+ * @return A [FormattedRes] containing the parsed time components
+ */
 @Stable
 private fun parseDuration(leftTime: Duration): FormattedRes = FormattedRes(
     days = (leftTime.inWholeDays).toInt(),
@@ -108,6 +153,12 @@ private fun parseDuration(leftTime: Duration): FormattedRes = FormattedRes(
     milliseconds = (leftTime.inWholeMilliseconds % 1000).toInt()
 )
 
+/**
+ * Holder class for countdown state and formatted results.
+ *
+ * @property timeLeft The current remaining time as a [State]
+ * @property formatRes The formatted time components as a [State]
+ */
 @Stable
 data class CountdownHolder(
     val timeLeft: State<Duration>,

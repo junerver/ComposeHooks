@@ -94,7 +94,6 @@ inline fun <reified T : Any> useEventPublish(): (T) -> Unit = remember {
  * @param T
  * @receiver
  */
-
 @Composable
 internal fun <T> useEventSubscribe(alias: String, subscriber: (T?) -> Unit) {
     val latest by useLatestState(subscriber)
