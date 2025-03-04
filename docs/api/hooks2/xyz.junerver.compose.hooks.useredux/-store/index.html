@@ -108,7 +108,7 @@
   <div class="breadcrumbs"><a href="../../../index.html">hooks2</a><span class="delimiter">/</span><a href="../index.html">xyz.junerver.compose.hooks.useredux</a><span class="delimiter">/</span><span class="current">Store</span></div>
   <div class="cover ">
     <h1 class="cover"><span><span>Store</span></span></h1>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="index.html">Store</a></div><p class="paragraph">all states are finally stored to this class</p></div></div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">data </span><span class="token keyword">class </span><a href="index.html">Store</a></div><p class="paragraph">The main store class that holds all state records and middlewares.</p><p class="paragraph">This class is the central state container that manages all registered reducers and their associated states, along with any middleware for state processing.</p></div></div>
   </div>
   <div class="tabbedcontent">
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button><button class="section-tab" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION,EXTENSION_PROPERTY,EXTENSION_FUNCTION">Members &amp; Extensions</button></div>
@@ -125,7 +125,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">val </span><a href="middlewares.html">middlewares</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><a href="../../xyz.junerver.compose.hooks/-middleware/index.html">Middleware</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">val </span><a href="middlewares.html">middlewares</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-array/index.html">Array</a><span class="token operator">&lt;</span><a href="../../xyz.junerver.compose.hooks/-middleware/index.html">Middleware</a><span class="token operator">&lt;</span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token punctuation">, </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin/-any/index.html">Any</a><span class="token operator">&gt;</span><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">Array of middleware functions for processing actions</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -140,7 +140,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">val </span><a href="records.html">records</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../-store-record/index.html">StoreRecord</a><span class="token operator">&gt;</span></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">val </span><a href="records.html">records</a><span class="token operator">: </span><a href="https://kotlinlang.org/api/core/kotlin-stdlib/kotlin.collections/-list/index.html">List</a><span class="token operator">&lt;</span><a href="../-store-record/index.html">StoreRecord</a><span class="token operator">&gt;</span></div><div class="brief "><p class="paragraph">List of store records containing state configurations</p></div></div></div>
                 </div>
               </div>
             </div>
@@ -189,7 +189,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><a href="index.html">Store</a><span class="token punctuation">.</span><a href="../plus.html"><span class="token function">plus</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">other<span class="token operator">: </span><a href="index.html">Store</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">Store</a></div><div class="brief "><p class="paragraph"><a href="index.html">Store</a> 实例的创建并不要求一次性创建，你可以创建多个<a href="index.html">Store</a>实例，然后使用这个扩展操作符进行组合。</p></div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">operator </span><span class="token keyword">fun </span><a href="index.html">Store</a><span class="token punctuation">.</span><a href="../plus.html"><span class="token function">plus</span></a><span class="token punctuation">(</span><span class="parameters "><span class="parameter ">other<span class="token operator">: </span><a href="index.html">Store</a></span></span><span class="token punctuation">)</span><span class="token operator">: </span><a href="index.html">Store</a></div><div class="brief "><p class="paragraph">Combines two stores into a single store.</p></div></div></div>
                 </div>
               </div>
             </div>
