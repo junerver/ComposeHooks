@@ -28,7 +28,7 @@ import androidx.compose.runtime.Composable
  * ```kotlin
  * // Basic usage
  * val unmountedRef = useUnmountedRef()
- * 
+ *
  * // Use in async operations
  * LaunchedEffect(Unit) {
  *     delay(1000)
@@ -37,7 +37,7 @@ import androidx.compose.runtime.Composable
  *         updateState()
  *     }
  * }
- * 
+ *
  * // Use in callbacks
  * Button(
  *     onClick = {
@@ -52,7 +52,7 @@ import androidx.compose.runtime.Composable
  * ) {
  *     Text("Fetch Data")
  * }
- * 
+ *
  * // Use in network requests
  * suspend fun safeApiCall() {
  *     try {

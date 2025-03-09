@@ -37,14 +37,14 @@ import androidx.compose.runtime.remember
  *         initialize()
  *     }
  * }
- * 
+ *
  * // With dependencies
  * val userId = useState("")
  * val userProfile = useCreation(userId.value) {
  *     // Only recreated when userId changes
  *     UserProfile(userId.value)
  * }
- * 
+ *
  * // Creating a service instance
  * val apiService = useCreation {
  *     ApiService(
@@ -52,20 +52,20 @@ import androidx.compose.runtime.remember
  *         timeout = 30.seconds
  *     )
  * }
- * 
+ *
  * // With multiple dependencies
  * val (width, height) = useState(0) to useState(0)
  * val canvas = useCreation(width.value, height.value) {
  *     // Recreate canvas only when dimensions change
  *     Canvas(width.value, height.value)
  * }
- * 
+ *
  * // Creating a memoized callback
  * val callback = useCreation(someState.value) {
  *     // Callback recreated only when someState changes
  *     { data -> processData(data, someState.value) }
  * }
- * 
+ *
  * // Creating a shared resource
  * val sharedResource = useCreation {
  *     // Created once and shared across recompositions

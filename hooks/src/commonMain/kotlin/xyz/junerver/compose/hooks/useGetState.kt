@@ -29,13 +29,13 @@ import androidx.compose.runtime.remember
  * @example
  * ```kotlin
  * val (state, setValue, getValue) = useGetState(0)
- * 
+ *
  * // Direct value update
  * setValue(5.left())
- * 
+ *
  * // Functional update
  * setValue { current -> current + 1 }.right()
- * 
+ *
  * // Get latest value
  * val currentValue = getValue()
  * ```

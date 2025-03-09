@@ -25,7 +25,7 @@ import androidx.compose.runtime.rememberUpdatedState
  * @example
  * ```kotlin
  * val latestValue = useLatestRef(initialValue)
- * 
+ *
  * // The current value will always be up to date
  * useEffect {
  *     someCallback(latestValue.current)
@@ -48,7 +48,7 @@ fun <T> useLatestRef(value: T): Ref<T> = useRef(default = value).apply { current
  * @example
  * ```kotlin
  * val latestState = useLatestState(initialValue)
- * 
+ *
  * // The state will always contain the most recent value
  * Text(text = "Current value: ${latestState.value}")
  * ```

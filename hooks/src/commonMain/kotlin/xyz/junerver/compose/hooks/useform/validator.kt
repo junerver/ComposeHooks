@@ -170,7 +170,7 @@ abstract class CustomValidator(
  *     Required("Field is required"),
  *     Email("Invalid email format")
  * )
- * 
+ *
  * val isValid = validators.validateField(
  *     fieldValue = "test@example.com",
  *     pass = { /* handle pass */ true },
@@ -178,17 +178,12 @@ abstract class CustomValidator(
  * )
  * ```
  */
-fun Array<Validator>.validateField(
-    fieldValue: Any?,
-    pass: Validator.() -> Boolean,
-    fail: Validator.() -> Boolean
-): Boolean = this.map {
-    fun Any?.validate(validator: Validator, condition: Any?.() -> Boolean): Boolean =
-        if (this.condition()) {
-            validator.pass()
-        } else {
-            validator.fail()
-        }
+fun Array<Validator>.validateField(fieldValue: Any?, pass: Validator.() -> Boolean, fail: Validator.() -> Boolean): Boolean = this.map {
+    fun Any?.validate(validator: Validator, condition: Any?.() -> Boolean): Boolean = if (this.condition()) {
+        validator.pass()
+    } else {
+        validator.fail()
+    }
 
     when (it) {
         is Required -> fieldValue.validate(it) {

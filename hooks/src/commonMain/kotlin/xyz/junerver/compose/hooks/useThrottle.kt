@@ -119,7 +119,7 @@ internal class Throttle(
  *     leading = true
  *     trailing = true
  * }
- * 
+ *
  * // Update value (will be throttled)
  * searchQuery.value = "new query"
  * ```
@@ -146,7 +146,7 @@ fun <S> useThrottle(value: S, optionsOf: ThrottleOptions.() -> Unit = {}): State
  * }) {
  *     wait = 100.milliseconds
  * }
- * 
+ *
  * // Use in scroll listener
  * Box(
  *     modifier = Modifier

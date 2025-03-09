@@ -39,7 +39,7 @@ import androidx.compose.runtime.remember
  *     object Decrement : CounterAction()
  *     data class SetValue(val value: Int) : CounterAction()
  * }
- * 
+ *
  * // Define reducer
  * val counterReducer: Reducer<Int, CounterAction> = { state, action ->
  *     when (action) {
@@ -48,13 +48,13 @@ import androidx.compose.runtime.remember
  *         is CounterAction.SetValue -> action.value
  *     }
  * }
- * 
+ *
  * // Use the hook
  * val (state, dispatch, dispatchAsync) = useReducer(counterReducer, 0)
- * 
+ *
  * // Dispatch actions
  * dispatch(CounterAction.Increment)
- * 
+ *
  * // Async action
  * dispatchAsync { dispatch ->
  *     delay(1000)
@@ -99,13 +99,13 @@ fun <S, A> useReducer(reducer: Reducer<S, A>, initialState: S, middlewares: Arra
  * @example
  * ```kotlin
  * val (state, dispatch, dispatchAsync) = useReducer(reducer, initialState)
- * 
+ *
  * // Access state
  * val currentValue = state.value
- * 
+ *
  * // Dispatch sync action
  * dispatch(MyAction.DoSomething)
- * 
+ *
  * // Dispatch async action
  * dispatchAsync { dispatch ->
  *     // Perform async operation

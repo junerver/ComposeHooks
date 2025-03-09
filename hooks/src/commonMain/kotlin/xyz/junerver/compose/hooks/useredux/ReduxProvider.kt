@@ -27,7 +27,7 @@ internal data class ReduxContextValue(
     val aliasMap: Map<String, Pair<Any, Dispatch<Any>>>,
 )
 
-/** 
+/**
  * Internal context for Redux state management.
  * Initialized with empty maps for states, dispatches, and aliases.
  */
@@ -52,37 +52,37 @@ internal val ReduxContext by lazy {
  * val store = createStore {
  *     // Counter reducer
  *     counterReducer with 0
- *     
+ *
  *     // Named todo reducer
- *     named("todos") { 
- *         todoReducer with emptyList<Todo>() 
+ *     named("todos") {
+ *         todoReducer with emptyList<Todo>()
  *     }
  * }
- * 
+ *
  * // Provide the store to the app
  * ReduxProvider(store = store) {
  *     // Components can now access the store
  *     Column {
  *         Counter()
  *         TodoList()
- *         
+ *
  *         // Nested components also have access
  *         UserProfile {
  *             Settings()
  *         }
  *     }
  * }
- * 
+ *
  * // Access store in a component
  * @Composable
  * fun Counter() {
  *     // Get state and dispatch by type
  *     val count by useSelector<Int>()
  *     val dispatch = useDispatch<CounterAction>()
- *     
+ *
  *     // Or by alias
  *     val (todoState, todoDispatch) = useStore("todos")
- *     
+ *
  *     Button(onClick = { dispatch(CounterAction.Increment) }) {
  *         Text("Count: $count")
  *     }
@@ -94,7 +94,7 @@ fun ReduxProvider(store: Store, content: ComposeComponent) {
     val stateMap: MutableMap<KClass<*>, Any> = useMap()
     val dispatchMap: MutableMap<KClass<*>, Dispatch<Any>> = useMap()
     val aliasMap: MutableMap<String, Pair<Any, Dispatch<Any>>> = useMap()
-    
+
     store.records.forEach { entry ->
         val (state, dispatch) = useReducer(
             reducer = entry.reducer,
@@ -105,7 +105,7 @@ fun ReduxProvider(store: Store, content: ComposeComponent) {
         dispatchMap[entry.actionType] = dispatch
         aliasMap[entry.alias] = state to dispatch
     }
-    
+
     ReduxContext.Provider(value = ReduxContextValue(stateMap, dispatchMap, aliasMap)) {
         content()
     }

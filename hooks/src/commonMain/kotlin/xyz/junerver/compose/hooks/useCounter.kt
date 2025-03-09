@@ -111,16 +111,16 @@ private fun useCounter(initialValue: Int = 0, options: CounterOptions): CounterH
  *
  * // Increment by 2
  * counter.inc(2)
- * 
+ *
  * // Decrement by 1
  * counter.dec(1)
- * 
+ *
  * // Set value directly
  * counter.setValue(3.left())
- * 
+ *
  * // Set value using a function
  * counter.setValue { current -> current * 2 }.right()
- * 
+ *
  * // Reset to initial value
  * counter.reset()
  * ```

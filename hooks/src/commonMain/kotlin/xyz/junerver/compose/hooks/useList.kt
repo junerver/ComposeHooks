@@ -27,16 +27,16 @@ import androidx.compose.runtime.toMutableStateList
  * @example
  * ```kotlin
  * val list = useList(listOf(1, 2, 3))
- * 
+ *
  * // Add elements
  * list.add(4)
- * 
+ *
  * // Remove elements
  * list.remove(1)
- * 
+ *
  * // Update elements
  * list[0] = 5
- * 
+ *
  * // Clear the list
  * list.clear()
  * ```
@@ -58,16 +58,16 @@ fun <T> useList(elements: Collection<T>): SnapshotStateList<T> = remember {
  * @example
  * ```kotlin
  * val list = useList(1, 2, 3)
- * 
+ *
  * // Add elements
  * list.add(4)
- * 
+ *
  * // Remove elements
  * list.remove(1)
- * 
+ *
  * // Update elements
  * list[0] = 5
- * 
+ *
  * // Clear the list
  * list.clear()
  * ```

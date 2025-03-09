@@ -40,7 +40,7 @@ object Form
  * ```kotlin
  * // Create a form instance
  * val form = Form.useForm()
- * 
+ *
  * // Initialize form values
  * useMount {
  *     form.setFieldsValue(
@@ -48,7 +48,7 @@ object Form
  *         "mobile" to "111"
  *     )
  * }
- * 
+ *
  * // Use in form component
  * Form(form) {
  *     FormItem<String>(
@@ -63,7 +63,7 @@ object Form
  *         )
  *         Text(text = "$validate ${msgs.joinToString()}")
  *     }
- *     
+ *
  *     // Form controls
  *     Row {
  *         Button(
@@ -107,10 +107,10 @@ private fun useForm(): FormInstance = Form.useForm()
  * ```kotlin
  * // Watch a field value
  * val name by Form.useWatch<String>("name", form)
- * 
+ *
  * // Display watched value
  * Text("Current name: $name")
- * 
+ *
  * // Use with validation
  * FormItem<String>(
  *     name = "email",
@@ -154,10 +154,10 @@ fun <T> Form.useWatch(fieldName: String, formInstance: FormInstance): State<T?> 
  * @Composable
  * private fun FormScope.FormControls() {
  *     val form = Form.useFormInstance()
- *     
+ *
  *     // Get form validation state
  *     val canSubmit by form._isValidated()
- *     
+ *
  *     Row {
  *         Button(
  *             enabled = canSubmit,
@@ -168,7 +168,7 @@ fun <T> Form.useWatch(fieldName: String, formInstance: FormInstance): State<T?> 
  *         ) {
  *             Text("Submit")
  *         }
- *         
+ *
  *         Button(
  *             onClick = {
  *                 // Reset with specific values

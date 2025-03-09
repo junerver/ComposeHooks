@@ -111,7 +111,8 @@ fun <T> _rememberGetState(default: T) = _useGetState(default = default)
 fun rememberInterval(optionsOf: IntervalOptions.() -> Unit = {}, block: SuspendAsyncFn) = useInterval(optionsOf, block)
 
 @Composable
-fun rememberInterval(optionsOf: IntervalOptions.() -> Unit = {}, ready: Boolean, block: SuspendAsyncFn) = useInterval(optionsOf, ready, block)
+fun rememberInterval(optionsOf: IntervalOptions.() -> Unit = {}, ready: Boolean, block: SuspendAsyncFn) =
+    useInterval(optionsOf, ready, block)
 
 @Composable
 fun <T> rememberLatestRef(value: T) = useLatestRef(value)

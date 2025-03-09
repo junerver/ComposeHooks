@@ -29,19 +29,19 @@ import androidx.compose.runtime.setValue
  * ```kotlin
  * // Basic usage
  * val forceUpdate = useUpdate()
- * 
+ *
  * // Force a re-render
  * Button(onClick = forceUpdate) {
  *     Text("Refresh UI")
  * }
- * 
+ *
  * // Use in callbacks
  * LaunchedEffect(Unit) {
  *     someExternalOperation()
  *     // Force UI update after operation
  *     forceUpdate()
  * }
- * 
+ *
  * // Use in event handlers
  * Button(
  *     onClick = {
@@ -52,7 +52,7 @@ import androidx.compose.runtime.setValue
  * ) {
  *     Text("Perform Action")
  * }
- * 
+ *
  * // Use with manual DOM manipulations
  * DisposableEffect(Unit) {
  *     val observer = MutationObserver { _, _ ->

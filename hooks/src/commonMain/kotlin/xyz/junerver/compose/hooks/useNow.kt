@@ -53,7 +53,7 @@ data class UseNowOptions(
  *     interval = 1.seconds
  * }
  * Text(text = time.value)
- * 
+ *
  * // Custom format
  * val customTime = useNow {
  *     interval = 1.seconds

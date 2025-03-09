@@ -25,10 +25,10 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
  * @example
  * ```kotlin
  * val (hideKeyboard, showKeyboard) = useKeyboard()
- * 
+ *
  * // Hide the keyboard
  * hideKeyboard()
- * 
+ *
  * // Show the keyboard
  * showKeyboard()
  * ```

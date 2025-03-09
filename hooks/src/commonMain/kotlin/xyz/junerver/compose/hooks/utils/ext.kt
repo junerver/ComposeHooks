@@ -35,7 +35,7 @@ internal val currentTime: Instant
 
 /**
  * Unwraps state objects for use in effect dependencies.
- * 
+ *
  * Direct use of [State], [Ref], or other state holders as effect dependencies won't
  * trigger the effect when their internal values change. This function unwraps these
  * objects to their actual values for proper dependency tracking.
@@ -50,7 +50,7 @@ internal val currentTime: Instant
  * ```kotlin
  * val state = remember { mutableStateOf("value") }
  * val ref = useRef("ref value")
- * 
+ *
  * useEffect(unwrap(arrayOf(state, ref))) {
  *     // This effect will trigger when state.value or ref.current changes
  * }

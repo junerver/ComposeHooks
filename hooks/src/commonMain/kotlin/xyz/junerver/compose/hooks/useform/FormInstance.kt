@@ -26,7 +26,7 @@ import xyz.junerver.compose.hooks.utils.then
  * @example
  * ```kotlin
  * val form = Form.useForm()
- * 
+ *
  * // Set initial values
  * LaunchedEffect(Unit) {
  *     form.setFieldsValue(
@@ -34,7 +34,7 @@ import xyz.junerver.compose.hooks.utils.then
  *         "email" to "user@example.com"
  *     )
  * }
- * 
+ *
  * Form(form) {
  *     // Form content
  * }
@@ -190,7 +190,7 @@ class FormInstance {
      * ```kotlin
      * // Reset all fields to null
      * form.resetFields()
-     * 
+     *
      * // Reset and set new values
      * form.resetFields(mapOf(
      *     "username" to "default",

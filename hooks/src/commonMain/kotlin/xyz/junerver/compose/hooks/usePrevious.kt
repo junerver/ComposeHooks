@@ -25,12 +25,12 @@ import androidx.compose.runtime.State
  * ```kotlin
  * val currentCount = useCounter(0)
  * val previousCount = usePrevious(currentCount.value)
- * 
+ *
  * // Compare current and previous values
  * if (previousCount.value != null && currentCount.value > previousCount.value) {
  *     // Count has increased
  * }
- * 
+ *
  * // Display both values
  * Text("Current: ${currentCount.value}, Previous: ${previousCount.value}")
  * ```

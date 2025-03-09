@@ -30,16 +30,16 @@ import androidx.compose.runtime.toMutableStateMap
  *     "key1" to "value1",
  *     "key2" to "value2"
  * )
- * 
+ *
  * // Add a key-value pair
  * map["key3"] = "value3"
- * 
+ *
  * // Remove a key-value pair
  * map.remove("key1")
- * 
+ *
  * // Update a value
  * map["key2"] = "newValue"
- * 
+ *
  * // Clear the map
  * map.clear()
  * ```
@@ -65,18 +65,18 @@ fun <K, V> useMap(vararg pairs: Pair<K, V>): SnapshotStateMap<K, V> = remember {
  *     "key1" to "value1",
  *     "key2" to "value2"
  * )
- * 
+ *
  * val map = useMap(initialPairs)
- * 
+ *
  * // Add a key-value pair
  * map["key3"] = "value3"
- * 
+ *
  * // Remove a key-value pair
  * map.remove("key1")
- * 
+ *
  * // Update a value
  * map["key2"] = "newValue"
- * 
+ *
  * // Clear the map
  * map.clear()
  * ```

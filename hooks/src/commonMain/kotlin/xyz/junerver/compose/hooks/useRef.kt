@@ -70,14 +70,14 @@ operator fun <T> Ref<T>.getValue(thisObj: Any?, property: KProperty<*>): T = cur
  * @example
  * ```kotlin
  * val ref = useRef(0)
- * 
+ *
  * // Update value without triggering recomposition
  * ref.current = 42
- * 
+ *
  * // Use property delegation
  * var value by ref
  * value = 100
- * 
+ *
  * // Observe changes
  * ref.observe { newValue ->
  *     println("Value changed to: $newValue")
@@ -133,10 +133,10 @@ operator fun <T> MutableRef<T>.setValue(thisObj: Any?, property: KProperty<*>, v
  * ```kotlin
  * // Create a reference
  * val counterRef = useRef(0)
- * 
+ *
  * // Update without triggering recomposition
  * counterRef.current++
- * 
+ *
  * // Use in callbacks
  * Button(onClick = { counterRef.current++ }) {
  *     Text("Increment")
@@ -160,7 +160,7 @@ fun <T> useRef(default: T): MutableRef<T> = remember {
  * ```kotlin
  * val ref = useRef(0)
  * val state = ref.observeAsState()
- * 
+ *
  * // UI will update when ref.current changes
  * Text("Value: ${state.value}")
  * ```

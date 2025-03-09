@@ -27,21 +27,21 @@ import androidx.compose.runtime.Composable
  * useUpdateEffect(count) {
  *     println("Count changed to: $count")
  * }
- * 
+ *
  * // With multiple dependencies
  * var name by useState("")
  * var age by useState(0)
  * useUpdateEffect(name, age) {
  *     println("Profile updated: $name, $age")
  * }
- * 
+ *
  * // In form handling
  * var formData by useState(FormData())
  * useUpdateEffect(formData) {
  *     // Validate or save form only when data changes
  *     validateForm(formData)
  * }
- * 
+ *
  * // With API calls
  * var searchQuery by useState("")
  * useUpdateEffect(searchQuery) {
@@ -50,7 +50,7 @@ import androidx.compose.runtime.Composable
  *         searchApi(searchQuery)
  *     }
  * }
- * 
+ *
  * // With animations
  * var isVisible by useState(false)
  * useUpdateEffect(isVisible) {

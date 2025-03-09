@@ -105,13 +105,13 @@ private class Interval(private val options: IntervalOptions) {
  *     // This block will be executed every 2 seconds
  *     println("Interval executed")
  * }
- * 
+ *
  * // Start the interval
  * resume()
- * 
+ *
  * // Pause the interval
  * pause()
- * 
+ *
  * // Check if interval is running
  * if (isActive.value) {
  *     // Interval is currently running
@@ -138,7 +138,7 @@ fun useInterval(optionsOf: IntervalOptions.() -> Unit = {}, block: SuspendAsyncF
  * @example
  * ```kotlin
  * var isReady by remember { mutableStateOf(false) }
- * 
+ *
  * useInterval(
  *     optionsOf = {
  *         period = 1.seconds

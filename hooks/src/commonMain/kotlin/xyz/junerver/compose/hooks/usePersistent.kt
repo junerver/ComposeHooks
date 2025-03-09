@@ -19,7 +19,6 @@ import xyz.junerver.compose.hooks.utils.HooksEventManager
   Version: v1.0
 */
 
-
 /**
  * A holder class for persistent state management.
  *
@@ -34,10 +33,10 @@ import xyz.junerver.compose.hooks.utils.HooksEventManager
  * @example
  * ```kotlin
  * val persistentState = usePersistent("myKey", defaultValue)
- * 
+ *
  * // Using property delegation
  * var value by persistentState
- * 
+ *
  * // Direct access
  * persistentState.state.value
  * persistentState.save(newValue)
@@ -106,10 +105,10 @@ internal val InternalMemoryPersistentContext by lazy {
  * ```kotlin
  * // Basic usage with default persistence
  * val persistentState = usePersistent("userSettings", defaultSettings)
- * 
+ *
  * // Force using memory storage
  * val memoryState = usePersistent("tempData", initialData, forceUseMemory = true)
- * 
+ *
  * // Using property delegation
  * var settings by persistentState
  * settings = newSettings // Automatically persists

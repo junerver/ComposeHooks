@@ -33,28 +33,28 @@ import xyz.junerver.compose.hooks.utils.unwrap
  * useEffect(count) {
  *     println("Count is now: $count")
  * }
- * 
+ *
  * // With State wrapper
  * val name: State<String> = useState("John")
  * useEffect(name) {
  *     // Automatically unwraps name.value
  *     println("Name changed to: ${name.value}")
  * }
- * 
+ *
  * // With Ref wrapper
  * val countRef = useRef(0)
  * useEffect(countRef) {
  *     // Automatically unwraps countRef.current
  *     println("Count ref is: ${countRef.current}")
  * }
- * 
+ *
  * // Multiple dependencies
  * val (firstName, lastName) = useState("John") to useState("Doe")
  * useEffect(firstName, lastName) {
  *     // Triggers when either name changes
  *     println("Full name: ${firstName.value} ${lastName.value}")
  * }
- * 
+ *
  * // With API calls
  * val query = useState("")
  * useEffect(query) {
@@ -63,7 +63,7 @@ import xyz.junerver.compose.hooks.utils.unwrap
  *         updateResults(results)
  *     }
  * }
- * 
+ *
  * // Cleanup example
  * useEffect(Unit) {
  *     val job = startBackgroundTask()

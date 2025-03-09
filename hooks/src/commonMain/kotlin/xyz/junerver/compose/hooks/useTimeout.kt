@@ -29,13 +29,13 @@ import kotlinx.coroutines.delay
  *     // Hide loading indicator
  *     hideLoading()
  * }
- * 
+ *
  * // Implement a cleanup timeout
  * useTimeout(5.minutes) {
  *     // Clean up resources
  *     cleanupResources()
  * }
- * 
+ *
  * // Show a temporary message
  * useTimeout(3.seconds) {
  *     // Clear the message

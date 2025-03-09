@@ -2,7 +2,6 @@ package xyz.junerver.compose.hooks.useidle
 
 import android.app.Activity
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.produceState
@@ -12,8 +11,6 @@ import androidx.compose.ui.platform.LocalContext
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.datetime.Instant
-import xyz.junerver.compose.hooks.useState
-import xyz.junerver.compose.hooks.utils.currentTime
 
 /*
   Description: Tracks whether the user is being inactive.

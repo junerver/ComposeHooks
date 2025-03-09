@@ -20,10 +20,10 @@ import arrow.core.right
  * ```kotlin
  * // Toggle between true and false
  * val (value, toggle) = useToggle(true, false)
- * 
+ *
  * // Toggle between strings
  * val (text, toggleText) = useToggle("Show", "Hide")
- * 
+ *
  * // Use in UI
  * Button(onClick = toggle) {
  *     Text(text = value ?: "Toggle")
@@ -51,7 +51,7 @@ fun <T> useToggle(defaultValue: T? = null, reverseValue: T? = null): Pair<T?, To
  * ```kotlin
  * // Toggle between String and Int
  * val (value, toggle) = useToggleEither("text", 42)
- * 
+ *
  * // Handle the Either value
  * value.fold(
  *     { text -> Text(text ?: "No text") },
@@ -82,7 +82,7 @@ fun <L, R> useToggleEither(defaultValue: L? = null, reverseValue: R? = null): Pa
  * val (component, toggle) = useToggleVisible(true) {
  *     Text("Toggle me")
  * }
- * 
+ *
  * Column {
  *     Button(onClick = toggle) {
  *         Text("Toggle Visibility")
@@ -115,7 +115,7 @@ fun useToggleVisible(isVisible: Boolean = false, content: ComposeComponent): Pai
  *     content1 = { Text("First Component") },
  *     content2 = { Text("Second Component") }
  * )
- * 
+ *
  * Column {
  *     Button(onClick = toggle) {
  *         Text("Switch Component")

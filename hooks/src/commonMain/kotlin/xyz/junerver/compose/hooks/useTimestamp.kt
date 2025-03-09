@@ -63,10 +63,10 @@ data class TimestampOptions internal constructor(
  *     interval = 1.second
  *     offset = 2.seconds
  * }
- * 
+ *
  * // Display timestamp
  * Text("Current time: ${state.value}")
- * 
+ *
  * // Control tracking
  * if (isActive()) {
  *     Button(onClick = pause) { Text("Pause") }
@@ -95,10 +95,10 @@ fun useTimestamp(optionsOf: TimestampOptions.() -> Unit = {}, autoResume: Boolea
  * val (ref, pause, resume, isActive) = useTimestampRef {
  *     interval = 100.milliseconds
  * }
- * 
+ *
  * // Access timestamp without triggering recomposition
  * val currentTime = ref.current
- * 
+ *
  * // Control tracking
  * if (isActive()) {
  *     Button(onClick = pause) { Text("Pause") }

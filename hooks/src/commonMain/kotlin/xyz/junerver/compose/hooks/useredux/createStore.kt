@@ -112,12 +112,12 @@ class StoreScope private constructor(val list: MutableList<StoreRecord>) {
  * val store = createStore(arrayOf(logMiddleware())) {
  *     // Simple reducer with default state
  *     counterReducer with 0
- *     
+ *
  *     // Named reducer for better identification
- *     named("todos") { 
- *         todoReducer with emptyList<Todo>() 
+ *     named("todos") {
+ *         todoReducer with emptyList<Todo>()
  *     }
- *     
+ *
  *     // Complex state with custom initial value
  *     userReducer with UserState(
  *         name = "",
@@ -125,7 +125,7 @@ class StoreScope private constructor(val list: MutableList<StoreRecord>) {
  *         isLoggedIn = false
  *     )
  * }
- * 
+ *
  * // Use in a component
  * ReduxProvider(store = store) {
  *     // Child components can access the store
@@ -165,7 +165,7 @@ internal fun registerErr(target: String): Nothing {
  * // Create separate stores for different features
  * val userStore = createStore { userReducer with UserState() }
  * val todoStore = createStore { todoReducer with TodoState() }
- * 
+ *
  * // Combine stores when providing to the app
  * ReduxProvider(store = userStore + todoStore) {
  *     App()

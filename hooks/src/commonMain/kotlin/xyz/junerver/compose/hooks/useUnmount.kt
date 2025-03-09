@@ -29,15 +29,15 @@ import androidx.compose.runtime.DisposableEffect
  *     cancelSubscriptions()
  *     removeEventListeners()
  * }
- * 
+ *
  * // Example with resource cleanup
  * useUnmount {
  *     // Clean up database connections
  *     database.close()
- * 
+ *
  *     // Cancel ongoing operations
  *     job.cancel()
- * 
+ *
  *     // Remove event listeners
  *     eventBus.unsubscribe()
  * }

@@ -27,16 +27,16 @@ import androidx.compose.runtime.remember
  * ```kotlin
  * // Create a state with reset capability
  * val (state, setValue, getValue, reset) = useResetState(0)
- * 
+ *
  * // Update state
  * setValue(42)
- * 
+ *
  * // Get current value
  * val current = getValue()
- * 
+ *
  * // Reset to initial value
  * reset()
- * 
+ *
  * // Use in UI
  * Column {
  *     Text("Value: ${state.value}")
@@ -73,16 +73,16 @@ fun <T> useResetState(default: T & Any): ResetStateHolder<T & Any> {
  * @example
  * ```kotlin
  * val holder = useResetState("initial")
- * 
+ *
  * // Access state
  * val currentValue = holder.state.value
- * 
+ *
  * // Update state
  * holder.setValue("new value")
- * 
+ *
  * // Get current value
  * val value = holder.getValue()
- * 
+ *
  * // Reset state
  * holder.reset()
  * ```

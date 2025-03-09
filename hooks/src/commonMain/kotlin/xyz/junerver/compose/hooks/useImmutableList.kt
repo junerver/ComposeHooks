@@ -33,16 +33,16 @@ import kotlinx.collections.immutable.persistentListOf
  * @example
  * ```kotlin
  * val (list, mutate) = useImmutableList(1, 2, 3)
- * 
+ *
  * // Add an element
  * mutate { it.add(4) }
- * 
+ *
  * // Remove elements
  * mutate { it.removeAll { it > 2 } }
- * 
+ *
  * // Update elements
  * mutate { it.replaceAll { it * 2 } }
- * 
+ *
  * // Access the current list
  * val currentList = list.value
  * ```

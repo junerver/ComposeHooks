@@ -31,10 +31,10 @@ import androidx.compose.runtime.remember
  * @example
  * ```kotlin
  * val doubleValue = useDouble(3.14)
- * 
+ *
  * // Update the value
  * doubleValue.doubleValue = 2.718
- * 
+ *
  * // Read the value
  * val currentValue = doubleValue.doubleValue
  * ```
@@ -56,10 +56,10 @@ fun useDouble(default: Double = 0.0): MutableDoubleState = remember {
  * @example
  * ```kotlin
  * val floatValue = useFloat(3.14f)
- * 
+ *
  * // Update the value
  * floatValue.floatValue = 2.718f
- * 
+ *
  * // Read the value
  * val currentValue = floatValue.floatValue
  * ```
@@ -81,10 +81,10 @@ fun useFloat(default: Float = 0f): MutableFloatState = remember {
  * @example
  * ```kotlin
  * val intValue = useInt(42)
- * 
+ *
  * // Update the value
  * intValue.intValue = 100
- * 
+ *
  * // Read the value
  * val currentValue = intValue.intValue
  * ```
@@ -106,10 +106,10 @@ fun useInt(default: Int = 0): MutableIntState = remember {
  * @example
  * ```kotlin
  * val longValue = useLong(42L)
- * 
+ *
  * // Update the value
  * longValue.longValue = 100L
- * 
+ *
  * // Read the value
  * val currentValue = longValue.longValue
  * ```

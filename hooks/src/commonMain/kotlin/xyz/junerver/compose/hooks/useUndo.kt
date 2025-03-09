@@ -116,23 +116,23 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
  * @example
  * ```kotlin
  * val (state, setValue, resetValue, undo, redo, canUndo, canRedo) = useUndo("")
- * 
+ *
  * // Update value
  * setValue("New value")
- * 
+ *
  * // Undo last change
  * if (canUndo()) {
  *     undo()
  * }
- * 
+ *
  * // Redo last undone change
  * if (canRedo()) {
  *     redo()
  * }
- * 
+ *
  * // Reset to initial state
  * resetValue("")
- * 
+ *
  * // Display current value
  * Text(state.value.present)
  * ```
