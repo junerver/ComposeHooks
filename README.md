@@ -226,14 +226,18 @@ If you are using ProGuard you might need to add the following option:
 ## Todo:
 
 - ~~KMP friendly~~
+- ~~CI~~
 - Unit Test
-- CI
 - Complete documentation
 
 ## 参考/Thanks
 
 1. [alibaba](https://github.com/alibaba)/[hooks](https://github.com/alibaba/hooks)
 2. [pavi2410](https://github.com/pavi2410)/[useCompose](https://github.com/pavi2410/useCompose)
+
+## Contributing Guidelines
+
+[Contributing guidelines](https://github.com/junerver/ComposeHooks/blob/master/CONTRIBUTING.md)
 
 ## License
 
