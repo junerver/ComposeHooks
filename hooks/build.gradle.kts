@@ -1,3 +1,6 @@
+@file:OptIn(ExperimentalComposeLibrary::class)
+
+import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -77,13 +80,20 @@ kotlin {
 
         commonTest.dependencies {
             implementation(libs.kotlin.test)
-//            implementation(libs.kotlin.test.junit)
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(compose.uiTest)
+            implementation(compose.material3)
         }
         androidInstrumentedTest.dependencies {
             implementation(libs.compose.ui.test)
             implementation(libs.compose.ui.test.junit4)
-            implementation(libs.compose.material3)
+            implementation(compose.material3)
             implementation(libs.compose.ui.test.manifest)
+        }
+        val desktopTest by getting
+        desktopTest.dependencies {
+            implementation(compose.desktop.currentOs)
+            implementation(compose.desktop.uiTestJUnit4)
         }
     }
 }
