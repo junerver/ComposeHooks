@@ -1,6 +1,6 @@
 [versions]
 agp = "8.5.2"
-kotlin = "2.1.0"
+kotlin = "2.1.20"
 appcompat = "1.7.0"
 
 arrowCore = "1.2.4"
@@ -10,7 +10,7 @@ mmkvKotlin = "1.2.14"
 navigationComposeVersion = "2.7.0-alpha07"
 logbackClassic = "1.5.9"
 
-activityCompose = "1.9.3"
+activityCompose = "1.10.1"
 androidx-lifecycle = "2.8.4"
 biometric = "1.2.0-alpha05"
 
