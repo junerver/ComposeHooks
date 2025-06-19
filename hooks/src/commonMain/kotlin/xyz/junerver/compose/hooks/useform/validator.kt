@@ -31,6 +31,11 @@ sealed interface Validator {
      * Error message to display when validation fails
      */
     val message: String
+
+    /**
+     * Verification function of the [Validator]
+     */
+    val validator: (field: Any?) -> Boolean
 }
 
 /**
@@ -49,7 +54,9 @@ sealed interface Validator {
  * }
  * ```
  */
-data class Email(override val message: String = EMAIL_MESSAGE) : Validator
+data class Email(override val message: String = EMAIL_MESSAGE) : Validator {
+    override val validator: (field: Any?) -> Boolean = { field -> !field.asBoolean() || (field is String && field.isEmail()) }
+}
 
 /**
  * Validates phone numbers using a standard phone format.
@@ -67,7 +74,9 @@ data class Email(override val message: String = EMAIL_MESSAGE) : Validator
  * }
  * ```
  */
-data class Phone(override val message: String = PHONE_MESSAGE) : Validator
+data class Phone(override val message: String = PHONE_MESSAGE) : Validator {
+    override val validator: (field: Any?) -> Boolean = { field -> !field.asBoolean() || (field is String && field.isPhone()) }
+}
 
 /**
  * Validates mobile phone numbers using a standard mobile format.
@@ -85,7 +94,9 @@ data class Phone(override val message: String = PHONE_MESSAGE) : Validator
  * }
  * ```
  */
-data class Mobile(override val message: String = MOBILE_MESSAGE) : Validator
+data class Mobile(override val message: String = MOBILE_MESSAGE) : Validator {
+    override val validator: (field: Any?) -> Boolean = { field -> !field.asBoolean() || (field is String && field.isMobile()) }
+}
 
 /**
  * Validates that a field has a non-null, non-empty value.
@@ -102,7 +113,9 @@ data class Mobile(override val message: String = MOBILE_MESSAGE) : Validator
  * }
  * ```
  */
-data class Required(override val message: String = REQUIRED_MESSAGE) : Validator
+data class Required(override val message: String = REQUIRED_MESSAGE) : Validator {
+    override val validator: (field: Any?) -> Boolean = { field -> field.asBoolean() }
+}
 
 /**
  * Validates that a string value matches a specific regular expression pattern.
@@ -123,7 +136,10 @@ data class Required(override val message: String = REQUIRED_MESSAGE) : Validator
  * }
  * ```
  */
-data class Regex(override val message: String = REGEX_MESSAGE, val regex: String) : Validator
+data class Regex(override val message: String = REGEX_MESSAGE, val regex: String) : Validator {
+    override val validator: (field: Any?) -> Boolean =
+        { field -> !field.asBoolean() || (field is String && field.matches(regex.toRegex())) }
+}
 
 /**
  * Base class for creating custom validators with custom validation logic.
@@ -152,7 +168,7 @@ data class Regex(override val message: String = REGEX_MESSAGE, val regex: String
  */
 abstract class CustomValidator(
     override val message: String,
-    val validator: (field: Any?) -> Boolean,
+    override val validator: (field: Any?) -> Boolean,
 ) : Validator
 
 /**
@@ -184,30 +200,7 @@ fun Array<Validator>.validateField(fieldValue: Any?, pass: Validator.() -> Boole
     } else {
         validator.fail()
     }
-
-    when (it) {
-        is Required -> fieldValue.validate(it) {
-            asBoolean()
-        }
-
-        is Email -> fieldValue.validate(it) {
-            !this.asBoolean() || (this is String && this.isEmail())
-        }
-
-        is Phone -> fieldValue.validate(it) {
-            !this.asBoolean() || (this is String && this.isPhone())
-        }
-
-        is Mobile -> fieldValue.validate(it) {
-            !this.asBoolean() || (this is String && this.isMobile())
-        }
-
-        is Regex -> fieldValue.validate(it) {
-            !this.asBoolean() || (this is String && this.matches(Regex(it.regex)))
-        }
-
-        is CustomValidator -> fieldValue.validate(it) {
-            it.validator(this)
-        }
+    fieldValue.validate(it) {
+        it.validator(this)
     }
 }.all { it }
