@@ -26,8 +26,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.collections.immutable.PersistentList
 import xyz.junerver.compose.hooks.useStateMachine
-import xyz.junerver.compose.hooks.stateGraphBuilder
+import xyz.junerver.compose.hooks.buildStateMachineGraph
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -56,27 +57,28 @@ enum class LoadingEvent {
 
 @Composable
 fun UseStateMachineExample() {
-    // Define state transitions using DSL approach - cleaner and more readable
-    val transitions = stateGraphBuilder<LoadingState, LoadingEvent> {
+    // Define state transitions using DSL approach with infix style - cleaner and more readable
+    val transitions = buildStateMachineGraph<LoadingState, LoadingEvent> {
         state(LoadingState.IDLE) {
             // From idle state can start loading
-            on(LoadingEvent.START) { transitionTo(LoadingState.LOADING) }
+            LoadingEvent.START transitionTo LoadingState.LOADING
         }
 
         state(LoadingState.LOADING) {
             // Loading can succeed or fail
-            on(LoadingEvent.SUCCESS) { transitionTo(LoadingState.SUCCESS) }
-            on(LoadingEvent.ERROR) { transitionTo(LoadingState.ERROR) }
+            LoadingEvent.SUCCESS transitionTo LoadingState.SUCCESS
+            LoadingEvent.ERROR transitionTo LoadingState.ERROR
         }
 
         state(LoadingState.SUCCESS) {
-            // Success state can reset, restart, or fail
-            on(LoadingEvent.START) { transitionTo(LoadingState.LOADING) }
+            // Success state can restart or fail
+            LoadingEvent.START transitionTo LoadingState.LOADING
+            LoadingEvent.ERROR transitionTo LoadingState.ERROR
         }
 
         state(LoadingState.ERROR) {
-            // Error state can reset or retry
-            on(LoadingEvent.RETRY) { transitionTo(LoadingState.LOADING) }
+            // Error state can retry
+            LoadingEvent.RETRY transitionTo LoadingState.LOADING
         }
     }
 
@@ -109,17 +111,17 @@ fun UseStateMachineExample() {
             )
 
             // Current state display card
-            StateDisplayCard(currentState)
+            StateDisplayCard(currentState.value)
 
             // State history records
-            HistoryCard(history)
+            HistoryCard(history.value)
 
             // Control buttons section
             ControlButtonsSection(
                 canTransition = canTransition,
                 transition = transition,
                 reset = reset,
-                canGoBack = canGoBack,
+                canGoBack = canGoBack.value,
                 goBack = goBack
             )
 
@@ -171,7 +173,7 @@ private fun StateDisplayCard(currentState: LoadingState) {
 }
 
 @Composable
-private fun HistoryCard(history: List<LoadingState>) {
+private fun HistoryCard(history: PersistentList<LoadingState>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -218,7 +220,7 @@ private fun ControlButtonsSection(
     canTransition: (LoadingEvent) -> Boolean,
     transition: (LoadingEvent) -> Unit,
     reset: () -> Unit,
-    canGoBack: () -> Boolean,
+    canGoBack: Boolean,
     goBack: () -> Unit
 ) {
     Card(
@@ -294,7 +296,7 @@ private fun ControlButtonsSection(
 
                 TButton(
                     text = "Go back",
-                    enabled = canGoBack(),
+                    enabled = canGoBack,
                     modifier = Modifier.weight(1f)
                 ) {
                     goBack()
