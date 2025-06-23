@@ -1,12 +1,12 @@
 package xyz.junerver.compose.hooks.test
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.material3.*
 import androidx.compose.runtime.SideEffect
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.runComposeUiTest
-import androidx.compose.material3.*
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import xyz.junerver.compose.hooks.useRef
@@ -20,10 +20,9 @@ import xyz.junerver.compose.hooks.useUpdate
   Version: v1.0
 */
 class UseRefTest {
-
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun testRefWhenSetCurrent()= runComposeUiTest {
+    fun testRefWhenSetCurrent() = runComposeUiTest {
         var refresh = 0
         setContent {
             val countRef = useRef(default = 0)

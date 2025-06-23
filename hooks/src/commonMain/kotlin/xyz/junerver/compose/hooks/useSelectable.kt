@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+
 /*
   Description: A utility function to help implement select or multi select feature.
   Author: kk
@@ -63,10 +64,9 @@ fun <KEY, ITEM> useSelectable(
         toggleSelected = toggleSelected,
         selectAll = selectAll,
         invertSelection = invertSelection,
-        revertAll = revertAll,
+        revertAll = revertAll
     )
 }
-
 
 fun <KEY> SelectionMode<KEY>.requireMultiSelect() {
     if (this !is SelectionMode.MultiSelect) {
@@ -89,14 +89,11 @@ typealias SelectAction = () -> Unit
 
 sealed class SelectionMode<KEY> {
     class SingleSelect<KEY>(private val defaultSelectKey: KEY? = null) : SelectionMode<KEY>() {
-        override fun getInitialSelected(key: KEY): Boolean {
-            return defaultSelectKey == key
-        }
+        override fun getInitialSelected(key: KEY): Boolean = defaultSelectKey == key
     }
+
     class MultiSelect<KEY>(private val defaultSelectKeys: Set<KEY>? = null) : SelectionMode<KEY>() {
-        override fun getInitialSelected(key: KEY): Boolean {
-            return defaultSelectKeys?.contains(key) ?: false
-        }
+        override fun getInitialSelected(key: KEY): Boolean = defaultSelectKeys?.contains(key) ?: false
     }
 
     abstract fun getInitialSelected(key: KEY): Boolean
