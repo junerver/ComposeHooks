@@ -1,7 +1,9 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
+import kotlin.properties.Delegates
 import kotlinx.collections.immutable.PersistentList
 
 /*
@@ -54,21 +56,20 @@ import kotlinx.collections.immutable.PersistentList
  * ```
  */
 @Composable
-fun <S : Any, E> useStateMachine(
-    initialState: S,
-    transitions: Transition<S, E>,
-    maxHistorySize: Int = 100
-): StateMachineHolder<S, E> {
-    val (currentState, setState) = useGetState(initialState)
-    val (undoState, setUndoState, resetUndoState, undo, _, canUndo, _) = useUndo(initialState)
+fun <S : Any, E> useStateMachine(machineGraph: Ref<MachineGraph<S, E>>, maxHistorySize: Int = 100): StateMachineHolder<S, E> {
+    requireNotNull(machineGraph.current.initialState) {
+        "must call `createMachine` first, and must call `initial`"
+    }
+    val (currentState, setState) = useGetState(machineGraph.current.initialState)
+    val (undoState, setUndoState, resetUndoState, undo, _, canUndo, _) = useUndo(machineGraph.current.initialState)
 
     val canTransition = { event: E ->
-        transitions.containsKey(currentState.value to event)
+        machineGraph.current.transitions.containsKey(currentState.value to event)
     }
 
     val transition = { event: E ->
         val current = currentState.value
-        val nextState = transitions[current to event]
+        val nextState = machineGraph.current.transitions[current to event]
         if (nextState != null) {
             setState(nextState)
             setUndoState(nextState)
@@ -76,8 +77,8 @@ fun <S : Any, E> useStateMachine(
     }
 
     val reset = {
-        setState(initialState)
-        resetUndoState(initialState)
+        setState(machineGraph.current.initialState)
+        resetUndoState(machineGraph.current.initialState)
     }
 
     val goBack = {
@@ -86,7 +87,7 @@ fun <S : Any, E> useStateMachine(
     }
 
     val getAvailableEvents = {
-        transitions.keys
+        machineGraph.current.transitions.keys
             .filter { it.first == currentState.value }
             .map { it.second }
     }
@@ -132,12 +133,18 @@ typealias Transition<S, E> = MutableMap<Pair<S, E>, S>
  * }
  * ```
  */
-fun <S : Any, E> buildStateMachineGraph(
-    init: StateMachineGraphScope<S, E>.() -> Unit
-): Transition<S, E> {
+fun <S : Any, E> buildStateMachineGraph(init: StateMachineGraphScope<S, E>.() -> Unit): MachineGraph<S, E> {
     val graph = StateMachineGraphScope<S, E>()
     graph.init()
-    return graph.transitions
+    return graph.build()
+}
+
+@Stable
+data class MachineGraph<S : Any, E>(val transitions: Transition<S, E>, val initialState: S)
+
+@Composable
+fun <S : Any, E> createMachine(init: StateMachineGraphScope<S, E>.() -> Unit): Ref<MachineGraph<S, E>> = useCreation {
+    buildStateMachineGraph(init)
 }
 
 /**
@@ -148,7 +155,17 @@ fun <S : Any, E> buildStateMachineGraph(
  *
  * @param transitions Internal map storing the state transitions
  */
-class StateMachineGraphScope<S, E>(val transitions: MutableMap<Pair<S, E>, S> = mutableMapOf()) {
+class StateMachineGraphScope<S : Any, E>() {
+    val transitions: MutableMap<Pair<S, E>, S> = mutableMapOf()
+    var initState: S by Delegates.notNull<S>()
+
+    /**
+     * Set the initial state for the state machine
+     * @param state The initial state
+     */
+    fun initial(state: S) {
+        this.initState = state
+    }
 
     /**
      * Define a state and its possible transitions
@@ -156,16 +173,24 @@ class StateMachineGraphScope<S, E>(val transitions: MutableMap<Pair<S, E>, S> = 
      * @param state The state to define transitions for
      * @param descriptionBlock Block that defines the events and their target states
      */
-    fun state(
-        state: S,
-        descriptionBlock: StateDescriptionScope<S, E>.() -> Unit
-    ) {
+    fun state(state: S, descriptionBlock: StateDescriptionScope<S, E>.() -> Unit) {
         val description = StateDescriptionScope<S, E>()
         descriptionBlock(description)
         description.eventMaps.forEach {
             transitions[state to it.key] = it.value
         }
     }
+
+    /**
+     * Define multiple states and their possible transitions
+     */
+    fun states(descriptionBlock: StatesDescriptionScope<S, E>.() -> Unit) {
+        val description = StatesDescriptionScope<S, E>()
+        description.descriptionBlock()
+        transitions.putAll(description.transitions)
+    }
+
+    internal fun build(): MachineGraph<S, E> = MachineGraph(transitions, initState)
 }
 
 /**
@@ -177,15 +202,52 @@ class StateMachineGraphScope<S, E>(val transitions: MutableMap<Pair<S, E>, S> = 
  * @param eventMaps Internal map storing event to state mappings
  */
 class StateDescriptionScope<S, E>(val eventMaps: MutableMap<E, S> = mutableMapOf()) {
-
     /**
      * Infix function to define state transition for an event
      *
      * @receiver The event that triggers the transition
-     * @param state The target state to transition to
+     * @param targetState The target state to transition to
      */
-    infix fun E.transitionTo(state: S) {
-        eventMaps[this] = state
+    infix fun E.transitionTo(targetState: S) {
+        eventMaps[this] = targetState
+    }
+
+    fun on(event: E, block: EventDescriptionScope<S, E>.() -> Unit) {
+        EventDescriptionScope(eventMaps, event).block()
+    }
+}
+
+class StatesDescriptionScope<S, E>() {
+    internal val transitions: MutableMap<Pair<S, E>, S> = mutableMapOf()
+
+    operator fun S.invoke(block: StateTransitionScope<S, E>.() -> Unit) {
+        val stateTransition = StateTransitionScope(this, transitions)
+        stateTransition.block()
+        stateTransition.build()
+    }
+}
+
+class StateTransitionScope<S, E>(val fromState: S, val transitions: MutableMap<Pair<S, E>, S>) {
+    private val eventMaps: MutableMap<E, S> = mutableMapOf()
+
+    infix fun E.target(targetState: S) {
+        eventMaps[this] = targetState
+    }
+
+    fun on(event: E, block: EventDescriptionScope<S, E>.() -> Unit) {
+        EventDescriptionScope(eventMaps, event).block()
+    }
+
+    internal fun build() {
+        eventMaps.forEach {
+            transitions[fromState to it.key] = it.value
+        }
+    }
+}
+
+class EventDescriptionScope<S, E>(val eventMaps: MutableMap<E, S>, val event: E) {
+    fun target(targetState: S) {
+        eventMaps[event] = targetState
     }
 }
 
@@ -209,5 +271,5 @@ data class StateMachineHolder<S : Any, E>(
     val reset: () -> Unit,
     val canGoBack: State<Boolean>,
     val goBack: () -> Unit,
-    val getAvailableEvents: () -> List<E>
+    val getAvailableEvents: () -> List<E>,
 )
