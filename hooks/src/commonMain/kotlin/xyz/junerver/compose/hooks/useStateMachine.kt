@@ -239,13 +239,21 @@ class StateMachineGraphScope<S : Any, E, CTX>() {
     var initState: S by Delegates.notNull<S>()
     var context: CTX? = null
 
+    var hasCalledContext = false
+    var hasCalledInitial = false
+
     /**
      * Sets the initial context for the state machine
      *
      * @param ctx The initial context value
      */
     fun context(ctx: CTX) {
-        this.context = ctx
+        if (!hasCalledContext) {
+            this.context = ctx
+            hasCalledContext = true
+        } else {
+            error("Context already set")
+        }
     }
 
     /**
@@ -253,7 +261,12 @@ class StateMachineGraphScope<S : Any, E, CTX>() {
      * @param state The initial state
      */
     fun initial(state: S) {
-        this.initState = state
+        if (!hasCalledInitial) {
+            this.initState = state
+            hasCalledInitial = true
+        } else {
+            error("Initial state already set")
+        }
     }
 
     /**
@@ -283,7 +296,10 @@ class StateMachineGraphScope<S : Any, E, CTX>() {
         actions.putAll(description.actions)
     }
 
-    internal fun build(): MachineGraph<S, E, CTX> = MachineGraph(transitions, initState, context, actions)
+    internal fun build(): MachineGraph<S, E, CTX> {
+        require(hasCalledInitial) { "Please call initial() before building the machine" }
+        return MachineGraph(transitions, initState, context, actions)
+    }
 }
 
 /**
@@ -422,7 +438,7 @@ class EventDescriptionScope<S, E, CTX>(val eventMaps: MutableMap<E, S>, val even
         actionMaps[event] = action
     }
 
-    fun action(action:SuspendAction<CTX, E>): EventDescriptionScope<S, E, CTX> {
+    fun actionSuspend(action: SuspendAction<CTX, E>): EventDescriptionScope<S, E, CTX> {
         TODO("don't support suspend function")
     }
 }
