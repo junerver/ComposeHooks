@@ -123,7 +123,7 @@ fun UseStateMachineExample() {
         ) {
             // Title
             Text(
-                text = "State Machine Example - DSL Approach${context.value}",
+                text = "State Machine Example - DSL Approach",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )

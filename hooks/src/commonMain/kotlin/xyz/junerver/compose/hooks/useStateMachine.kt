@@ -94,6 +94,8 @@ fun <S : Any, E, CTX> useStateMachine(
         machineGraph.current.transitions.containsKey(currentState.value to event)
     }
 
+    val asyncRun = useAsync()
+
     val transition = { event: E ->
         val current = currentState.value
         val nextState = machineGraph.current.transitions[current to event]
@@ -101,6 +103,14 @@ fun <S : Any, E, CTX> useStateMachine(
         if (action != null) {
             setContextState(action(contextState.value, event))
         }
+        val suspendAction = machineGraph.current.suspendActions[current to event]
+        if (suspendAction != null) {
+            asyncRun {
+                val result = suspendAction(contextState.value, event)
+                setContextState(result)
+            }
+        }
+
         if (nextState != null) {
             setState(nextState)
             setUndoState(nextState)
@@ -142,6 +152,7 @@ fun <S : Any, E, CTX> useStateMachine(
 
 typealias Transition<S, E> = MutableMap<Pair<S, E>, S>
 typealias Actions<S, E, CTX> = MutableMap<Pair<S, E>, Action<CTX, E>>
+typealias SuspendActions<S, E, CTX> = MutableMap<Pair<S, E>, SuspendAction<CTX, E>>
 
 /**
  * State machine graph builder function that provides a DSL for creating state transitions
@@ -195,6 +206,7 @@ data class MachineGraph<S : Any, E, CTX>(
     val initialState: S,
     val context: CTX?,
     val actions: Actions<S, E, CTX>,
+    val suspendActions: SuspendActions<S, E, CTX>,
 )
 
 /**
@@ -234,13 +246,14 @@ fun <S : Any, E, CTX> createMachine(init: StateMachineGraphScope<S, E, CTX>.() -
  * It also supports defining context and actions that update the context during transitions.
  */
 class StateMachineGraphScope<S : Any, E, CTX>() {
-    val transitions: Transition<S, E> = mutableMapOf()
-    val actions: Actions<S, E, CTX> = mutableMapOf()
-    var initState: S by Delegates.notNull<S>()
-    var context: CTX? = null
+    private val transitions: Transition<S, E> = mutableMapOf()
+    private val actions: Actions<S, E, CTX> = mutableMapOf()
+    private val suspendActions: SuspendActions<S, E, CTX> = mutableMapOf()
+    private var initState: S by Delegates.notNull<S>()
+    private var context: CTX? = null
 
-    var hasCalledContext = false
-    var hasCalledInitial = false
+    private var hasCalledContext = false
+    private var hasCalledInitial = false
 
     /**
      * Sets the initial context for the state machine
@@ -284,6 +297,9 @@ class StateMachineGraphScope<S : Any, E, CTX>() {
         description.actionMaps.forEach {
             actions[state to it.key] = it.value
         }
+        description.actionAsyncMap.forEach {
+            suspendActions[state to it.key] = it.value
+        }
     }
 
     /**
@@ -294,11 +310,12 @@ class StateMachineGraphScope<S : Any, E, CTX>() {
         description.descriptionBlock()
         transitions.putAll(description.transitions)
         actions.putAll(description.actions)
+        suspendActions.putAll(description.suspendActions)
     }
 
     internal fun build(): MachineGraph<S, E, CTX> {
         require(hasCalledInitial) { "Please call initial() before building the machine" }
-        return MachineGraph(transitions, initState, context, actions)
+        return MachineGraph(transitions, initState, context, actions, suspendActions)
     }
 }
 
@@ -315,8 +332,9 @@ class StateMachineGraphScope<S : Any, E, CTX>() {
  * @param actionMaps Internal map storing event to action function mappings
  */
 class StateDescriptionScope<S, E, CTX>(
-    val eventMaps: MutableMap<E, S> = mutableMapOf(),
-    val actionMaps: MutableMap<E, Action<CTX, E>> = mutableMapOf(),
+    internal val eventMaps: MutableMap<E, S> = mutableMapOf(),
+    internal val actionMaps: MutableMap<E, Action<CTX, E>> = mutableMapOf(),
+    internal val actionAsyncMap: MutableMap<E, SuspendAction<CTX, E>> = mutableMapOf(),
 ) {
     /**
      * Infix function to define state transition for an event
@@ -329,7 +347,7 @@ class StateDescriptionScope<S, E, CTX>(
     }
 
     fun on(event: E, block: EventDescriptionScope<S, E, CTX>.() -> Unit) {
-        EventDescriptionScope(eventMaps, event, actionMaps).block()
+        EventDescriptionScope(eventMaps, event, actionMaps, actionAsyncMap).block()
     }
 }
 
@@ -347,6 +365,7 @@ class StateDescriptionScope<S, E, CTX>(
 class StatesDescriptionScope<S, E, CTX>() {
     internal val transitions: Transition<S, E> = mutableMapOf()
     internal val actions: Actions<S, E, CTX> = mutableMapOf()
+    internal val suspendActions: SuspendActions<S, E, CTX> = mutableMapOf()
 
     /**
      * Invoke operator that allows using state as a function
@@ -354,7 +373,7 @@ class StatesDescriptionScope<S, E, CTX>() {
      * @param block Configuration block for the state transitions
      */
     operator fun S.invoke(block: StateTransitionScope<S, E, CTX>.() -> Unit) {
-        val stateTransition = StateTransitionScope<S, E, CTX>(this, transitions, actions)
+        val stateTransition = StateTransitionScope<S, E, CTX>(this, transitions, actions, suspendActions)
         stateTransition.block()
         stateTransition.build()
     }
@@ -367,9 +386,15 @@ class StatesDescriptionScope<S, E, CTX>() {
  * @param transitions The global transitions map to update
  * @param actions The global actions map to update
  */
-class StateTransitionScope<S, E, CTX>(val fromState: S, val transitions: Transition<S, E>, val actions: Actions<S, E, CTX>) {
+class StateTransitionScope<S, E, CTX>(
+    internal val fromState: S,
+    internal val transitions: Transition<S, E>,
+    internal val actions: Actions<S, E, CTX>,
+    internal val suspendActions: SuspendActions<S, E, CTX>,
+) {
     private val eventMaps: MutableMap<E, S> = mutableMapOf()
     private val actionMaps: MutableMap<E, Action<CTX, E>> = mutableMapOf()
+    private val actionAsyncMap: MutableMap<E, SuspendAction<CTX, E>> = mutableMapOf()
 
     /**
      * Infix function to define a transition target state
@@ -387,7 +412,7 @@ class StateTransitionScope<S, E, CTX>(val fromState: S, val transitions: Transit
      * @param block Configuration block for the event transition
      */
     fun on(event: E, block: EventDescriptionScope<S, E, CTX>.() -> Unit) {
-        EventDescriptionScope(eventMaps, event, actionMaps).block()
+        EventDescriptionScope(eventMaps, event, actionMaps, actionAsyncMap).block()
     }
 
     internal fun build() {
@@ -396,6 +421,9 @@ class StateTransitionScope<S, E, CTX>(val fromState: S, val transitions: Transit
         }
         actionMaps.forEach {
             actions[fromState to it.key] = it.value
+        }
+        actionAsyncMap.forEach {
+            suspendActions[fromState to it.key] = it.value
         }
     }
 }
@@ -409,7 +437,6 @@ class StateTransitionScope<S, E, CTX>(val fromState: S, val transitions: Transit
 typealias Action<CTX, E> = (prevContext: CTX?, event: E) -> CTX
 typealias SuspendAction<CTX, E> = suspend (prevContext: CTX?, event: E) -> CTX
 
-
 /**
  * Scope for defining an event transition with target state and optional action
  *
@@ -417,7 +444,12 @@ typealias SuspendAction<CTX, E> = suspend (prevContext: CTX?, event: E) -> CTX
  * @param event The current event being configured
  * @param actionMaps Map to store event to action function mappings
  */
-class EventDescriptionScope<S, E, CTX>(val eventMaps: MutableMap<E, S>, val event: E, val actionMaps: MutableMap<E, Action<CTX, E>>) {
+class EventDescriptionScope<S, E, CTX>(
+    internal val eventMaps: MutableMap<E, S>,
+    internal val event: E,
+    internal val actionMaps: MutableMap<E, Action<CTX, E>>,
+    internal val actionAsyncMap: MutableMap<E, SuspendAction<CTX, E>>,
+) {
     /**
      * Sets the target state for the current event
      *
@@ -438,8 +470,8 @@ class EventDescriptionScope<S, E, CTX>(val eventMaps: MutableMap<E, S>, val even
         actionMaps[event] = action
     }
 
-    fun actionSuspend(action: SuspendAction<CTX, E>): EventDescriptionScope<S, E, CTX> {
-        TODO("don't support suspend function")
+    fun actionAsync(action: SuspendAction<CTX, E>) {
+        actionAsyncMap[event] = action
     }
 }
 
