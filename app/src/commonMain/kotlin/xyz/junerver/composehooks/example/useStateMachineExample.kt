@@ -58,13 +58,20 @@ enum class LoadingEvent {
 @Composable
 fun UseStateMachineExample() {
     // Define state transitions using DSL approach with infix style - cleaner and more readable
-    val machineGraph = createMachine<LoadingState, LoadingEvent, Nothing> {
+    val machineGraph = createMachine<LoadingState, LoadingEvent, Int> {
+        // setup initial context
+        context(1)
+        // setup initial state
         initial(LoadingState.IDLE)
 
         state(LoadingState.IDLE) {
             on(LoadingEvent.START) {
                 target(LoadingState.LOADING)
-                action { println("current event is: $it") }
+                action { ctx, e ->
+                    println("current state is: $ctx")
+                    println("current event is: $e")
+                    2
+                }
             }
         }
 
@@ -73,7 +80,11 @@ fun UseStateMachineExample() {
                 // Loading can succeed or fail
                 on(LoadingEvent.SUCCESS) {
                     target(LoadingState.SUCCESS)
-                    action { println("current event is: $it") }
+                    action { ctx, e ->
+                        println("current state is: $ctx")
+                        println("current event is: $e")
+                        3
+                    }
                 }
                 on(LoadingEvent.ERROR) { target(LoadingState.ERROR) }
             }
@@ -99,6 +110,7 @@ fun UseStateMachineExample() {
         canGoBack,
         goBack,
         getAvailableEvents,
+        context,
     ) = useStateMachine(
         machineGraph = machineGraph,
         maxHistorySize = 50
@@ -111,7 +123,7 @@ fun UseStateMachineExample() {
         ) {
             // Title
             Text(
-                text = "State Machine Example - DSL Approach",
+                text = "State Machine Example - DSL Approach${context.value}",
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
