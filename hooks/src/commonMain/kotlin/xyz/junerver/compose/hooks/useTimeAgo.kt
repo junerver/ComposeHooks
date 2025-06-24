@@ -17,7 +17,7 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 
 /*
-  Description: Reactive time difference display, automatically updates time difference string
+  Description: Reactive time ago. Automatically update the time ago string when the time changes.
   Author: Junerver
   Date: 2025/6/24-16:22
   Email: junerver@gmail.com
@@ -34,7 +34,7 @@ enum class TimeAgoUnitNames {
     DAY,
     WEEK,
     MONTH,
-    YEAR
+    YEAR,
 }
 
 /**
@@ -176,11 +176,7 @@ private val DEFAULT_UNITS = listOf(
  * @param now Current time (defaults to system current time)
  * @return Formatted time difference string
  */
-fun formatTimeAgo(
-    from: Instant,
-    options: FormatTimeAgoOptions = FormatTimeAgoOptions(),
-    now: Instant = Clock.System.now(),
-): String {
+fun formatTimeAgo(from: Instant, options: FormatTimeAgoOptions = FormatTimeAgoOptions(), now: Instant = Clock.System.now()): String {
     val diff = now.toEpochMilliseconds() - from.toEpochMilliseconds()
     val absDiff = abs(diff)
     val isPast = diff > 0
@@ -255,10 +251,8 @@ fun formatTimeAgo(
  * ```
  */
 @Composable
-fun useTimeAgo(
-    time: Instant,
-    optionsOf: UseTimeAgoOptions.() -> Unit = {},
-): State<String> = useTimeAgo(time, remember { UseTimeAgoOptions.optionOf(optionsOf) })
+fun useTimeAgo(time: Instant, optionsOf: UseTimeAgoOptions.() -> Unit = {}): State<String> =
+    useTimeAgo(time, remember { UseTimeAgoOptions.optionOf(optionsOf) })
 
 /**
  * Internal implementation of the time difference hook
@@ -268,20 +262,11 @@ fun useTimeAgo(
  * @return State containing the formatted time difference string
  */
 @Composable
-private fun useTimeAgo(
-    time: Instant,
-    options: UseTimeAgoOptions = remember { UseTimeAgoOptions() },
-): State<String> {
+private fun useTimeAgo(time: Instant, options: UseTimeAgoOptions = remember { UseTimeAgoOptions() }): State<String> {
     val updateInterval = options.updateInterval
-    if (updateInterval > 0.milliseconds) {
-        val now = useNow { interval = updateInterval }
-        val update = useUpdate()
-        useEffect(now) {
-            update()
-        }
-    }
-    return useState(time.toEpochMilliseconds()) {
+    val (timestamp) = useTimestamp({ interval = updateInterval }, updateInterval > 0.milliseconds)
+
+    return useState(time.toEpochMilliseconds(), timestamp.value) {
         formatTimeAgo(time, options)
     }
 }
-

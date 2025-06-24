@@ -79,9 +79,7 @@ import kotlinx.collections.immutable.PersistentList
  * ```
  */
 @Composable
-fun <S : Any, E, CTX> useStateMachine(
-    machineGraph: Ref<MachineGraph<S, E, CTX>>,
-): StateMachineHolder<S, E, CTX> {
+fun <S : Any, E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>): StateMachineHolder<S, E, CTX> {
     requireNotNull(machineGraph.current.initialState) {
         "must call `createMachine` first, and must call `initial`"
     }

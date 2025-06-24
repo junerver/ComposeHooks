@@ -26,14 +26,14 @@ import xyz.junerver.compose.hooks.useTimeAgo
 
 @Composable
 fun UseTimeAgoExample() {
-    val (sliderPosition,setSliderPosition) = useGetState(0f)
+    val (sliderPosition, setSliderPosition) = useGetState(0f)
     val time by useState {
         sliderPosition.value.pow(3).toLong()
     }
-    val fromInstant by useState{
+    val fromInstant by useState {
         Clock.System.now() + time.milliseconds
     }
-    val timeAgo by useTimeAgo(fromInstant){
+    val timeAgo by useTimeAgo(fromInstant) {
         messages = DefaultEnglishTimeAgoMessages
     }
     Surface {
@@ -42,7 +42,7 @@ fun UseTimeAgoExample() {
             Slider(
                 value = sliderPosition.value,
                 onValueChange = setSliderPosition.left(),
-                valueRange = -3800f..3800f,
+                valueRange = -3800f..3800f
             )
             Text(text = "$time ms")
         }

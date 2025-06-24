@@ -112,7 +112,7 @@ fun UseStateMachineExample() {
         getAvailableEvents,
         context,
     ) = useStateMachine(
-        machineGraph = machineGraph,
+        machineGraph = machineGraph
     )
 
     Surface {
