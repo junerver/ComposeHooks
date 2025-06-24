@@ -3,6 +3,7 @@ package xyz.junerver.compose.hooks
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 import kotlin.properties.Delegates
 import kotlinx.collections.immutable.PersistentList
 
@@ -138,17 +139,19 @@ fun <S : Any, E, CTX> useStateMachine(
         undoState.value.past.add(undoState.value.present)
     }
 
-    return StateMachineHolder(
-        currentState = currentState,
-        canTransition = canTransition,
-        transition = transition,
-        history = history,
-        reset = reset,
-        canGoBack = canUndo,
-        goBack = goBack,
-        getAvailableEvents = getAvailableEvents,
-        context = contextState
-    )
+    return remember {
+        StateMachineHolder(
+            currentState = currentState,
+            canTransition = canTransition,
+            transition = transition,
+            history = history,
+            reset = reset,
+            canGoBack = canUndo,
+            goBack = goBack,
+            getAvailableEvents = getAvailableEvents,
+            context = contextState
+        )
+    }
 }
 
 typealias Transition<S, E> = MutableMap<Pair<S, E>, S>
@@ -494,6 +497,7 @@ class EventDescriptionScope<S, E, CTX>(
  * @property getAvailableEvents Get list of available events for current state
  * @property context Current context value as a deferred read State
  */
+@Stable
 data class StateMachineHolder<S : Any, E, CTX>(
     val currentState: State<S>,
     val canTransition: (E) -> Boolean,
