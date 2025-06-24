@@ -22,7 +22,6 @@ import kotlinx.collections.immutable.PersistentList
  * A Compose Hook for managing state machines with context support.
  *
  * @param machineGraph The state machine graph created using [createMachine] function
- * @param maxHistorySize Maximum length of history records, defaults to 100
  * @return [StateMachineHolder] containing current state, context and control functions
  *
  * @example
@@ -81,7 +80,6 @@ import kotlinx.collections.immutable.PersistentList
 @Composable
 fun <S : Any, E, CTX> useStateMachine(
     machineGraph: Ref<MachineGraph<S, E, CTX>>,
-    maxHistorySize: Int = 100,
 ): StateMachineHolder<S, E, CTX> {
     requireNotNull(machineGraph.current.initialState) {
         "must call `createMachine` first, and must call `initial`"
@@ -100,10 +98,13 @@ fun <S : Any, E, CTX> useStateMachine(
         val current = currentState.value
         val nextState = machineGraph.current.transitions[current to event]
         val action = machineGraph.current.actions[current to event]
+        val suspendAction = machineGraph.current.suspendActions[current to event]
+        check(!(action !== null && suspendAction !== null)) {
+            "Can not use `action` and `actionAsync` at the same time"
+        }
         if (action != null) {
             setContextState(action(contextState.value, event))
         }
-        val suspendAction = machineGraph.current.suspendActions[current to event]
         if (suspendAction != null) {
             asyncRun {
                 val result = suspendAction(contextState.value, event)
@@ -470,6 +471,11 @@ class EventDescriptionScope<S, E, CTX>(
         actionMaps[event] = action
     }
 
+    /**
+     * Sets the suspend action function for the current event
+     *
+     * The suspend action function is called during transition and can update the context.
+     */
     fun actionAsync(action: SuspendAction<CTX, E>) {
         actionAsyncMap[event] = action
     }

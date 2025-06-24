@@ -113,7 +113,6 @@ fun UseStateMachineExample() {
         context,
     ) = useStateMachine(
         machineGraph = machineGraph,
-        maxHistorySize = 50
     )
 
     Surface {
