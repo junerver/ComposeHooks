@@ -27,8 +27,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.collections.immutable.PersistentList
+import xyz.junerver.compose.hooks.createMachine
 import xyz.junerver.compose.hooks.useStateMachine
-import xyz.junerver.compose.hooks.buildStateMachineGraph
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -41,44 +41,62 @@ import xyz.junerver.composehooks.ui.component.TButton
 
 // Define state enum
 enum class LoadingState {
-    IDLE,      // Idle state
-    LOADING,   // Loading
-    SUCCESS,   // Success
-    ERROR      // Error
+    IDLE, // Idle state
+    LOADING, // Loading
+    SUCCESS, // Success
+    ERROR, // Error
 }
 
 // Define event enum
 enum class LoadingEvent {
-    START,     // Start loading
-    SUCCESS,   // Loading success
-    ERROR,     // Loading failed
-    RETRY      // Retry
+    START, // Start loading
+    SUCCESS, // Loading success
+    ERROR, // Loading failed
+    RETRY, // Retry
 }
 
 @Composable
 fun UseStateMachineExample() {
     // Define state transitions using DSL approach with infix style - cleaner and more readable
-    val transitions = buildStateMachineGraph<LoadingState, LoadingEvent> {
+    val machineGraph = createMachine<LoadingState, LoadingEvent, Int> {
+        // setup initial context
+        context(1)
+        // setup initial state
+        initial(LoadingState.IDLE)
+
         state(LoadingState.IDLE) {
-            // From idle state can start loading
-            LoadingEvent.START transitionTo LoadingState.LOADING
+            on(LoadingEvent.START) {
+                target(LoadingState.LOADING)
+                action { ctx, e ->
+                    println("current state is: $ctx")
+                    println("current event is: $e")
+                    2
+                }
+            }
         }
 
-        state(LoadingState.LOADING) {
-            // Loading can succeed or fail
-            LoadingEvent.SUCCESS transitionTo LoadingState.SUCCESS
-            LoadingEvent.ERROR transitionTo LoadingState.ERROR
-        }
-
-        state(LoadingState.SUCCESS) {
-            // Success state can restart or fail
-            LoadingEvent.START transitionTo LoadingState.LOADING
-            LoadingEvent.ERROR transitionTo LoadingState.ERROR
-        }
-
-        state(LoadingState.ERROR) {
-            // Error state can retry
-            LoadingEvent.RETRY transitionTo LoadingState.LOADING
+        states {
+            LoadingState.LOADING {
+                // Loading can succeed or fail
+                on(LoadingEvent.SUCCESS) {
+                    target(LoadingState.SUCCESS)
+                    action { ctx, e ->
+                        println("current state is: $ctx")
+                        println("current event is: $e")
+                        3
+                    }
+                }
+                on(LoadingEvent.ERROR) { target(LoadingState.ERROR) }
+            }
+            LoadingState.SUCCESS {
+                // Success state can restart or fail
+                on(LoadingEvent.START) { target(LoadingState.LOADING) }
+                on(LoadingEvent.ERROR) { target(LoadingState.ERROR) }
+            }
+            LoadingState.ERROR {
+                // Error state can retry
+                on(LoadingEvent.RETRY) { target(LoadingState.LOADING) }
+            }
         }
     }
 
@@ -91,11 +109,10 @@ fun UseStateMachineExample() {
         reset,
         canGoBack,
         goBack,
-        getAvailableEvents
+        getAvailableEvents,
+        context,
     ) = useStateMachine(
-        initialState = LoadingState.IDLE,
-        transitions = transitions,
-        maxHistorySize = 50
+        machineGraph = machineGraph,
     )
 
     Surface {
@@ -146,7 +163,6 @@ private fun StateDisplayCard(currentState: LoadingState) {
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-
             Box(
                 modifier = Modifier
                     .size(24.dp)
@@ -221,7 +237,7 @@ private fun ControlButtonsSection(
     transition: (LoadingEvent) -> Unit,
     reset: () -> Unit,
     canGoBack: Boolean,
-    goBack: () -> Unit
+    goBack: () -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -367,22 +383,15 @@ private fun AvailableEventsCard(availableEvents: List<LoadingEvent>) {
 }
 
 // Helper function: Get state corresponding color
-private fun getStateColor(state: LoadingState): Color {
-    return when (state) {
-        LoadingState.IDLE -> Color.Gray
-        LoadingState.LOADING -> Color.Blue
-        LoadingState.SUCCESS -> Color.Green
-        LoadingState.ERROR -> Color.Red
-    }
+private fun getStateColor(state: LoadingState): Color = when (state) {
+    LoadingState.IDLE -> Color.Gray
+    LoadingState.LOADING -> Color.Blue
+    LoadingState.SUCCESS -> Color.Green
+    LoadingState.ERROR -> Color.Red
 }
 
 // Helper function: Get state display name
-private fun getStateDisplayName(state: LoadingState): String {
-    return state.name
-}
+private fun getStateDisplayName(state: LoadingState): String = state.name
 
 // Helper function: Get event display name
-private fun getEventDisplayName(event: LoadingEvent): String {
-    return event.name
-}
-
+private fun getEventDisplayName(event: LoadingEvent): String = event.name

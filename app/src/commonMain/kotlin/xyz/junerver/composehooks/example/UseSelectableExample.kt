@@ -41,7 +41,7 @@ import xyz.junerver.compose.hooks.useToggle
 
 private data class Demo(
     val userName: String,
-    val userId: String
+    val userId: String,
 )
 
 private val DEMO_LIST = listOf(
@@ -52,16 +52,19 @@ private val DEMO_LIST = listOf(
     Demo("michale", "0x00131"),
     Demo("charles", "0x00133"),
     Demo("sara", "0x00135"),
-    Demo("duke", "0x00137"),
+    Demo("duke", "0x00137")
 )
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun UseSelectableExample() {
+    val (selectionMode, toggleFn) = useToggle(SelectionMode.MultiSelect<String>(null), SelectionMode.SingleSelect<String>(null))
 
-    val (selectionMode, toggleFn) =  useToggle(SelectionMode.MultiSelect<String>(null), SelectionMode.SingleSelect<String>(null))
-
-    val (selectedItems, isSelected, toggleSelected, selectAll, invertSelection, revertAll) = useSelectable(selectionMode!!, DEMO_LIST, Demo::userId)
+    val (selectedItems, isSelected, toggleSelected, selectAll, invertSelection, revertAll) = useSelectable(
+        selectionMode!!,
+        DEMO_LIST,
+        Demo::userId
+    )
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -73,7 +76,15 @@ fun UseSelectableExample() {
                 Column(Modifier.height(50.dp)) {
                     Row(Modifier.padding(10.dp)) {
                         Text(modifier = Modifier.align(Alignment.CenterVertically), text = demo.userName)
-                        Checkbox(modifier = Modifier.align(Alignment.CenterVertically), checked = isSelected(demo.userId), onCheckedChange = { toggleSelected(demo.userId) })
+                        Checkbox(
+                            modifier = Modifier.align(
+                                Alignment.CenterVertically
+                            ),
+                            checked = isSelected(demo.userId),
+                            onCheckedChange = {
+                                toggleSelected(demo.userId)
+                            }
+                        )
                     }
                 }
             }

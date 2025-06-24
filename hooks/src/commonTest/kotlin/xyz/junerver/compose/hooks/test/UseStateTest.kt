@@ -16,7 +16,6 @@ import kotlin.test.assertEquals
 import xyz.junerver.compose.hooks.useState
 
 class UseStateTest {
-
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun testStateIsNumber() = runComposeUiTest {
@@ -31,7 +30,6 @@ class UseStateTest {
             assertEquals(true, floatState is MutableFloatState)
             assertEquals(true, doubleState is MutableDoubleState)
         }
-
     }
 
     @OptIn(ExperimentalTestApi::class)
