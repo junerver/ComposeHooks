@@ -391,6 +391,8 @@ class StateTransitionScope<S, E, CTX>(val fromState: S, val transitions: Transit
  * and returns the new context value.
  */
 typealias Action<CTX, E> = (prevContext: CTX?, event: E) -> CTX
+typealias SuspendAction<CTX, E> = suspend (prevContext: CTX?, event: E) -> CTX
+
 
 /**
  * Scope for defining an event transition with target state and optional action
@@ -418,6 +420,10 @@ class EventDescriptionScope<S, E, CTX>(val eventMaps: MutableMap<E, S>, val even
      */
     fun action(action: Action<CTX, E>) {
         actionMaps[event] = action
+    }
+
+    fun action(action:SuspendAction<CTX, E>): EventDescriptionScope<S, E, CTX> {
+        TODO("don't support suspend function")
     }
 }
 
