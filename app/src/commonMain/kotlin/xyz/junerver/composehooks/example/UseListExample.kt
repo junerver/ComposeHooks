@@ -7,9 +7,12 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import kotlin.random.Random
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useList
+import xyz.junerver.compose.hooks.useListReduce
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -22,6 +25,7 @@ import xyz.junerver.composehooks.ui.component.TButton
 @Composable
 fun UseListExample() {
     val listState = useList(1, 2, 3)
+    val listCount by useListReduce(listState, { a, b -> a + b })
     useEffect(listState) {
         println("list change!")
     }
@@ -36,11 +40,14 @@ fun UseListExample() {
                         listState.removeLast()
                     }
                 }
-                TButton(text = "change") {
+                TButton(text = "change random") {
                     val index = Random.nextInt(listState.lastIndex)
                     listState[index] = Random.nextInt()
                 }
             }
+            Text(text = "list size: ${listState.size}")
+            Text(text = "list reduce result: $listCount")
+            Text("The background color changes indicate that the component recompose")
             LazyColumn {
                 items(listState) {
                     RandomItem(it)
@@ -51,6 +58,8 @@ fun UseListExample() {
 }
 
 @Composable
-fun RandomItem(index: Int) {
-    Text(text = "$index: ${Random.nextDouble()}")
+fun RandomItem(content: Int) {
+    Row(modifier = Modifier.randomBackground()) {
+        Text(text = "item content is : $content")
+    }
 }

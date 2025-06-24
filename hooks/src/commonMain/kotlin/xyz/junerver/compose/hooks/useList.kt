@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -75,4 +76,12 @@ fun <T> useList(elements: Collection<T>): SnapshotStateList<T> = remember {
 @Composable
 fun <T> useList(vararg elements: T): SnapshotStateList<T> = remember {
     mutableStateListOf(*elements)
+}
+
+/**
+ * Reactive List.reduce.
+ */
+@Composable
+fun <S, T : S> useListReduce(list: SnapshotStateList<T>, operation: (acc: S, T) -> S): State<S> = useState(list.toList()) {
+    list.toList().reduce(operation)
 }
