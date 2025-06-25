@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import kotlin.random.Random
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useImmutableList
+import xyz.junerver.compose.hooks.useImmutableListReduce
 import xyz.junerver.composehooks.ui.component.TButton
 
 /**
@@ -24,6 +26,7 @@ import xyz.junerver.composehooks.ui.component.TButton
 fun UseImmutableListExample() {
     val immutableListHolder = useImmutableList(1, 2, 3)
     val immutableList by immutableListHolder.list
+    val listCount by useImmutableListReduce(immutableList, { a, b -> a + b })
     useEffect(immutableList) {
         println("list change")
     }
@@ -48,6 +51,7 @@ fun UseImmutableListExample() {
                     }
                 }
             }
+            Text(text = "list reduce result: $listCount")
             LazyColumn {
                 items(immutableList) {
                     RandomItem(it)

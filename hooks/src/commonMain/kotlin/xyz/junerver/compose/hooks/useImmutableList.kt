@@ -68,3 +68,11 @@ data class ImmutableListHolder<T>(
     val list: State<PersistentList<T>>,
     val mutate: (mutator: (MutableList<T>) -> Unit) -> Unit,
 )
+
+/**
+ * Reactive List.reduce.
+ */
+@Composable
+fun <S, T : S> useImmutableListReduce(list: PersistentList<T>, operation: (acc: S, T) -> S): State<S> = useState(list) {
+    list.reduce(operation)
+}
