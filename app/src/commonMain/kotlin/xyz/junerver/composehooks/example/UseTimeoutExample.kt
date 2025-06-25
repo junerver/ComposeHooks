@@ -8,7 +8,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlin.random.Random
+import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useTimeout
@@ -25,18 +25,18 @@ import xyz.junerver.composehooks.ui.component.TButton
 
 @Composable
 fun UseTimeoutExample() {
-    val (state, setState) = useGetState(10)
+    val (text, setText) = useGetState("Please wait for 3 seconds")
     val update = useUpdate()
     /**
      * When the component is mounted, the closure block function is executed with a delay of 1s(default).
      */
-    useTimeout {
-        setState { it - 1 }
+    useTimeout(3.seconds) {
+        setText("Done")
     }
 
     Surface {
         Column {
-            Text(text = "current: ${state.value}  flag: ${Random.nextDouble()}")
+            Text(text = text.value, modifier = Modifier.randomBackground())
 
             TButton(text = "update") {
                 /**

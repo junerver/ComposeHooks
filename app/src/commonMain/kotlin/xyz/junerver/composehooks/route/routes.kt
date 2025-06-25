@@ -38,6 +38,7 @@ import xyz.junerver.composehooks.example.UseStateMachineExample
 import xyz.junerver.composehooks.example.UseThrottleExample
 import xyz.junerver.composehooks.example.UseTimeAgoExample
 import xyz.junerver.composehooks.example.UseTimeoutExample
+import xyz.junerver.composehooks.example.UseTimeoutFnExample
 import xyz.junerver.composehooks.example.UseTimestampExample
 import xyz.junerver.composehooks.example.UseToggleExample
 import xyz.junerver.composehooks.example.UseUndoExample
@@ -113,7 +114,8 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useSelectable" to { UseSelectableExample() },
     "useStateMachine" to { UseStateMachineExample() },
     "useTimeAgo" to { UseTimeAgoExample() },
-    "useLastChanged" to { UseLastChangedExample() }
+    "useLastChanged" to { UseLastChangedExample() },
+    "useTimeoutFn" to { UseTimeoutFnExample() }
 ) + androidRoutes
 
 val subRequestRoutes = mapOf<String, @Composable () -> Unit>(

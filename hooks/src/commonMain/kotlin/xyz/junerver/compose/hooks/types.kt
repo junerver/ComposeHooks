@@ -7,7 +7,6 @@ import androidx.compose.runtime.State
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
-import kotlin.reflect.KFunction0
 import kotlinx.coroutines.CoroutineScope
 
 /*
@@ -28,7 +27,8 @@ internal typealias VoidFunction = NormalFunction<Unit>
 internal typealias SuspendVoidFunction = SuspendNormalFunction<Unit>
 
 // 最常规的函数 ()->Unit
-internal typealias NoParamsVoidFunction = KFunction0<Unit>
+internal typealias NoParamsVoidFunction = () -> Unit
+internal typealias NoParamsSuspendVoidFunction = suspend () -> Unit
 
 internal typealias ComposeComponent = @Composable () -> Unit
 

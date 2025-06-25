@@ -44,9 +44,7 @@ import kotlinx.coroutines.delay
  * ```
  */
 @Composable
+@Deprecated(message = "useTimeout with delay and block is deprecated. Use useTimeoutFn instead.")
 fun useTimeout(delay: Duration = 1.seconds, block: () -> Unit) {
-    useEffect {
-        delay(delay)
-        block()
-    }
+    useTimeoutFn(fn = { block() }, interval = delay)
 }
