@@ -68,7 +68,7 @@ typealias StopFn = () -> Unit
 private class TimeoutFn(private val options: TimeoutFnOptions) {
     var scope: CoroutineScope by Delegates.notNull()
     var isPendingState: MutableState<Boolean>? = null
-    lateinit var timeoutFn: Ref<NoParamsVoidFunction>
+    lateinit var timeoutFn: Ref<SuspendAsyncFn>
     var interval: Duration by Delegates.notNull()
     private var timeoutJob: Job? = null
 
@@ -82,10 +82,10 @@ private class TimeoutFn(private val options: TimeoutFnOptions) {
         scope.launch {
             isPendingState?.value = true
             if (options.immediateCallback) {
-                timeoutFn.current()
+                timeoutFn.current(this)
             } else {
                 delay(interval)
-                timeoutFn.current()
+                timeoutFn.current(this)
             }
             isPendingState?.value = false
         }.also { timeoutJob = it }
@@ -134,7 +134,7 @@ private class TimeoutFn(private val options: TimeoutFnOptions) {
  * ```
  */
 @Composable
-fun useTimeoutFn(fn: NoParamsVoidFunction, interval: Duration = 1.seconds, optionsOf: TimeoutFnOptions.() -> Unit = {}): TimeoutFnHolder {
+fun useTimeoutFn(fn: SuspendAsyncFn, interval: Duration = 1.seconds, optionsOf: TimeoutFnOptions.() -> Unit = {}): TimeoutFnHolder {
     val options = remember { TimeoutFnOptions.optionOf(optionsOf) }
     val latestFn = useLatestRef(value = fn)
     val isPendingState = useState(default = false)
@@ -150,10 +150,14 @@ fun useTimeoutFn(fn: NoParamsVoidFunction, interval: Duration = 1.seconds, optio
     }
 
     // Start immediately if configured
-    useEffect(Unit) {
+    useMount {
         if (options.immediate) {
             timeoutFn.start()
         }
+    }
+
+    useUnmount {
+        timeoutFn.stop()
     }
 
     return remember {
@@ -163,40 +167,4 @@ fun useTimeoutFn(fn: NoParamsVoidFunction, interval: Duration = 1.seconds, optio
             stop = timeoutFn::stop
         )
     }
-}
-
-/**
- * A hook for executing a function after a specified delay with controls.
- * This overload accepts a suspend function that will be executed in the component's coroutine scope.
- *
- * @param fn The suspend function to be executed after the delay
- * @param interval The delay before executing the function
- * @param optionsOf A lambda to configure the timeout options
- * @return A [TimeoutFnHolder] containing control functions and state for the timeout
- *
- * @example
- * ```kotlin
- * val (isPending, start, stop) = useTimeoutFnAsync(
- *     fn = {
- *         // Suspend function body
- *         delay(100)
- *         fetchData()
- *     },
- *     interval = 2.seconds
- * )
- * ```
- */
-@Composable
-fun useTimeoutFnAsync(
-    fn: NoParamsSuspendVoidFunction,
-    interval: Duration = 1.seconds,
-    optionsOf: TimeoutFnOptions.() -> Unit = {},
-): TimeoutFnHolder {
-    val asyncRun = useAsync()
-
-    return useTimeoutFn(
-        fn = { asyncRun { fn() } },
-        interval = interval,
-        optionsOf = optionsOf
-    )
 }

@@ -28,7 +28,6 @@ internal typealias SuspendVoidFunction = SuspendNormalFunction<Unit>
 
 // 最常规的函数 ()->Unit
 internal typealias NoParamsVoidFunction = () -> Unit
-internal typealias NoParamsSuspendVoidFunction = suspend () -> Unit
 
 internal typealias ComposeComponent = @Composable () -> Unit
 

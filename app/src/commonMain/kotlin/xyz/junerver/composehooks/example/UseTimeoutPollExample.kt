@@ -96,8 +96,8 @@ fun ControlledTimeoutPollExample() {
         },
         interval = 3.seconds,
         optionsOf = {
-            immediate = false  // Don't start immediately
-            immediateCallback = true  // Execute callback immediately when resumed
+            immediate = false // Don't start immediately
+            immediateCallback = true // Execute callback immediately when resumed
         }
     )
 

@@ -4,14 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import kotlin.properties.Delegates
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /*
   Description: Use timeout to poll for content. Triggers the callback after the last task is completed.
@@ -19,6 +13,10 @@ import kotlinx.coroutines.launch
   Date: 2025/6/25-19:26
   Email: junerver@gmail.com
   Version: v1.0
+
+  Update: 2025/6/26-9:23 by Junerver
+  Version: v1.1
+  Description: base on useTimeoutFn
 */
 
 /**
@@ -32,9 +30,8 @@ data class UseTimeoutPollOptions internal constructor(
      * @default true
      */
     var immediate: Boolean = true,
-
     /**
-     * Execute callback immediately after calling `resume`
+     * Execute the callback immediately after calling `resume`
      *
      * @default false
      */
@@ -54,66 +51,6 @@ data class TimeoutPollHolder(
 )
 
 /**
- * TimeoutPoll internal implementation class
- */
-@Stable
-private class TimeoutPoll(private val options: UseTimeoutPollOptions) {
-    var scope: CoroutineScope by Delegates.notNull()
-    var isActiveState: MutableState<Boolean>? = null
-    lateinit var timeoutFn: Ref<suspend () -> Unit>
-    var interval: Duration by Delegates.notNull()
-    private var timeoutJob: Job? = null
-
-    /**
-     * Asynchronous loop function
-     */
-    suspend fun loop() {
-        if (isActiveState?.value != true) return
-
-        timeoutFn.current()
-        start()
-    }
-
-    /**
-     * Start the timer
-     */
-    fun start() {
-        if (timeoutJob?.isActive == true) {
-            timeoutJob?.cancel()
-        }
-
-        timeoutJob = scope.launch {
-            delay(interval)
-            loop()
-        }
-    }
-
-    /**
-     * Resume polling
-     */
-    fun resume() {
-        if (isActiveState?.value != true) {
-            isActiveState?.value = true
-            if (options.immediateCallback) {
-                scope.launch {
-                    timeoutFn.current()
-                }
-            }
-            start()
-        }
-    }
-
-    /**
-     * Pause polling
-     */
-    fun pause() {
-        isActiveState?.value = false
-        timeoutJob?.cancel()
-        timeoutJob = null
-    }
-}
-
-/**
  * Use timeout to poll for content. Triggers the callback after the last task is completed.
  *
  * @param fn Function to execute
@@ -123,40 +60,69 @@ private class TimeoutPoll(private val options: UseTimeoutPollOptions) {
  */
 @Composable
 fun useTimeoutPoll(
-    fn: suspend () -> Unit,
+    fn: SuspendAsyncFn,
     interval: Duration = 1.seconds,
     optionsOf: UseTimeoutPollOptions.() -> Unit = {},
 ): TimeoutPollHolder {
     val options = remember { UseTimeoutPollOptions.optionOf(optionsOf) }
     val latestFn = useLatestRef(value = fn)
     val isActiveState = useState(default = false)
-    val scope = rememberCoroutineScope()
+    val asyncRun = useAsync()
 
-    val timeoutPoll = remember {
-        TimeoutPoll(options).apply {
-            this.isActiveState = isActiveState
-            this.timeoutFn = latestFn
-            this.scope = scope
-            this.interval = interval
+    val startRef = useRef(default = {})
+    val stopRef = useRef(default = {})
+
+    val internalLoop: SuspendAsyncFn = internalLoop@{
+        if (!isActiveState.value) {
+            return@internalLoop
+        }
+        latestFn.current(this)
+        startRef.current()
+    }
+
+    val (_, startTimeoutFn, stopTimeoutFn) = useTimeoutFn(
+        fn = internalLoop,
+        interval = interval,
+        optionsOf = {
+            immediate = false
+            immediateCallback = false
+        }
+    )
+
+    startRef.current = startTimeoutFn
+    stopRef.current = stopTimeoutFn
+
+    val pause = {
+        isActiveState.value = false
+        stopTimeoutFn()
+    }
+
+    val resume = {
+        if (!isActiveState.value) {
+            isActiveState.value = true
+            if (options.immediateCallback) {
+                asyncRun(latestFn.current)
+            }
+            startTimeoutFn()
         }
     }
 
     // If configured to start immediately, start when component is mounted
     useMount {
         if (options.immediate) {
-            timeoutPoll.resume()
+            resume()
         }
     }
     useUnmount {
         // Clean up when component is unmounted
-        timeoutPoll.pause()
+        pause()
     }
 
     return remember {
         TimeoutPollHolder(
             isActive = isActiveState,
-            pause = timeoutPoll::pause,
-            resume = timeoutPoll::resume
+            pause = pause,
+            resume = resume
         )
     }
 }
@@ -169,15 +135,10 @@ fun useTimeoutPoll(
  * @param immediate Whether to start immediately
  */
 @Composable
-fun useTimeoutPoll(
-    fn: suspend () -> Unit,
-    interval: Duration = 1.seconds,
-    immediate: Boolean = true,
-) {
+fun useTimeoutPoll(fn: SuspendAsyncFn, interval: Duration = 1.seconds, immediate: Boolean = true) {
     useTimeoutPoll(
         fn = fn,
         interval = interval,
         optionsOf = { this.immediate = immediate }
     )
 }
-
