@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
@@ -23,6 +25,35 @@ import kotlinx.coroutines.CoroutineScope
   Version: v1.1.1
   Description: Refactor action function
 */
+
+
+/**
+ * Type alias for a map of state-event pairs to target states
+ *
+ * @param S The state type
+ * @param E The event type
+ */
+typealias Transition<S, E> = MutableMap<Pair<S, E>, S>
+
+/**
+ * Type alias for a map of state-event pairs to suspend action functions
+ *
+ * @param S The state type
+ * @param E The event type
+ * @param CTX The context type
+ */
+typealias SuspendActions<S, E, CTX> = MutableMap<Pair<S, E>, SuspendAction<CTX, E>>
+
+/**
+ * Action function type that updates context during state transitions
+ *
+ * Similar to a reducer function in Redux, it takes the previous context and event,
+ * and returns the new context value. This is a suspend function that runs in a CoroutineScope.
+ *
+ * @param CTX The type of the context
+ * @param E The type of the event
+ */
+typealias SuspendAction<CTX, E> = suspend CoroutineScope.(prevContext: CTX?, event: E) -> CTX
 
 /**
  * A Compose Hook for managing state machines with context support.
@@ -92,23 +123,21 @@ fun <S : Any, E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>
     val (currentState, setState) = useGetState(machineGraph.current.initialState)
     val (undoState, setUndoState, resetUndoState, undo, _, canUndo, _) = useUndo(machineGraph.current.initialState)
 
+    // Function to check if a transition is possible for the given event
     val canTransition = { event: E ->
         machineGraph.current.transitions.containsKey(currentState.value to event)
     }
 
+    // Get async runner from hook
     val asyncRun = useAsync()
 
+    // Function to execute a state transition with the given event
     val transition = { event: E ->
         val current = currentState.value
         val nextState = machineGraph.current.transitions[current to event]
-        val action = machineGraph.current.actions[current to event]
         val suspendAction = machineGraph.current.suspendActions[current to event]
-        check(!(action !== null && suspendAction !== null)) {
-            "Can not use `action` and `actionAsync` at the same time"
-        }
-        if (action != null) {
-            setContextState(action(contextState.value, event))
-        }
+
+        // Execute suspend action if defined for this transition
         if (suspendAction != null) {
             asyncRun {
                 val result = suspendAction(contextState.value, event)
@@ -116,28 +145,33 @@ fun <S : Any, E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>
             }
         }
 
+        // Update state if transition is defined
         if (nextState != null) {
             setState(nextState)
             setUndoState(nextState)
         }
     }
 
+    // Function to reset state machine to initial state
     val reset = {
         setState(machineGraph.current.initialState)
         resetUndoState(machineGraph.current.initialState)
     }
 
+    // Function to go back to previous state
     val goBack = {
         undo()
         setState(undoState.value.present)
     }
 
+    // Function to get available events for current state
     val getAvailableEvents = {
         machineGraph.current.transitions.keys
             .filter { it.first == currentState.value }
             .map { it.second }
     }
 
+    // Create state for history tracking
     val history = useState {
         undoState.value.past.add(undoState.value.present)
     }
@@ -156,10 +190,6 @@ fun <S : Any, E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>
         )
     }
 }
-
-typealias Transition<S, E> = MutableMap<Pair<S, E>, S>
-typealias Actions<S, E, CTX> = MutableMap<Pair<S, E>, Action<CTX, E>>
-typealias SuspendActions<S, E, CTX> = MutableMap<Pair<S, E>, SuspendAction<CTX, E>>
 
 /**
  * State machine graph builder function that provides a DSL for creating state transitions
@@ -205,14 +235,13 @@ fun <S : Any, E, CTX> buildStateMachineGraph(init: StateMachineGraphScope<S, E, 
  * @property transitions Map of state-event pairs to target states
  * @property initialState The initial state of the state machine
  * @property context Optional context data that can be updated during transitions
- * @property actions Map of state-event pairs to action functions that update context
+ * @property suspendActions Map of state-event pairs to action functions that update context
  */
 @Stable
 data class MachineGraph<S : Any, E, CTX>(
     val transitions: Transition<S, E>,
     val initialState: S,
     val context: CTX?,
-    val actions: Actions<S, E, CTX>,
     val suspendActions: SuspendActions<S, E, CTX>,
 )
 
@@ -252,11 +281,10 @@ fun <S : Any, E, CTX> createMachine(init: StateMachineGraphScope<S, E, CTX>.() -
  * Each state can define multiple event handlers that specify which state to transition to.
  * It also supports defining context and actions that update the context during transitions.
  */
-class StateMachineGraphScope<S : Any, E, CTX>() {
+class StateMachineGraphScope<S : Any, E, CTX> {
     private val transitions: Transition<S, E> = mutableMapOf()
-    private val actions: Actions<S, E, CTX> = mutableMapOf()
     private val suspendActions: SuspendActions<S, E, CTX> = mutableMapOf()
-    private var initState: S by Delegates.notNull<S>()
+    private var initState: S by Delegates.notNull()
     private var context: CTX? = null
 
     private var hasCalledContext = false
@@ -308,6 +336,8 @@ class StateMachineGraphScope<S : Any, E, CTX>() {
 
     /**
      * Define multiple states and their possible transitions
+     *
+     * @param descriptionBlock Block that defines multiple states and their transitions
      */
     fun states(descriptionBlock: StatesDescriptionScope<S, E, CTX>.() -> Unit) {
         val description = StatesDescriptionScope<S, E, CTX>()
@@ -318,7 +348,7 @@ class StateMachineGraphScope<S : Any, E, CTX>() {
 
     internal fun build(): MachineGraph<S, E, CTX> {
         require(hasCalledInitial) { "Please call initial() before building the machine" }
-        return MachineGraph(transitions, initState, context, actions, suspendActions)
+        return MachineGraph(transitions, initState, context, suspendActions)
     }
 }
 
@@ -348,6 +378,12 @@ class StateDescriptionScope<S, E, CTX>(
         eventMaps[this] = targetState
     }
 
+    /**
+     * Define a transition for an event with a configuration block
+     *
+     * @param event The event that triggers the transition
+     * @param block Configuration block for the event transition
+     */
     fun on(event: E, block: EventDescriptionScope<S, E, CTX>.() -> Unit) {
         EventDescriptionScope(eventMaps, event, actionAsyncMap).block()
     }
@@ -357,14 +393,17 @@ class StateDescriptionScope<S, E, CTX>(
  * Scope for defining multiple states and their transitions in a more concise way
  *
  * This scope allows defining multiple states using the invoke operator syntax:
- * ```
+ * ```kotlin
  * states {
  *     State.IDLE { ... }
  *     State.LOADING { ... }
  * }
  * ```
+ *
+ * @param transitions Internal map storing state transitions
+ * @param suspendActions Internal map storing state action functions
  */
-class StatesDescriptionScope<S, E, CTX>() {
+class StatesDescriptionScope<S, E, CTX> {
     internal val transitions: Transition<S, E> = mutableMapOf()
     internal val suspendActions: SuspendActions<S, E, CTX> = mutableMapOf()
 
@@ -425,17 +464,14 @@ class StateTransitionScope<S, E, CTX>(
 }
 
 /**
- * Action function type that updates context during state transitions
- *
- * Similar to a reducer function in Redux, it takes the previous context and event,
- * and returns the new context value.
- */
-typealias Action<CTX, E> = (prevContext: CTX?, event: E) -> CTX
-typealias SuspendAction<CTX, E> = suspend CoroutineScope.(prevContext: CTX?, event: E) -> CTX
-
-/**
  * Scope for defining an event transition with target state and optional action
  *
+ * This scope provides methods to configure what happens when an event occurs,
+ * including which state to transition to and what actions to perform.
+ *
+ * @param S The state type
+ * @param E The event type
+ * @param CTX The context type
  * @param eventMaps Map to store event to target state mappings
  * @param event The current event being configured
  * @param actionAsyncMap Map to store event to action function mappings
