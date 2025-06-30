@@ -26,7 +26,6 @@ import kotlinx.coroutines.CoroutineScope
   Description: Refactor action function
 */
 
-
 /**
  * Type alias for a map of state-event pairs to target states
  *

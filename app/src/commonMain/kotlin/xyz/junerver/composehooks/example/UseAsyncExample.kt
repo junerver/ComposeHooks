@@ -1,6 +1,7 @@
 package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.Surface
@@ -12,6 +13,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useAsync
+import xyz.junerver.compose.hooks.useCancelableAsync
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.composehooks.ui.component.TButton
 
@@ -36,6 +38,8 @@ fun UseAsyncExample() {
     /** 如果不传递参数，则使用另一个重载，返回值是[xyz.junerver.compose.hooks.AsyncRunFn] */
     val asyncRun = useAsync()
 
+    val (cancelableAsyncRun, cancel, isRunning) = useCancelableAsync()
+
     Surface {
         Column {
             Text(text = "count:${getState()}")
@@ -49,6 +53,18 @@ fun UseAsyncExample() {
                 asyncRun {
                     delay(1.seconds)
                     setState { it + 1 }
+                }
+            }
+            Text("useCancelableAsync")
+            Row {
+                TButton(text = "delay +1") {
+                    cancelableAsyncRun {
+                        delay(1.seconds)
+                        setState { it + 1 }
+                    }
+                }
+                TButton(text = "cancel", enabled = isRunning.value) {
+                    cancel()
                 }
             }
         }

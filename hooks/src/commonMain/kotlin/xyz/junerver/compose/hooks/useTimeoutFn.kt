@@ -135,7 +135,7 @@ private class TimeoutFn(private val options: TimeoutFnOptions) {
  */
 @Composable
 fun useTimeoutFn(fn: SuspendAsyncFn, interval: Duration = 1.seconds, optionsOf: TimeoutFnOptions.() -> Unit = {}): TimeoutFnHolder {
-    val options = remember { TimeoutFnOptions.optionOf(optionsOf) }
+    val options by useCreation { TimeoutFnOptions.optionOf(optionsOf) }
     val latestFn = useLatestRef(value = fn)
     val isPendingState = useState(default = false)
     val scope = rememberCoroutineScope()
