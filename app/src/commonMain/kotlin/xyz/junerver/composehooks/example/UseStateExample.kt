@@ -21,9 +21,11 @@ import xyz.junerver.compose.hooks.Tuple2
 import xyz.junerver.compose.hooks._useState
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.tuple
+import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.useStateAsync
 import xyz.junerver.composehooks.example.request.DividerSpacer
 import xyz.junerver.composehooks.ui.component.ScrollColumn
 import xyz.junerver.composehooks.ui.component.SimpleContainer
@@ -249,13 +251,24 @@ private fun useAddCorrect4(default: Int): Tuple2<Int, () -> Unit> {
 private fun Computed() {
     val (state, setState) = useGetState(default = 0)
     val isEven by useState { state.value % 2 == 0 }
+    val asyncComputed by useStateAsync(state.value, optionsOf = {
+        lazy = true
+    }) {
+        delay(2.seconds)
+        "after 2 seconds, state: ${state.value}"
+    }
+    val (visible, toggle) = useBoolean(default = false)
     Column {
         Row {
             TButton(text = "add1", onClick = { setState { it + 1 } })
             TButton(text = "add2", onClick = { setState { it + 2 } })
+            TButton(text = "toggle", onClick = { toggle() })
         }
         SimpleContainer { Text("current: ${state.value}", modifier = Modifier.randomBackground()) }
         SimpleContainer { Text("isEven: ${state.value % 2 == 0}", modifier = Modifier.randomBackground()) }
         SimpleContainer { Text("isEven: $isEven", modifier = Modifier.randomBackground()) }
+        if (visible.value) {
+            SimpleContainer { Text("asyncComputed: $asyncComputed", modifier = Modifier.randomBackground()) }
+        }
     }
 }

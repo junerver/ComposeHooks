@@ -1,11 +1,15 @@
+@file:Suppress("unused")
+
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import kotlin.coroutines.cancellation.CancellationException
 
 /*
   Description:
@@ -75,6 +79,90 @@ fun <T> useState(default: T & Any): MutableState<T & Any> = when (default) {
 @Composable
 fun <T> useState(vararg keys: Any?, factory: () -> T): State<T> = remember(keys = keys) {
     derivedStateOf(factory)
+}
+
+/**
+ * Configuration options for the [useStateAsync] hook.
+ *
+ * @property lazy When set to true, the async computation will only be triggered when the state is accessed,
+ *                rather than immediately when the component is composed. Default is false.
+ * @property onError A callback function that is invoked when an error occurs during the async computation.
+ *                  By default, it prints the stack trace of the error.
+ */
+@Stable
+data class StateAsyncOptions internal constructor(
+    var lazy: Boolean = false,
+    var onError: (Throwable) -> Unit = { error -> error.printStackTrace() },
+) {
+    companion object : Options<StateAsyncOptions>(::StateAsyncOptions)
+}
+
+/**
+ * This hook function creates a state that is asynchronously computed using a suspend function.
+ * It allows you to handle asynchronous data fetching or computation while maintaining a reactive state.
+ * The state will be updated when the provided suspend function completes or when any of the dependency keys change.
+ *
+ * ```kotlin
+ * // Basic usage with dependency tracking
+ * val asyncState by useStateAsync(userId) {
+ *     delay(1.seconds) // Simulate network request
+ *     fetchUserData(userId) // Suspend function that returns data
+ * }
+ *
+ * // With lazy loading and custom error handling
+ * val asyncData by useStateAsync(dataId, optionsOf = {
+ *     lazy = true // Only compute when the state is accessed
+ *     onError = { error ->
+ *         logger.error("Failed to load data", error)
+ *     }
+ * }) {
+ *     fetchDataFromApi(dataId)
+ * }
+ * ```
+ *
+ * @param T The type of data to be computed asynchronously
+ * @param keys Dependency values that will trigger recomputation when changed
+ * @param initValue Optional initial value to use before the async computation completes
+ * @param optionsOf Configuration options for the async state behavior
+ * @param factory The suspend function that produces the state value
+ * @return A State object containing the result of the async computation (or null if not yet computed or on error)
+ */
+@Composable
+fun <T> useStateAsync(
+    vararg keys: Any?,
+    initValue: T? = null,
+    optionsOf: StateAsyncOptions.() -> Unit = {},
+    factory: suspend () -> T,
+): State<T?> {
+    val options by useCreation {
+        StateAsyncOptions.optionOf(optionsOf)
+    }
+    val (lazy, onError) = options
+    val (asyncRun) = useCancelableAsync()
+    val (state, setState) = _useGetState(initValue)
+    val calcFnRef = useLatestRef {
+        asyncRun {
+            try {
+                setState(factory())
+            } catch (e: Exception) {
+                if (e !is CancellationException) {
+                    onError(e)
+                    setState(null)
+                }
+            }
+        }
+    }
+    if (lazy) {
+        return useState(keys = keys) {
+            calcFnRef.current()
+            state.value
+        }
+    } else {
+        useEffect(deps = keys) {
+            calcFnRef.current()
+        }
+        return state
+    }
 }
 
 /**
