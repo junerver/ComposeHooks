@@ -6,6 +6,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.collections.immutable.PersistentList
+import kotlinx.datetime.Instant
 import xyz.junerver.compose.hooks.useredux.useDispatch
 import xyz.junerver.compose.hooks.useredux.useDispatchAsync
 import xyz.junerver.compose.hooks.useredux.useSelector
@@ -46,6 +48,9 @@ fun rememberAsync(block: SuspendAsyncFn) = useAsync(block)
 
 @Composable
 fun rememberAsync(): AsyncRunFn = useAsync()
+
+@Composable
+fun rememberCancelableAsync(): CancelableAsyncHolder = useCancelableAsync()
 //endregion
 
 @Composable
@@ -225,3 +230,35 @@ fun rememberUpdate(): () -> Unit = useUpdate()
 
 @Composable
 fun rememberUpdateEffect(vararg keys: Any?, block: SuspendAsyncFn) = useUpdateEffect(*keys, block = block)
+
+@Composable
+fun rememberLastChanged(source: Any?): State<Instant> = useLastChanged(source)
+
+@Composable
+fun <KEY, ITEM> rememberSelectable(
+    selectionMode: SelectionMode<KEY>,
+    items: List<ITEM>,
+    keyProvider: (ITEM) -> KEY,
+): SelectableHolder<KEY, ITEM> = useSelectable(selectionMode, items, keyProvider)
+
+@Composable
+fun <S : Any, E, CTX> rememberStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>): StateMachineHolder<S, E, CTX> = useStateMachine(machineGraph)
+
+@Composable
+fun rememberTimeoutFn(fn: SuspendAsyncFn, interval: Duration = 1.seconds, optionsOf: TimeoutFnOptions.() -> Unit = {}): TimeoutFnHolder = useTimeoutFn(fn, interval, optionsOf)
+
+@Composable
+fun rememberTimeoutPoll(
+    fn: SuspendAsyncFn,
+    interval: Duration = 1.seconds,
+    optionsOf: UseTimeoutPollOptions.() -> Unit = {},
+): TimeoutPollHolder = useTimeoutPoll(fn, interval, optionsOf)
+
+@Composable
+fun rememberTimeoutPoll(fn: SuspendAsyncFn, interval: Duration = 1.seconds, immediate: Boolean = true) = useTimeoutPoll(fn, interval, immediate)
+
+@Composable
+fun <T> rememberImmutableList(vararg elements: T): ImmutableListHolder<T> = useImmutableList(*elements)
+
+@Composable
+fun <S, T : S> rememberImmutableListReduce(list: PersistentList<T>, operation: (acc: S, T) -> S): State<S> = useImmutableListReduce(list, operation)
