@@ -242,10 +242,12 @@ fun <KEY, ITEM> rememberSelectable(
 ): SelectableHolder<KEY, ITEM> = useSelectable(selectionMode, items, keyProvider)
 
 @Composable
-fun <S : Any, E, CTX> rememberStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>): StateMachineHolder<S, E, CTX> = useStateMachine(machineGraph)
+fun <S : Any, E, CTX> rememberStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>): StateMachineHolder<S, E, CTX> =
+    useStateMachine(machineGraph)
 
 @Composable
-fun rememberTimeoutFn(fn: SuspendAsyncFn, interval: Duration = 1.seconds, optionsOf: TimeoutFnOptions.() -> Unit = {}): TimeoutFnHolder = useTimeoutFn(fn, interval, optionsOf)
+fun rememberTimeoutFn(fn: SuspendAsyncFn, interval: Duration = 1.seconds, optionsOf: TimeoutFnOptions.() -> Unit = {}): TimeoutFnHolder =
+    useTimeoutFn(fn, interval, optionsOf)
 
 @Composable
 fun rememberTimeoutPoll(
@@ -255,10 +257,12 @@ fun rememberTimeoutPoll(
 ): TimeoutPollHolder = useTimeoutPoll(fn, interval, optionsOf)
 
 @Composable
-fun rememberTimeoutPoll(fn: SuspendAsyncFn, interval: Duration = 1.seconds, immediate: Boolean = true) = useTimeoutPoll(fn, interval, immediate)
+fun rememberTimeoutPoll(fn: SuspendAsyncFn, interval: Duration = 1.seconds, immediate: Boolean = true) =
+    useTimeoutPoll(fn, interval, immediate)
 
 @Composable
 fun <T> rememberImmutableList(vararg elements: T): ImmutableListHolder<T> = useImmutableList(*elements)
 
 @Composable
-fun <S, T : S> rememberImmutableListReduce(list: PersistentList<T>, operation: (acc: S, T) -> S): State<S> = useImmutableListReduce(list, operation)
+fun <S, T : S> rememberImmutableListReduce(list: PersistentList<T>, operation: (acc: S, T) -> S): State<S> =
+    useImmutableListReduce(list, operation)
