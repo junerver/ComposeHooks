@@ -5,9 +5,9 @@ package xyz.junerver.compose.hooks
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import kotlin.properties.Delegates
 import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
 
 /*
@@ -114,17 +114,17 @@ typealias SuspendAction<CTX, E> = suspend CoroutineScope.(prevContext: CTX?, eve
  * ```
  */
 @Composable
-fun <S : Any, E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>): StateMachineHolder<S, E, CTX> {
+inline fun <S : Any, reified E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>): StateMachineHolder<S, E, CTX> {
     requireNotNull(machineGraph.current.initialState) {
         "must call `createMachine` first, and must call `initial`"
     }
     val (contextState, setContextState) = _useGetState(machineGraph.current.context)
-    val (currentState, setState) = useGetState(machineGraph.current.initialState)
+    val currentStateRef = useRef(machineGraph.current.initialState)
     val (undoState, setUndoState, resetUndoState, undo, _, canUndo, _) = useUndo(machineGraph.current.initialState)
 
     // Function to check if a transition is possible for the given event
     val canTransition = { event: E ->
-        machineGraph.current.transitions.containsKey(currentState.value to event)
+        machineGraph.current.transitions.containsKey(currentStateRef.current to event)
     }
 
     // Get async runner from hook
@@ -132,7 +132,7 @@ fun <S : Any, E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>
 
     // Function to execute a state transition with the given event
     val transition = { event: E ->
-        val current = currentState.value
+        val current = currentStateRef.current
         val nextState = machineGraph.current.transitions[current to event]
         val suspendAction = machineGraph.current.suspendActions[current to event]
 
@@ -146,48 +146,52 @@ fun <S : Any, E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>
 
         // Update state if transition is defined
         if (nextState != null) {
-            setState(nextState)
+            currentStateRef.current = nextState
             setUndoState(nextState)
         }
     }
 
     // Function to reset state machine to initial state
     val reset = {
-        setState(machineGraph.current.initialState)
+        currentStateRef.current = machineGraph.current.initialState
         resetUndoState(machineGraph.current.initialState)
     }
 
     // Function to go back to previous state
     val goBack = {
         undo()
-        setState(undoState.value.present)
+        currentStateRef.current = undoState.value.present
     }
-
     // Function to get available events for current state
     val getAvailableEvents = {
-        machineGraph.current.transitions.keys
-            .filter { it.first == currentState.value }
-            .map { it.second }
+        persistentListOf(*machineGraph.current.transitions.keys
+            .filter { it.first == currentStateRef.current }
+            .map { it.second }.toTypedArray()
+        )
     }
+    val (availableEvents,setAvailableEvents) = useGetState(getAvailableEvents())
+    useEffect(currentStateRef){
+        setAvailableEvents(getAvailableEvents())
+    }
+
 
     // Create state for history tracking
     val history = useState {
         undoState.value.past.add(undoState.value.present)
     }
 
-    return remember {
-        StateMachineHolder(
-            currentState = currentState,
+    return StateMachineHolder(
+            currentState = currentStateRef.observeAsState(),
             canTransition = canTransition,
             transition = transition,
             history = history,
             reset = reset,
             canGoBack = canUndo,
             goBack = goBack,
-            getAvailableEvents = getAvailableEvents,
+            availableEvents = availableEvents,
             context = contextState
         )
-    }
+
 }
 
 /**
@@ -509,7 +513,7 @@ class EventDescriptionScope<S, E, CTX>(
  * @property reset Reset to initial state and clear history
  * @property canGoBack Check if can go back to previous state
  * @property goBack Go back to previous state
- * @property getAvailableEvents Get list of available events for current state
+ * @property availableEvents List of available events for current state
  * @property context Current context value as a deferred read State
  */
 @Stable
@@ -521,6 +525,6 @@ data class StateMachineHolder<S : Any, E, CTX>(
     val reset: () -> Unit,
     val canGoBack: State<Boolean>,
     val goBack: () -> Unit,
-    val getAvailableEvents: () -> List<E>,
+    val availableEvents: State<PersistentList<E>>,
     val context: State<CTX?>,
 )

@@ -242,7 +242,7 @@ fun <KEY, ITEM> rememberSelectable(
 ): SelectableHolder<KEY, ITEM> = useSelectable(selectionMode, items, keyProvider)
 
 @Composable
-fun <S : Any, E, CTX> rememberStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>): StateMachineHolder<S, E, CTX> =
+inline fun <S : Any, reified E, CTX> rememberStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>): StateMachineHolder<S, E, CTX> =
     useStateMachine(machineGraph)
 
 @Composable

@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.collections.immutable.PersistentList
 import xyz.junerver.compose.hooks.createMachine
 import xyz.junerver.compose.hooks.useStateMachine
+import xyz.junerver.composehooks.ui.component.SimpleContainer
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -109,7 +110,7 @@ fun UseStateMachineExample() {
         reset,
         canGoBack,
         goBack,
-        getAvailableEvents,
+        availableEvents,
         context,
     ) = useStateMachine(
         machineGraph = machineGraph
@@ -117,7 +118,7 @@ fun UseStateMachineExample() {
 
     Surface {
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(16.dp).randomBackground(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             // Title
@@ -128,22 +129,24 @@ fun UseStateMachineExample() {
             )
 
             // Current state display card
-            StateDisplayCard(currentState.value)
+            SimpleContainer{ StateDisplayCard(currentState.value) }
 
             // State history records
-            HistoryCard(history.value)
+            SimpleContainer{ HistoryCard(history.value) }
 
             // Control buttons section
-            ControlButtonsSection(
-                canTransition = canTransition,
-                transition = transition,
-                reset = reset,
-                canGoBack = canGoBack.value,
-                goBack = goBack
-            )
+            SimpleContainer{
+                ControlButtonsSection(
+                    transition = transition,
+                    reset = reset,
+                    canGoBack = canGoBack.value,
+                    goBack = goBack,
+                    availableEvents = availableEvents.value
+                )
+            }
 
             // Available events display
-            AvailableEventsCard(getAvailableEvents())
+            SimpleContainer{ AvailableEventsCard(availableEvents.value) }
         }
     }
 }
@@ -233,12 +236,15 @@ private fun HistoryCard(history: PersistentList<LoadingState>) {
 
 @Composable
 private fun ControlButtonsSection(
-    canTransition: (LoadingEvent) -> Boolean,
     transition: (LoadingEvent) -> Unit,
     reset: () -> Unit,
     canGoBack: Boolean,
     goBack: () -> Unit,
+    availableEvents: PersistentList<LoadingEvent>
 ) {
+    val canTransition = { event: LoadingEvent ->
+        availableEvents.contains(event)
+    }
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -323,7 +329,7 @@ private fun ControlButtonsSection(
 }
 
 @Composable
-private fun AvailableEventsCard(availableEvents: List<LoadingEvent>) {
+private fun AvailableEventsCard(availableEvents: PersistentList<LoadingEvent>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
