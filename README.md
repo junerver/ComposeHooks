@@ -47,65 +47,91 @@ The hooks that have been implemented so far are as follows:
 
 Note: All `use` functions also have the signature of `remember`. If you prefer Compose’s naming method, just use `rememberXxx`!
 
-| hook name                                                    | effect                                                       |
+### Hooks
+
+#### State
+
+| hook name                                                    | description                                                  |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [useRequest](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseRequestExample.kt) | Manage network requests and implement: [manual and automatic](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Auto%26Manual.kt) triggering; [life cycle callbacks](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Lifecycle.kt); [refresh](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Refresh.kt); [mutate changes](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Mutate.kt); [cancel requests](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Cancel.kt); [polling](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Polling.kt); [Ready](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Ready.kt); [dependency refresh](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/DepsRefresh.kt); [debounce](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Debounce.kt), [throttle](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Throttle.kt); [error retry](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/ErrorRetry.kt); |
-| [useAsync](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseAsyncExample.kt) | A hook that encapsulates `rememberCoroutineScope` to make it easier to use coroutines |
 | [useAutoReset](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseAutoResetExample.kt) | A hook which will reset state to the default value after some time. |
-| [useBiometric](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseBiometricExample.kt)* | use biometrics conveniently                                  |
 | [useBoolean](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseBooleanExample.kt) | Hook to manage boolean state.                                |
-| `useBackToFrontEffect` & `useFrontToBackEffect`              | Execute effect when app goes to the background or come back to the foreground |
-| [useBatteryInfo](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | A hook that can get the battery level and if is charging.    |
-| [useBuildInfo](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | A hook that can get the brand, model, and version of android. |
-| [useClipboard](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseClipboardExample.kt) | Easy to use Clipboard                                        |
 | [useContext](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseContextExample.kt) | just like react                                              |
-| [useCountdown](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseCountdownExample.kt) | A hook for manage countdown.                                 |
-| [useCounter](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseCounterExample.kt) | A hook that manage counter.                                  |
 | [useCreation](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseCreationExample.kt) | `useCreation` is the replacement for `useRef`.               |
 | [useDebounce](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseDebounceExample.kt) | A hook that deal with the debounced value.                   |
-| [useDebounceFn](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseDebounceExample.kt) | A hook that deal with the debounced function.                |
-| [useDebounceEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseDebounceExample.kt) | Debounce your `useEffect`.                                   |
-| [useDisableScreenshot](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | A hook used to handle the prohibition of screenshots on privacy pages. |
-| [useEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseEffectExample.kt) | just like react                                              |
-| [useEvent](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseEventExample.kt) | Implement lightweight cross-component communication using the subscribe-publish pattern |
-| [useFlashlight](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | A Hook for convenient use of flashlight.                     |
 | [Form.useForm](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseFormExample.kt) | A Hook that can easier control headless component `Form`     |
 | [useGetState](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseGetStateExample.kt) | A Hooks that handle state using destructuring declaration syntax. |
-| [useIdel](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseIdelExample.kt) | Tracks whether the user is being inactive.                   |
 | [useImmutableList](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseImmutableListExample.kt) | A hook for managing immutable lists in Compose.              |
-| [useInterval](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseIntervalExample.kt) | A hook that handles the `setInterval` timer function.        |
-| useKeyboard                                                  | A Hook that controls the display and hiding of the soft keyboard. |
 | [useLastChanged](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseLastChangedExample.kt) | A Hook that  records the Instant of the last change          |
 | [useLatest](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseLatestExample.kt) | A Hook that returns the latest value, effectively avoiding the closure problem. |
-| [useMount](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseMountExample.kt) | A hook that executes a function after the component is mounted. |
-| [useNow](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseNowExample.kt) | A hook that return now date, default format:yyyy-MM-dd HH:mm:ss |
-| [useNetwork](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseNetworkExample.kt)* | A hook for obtaining network connection status and type.     |
 | [usePersistent](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UsePersistentExample.kt) | A lightweight persistence hook, you need to implement the persistence method yourself (memory persistence is used by default) |
 | [usePrevious](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UsePreviousExample.kt) | A Hook to return the previous state.                         |
 | [useReducer](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseReducerExample.kt) | just like react                                              |
 | [useRef](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseRefExample.kt) | just like react                                              |
 | [useResetState](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseResetStateExample.kt) | A hook for managing state with reset functionality.          |
 | [useSelectable](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseSelectableExample.kt) | A utility function to help implement select or multi select feature. |
-| [useScreenInfo](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | A hook that obtains information about the screen width, height, horizontal and vertical orientation. |
 | [`useSelector`/`useDispatch`](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseReduxExample.kt) | easier to management global state，just like use redux-react |
 | [useState](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseStateExample.kt) | just like react                                              |
 | [useStateMachine](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseStateMachineExample.kt) | A Compose Hook for managing state machines                   |
 | [useThrottle](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseThrottleExample.kt) | A hook that deal with the throttled value.                   |
-| [useThrottleFn](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseThrottleExample.kt) | A hook that deal with the throttled function.                |
+| [useToggle](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseToggleExample.kt) | A hook that toggle states.                                   |
+
+#### Effect
+
+| hook name                                                    | description                                                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| `useBackToFrontEffect` & `useFrontToBackEffect`              | Execute effect when app goes to the background or come back to the foreground |
+| [useEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseEffectExample.kt) | just like react                                              |
+| [useDebounceEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseDebounceExample.kt) | Debounce your `useEffect`.                                   |
 | [useThrottleEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseThrottleExample.kt) | Throttle your `useEffect`.                                   |
+| [useUpdateEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseUpdateEffectExample.kt) | A hook alike useEffect but skips running the effect for the first time. |
+| [usePausableEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UsePausableEffectExample.kt) | A pausable effect hook that provides the ability to pause, resume, and stop effect execution |
+
+#### LifeCycle
+
+| hook name                                                    | description                                                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [useMount](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseMountExample.kt) | A hook that executes a function after the component is mounted. |
+| [useUnmount](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseMountExample.kt) | A hook that executes the function right before the component is unmounted. |
+
+#### Time
+
+| hook name                                                    | description                                                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [useInterval](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseIntervalExample.kt) | A hook that handles the `setInterval` timer function.        |
+| [useNow](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseNowExample.kt) | A hook that return now date, default format: `yyyy-MM-dd HH:mm:ss` |
 | [useTimeAgo](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseLastChangedExample.kt) | Reactive time ago. Automatically update the time ago string when the time changes. |
 | [useTimeout](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimeoutExample.kt) | A hook that handles the `setTimeout` timer function.         |
 | [useTimeoutFn](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimeoutFnExample.kt) | A hook for executing a function after a specified delay with controls. |
 | [useTimeoutPoll](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimeoutPollExample.kt) | Use timeout to poll for content. Triggers the callback after the last task is completed. |
 | [useTimestamp](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimestampExample.kt) | A hook that return now timestamp as a reactive state.        |
-| [useToggle](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseToggleExample.kt) | A hook that toggle states.                                   |
+
+#### Utilities
+
+| hook name                                                    | description                                                  |
+| ------------------------------------------------------------ | ------------------------------------------------------------ |
+| [useAsync](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseAsyncExample.kt) | A hook that encapsulates `rememberCoroutineScope` to make it easier to use coroutines |
+| [useBiometric](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseBiometricExample.kt)* | use biometrics conveniently                                  |
+| [useBatteryInfo](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | A hook that can get the battery level and if is charging.    |
+| [useBuildInfo](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | A hook that can get the brand, model, and version of android. |
+| [useClipboard](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseClipboardExample.kt) | Easy to use Clipboard                                        |
+| [useCountdown](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseCountdownExample.kt) | A hook for manage countdown.                                 |
+| [useCounter](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseCounterExample.kt) | A hook that manage counter.                                  |
+| [useDebounceFn](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseDebounceExample.kt) | A hook that deal with the debounced function.                |
+| [useDisableScreenshot](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | A hook used to handle the prohibition of screenshots on privacy pages. |
+| [useEvent](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseEventExample.kt) | Implement lightweight cross-component communication using the subscribe-publish pattern |
+| [useFlashlight](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | A Hook for convenient use of flashlight.                     |
+| [useIdel](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseIdelExample.kt) | Tracks whether the user is being inactive.                   |
+| useKeyboard                                                  | A Hook that controls the display and hiding of the soft keyboard. |
+| [useNetwork](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseNetworkExample.kt)* | A hook for obtaining network connection status and type.     |
+| [useRequest](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseRequestExample.kt) | Manage network requests and implement: [manual and automatic](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Auto%26Manual.kt) triggering; [life cycle callbacks](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Lifecycle.kt); [refresh](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Refresh.kt); [mutate changes](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Mutate.kt); [cancel requests](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Cancel.kt); [polling](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Polling.kt); [Ready](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Ready.kt); [dependency refresh](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/DepsRefresh.kt); [debounce](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Debounce.kt), [throttle](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Throttle.kt); [error retry](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/ErrorRetry.kt); |
+| [useScreenInfo](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | A hook that obtains information about the screen width, height, horizontal and vertical orientation. |
+| [useThrottleFn](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseThrottleExample.kt) | A hook that deal with the throttled function.                |
 | [useUndo](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseUndoExample.kt) | A Hook for handling undo and redo.                           |
-| [useUnmount](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseMountExample.kt) | A hook that executes the function right before the component is unmounted. |
 | [useUpdate](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseUpdateExample.kt) | A hook that returns a function which can be used to force the component to re-render. |
-| [useUpdateEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseUpdateEffectExample.kt) | A hook alike useEffect but skips running the effect for the first time. |
 | [useVibrate](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseVibrateExample.kt)* | A hook that make using vibration feedback easy               |
 
 > Functions marked with `*` can only be used on Android
+
 ## Add to dependencies
 
 **KMP project**
