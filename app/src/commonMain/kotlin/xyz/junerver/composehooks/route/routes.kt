@@ -121,7 +121,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useTimeoutFn" to { UseTimeoutFnExample() },
     "useTimeoutPoll" to { UseTimeoutPollExample() },
     "usePausableEffect" to { UsePausableEffectExample() },
-    "useCycleList" to { UseCycleListExample() },
+    "useCycleList" to { UseCycleListExample() }
 ) + androidRoutes
 
 val subRequestRoutes = mapOf<String, @Composable () -> Unit>(

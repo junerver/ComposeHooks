@@ -21,7 +21,7 @@ import xyz.junerver.composehooks.ui.component.TButton
 
 @Composable
 fun UseCycleListExample() {
-    val (state,index, next, prev) = useCycleList(
+    val (state, index, next, prev) = useCycleList(
         persistentListOf(
             "Dog",
             "Cat",
@@ -32,15 +32,15 @@ fun UseCycleListExample() {
             "Octopus",
             "Seal"
         )
-    ){
-        initialValue =  "Lizard1"
+    ) {
+        initialValue = "Lizard1"
         fallbackIndex = 100
     }
     Surface {
         Column(modifier = Modifier.randomBackground()) {
-            SimpleContainer{ Text(text = "Current: ${state.value}") }
-            SimpleContainer{ Text(text = "Current Index: ${index.value}") }
-            SimpleContainer{
+            SimpleContainer { Text(text = "Current: ${state.value}") }
+            SimpleContainer { Text(text = "Current Index: ${index.value}") }
+            SimpleContainer {
                 Row {
                     TButton("Prev", onClick = { prev() })
                     TButton("Next", onClick = { next() })

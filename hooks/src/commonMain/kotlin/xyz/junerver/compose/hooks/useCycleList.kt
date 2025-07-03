@@ -22,11 +22,18 @@ import kotlinx.collections.immutable.PersistentList
  * @property fallbackIndex The default index to use when the current value is not found in the list.
  * @property getIndexOf Custom function to get the index of the current value in the list. Useful when custom index lookup logic is needed.
  */
-data class UseCycleListOptions<T>(
+@Stable
+data class UseCycleListOptions<T> internal constructor(
     var initialValue: T? = null,
     var fallbackIndex: Int = 0,
     var getIndexOf: ((value: T, list: PersistentList<T>) -> Int)? = null,
-)
+) {
+    companion object {
+        fun <T> optionOf(opt: UseCycleListOptions<T>.() -> Unit): UseCycleListOptions<T> = UseCycleListOptions<T>().apply {
+            opt()
+        }
+    }
+}
 
 /**
  * A hook for cycling through a list of items.
@@ -51,14 +58,11 @@ data class UseCycleListOptions<T>(
  * ```
  */
 @Composable
-fun <T> useCycleList(
-    list: PersistentList<T>,
-    optionsOf: UseCycleListOptions<T>.() -> Unit = {},
-): CycleListHolder<T> {
+fun <T> useCycleList(list: PersistentList<T>, optionsOf: UseCycleListOptions<T>.() -> Unit = {}): CycleListHolder<T> {
     // Initialize options with remember and apply user-provided configuration
-    val options = remember { UseCycleListOptions<T>().apply(optionsOf) }
+    val options = remember { UseCycleListOptions.optionOf(optionsOf) }
     // Create a mutable reference with useRef, initialized with the configured initial value or the first item in the list
-    val (state,setState) = _useGetState(getInitialValue(list, options))
+    val (state, setState) = _useGetState(getInitialValue(list, options))
 
     // Create a function to set the state to a specific index
     fun set(i: Int) {
@@ -81,9 +85,11 @@ fun <T> useCycleList(
     }
 
     // Create navigation functions: next item, previous item, and jump to specific index
-    fun next() = shift(1)      // Move forward n positions
-    fun prev() = shift(-1)     // Move backward n positions
-    fun go(i: Int) = set(i)              // Jump directly to index i
+    fun next() = shift(1) // Move forward n positions
+
+    fun prev() = shift(-1) // Move backward n positions
+
+    fun go(i: Int) = set(i) // Jump directly to index i
 
     // Create a derived state to track the current index
     val index = useState {
@@ -113,7 +119,7 @@ data class CycleListHolder<T>(
     val next: () -> Unit,
     val prev: () -> Unit,
     val go: (i: Int) -> Unit,
-    val shift: (delta: Int) -> Unit
+    val shift: (delta: Int) -> Unit,
 )
 
 /**
@@ -124,10 +130,8 @@ data class CycleListHolder<T>(
  * @return The initial value
  * @throws IllegalArgumentException when the list is empty and no initial value is provided
  */
-private fun <T> getInitialValue(list: PersistentList<T>, options: UseCycleListOptions<T>): T {
-    return options.initialValue ?: list.firstOrNull()
+private fun <T> getInitialValue(list: PersistentList<T>, options: UseCycleListOptions<T>): T = options.initialValue ?: list.firstOrNull()
     ?: throw IllegalArgumentException("List cannot be empty when no initialValue is provided")
-}
 
 /**
  * Helper function to get the current index of a value in the list.
@@ -148,4 +152,3 @@ private fun <T> getCurrentIndex(value: T, list: PersistentList<T>, options: UseC
 
     return options.getIndexOf?.invoke(value, list) ?: list.indexOf(value).takeIf { it >= 0 } ?: options.fallbackIndex
 }
-

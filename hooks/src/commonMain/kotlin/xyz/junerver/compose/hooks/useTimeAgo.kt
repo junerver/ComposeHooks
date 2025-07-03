@@ -113,7 +113,7 @@ data class TimeAgoUnit(
  * Format time difference options
  */
 @Stable
-open class FormatTimeAgoOptions(
+open class FormatTimeAgoOptions internal constructor(
     /**
      * Maximum unit (millisecond difference), exceeding this value will display full date instead of relative time
      */
@@ -146,7 +146,7 @@ open class FormatTimeAgoOptions(
  * Use time difference options
  */
 @Stable
-data class UseTimeAgoOptions(
+data class UseTimeAgoOptions internal constructor(
     /**
      * Update interval, set to 0 to disable automatic updates
      */

@@ -29,7 +29,7 @@ import kotlinx.datetime.toLocalDateTime
  * @property format Optional custom formatter function for the timestamp
  */
 @Stable
-data class UseNowOptions(
+data class UseNowOptions internal constructor(
     var interval: Duration = 1.seconds,
     var format: ((Long) -> String)? = null,
 ) {
