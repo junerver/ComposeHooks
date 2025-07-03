@@ -58,7 +58,7 @@ fun <T> useCycleList(
     // Initialize options with remember and apply user-provided configuration
     val options = remember { UseCycleListOptions<T>().apply(optionsOf) }
     // Create a mutable reference with useRef, initialized with the configured initial value or the first item in the list
-    val currentRef = useRef(getInitialValue(list, options))
+    val (state,setState) = _useGetState(getInitialValue(list, options))
 
     // Create a function to set the state to a specific index
     fun set(i: Int) {
@@ -69,13 +69,13 @@ fun <T> useCycleList(
         // The formula (i % length + length) % length ensures the result is always in the range [0, length-1]
         val index = (i % length + length) % length
         val value = list[index]
-        currentRef.current = value // Update the current value of the reference
+        setState(value) // Update the current value of the reference
     }
 
     // Create a function to shift the current index by a delta
     fun shift(delta: Int = 1) {
         // Get the index of the current value in the list
-        val currentIndex = getCurrentIndex(currentRef.current, list, options)
+        val currentIndex = getCurrentIndex(state.value, list, options)
         // Move the index by delta positions and set the new value
         set(currentIndex + delta)
     }
@@ -86,13 +86,11 @@ fun <T> useCycleList(
     fun go(i: Int) = set(i)              // Jump directly to index i
 
     // Create a derived state to track the current index
-    val (index, setIndex) = useGetState(getCurrentIndex(currentRef.current, list, options))
-    // Update the index state when stateRef or list changes
-    useEffect(currentRef, list) {
-        setIndex(getCurrentIndex(currentRef.current, list, options))
+    val index = useState {
+        getCurrentIndex(state.value, list, options)
     }
 
-    return CycleListHolder(currentRef.observeAsState(), index, ::next, ::prev, ::go, ::shift)
+    return CycleListHolder(state, index, ::next, ::prev, ::go, ::shift)
 }
 
 /**
