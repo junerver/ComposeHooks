@@ -222,7 +222,7 @@ fun <S : Any, E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>
  * }
  * ```
  */
-fun <S : Any, E, CTX> buildStateMachineGraph(init: StateMachineGraphScope<S, E, CTX>.() -> Unit): MachineGraph<S, E, CTX> {
+private fun <S : Any, E, CTX> buildStateMachineGraph(init: StateMachineGraphScope<S, E, CTX>.() -> Unit): MachineGraph<S, E, CTX> {
     val graph = StateMachineGraphScope<S, E, CTX>()
     graph.init()
     return graph.build()
@@ -237,11 +237,11 @@ fun <S : Any, E, CTX> buildStateMachineGraph(init: StateMachineGraphScope<S, E, 
  * @property suspendActions Map of state-event pairs to action functions that update context
  */
 @Stable
-data class MachineGraph<S : Any, E, CTX>(
-    val transitions: Transition<S, E>,
-    val initialState: S,
-    val context: CTX?,
-    val suspendActions: SuspendActions<S, E, CTX>,
+data class MachineGraph<S : Any, E, CTX> internal constructor(
+    internal val transitions: Transition<S, E>,
+    internal val initialState: S,
+    internal val context: CTX?,
+    internal val suspendActions: SuspendActions<S, E, CTX>,
 )
 
 /**
@@ -280,7 +280,7 @@ fun <S : Any, E, CTX> createMachine(init: StateMachineGraphScope<S, E, CTX>.() -
  * Each state can define multiple event handlers that specify which state to transition to.
  * It also supports defining context and actions that update the context during transitions.
  */
-class StateMachineGraphScope<S : Any, E, CTX> {
+class StateMachineGraphScope<S : Any, E, CTX> internal constructor() {
     private val transitions: Transition<S, E> = mutableMapOf()
     private val suspendActions: SuspendActions<S, E, CTX> = mutableMapOf()
     private var initState: S by Delegates.notNull()
@@ -363,7 +363,7 @@ class StateMachineGraphScope<S : Any, E, CTX> {
  * @param eventMaps Internal map storing event to state mappings
  * @param actionAsyncMap Internal map storing event to action function mappings
  */
-class StateDescriptionScope<S, E, CTX>(
+class StateDescriptionScope<S, E, CTX> internal constructor(
     internal val eventMaps: MutableMap<E, S> = mutableMapOf(),
     internal val actionAsyncMap: MutableMap<E, SuspendAction<CTX, E>> = mutableMapOf(),
 ) {
@@ -402,7 +402,7 @@ class StateDescriptionScope<S, E, CTX>(
  * @param transitions Internal map storing state transitions
  * @param suspendActions Internal map storing state action functions
  */
-class StatesDescriptionScope<S, E, CTX> {
+class StatesDescriptionScope<S, E, CTX> internal constructor() {
     internal val transitions: Transition<S, E> = mutableMapOf()
     internal val suspendActions: SuspendActions<S, E, CTX> = mutableMapOf()
 
@@ -425,7 +425,7 @@ class StatesDescriptionScope<S, E, CTX> {
  * @param transitions The global transitions map to update
  * @param suspendActions The global actions map to update
  */
-class StateTransitionScope<S, E, CTX>(
+class StateTransitionScope<S, E, CTX> internal constructor(
     internal val fromState: S,
     internal val transitions: Transition<S, E>,
     internal val suspendActions: SuspendActions<S, E, CTX>,
@@ -475,7 +475,7 @@ class StateTransitionScope<S, E, CTX>(
  * @param event The current event being configured
  * @param actionAsyncMap Map to store event to action function mappings
  */
-class EventDescriptionScope<S, E, CTX>(
+class EventDescriptionScope<S, E, CTX> internal constructor(
     internal val eventMaps: MutableMap<E, S>,
     internal val event: E,
     internal val actionAsyncMap: MutableMap<E, SuspendAction<CTX, E>>,
