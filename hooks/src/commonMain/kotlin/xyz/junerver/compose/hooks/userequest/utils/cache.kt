@@ -1,6 +1,6 @@
 package xyz.junerver.compose.hooks.userequest.utils
 
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.cacheKey
 import xyz.junerver.compose.hooks.utils.CacheManager

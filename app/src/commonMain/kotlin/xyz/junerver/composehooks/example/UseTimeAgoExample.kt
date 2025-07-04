@@ -8,8 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import kotlin.math.pow
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.datetime.Clock
 import xyz.junerver.compose.hooks.DefaultEnglishTimeAgoMessages
 import xyz.junerver.compose.hooks.left
 import xyz.junerver.compose.hooks.useGetState

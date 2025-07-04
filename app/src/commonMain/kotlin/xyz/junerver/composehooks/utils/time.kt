@@ -1,8 +1,8 @@
 package xyz.junerver.composehooks.utils
 
 import androidx.compose.runtime.Stable
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format.DayOfWeekNames
 import kotlinx.datetime.toLocalDateTime

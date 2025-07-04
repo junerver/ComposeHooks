@@ -2,7 +2,7 @@ package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import xyz.junerver.compose.hooks.utils.currentTime
 
 /*

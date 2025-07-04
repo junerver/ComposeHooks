@@ -6,7 +6,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.compose.hooks.utils.currentTime
 

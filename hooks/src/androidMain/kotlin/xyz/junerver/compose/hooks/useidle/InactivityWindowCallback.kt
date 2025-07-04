@@ -4,11 +4,11 @@ import android.view.*
 import android.view.accessibility.AccessibilityEvent
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
 import xyz.junerver.compose.hooks.utils.currentTime
 
 /*

@@ -11,7 +11,6 @@ typealias Tuple6<A, B, C, D, E, F> = arrow.core.Tuple6<A, B, C, D, E, F>
 typealias Tuple7<A, B, C, D, E, F, G> = arrow.core.Tuple7<A, B, C, D, E, F, G>
 typealias Tuple8<A, B, C, D, E, F, G, H> = arrow.core.Tuple8<A, B, C, D, E, F, G, H>
 typealias Tuple9<A, B, C, D, E, F, G, H, I> = arrow.core.Tuple9<A, B, C, D, E, F, G, H, I>
-typealias Tuple10<A, B, C, D, E, F, G, H, I, J> = arrow.core.Tuple10<A, B, C, D, E, F, G, H, I, J>
 //endregion
 
 //region 元组类与扩展函数
@@ -39,9 +38,6 @@ public fun <T> Tuple8<T, T, T, T, T, T, T, T>.toList(): List<T> = listOf(first, 
 
 public fun <T> Tuple9<T, T, T, T, T, T, T, T, T>.toList(): List<T> =
     listOf(first, second, third, fourth, fifth, sixth, seventh, eighth, ninth)
-
-public fun <T> Tuple10<T, T, T, T, T, T, T, T, T, T>.toList(): List<T> =
-    listOf(first, second, third, fourth, fifth, sixth, seventh, eighth, ninth, tenth)
 
 /** 元组扩展，可以使用 `a to b to c` 这样的连续中缀函数创建更多元素的元组 */
 infix fun <A, B> Single<A>.to(b: B): Pair<A, B> = Pair(this.first, b)
@@ -81,19 +77,6 @@ infix fun <A, B, C, D, E, F, G, H, I> Tuple8<A, B, C, D, E, F, G, H>.to(i: I): T
     i
 )
 
-infix fun <A, B, C, D, E, F, G, H, I, J> Tuple9<A, B, C, D, E, F, G, H, I>.to(j: J): Tuple10<A, B, C, D, E, F, G, H, I, J> = Tuple10(
-    this.first,
-    this.second,
-    this.third,
-    this.fourth,
-    this.fifth,
-    this.sixth,
-    this.seventh,
-    this.eighth,
-    this.ninth,
-    j
-)
-
 public operator fun <A, B, C> Pair<A, B>.plus(c: C): Triple<A, B, C> = Triple(this.first, this.second, c)
 
 public operator fun <A, B, C, D> Triple<A, B, C>.plus(d: D): Tuple4<A, B, C, D> = Tuple4(this.first, this.second, this.third, d)
@@ -129,20 +112,6 @@ public operator fun <A, B, C, D, E, F, G, H, I> Tuple8<A, B, C, D, E, F, G, H>.p
     this.eighth,
     i
 )
-
-public operator fun <A, B, C, D, E, F, G, H, I, J> Tuple9<A, B, C, D, E, F, G, H, I>.plus(j: J): Tuple10<A, B, C, D, E, F, G, H, I, J> =
-    Tuple10(
-        this.first,
-        this.second,
-        this.third,
-        this.fourth,
-        this.fifth,
-        this.sixth,
-        this.seventh,
-        this.eighth,
-        this.ninth,
-        j
-    )
 //endregion
 
 //region tuple函数
@@ -210,17 +179,4 @@ fun <A, B, C, D, E, F, G, H, I> tuple(
     eighth: H,
     ninth: I,
 ): Tuple9<A, B, C, D, E, F, G, H, I> = Tuple9(first, second, third, fourth, fifth, sixth, seventh, eighth, ninth)
-
-fun <A, B, C, D, E, F, G, H, I, J> tuple(
-    first: A,
-    second: B,
-    third: C,
-    fourth: D,
-    fifth: E,
-    sixth: F,
-    seventh: G,
-    eighth: H,
-    ninth: I,
-    tenth: J,
-): Tuple10<A, B, C, D, E, F, G, H, I, J> = Tuple10(first, second, third, fourth, fifth, sixth, seventh, eighth, ninth, tenth)
 //endregion

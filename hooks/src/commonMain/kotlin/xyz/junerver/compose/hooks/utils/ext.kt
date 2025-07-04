@@ -6,10 +6,10 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import kotlin.contracts.ExperimentalContracts
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.DurationUnit
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import xyz.junerver.compose.hooks.Ref
 import xyz.junerver.compose.hooks.observeAsState
 import xyz.junerver.compose.hooks.useEffect

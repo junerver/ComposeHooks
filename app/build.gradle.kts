@@ -32,6 +32,11 @@ kotlin {
     }
     applyDefaultHierarchyTemplate()
     sourceSets {
+        all {
+            languageSettings {
+                optIn("kotlin.time.ExperimentalTime")
+            }
+        }
         val desktopMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)

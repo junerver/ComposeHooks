@@ -14,11 +14,11 @@ plugins {
 }
 
 kotlin {
-    @OptIn(ExperimentalKotlinGradlePluginApi::class)
     compilerOptions.freeCompilerArgs.addAll(
         listOf(
             "-Xexpect-actual-classes",
-            "-Xconsistent-data-class-copy-visibility"
+            "-Xconsistent-data-class-copy-visibility",
+            "-opt-in=kotlin.time.ExperimentalTime"
         )
     )
 

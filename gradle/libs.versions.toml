@@ -1,24 +1,24 @@
 [versions]
 agp = "8.5.2"
 kotlin = "2.1.21"
-appcompat = "1.7.0"
+appcompat = "1.7.1"
 
-arrowCore = "1.2.4"
+arrowCore = "2.1.2"
 kotlinMultiplatformAppdirs = "1.1.1"
-ktorVersion = "3.0.3"
-mmkvKotlin = "1.2.14"
+ktorVersion = "3.2.0"
+mmkvKotlin = "1.2.17"
 navigationComposeVersion = "2.7.0-alpha07"
 logbackClassic = "1.5.9"
 
 activityCompose = "1.10.1"
-androidx-lifecycle = "2.8.4"
+androidx-lifecycle = "2.9.1"
 biometric = "1.2.0-alpha05"
 
-compose-plugin = "1.7.3"
-kotlinxDatetime = "0.6.2"
+compose-plugin = "1.8.2"
+kotlinxDatetime = "0.7.0"
 kotlinxCollectionsImmutable = "0.4.0"
-kotlinxCoroutines = "1.9.0"
-kotlinxSerializationJson = "1.7.3"
+kotlinxCoroutines = "1.10.2"
+kotlinxSerializationJson = "1.9.0"
 slf4jAndroid = "1.7.36"
 
 [libraries]
