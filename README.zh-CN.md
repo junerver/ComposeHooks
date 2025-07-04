@@ -44,69 +44,114 @@ implementation("xyz.junerver.compose:hooks2:<latest_release>")
 
 注意：所有 `use` 函数同样有 `remember` 的签名，如果你更喜欢 Compose 的命名方式，只需要使用 `rememberXxx` 即可！
 
-| 函数名称                                                     | 效果                                                         |
-| ------------------------------------------------------------ | ------------------------------------------------------------ |
-| [useRequest](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseRequestExample.kt) | 管理网络请求，实现了：[手动、自动](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Auto%26Manual.kt)触发；[生命周期回调](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Lifecycle.kt)；[刷新](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Refresh.kt)；[mutate变更](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Mutate.kt)；[取消请求](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Cancel.kt)；[轮询](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Polling.kt)；[Ready](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Ready.kt)；[依赖刷新](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/DepsRefresh.kt)；[防抖](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Debounce.kt)、[节流](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Throttle.kt)；[错误重试](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/ErrorRetry.kt)； |
-| [useAsync](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseAsyncExample.kt) | 封装 `rememberCoroutineScope`的 Hook，更方便的使用协程       |
-| [useAutoReset](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseAutoResetExample.kt) | 一个会在指定时间后将状态重置为默认值的 Hook。                |
-| [useBiometric](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseBiometricExample.kt)* | 使用生物识别                                                 |
-| [useBoolean](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseBooleanExample.kt) | 管理 boolean 状态的 Hook。                                   |
-| `useBackToFrontEffect` & `useFrontToBackEffect`              | 在app进入后台，或者从后台返回前台时执行副作用；              |
-| [useBatteryInfo](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | 获取电池电量、是否在充电的 Hook。                            |
-| [useBuildInfo](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | 获取品牌、型号、版本的 Hook。                                |
-| [useClipboard](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseClipboardExample.kt) | 一个用于管理剪切板的 Hook.                                   |
-| [useContext](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseContextExample.kt) | just like react                                              |
-| [useCountdown](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseCountdownExample.kt) | 一个用于倒计时的 Hook。                                      |
+### Hooks
+
+#### State
+
+| Hook 名称                                                                                                                                           | 描述                                                           |
+| :-------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------- |
+| [useAutoReset](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseAutoResetExample.kt) | 一个会在一段时间后将状态重置为默认值的 Hook。                  |
+| [useBoolean](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseBooleanExample.kt) | 用于管理布尔状态的 Hook。                                      |
+| [useContext](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseContextExample.kt) | 类似于 React 的 `useContext`。                                 |
+| [useCreation](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseCreationExample.kt) | `useCreation` 是 `useRef` 的替代品。                           |
+| [useDebounce](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseDebounceExample.kt) | 处理防抖值的 Hook。                                            |
+| [Form.useForm](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseFormExample.kt) | 一个可以更轻松地控制无头组件 `Form` 的 Hook。                   |
+| [useGetState](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseGetStateExample.kt) | 使用解构声明语法处理状态的 Hook。                              |
+| [useImmutableList](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseImmutableListExample.kt) | 一个用于在 Compose 中管理不可变列表的 Hook。                   |
+| [useLastChanged](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseLastChangedExample.kt) | 一个记录上次更改时间的 Hook。                                  |
+| [useLatest](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseLatestExample.kt) | 一个返回最新值，有效避免闭包问题的 Hook。                      |
+| [usePersistent](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UsePersistentExample.kt) | 一个轻量级持久化 Hook，你需要自己实现持久化方法（默认使用内存持久化）。 |
+| [usePrevious](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UsePreviousExample.kt) | 一个返回前一个状态的 Hook。                                    |
+| [useReducer](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseReducerExample.kt) | 类似于 React 的 `useReducer`。                                 |
+| [useRef](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseRefExample.kt)           | 类似于 React 的 `useRef`。                                     |
+| [useResetState](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseResetStateExample.kt) | 一个用于管理带重置功能状态的 Hook。                            |
+| [useSelectable](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseSelectableExample.kt) | 一个帮助实现选择或多选功能的实用函数。                         |
+| [`useSelector`/`useDispatch`](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseReduxExample.kt) | 更容易管理全局状态，类似于 Redux-React。                       |
+| [useState](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseStateExample.kt)     | 类似于 React 的 `useState`。                                   |
+| [useStateMachine](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseStateMachineExample.kt) | 一个用于管理状态机的 Compose Hook。                            |
+| [useThrottle](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseThrottleExample.kt) | 处理节流值的 Hook。                                            |
+| [useToggle](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseToggleExample.kt)   | 一个用于切换状态的 Hook。                                      |
+
+---
+
+#### Effect
+
+| Hook 名称                                                                                                                                                                               | 描述                                             |
+| :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------- |
+| `useBackToFrontEffect` & `useFrontToBackEffect`                                                                                                                                        | 当应用进入后台或回到前台时执行 Effect。          |
+| [useEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseEffectExample.kt)                                      | 类似于 React 的 `useEffect`。                    |
+| [useDebounceEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseDebounceExample.kt)                           | 对 `useEffect` 进行防抖。                        |
+| [useThrottleEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseThrottleExample.kt)                           | 对 `useEffect` 进行节流。                        |
+| [useUpdateEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseUpdateEffectExample.kt)                           | 一个类似于 `useEffect` 但跳过第一次运行的 Hook。 |
+| [usePausableEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UsePausableEffectExample.kt) | 一个可暂停的 Effect Hook，提供暂停、恢复和停止 Effect 执行的能力。 |
+
+---
+
+#### LifeCycle
+
+| Hook 名称                                                                                                                                       | 描述                                 |
+| :---------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------- |
+| [useMount](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseMountExample.kt) | 一个在组件挂载后执行函数的 Hook。    |
+| [useUnmount](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseMountExample.kt) | 一个在组件卸载前执行函数的 Hook。    |
+
+---
+
+#### Time
+
+| Hook 名称                                                                                                                                           | 描述                                                                       |
+| :-------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------- |
+| [useInterval](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseIntervalExample.kt) | 一个处理 `setInterval` 定时器函数的 Hook。                                 |
+| [useNow](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseNowExample.kt)         | 一个返回当前日期时间的 Hook，默认格式为 `yyyy-MM-dd HH:mm:ss`。            |
+| [useTimeAgo](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseLastChangedExample.kt) | 响应式时间戳。当时间变化时自动更新“距离现在多久”的字符串。                 |
+| [useTimeout](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimeoutExample.kt) | 一个处理 `setTimeout` 定时器函数的 Hook。                                  |
+| [useTimeoutFn](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimeoutFnExample.kt) | 一个用于在指定延迟后执行函数并提供控制功能的 Hook。                        |
+| [useTimeoutPoll](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimeoutPollExample.kt) | 使用超时来轮询内容。在最后一个任务完成后触发回调。                         |
+| [useTimestamp](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimestampExample.kt) | 一个返回当前时间戳作为响应式状态的 Hook。                                  |
+
+---
+
+#### Math
+
+| Hook 名称     | 描述                               |
+| :------------ | :--------------------------------- |
+| `useAbs`      | 响应式 `kotlin.math.abs`。         |
+| `useCeil`     | 响应式 `kotlin.math.ceil`。        |
+| `useRound`    | 响应式 `kotlin.math.round`。       |
+| `useTrunc`    | 响应式 `kotlin.math.truncate`。    |
+| `useMin`      | 响应式 `kotlin.math.min`。         |
+| `useMax`      | 响应式 `kotlin.math.max`。         |
+| `usePow`      | 响应式 `kotlin.math.pow`。         |
+| `useSqrt`     | 响应式 `kotlin.math.sqrt`。        |
+
+---
+
+#### Utilities
+
+| Hook 名称                                                    | 描述                                                         |
+| :----------------------------------------------------------- | :----------------------------------------------------------- |
+| [useAsync](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseAsyncExample.kt) | 一个封装 `rememberCoroutineScope` 以简化协程使用的 Hook。    |
+| [useBiometric](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseBiometricExample.kt)\* | 方便地使用生物识别功能。                                     |
+| [useBatteryInfo](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)\* | 一个可以获取电池电量和是否正在充电的 Hook。                  |
+| [useBuildInfo](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)\* | 一个可以获取 Android 品牌、型号和版本的 Hook。               |
+| [useClipboard](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseClipboardExample.kt) | 易于使用的剪贴板 Hook。                                      |
+| [useCountdown](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseCountdownExample.kt) | 一个用于管理倒计时的 Hook。                                  |
 | [useCounter](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseCounterExample.kt) | 一个用于管理计数器的 Hook。                                  |
-| [useCreation](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseCreationExample.kt) | 类似于 useMemo，但是返回的是一个引用类型，可以避免重复创建。 |
-| [useDebounce](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseDebounceExample.kt) | 用于处理防抖值的 Hook。                                      |
-| [useDebounceFn](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseDebounceFnExample.kt) | 用于处理防抖函数的 Hook。                                    |
-| [useDebounceEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseDebounceEffectExample.kt) | 为 effect 增加防抖的功能。                                   |
-| [useDisableScreenshot](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDisableScreenshotExample.kt)* | 禁用屏幕截图的 Hook。                                        |
-| [useEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseEffectExample.kt) | 执行副作用的 Hook。                                          |
-| [useEvent](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseEventExample.kt) | 使用订阅发布模式实现轻量级的跨组件通信                       |
-| [useFlashlight](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | 方便使用闪光灯的 Hook。                                      |
-| [Form.useForm](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseFormExample.kt) | 用于方便的控制Headless组件Form获取表单内容                   |
-| [Form.useWatch](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseFormExample.kt) | 用于方便在 Form 组件外追踪表单字段的 Hook。                  |
-| [Form.useFormInstance](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseFormExample.kt) | 用于方便的在 Form 的子组件中获取 FormInstance 实例的 Hook    |
-| [useGetState](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseGetStateExample.kt) | 方便的使用解构声明处理状态的 Hook。                          |
-| [useIdel](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseIdelExample.kt) | 用于监听是否处于非活动状态的 Hook。                          |
-| [useImmutableList](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseImmutableListExample.kt) | 用于管理不可变列表状态的 Hook。                              |
-| [useInterval](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseIntervalExample.kt) | 一个可以处理 setInterval 的 Hook。                           |
-| useKeyboard                                                  | 一个控制软键盘显示隐藏的 Hook。                              |
-| [useImmutableList](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseImmutableListExample.kt) | 一个用于管理不可变列表的Hook。                               |
-| [useLatest](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseLatestExample.kt) | 返回当前最新值的 Hook，可以避免在使用解构写法时的闭包问题。  |
-| [useLastChanged](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseLastChangedExample.kt) | 一个用于跟踪值最后一次变化的 Hook。                          |
-| [useLatest](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseLatestExample.kt) | 始终将最新值作为状态返回的 Hook。                            |
-| [useMount](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseMountExample.kt) | 只在组件初始化时执行的 Hook。                                |
-| [useNow](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseNowExample.kt) | 动态返回当前时间，默认：yyyy-MM-dd HH:mm:ss                  |
-| [useNetwork](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseNetworkExample.kt)* | 获取网络连接状态、类型                                       |
-| [usePersistent](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UsePersistentExample.kt) | 一个轻量级的持久化钩子，你需要自行实现持久化方法（默认使用内存持久化） |
-| [usePrevious](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UsePreviousExample.kt) | 保存上一次状态的 Hook。                                      |
-| [useReducer](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseReducerExample.kt) | 一个可以在组件内使用的极简 redux                             |
-| [useRef](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseRefExample.kt) | just like react                                              |
-| [useResetState](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseResetStateExample.kt) | 提供重置 state 方法的 Hook                                   |
-| [useScreenInfo](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | 获取屏幕宽高、横竖屏等信息的 Hook。                          |
-| [useSelectable](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseSelectableExample.kt) | 一个帮助实现选择或多选功能的实用函数。                       |
-| [`useSelector`/`useDispatch`](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseReduxExample.kt) | 在 Compose 中就像使用redux-react那样轻松管理全局状态         |
-| [useState](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseStateExample.kt) | just like react                                              |
-| [useStateMachine](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseStateMachineExample.kt) | 一个用于管理状态机的Hook。                                   |
-| [useThrottle](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseThrottleExample.kt) | 用来处理节流值的 Hook。                                      |
-| [useThrottleFn](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseThrottleExample.kt) | 用来处理函数节流的 Hook。                                    |
-| [useThrottleEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseThrottleExample.kt) | 为 `useEffect` 增加节流的能力。                              |
-| [useTimeAgo](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimeAgoExample.kt) | 将时间转换为"xx时间前"格式的Hook。                           |
-| [useTimeout](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimeoutExample.kt) | 用于执行定时任务                                             |
-| [useTimeoutFn](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimeoutFnExample.kt) | 处理函数延迟执行的Hook。                                     |
-| [useTimeoutPoll](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/useTimeoutPoll.kt) | 一个用于定时轮询的Hook。                                     |
-| [useTimestamp](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimestampExample.kt) | 动态返回当前时间戳                                           |
-| [useToggle](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseToggleExample.kt) | 用于在两个状态值间切换的 Hook。                              |
-| [useUndo](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseUndoExample.kt) | 用于处理撤销、重做的 Hook。                                  |
-| [useUnmount](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseMountExample.kt) | 在组件卸载（unmount）时执行的 Hook。                         |
-| [useUpdate](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseUpdateExample.kt) | useUpdate 会返回一个函数，调用该函数会强制组件重新渲染。     |
-| [useUpdateEffect](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseUpdateEffectExample.kt) | useUpdateEffect 用法等同于 useEffect，但是会忽略首次执行，只在依赖更新时执行。 |
-| [useVibrate](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseVibrateExample.kt)* | 用于使用震动反馈的 Hook                                      |
+| [useCycleList](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseCycleListExample.kt) | 循环遍历列表项的 Hook。                                      |
+| [useDebounceFn](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseDebounceExample.kt) | 处理防抖函数的 Hook。                                        |
+| [useDisableScreenshot](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)\* | 一个用于处理隐私页面禁止截图的 Hook。                        |
+| [useEvent](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseEventExample.kt) | 使用订阅-发布模式实现轻量级跨组件通信。                      |
+| [useFlashlight](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)\* | 一个方便使用手电筒的 Hook。                                  |
+| [useIdel](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseIdelExample.kt) | 跟踪用户是否处于非活动状态。                                 |
+| `useKeyboard`                                                | 一个控制软键盘显示和隐藏的 Hook。                            |
+| [useNetwork](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseNetworkExample.kt)\* | 一个用于获取网络连接状态和类型的 Hook。                      |
+| [useRequest](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseRequestExample.kt) | 管理网络请求并实现：[手动和自动](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Auto%26Manual.kt) 触发；[生命周期回调](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Lifecycle.kt)；[刷新](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Refresh.kt)；[修改变化](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Mutate.kt)；[取消请求](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Cancel.kt); [轮询](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Polling.kt); [Ready](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Ready.kt); [依赖刷新](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/DepsRefresh.kt); [防抖](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Debounce.kt), [节流](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Throttle.kt); [错误重试](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/ErrorRetry.kt); |
+| [useScreenInfo](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | 一个获取屏幕宽度、高度、横向和纵向方向信息的 Hook。 |
+| [useThrottleFn](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseThrottleExample.kt) | 一个处理节流函数的 Hook。                     |
+| [useUndo](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseUndoExample.kt) | 一个用于处理撤销和重做的 Hook。               |
+| [useUpdate](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseUpdateExample.kt) | 一个返回可以强制组件重新渲染的函数的 Hook。   |
+| [useVibrate](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseVibrateExample.kt)* | 一个让振动反馈变得简单的 Hook。               |
 
-
+> 注意，标记 `*` 的函数，只可以在 Android 中使用
 
 ## 添加依赖
 
