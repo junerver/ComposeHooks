@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 
 /*
   Description: A utility function to help implement select or multi select feature.
@@ -58,14 +59,16 @@ fun <KEY, ITEM> useSelectable(
         }
     }
 
-    return SelectableHolder(
-        selectedItems = selectedItems,
-        isSelected = isSelected,
-        toggleSelected = toggleSelected,
-        selectAll = selectAll,
-        invertSelection = invertSelection,
-        revertAll = revertAll
-    )
+    return remember {
+        SelectableHolder(
+            selectedItems = selectedItems,
+            isSelected = isSelected,
+            toggleSelected = toggleSelected,
+            selectAll = selectAll,
+            invertSelection = invertSelection,
+            revertAll = revertAll
+        )
+    }
 }
 
 fun <KEY> SelectionMode<KEY>.requireMultiSelect() {
