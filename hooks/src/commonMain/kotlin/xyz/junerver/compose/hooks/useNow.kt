@@ -10,6 +10,7 @@ import kotlin.time.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
+import kotlinx.datetime.format.Padding
 import kotlinx.datetime.format.char
 import kotlinx.datetime.toLocalDateTime
 
@@ -100,7 +101,7 @@ private fun useNow(options: UseNowOptions = remember { UseNowOptions() }): State
             char('-')
             monthNumber()
             char('-')
-            dayOfMonth()
+            day(padding = Padding.ZERO)
             char(' ')
             hour()
             char(':')
@@ -114,7 +115,7 @@ private fun useNow(options: UseNowOptions = remember { UseNowOptions() }): State
             this.interval = interval
         }
     )
-    val date = useState(time.value) {
+    val date = useState {
         format?.invoke(time.value) ?: time.value.toLocalDateTime().format(sdfRef)
     }
     return date

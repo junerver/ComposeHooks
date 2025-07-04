@@ -5,7 +5,6 @@ package xyz.junerver.compose.hooks.useform
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
 import kotlin.reflect.KClass
 import xyz.junerver.compose.hooks.Ref
 import xyz.junerver.compose.hooks._useState
@@ -16,7 +15,6 @@ import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useEventPublish
 import xyz.junerver.compose.hooks.useMap
-import xyz.junerver.compose.hooks.useState
 
 /*
   Description: Headless Form Component
@@ -195,10 +193,12 @@ class FormScope private constructor(
      */
     @Composable
     fun FormInstance._isValidated(): State<Boolean> {
-        val counter by formRef.current.formOperationCount
-        return useState(counter) {
-            isValidated()
+        val counterRef = formRef.current.formOperationCount
+        val (isValidated, _, setValidated) = useBoolean(isValidated())
+        useEffect(counterRef) {
+            setValidated(isValidated())
         }
+        return isValidated
     }
 
     companion object {

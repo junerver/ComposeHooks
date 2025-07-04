@@ -14,6 +14,7 @@ import xyz.junerver.compose.hooks.useMount
 import xyz.junerver.compose.hooks.useform.*
 import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.composehooks.ui.component.ScrollColumn
+import xyz.junerver.composehooks.ui.component.SimpleContainer
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -149,13 +150,15 @@ private fun FormScope.Sub() {
 
     /** [FormScope._isValidated] 可以获得表单的校验状态[State] */
     val canSubmit by formInstance._isValidated()
-    Row {
-        TButton(text = "submit", enabled = canSubmit) {
-            println(
-                formInstance
-                    .getAllFields()
-                    .toString() + "\nisValidated :" + formInstance.isValidated()
-            )
+    Row (modifier = Modifier.randomBackground()){
+        SimpleContainer{
+            TButton(text = "submit", enabled = canSubmit) {
+                println(
+                    formInstance
+                        .getAllFields()
+                        .toString() + "\nisValidated :" + formInstance.isValidated()
+                )
+            }
         }
         TButton(text = "reset") {
             formInstance.resetFields()

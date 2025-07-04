@@ -265,8 +265,9 @@ fun useTimeAgo(time: Instant, optionsOf: UseTimeAgoOptions.() -> Unit = {}): Sta
 private fun useTimeAgo(time: Instant, options: UseTimeAgoOptions = remember { UseTimeAgoOptions() }): State<String> {
     val updateInterval = options.updateInterval
     val (timestamp) = useTimestamp({ interval = updateInterval }, updateInterval > 0.milliseconds)
-
-    return useState(time.toEpochMilliseconds(), timestamp.value) {
-        formatTimeAgo(time, options)
+    val (timeAgo, setTimeAgo) = useGetState(formatTimeAgo(time, options, Instant.fromEpochMilliseconds(timestamp.value)))
+    useEffect(time.toEpochMilliseconds()) {
+        setTimeAgo(formatTimeAgo(time, options, Instant.fromEpochMilliseconds(timestamp.value)))
     }
+    return timeAgo
 }

@@ -250,25 +250,29 @@ private fun useAddCorrect4(default: Int): Tuple2<Int, () -> Unit> {
 @Composable
 private fun Computed() {
     val (state, setState) = useGetState(default = 0)
-    val isEven by useState { state.value % 2 == 0 }
-    val asyncComputed by useStateAsync(state.value, optionsOf = {
-        lazy = true
-    }) {
-        delay(2.seconds)
-        "after 2 seconds, state: ${state.value}"
-    }
+    val isBiggerThanFive = useState { state.value >= 5 }
     val (visible, toggle) = useBoolean(default = false)
-    Column {
-        Row {
-            TButton(text = "add1", onClick = { setState { it + 1 } })
-            TButton(text = "add2", onClick = { setState { it + 2 } })
-            TButton(text = "toggle", onClick = { toggle() })
+
+    Column(modifier = Modifier.padding(bottom = 30.dp, start = 10.dp).randomBackground()) {
+        SimpleContainer {
+            Row {
+                TButton(text = "add1", onClick = { setState { it + 1 } })
+                TButton(text = "add2", onClick = { setState { it + 2 } })
+                TButton(text = "toggle", onClick = { toggle() })
+            }
         }
         SimpleContainer { Text("current: ${state.value}", modifier = Modifier.randomBackground()) }
-        SimpleContainer { Text("isEven: ${state.value % 2 == 0}", modifier = Modifier.randomBackground()) }
-        SimpleContainer { Text("isEven: $isEven", modifier = Modifier.randomBackground()) }
-        if (visible.value) {
-            SimpleContainer { Text("asyncComputed: $asyncComputed", modifier = Modifier.randomBackground()) }
+        SimpleContainer { Text("bigger than 5: ${isBiggerThanFive.value}", modifier = Modifier.randomBackground()) }
+        SimpleContainer {
+            val asyncComputed = useStateAsync(optionsOf = {
+                lazy = true
+            }) {
+                delay(2.seconds)
+                "after 2 seconds, state: ${state.value + 1}"
+            }
+            if (visible.value) {
+                Text("asyncComputed + 1: ${asyncComputed.value}", modifier = Modifier.randomBackground())
+            }
         }
     }
 }

@@ -45,7 +45,7 @@ fun useIlluminance(calibrate: Float = 1.0f): IlluminanceHolder {
     val (undoState, setValue, resetValue) = useUndo(-1)
 
     // Calculate statistics, filtering out the initial value -1
-    val illuminanceInfo = useState(undoState) {
+    val illuminanceInfo = useState {
         val validValues = undoState.value.past.filter { it != -1 } + undoState.value.present
         val average = if (validValues.isNotEmpty()) validValues.average() else 0.0
         val max = validValues.maxOrNull() ?: 0

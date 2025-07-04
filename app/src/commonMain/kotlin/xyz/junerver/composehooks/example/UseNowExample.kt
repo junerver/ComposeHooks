@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 import kotlinx.datetime.format.DayOfWeekNames
+import kotlinx.datetime.format.Padding
 import xyz.junerver.compose.hooks.useNow
 import xyz.junerver.composehooks.example.request.DividerSpacer
 import xyz.junerver.composehooks.utils.CHINESE_FULL
@@ -35,7 +36,7 @@ fun UseNowExample() {
                             chars("年")
                             monthNumber()
                             chars("月")
-                            dayOfMonth()
+                            day(padding = Padding.ZERO)
                             chars("日")
                             dayOfWeek(DayOfWeekNames.CHINESE_FULL)
                         }
