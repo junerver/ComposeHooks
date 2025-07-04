@@ -105,6 +105,19 @@ Note: All `use` functions also have the signature of `remember`. If you prefer C
 | [useTimeoutPoll](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimeoutPollExample.kt) | Use timeout to poll for content. Triggers the callback after the last task is completed. |
 | [useTimestamp](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimestampExample.kt) | A hook that return now timestamp as a reactive state.        |
 
+#### Math
+
+| hook name                   | description                     |
+| --------------------------- | ------------------------------- |
+| Reactive `kotlin.math.abs`. |
+| useCeil                     | Reactive `kotlin.math.ceil`     |
+| useRound                    | Reactive `kotlin.math.round`    |
+| useTrunc                    | Reactive `kotlin.math.truncate` |
+| useMin                      | Reactive `kotlin.math.min`      |
+| useMax                      | Reactive `kotlin.math.max`      |
+| usePow                      | Reactive `kotlin.math.pow`      |
+| useSqrt                     | Reactive `kotlin.math.sqrt`     |
+
 #### Utilities
 
 | hook name                                                    | description                                                  |
@@ -116,6 +129,7 @@ Note: All `use` functions also have the signature of `remember`. If you prefer C
 | [useClipboard](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseClipboardExample.kt) | Easy to use Clipboard                                        |
 | [useCountdown](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseCountdownExample.kt) | A hook for manage countdown.                                 |
 | [useCounter](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseCounterExample.kt) | A hook that manage counter.                                  |
+| [useCycleList](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseCycleListExample.kt) | Cycle through a list of items.                               |
 | [useDebounceFn](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseDebounceExample.kt) | A hook that deal with the debounced function.                |
 | [useDisableScreenshot](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | A hook used to handle the prohibition of screenshots on privacy pages. |
 | [useEvent](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseEventExample.kt) | Implement lightweight cross-component communication using the subscribe-publish pattern |
