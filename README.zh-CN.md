@@ -283,8 +283,8 @@ Editor - Inlay Hints - Types - Kotlin
 ## Todo:
 
 - ~~KMP friendly~~
+- ~~CI~~
 - Unit Test
-- CI
 - Complete documentation
 
 ## 参考
