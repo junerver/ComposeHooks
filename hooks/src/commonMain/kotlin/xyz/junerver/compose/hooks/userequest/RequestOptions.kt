@@ -25,6 +25,7 @@ internal typealias OnSuccessCallback<TData> = (TData?, TParams) -> Unit
 internal typealias OnErrorCallback = (Throwable, TParams) -> Unit
 internal typealias OnFinallyCallback<TData> = (TParams, TData?, Throwable?) -> Unit
 
+@Stable
 data class RequestOptions<TData> internal constructor(
     /**
      * 默认 false。 即在初始化时自动执行 requestFn。

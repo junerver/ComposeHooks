@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 
@@ -77,6 +78,7 @@ fun <KEY> SelectionMode<KEY>.requireMultiSelect() {
     }
 }
 
+@Stable
 data class SelectableHolder<KEY, ITEM>(
     val selectedItems: State<List<ITEM>>,
     val isSelected: IsSelected<KEY>,

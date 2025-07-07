@@ -81,7 +81,6 @@ fun useIlluminance(calibrate: Float = 1.0f): IlluminanceHolder {
     }
 }
 
-@Stable
 /**
  * A holder class for illuminance state and control functions.
  *
@@ -91,6 +90,7 @@ fun useIlluminance(calibrate: Float = 1.0f): IlluminanceHolder {
  * @property state The current illuminance state containing current, min, max, and average values
  * @property reset Function to reset the illuminance history
  */
+@Stable
 data class IlluminanceHolder(
     val state: State<IlluminanceInfo>,
     val reset: ResetFn,
