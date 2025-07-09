@@ -58,6 +58,11 @@ If you've found a bug or have a feature suggestion, please submit it through Git
 - Ensure proper resource cleanup
 - Handle edge cases and errors appropriately
 
+4. **Code Formatting**:
+- Before submitting your code, run `./gradlew formatKotlin` to ensure consistent code formatting
+- All code must follow the project's formatting standards
+- Improperly formatted code will not be accepted
+
 ### Git Commit Message Guidelines
 
 To maintain consistency and readability in commit history, please follow these commit message guidelines:
