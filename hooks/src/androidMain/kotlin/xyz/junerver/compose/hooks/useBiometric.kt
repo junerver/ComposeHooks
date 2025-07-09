@@ -41,7 +41,7 @@ private fun useBiometric(options: BiometricOptions = remember { BiometricOptions
     val (isAuthed, setIsAuthed) = _useGetState(default = false)
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.StartActivityForResult()
+        contract = ActivityResultContracts.StartActivityForResult(),
     ) {
         setIsAuthed(it.resultCode == Activity.RESULT_OK)
     }
@@ -50,7 +50,7 @@ private fun useBiometric(options: BiometricOptions = remember { BiometricOptions
     }
     return Pair(
         open,
-        isAuthed
+        isAuthed,
     )
 }
 

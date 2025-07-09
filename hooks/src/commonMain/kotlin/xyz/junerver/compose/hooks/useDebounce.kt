@@ -123,7 +123,7 @@ fun useDebounceFn(fn: VoidFunction, optionsOf: DebounceOptions.() -> Unit = {}):
 fun useDebounceEffect(vararg keys: Any?, optionsOf: DebounceOptions.() -> Unit = {}, block: SuspendAsyncFn) = useDebounceEffect(
     keys = keys,
     remember { DebounceOptions.optionOf(optionsOf) },
-    block
+    block,
 )
 
 @Composable

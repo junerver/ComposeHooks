@@ -36,7 +36,7 @@ fun Refresh() {
             onBefore = {
                 params = it.joinToString("、")
             }
-        }
+        },
     )
     val userInfo by userInfoState
     val loading by loadingState

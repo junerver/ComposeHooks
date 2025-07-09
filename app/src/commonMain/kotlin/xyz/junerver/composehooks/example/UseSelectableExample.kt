@@ -52,7 +52,7 @@ private val DEMO_LIST = listOf(
     Demo("michale", "0x00131"),
     Demo("charles", "0x00133"),
     Demo("sara", "0x00135"),
-    Demo("duke", "0x00137")
+    Demo("duke", "0x00137"),
 )
 
 @OptIn(ExperimentalLayoutApi::class)
@@ -63,7 +63,7 @@ fun UseSelectableExample() {
     val (selectedItems, isSelected, toggleSelected, selectAll, invertSelection, revertAll) = useSelectable(
         selectionMode!!,
         DEMO_LIST,
-        Demo::userId
+        Demo::userId,
     )
 
     val coroutineScope = rememberCoroutineScope()
@@ -78,12 +78,12 @@ fun UseSelectableExample() {
                         Text(modifier = Modifier.align(Alignment.CenterVertically), text = demo.userName)
                         Checkbox(
                             modifier = Modifier.align(
-                                Alignment.CenterVertically
+                                Alignment.CenterVertically,
                             ),
                             checked = isSelected(demo.userId),
                             onCheckedChange = {
                                 toggleSelected(demo.userId)
-                            }
+                            },
                         )
                     }
                 }

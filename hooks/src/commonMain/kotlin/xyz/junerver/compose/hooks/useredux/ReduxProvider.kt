@@ -99,7 +99,7 @@ fun ReduxProvider(store: Store, content: ComposeComponent) {
         val (state, dispatch) = useReducer(
             reducer = entry.reducer,
             initialState = entry.initialState,
-            store.middlewares
+            store.middlewares,
         )
         stateMap[entry.stateType] = state
         dispatchMap[entry.actionType] = dispatch

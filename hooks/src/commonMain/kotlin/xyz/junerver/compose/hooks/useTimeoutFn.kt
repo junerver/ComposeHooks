@@ -164,7 +164,7 @@ fun useTimeoutFn(fn: SuspendAsyncFn, interval: Duration = 1.seconds, optionsOf: 
         TimeoutFnHolder(
             isPending = isPendingState,
             start = timeoutFn::start,
-            stop = timeoutFn::stop
+            stop = timeoutFn::stop,
         )
     }
 }

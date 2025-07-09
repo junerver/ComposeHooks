@@ -96,7 +96,7 @@ fun <T> useCycleList(list: PersistentList<T>, optionsOf: UseCycleListOptions<T>.
         getCurrentIndex(state.value, list, options)
     }
 
-    return remember{ CycleListHolder(state, index, ::next, ::prev, ::go, ::shift) }
+    return remember { CycleListHolder(state, index, ::next, ::prev, ::go, ::shift) }
 }
 
 /**

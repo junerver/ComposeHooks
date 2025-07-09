@@ -35,7 +35,7 @@ fun Ready() {
             onSuccess = { _, _ ->
                 setReady(true)
             }
-        }
+        },
     )
     val userInfo by userInfoState
     val userLoading by userLoadingState
@@ -44,10 +44,10 @@ fun Ready() {
         optionsOf = {
             defaultParams = arrayOf(
                 userInfo?.login,
-                "ComposeHooks"
+                "ComposeHooks",
             )
             ready = isReady.value
-        }
+        },
     )
     val repoInfo by repoInfoState
     val repoLoading by repoLoadingState

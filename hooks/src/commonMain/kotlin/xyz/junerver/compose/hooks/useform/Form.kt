@@ -100,7 +100,7 @@ class FormScope private constructor(
     ) = FormItem(
         name = name,
         validators = validators.toTypedArray(),
-        content = content
+        content = content,
     )
 
     /**

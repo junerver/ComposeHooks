@@ -110,7 +110,7 @@ fun useTimestamp(optionsOf: TimestampOptions.() -> Unit = {}, autoResume: Boolea
 @Composable
 fun useTimestampRef(optionsOf: TimestampOptions.() -> Unit = {}, autoResume: Boolean = true): TimestampRefHolder = useTimestampRef(
     remember { TimestampOptions.optionOf(optionsOf) },
-    autoResume
+    autoResume,
 )
 
 /**
@@ -165,7 +165,7 @@ private fun useTimestamp(options: TimestampOptions = remember { TimestampOptions
     val (resume, pause, isActive) = useInterval(
         optionsOf = {
             period = interval
-        }
+        },
     ) {
         timestamp.value = currentTime + offset
         callback?.invoke(timestamp.value.toEpochMilliseconds())
@@ -191,7 +191,7 @@ private fun useTimestampRef(options: TimestampOptions = remember { TimestampOpti
     val (resume, pause, isActive) = useInterval(
         optionsOf = {
             period = interval
-        }
+        },
     ) {
         timestampRef.current = (currentTime + offset).toEpochMilliseconds()
         callback?.invoke(timestampRef.current)

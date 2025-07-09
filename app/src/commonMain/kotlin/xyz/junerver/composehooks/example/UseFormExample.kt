@@ -30,7 +30,7 @@ fun UseFormExample() {
     useMount {
         form.setFieldsValue(
             "name" to "default",
-            "mobile" to "111"
+            "mobile" to "111",
         )
     }
     val name by Form.useWatch<String>(fieldName = "name", formInstance = form)
@@ -73,7 +73,7 @@ fun UseFormExample() {
                 FormItem<String>(
                     name = "mobile",
                     Mobile(),
-                    Required()
+                    Required(),
                 ) { (state, validate, msgs) ->
                     var string by state
                     ItemRow(title = "* mobile") {
@@ -87,7 +87,7 @@ fun UseFormExample() {
 
                 FormItem<String>(
                     name = "phone",
-                    Phone()
+                    Phone(),
                 ) { (state, validate, msgs) ->
                     var string by state
                     ItemRow(title = "phone") {
@@ -101,7 +101,7 @@ fun UseFormExample() {
                 FormItem<String>(
                     name = "email",
                     Email(),
-                    Required()
+                    Required(),
                 ) { (state, validate, msgs) ->
                     var string by state
                     ItemRow(title = "* email") {
@@ -116,7 +116,7 @@ fun UseFormExample() {
                     name = "id",
                     object : CustomValidator("id number err", {
                         !it.asBoolean() || (it is String && it.matches(Regex(CHINA_ID_REGEX)))
-                    }) {}
+                    }) {},
                 ) { (state, validate, msgs) ->
                     var string by state
                     ItemRow(title = "id") {
@@ -150,13 +150,13 @@ private fun FormScope.Sub() {
 
     /** [FormScope._isValidated] 可以获得表单的校验状态[State] */
     val canSubmit by formInstance._isValidated()
-    Row (modifier = Modifier.randomBackground()){
-        SimpleContainer{
+    Row(modifier = Modifier.randomBackground()) {
+        SimpleContainer {
             TButton(text = "submit", enabled = canSubmit) {
                 println(
                     formInstance
                         .getAllFields()
-                        .toString() + "\nisValidated :" + formInstance.isValidated()
+                        .toString() + "\nisValidated :" + formInstance.isValidated(),
                 )
             }
         }
@@ -169,7 +169,7 @@ private fun FormScope.Sub() {
                 "name" to "Junerver",
                 "age" to 5,
                 "mobile" to "13566667777",
-                "email" to "composehook@gmail.com"
+                "email" to "composehook@gmail.com",
             )
         }
     }

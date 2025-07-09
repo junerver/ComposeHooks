@@ -58,7 +58,7 @@ private fun useCountdown(options: CountdownOptions): CountdownHolder {
     val (resume, pause) = useInterval(
         optionsOf = {
             period = interval
-        }
+        },
     ) {
         val targetLeft = calcLeft(target)
         setTimeLeft(targetLeft)
@@ -150,7 +150,7 @@ private fun parseDuration(leftTime: Duration): FormattedRes = FormattedRes(
     hours = ((leftTime.inWholeHours) % 24).toInt(),
     minutes = ((leftTime.inWholeMinutes) % 60).toInt(),
     seconds = ((leftTime.inWholeSeconds) % 60).toInt(),
-    milliseconds = (leftTime.inWholeMilliseconds % 1000).toInt()
+    milliseconds = (leftTime.inWholeMilliseconds % 1000).toInt(),
 )
 
 /**

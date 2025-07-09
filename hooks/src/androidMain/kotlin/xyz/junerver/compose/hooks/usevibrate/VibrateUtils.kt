@@ -31,8 +31,8 @@ private fun Context.vibrate(milliseconds: Long) {
         vibrator?.defaultVibrator?.vibrate(
             VibrationEffect.createOneShot(
                 milliseconds,
-                VibrationEffect.DEFAULT_AMPLITUDE
-            )
+                VibrationEffect.DEFAULT_AMPLITUDE,
+            ),
         )
     } else {
         val vibrator: Vibrator? = getSystemService()

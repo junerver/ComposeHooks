@@ -37,7 +37,7 @@ fun SubState() {
             callback = {
                 println("UseTimestampExample UseTimestampExample: $it")
             }
-        }
+        },
     )
     Column {
         Text(text = "TimestampState: ${timestamp.value}")
@@ -57,7 +57,7 @@ fun SubRef() {
     val (timestamp, _, resume) = useTimestampRef(
         optionsOf = {
             interval = 1.seconds
-        }
+        },
     )
     resume()
     Column {

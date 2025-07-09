@@ -16,5 +16,5 @@ import androidx.compose.runtime.Composable
 @Composable
 fun useWakeLock(): Triple<RequestFn, ReleaseFn, IsActive> = useWindowFlags(
     key = "${KEY_PREFIX}WAKE_LOCK",
-    flags = WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+    flags = WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
 )

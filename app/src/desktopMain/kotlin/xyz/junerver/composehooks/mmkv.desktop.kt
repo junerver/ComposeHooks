@@ -41,9 +41,9 @@ class DataSaverProperties(private val filePath: String, private val encryptionKe
                     InputStreamReader(
                         CipherInputStream(
                             FileInputStream(filePath),
-                            createCipher(Cipher.DECRYPT_MODE)
-                        )
-                    )
+                            createCipher(Cipher.DECRYPT_MODE),
+                        ),
+                    ),
                 )
                 properties.load(decryptedReader)
             }
@@ -61,9 +61,9 @@ class DataSaverProperties(private val filePath: String, private val encryptionKe
                 OutputStreamWriter(
                     CipherOutputStream(
                         FileOutputStream(filePath),
-                        createCipher(Cipher.ENCRYPT_MODE)
-                    )
-                )
+                        createCipher(Cipher.ENCRYPT_MODE),
+                    ),
+                ),
             )
             properties.store(encryptedWriter, null)
         } catch (e: Exception) {
@@ -123,5 +123,5 @@ object CacheManager {
 
 actual fun getKVDelegate(): KeyValueStoreDelegate = DataSaverProperties(
     filePath = CacheManager.baseDir.resolve("data_saver.properties").absolutePath,
-    encryptionKey = "OpenSourceMagicKey"
+    encryptionKey = "OpenSourceMagicKey",
 )

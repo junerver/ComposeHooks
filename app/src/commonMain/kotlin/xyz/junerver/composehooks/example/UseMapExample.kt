@@ -20,7 +20,7 @@ import xyz.junerver.composehooks.ui.component.TButton
 fun UseMapExample() {
     val mapState = useMap(
         1 to "first",
-        2 to "second"
+        2 to "second",
     )
     Surface {
         Column {

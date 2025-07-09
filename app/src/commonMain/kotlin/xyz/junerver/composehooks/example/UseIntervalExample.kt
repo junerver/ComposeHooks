@@ -60,19 +60,19 @@ fun UseIntervalExample() {
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .padding(20.dp),
             )
             ByReady()
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .padding(20.dp),
             )
             var text by remember { mutableStateOf("") }
             CustomTextField(
                 text = text,
                 onTextChanged = { text = it },
-                onSendClicked = { /* Handle send button click */ }
+                onSendClicked = { /* Handle send button click */ },
             )
         }
     }
@@ -87,7 +87,7 @@ private fun Manual() {
         optionsOf = {
             initialDelay = 2.seconds
             period = 1.seconds
-        }
+        },
     ) {
         setCountDown { it - 1 }
         ref -= 1
@@ -123,7 +123,7 @@ private fun ByReady() {
             initialDelay = 2.seconds
             period = 1.seconds
         },
-        ready = isReady.value
+        ready = isReady.value,
     ) {
         setCountDown { it - 1 }
         ref -= 1
@@ -158,14 +158,14 @@ fun CustomTextField(
         onValueChange = { onTextChanged(it) },
         keyboardOptions = KeyboardOptions(
             keyboardType = KeyboardType.Number,
-            imeAction = ImeAction.Send
+            imeAction = ImeAction.Send,
         ),
         keyboardActions = KeyboardActions(
-            onSend = { onSendClicked() }
+            onSend = { onSendClicked() },
         ),
         textStyle = TextStyle(
             fontSize = 12.sp,
-            color = Color(0xFF222222)
+            color = Color(0xFF222222),
         ),
         decorationBox = { innerTextField ->
             MyDecorationBox(
@@ -173,9 +173,9 @@ fun CustomTextField(
                 text = text,
                 placeholderText = placeholderText,
                 buttonText = buttonText,
-                onSendClicked = onSendClicked
+                onSendClicked = onSendClicked,
             )
-        }
+        },
     )
 }
 
@@ -195,7 +195,7 @@ fun MyDecorationBox(
             initialDelay = 1.seconds
             period = 1.seconds
         },
-        ready = isReady.value
+        ready = isReady.value,
     ) {
         setCountdown { it - 1 }
     }
@@ -210,12 +210,12 @@ fun MyDecorationBox(
             .width(235.dp)
             .height(40.dp)
             .background(color = Color(0xFFF7F7F7), shape = RoundedCornerShape(size = 4.dp)),
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Box(
             modifier = Modifier
                 .weight(1f)
-                .padding(start = 12.dp, end = 12.dp)
+                .padding(start = 12.dp, end = 12.dp),
         ) {
             innerTextField()
             if (text.isEmpty()) {
@@ -223,8 +223,8 @@ fun MyDecorationBox(
                     text = placeholderText,
                     style = TextStyle(
                         fontSize = 12.sp,
-                        color = Color(0xFFBBBBBB)
-                    )
+                        color = Color(0xFFBBBBBB),
+                    ),
                 )
             }
         }
@@ -239,8 +239,8 @@ fun MyDecorationBox(
                     lineHeight = 20.sp,
                     fontWeight = FontWeight(600),
                     color = Color(0xFFBBBBBB),
-                    textAlign = TextAlign.End
-                )
+                    textAlign = TextAlign.End,
+                ),
             )
         } else {
             Text(
@@ -248,7 +248,7 @@ fun MyDecorationBox(
                 style = TextStyle(
                     fontSize = 12.sp,
                     color = Color(0xFF045FFE),
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
                 ),
                 modifier = Modifier
                     .clickable(onClick = {
@@ -258,7 +258,7 @@ fun MyDecorationBox(
                         onSendClicked()
                     })
                     .clip(RoundedCornerShape(size = 4.dp))
-                    .padding(12.dp, 10.dp, 12.dp, 10.dp)
+                    .padding(12.dp, 10.dp, 12.dp, 10.dp),
             )
         }
     }

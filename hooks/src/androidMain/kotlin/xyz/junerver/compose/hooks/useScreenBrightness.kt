@@ -22,7 +22,7 @@ fun useScreenBrightness(): Pair<SetValueFn<Float>, Float> {
     val initBrightness = useCreation {
         Settings.System.getInt(
             context.contentResolver,
-            Settings.System.SCREEN_BRIGHTNESS
+            Settings.System.SCREEN_BRIGHTNESS,
         ).run { this / 255f }
     }.current
 
@@ -36,6 +36,6 @@ fun useScreenBrightness(): Pair<SetValueFn<Float>, Float> {
     }
     return Pair(
         ::setBrightness,
-        initBrightness
+        initBrightness,
     )
 }

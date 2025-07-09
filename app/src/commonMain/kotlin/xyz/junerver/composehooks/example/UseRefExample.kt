@@ -47,7 +47,7 @@ fun UseRefExample() {
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .padding(20.dp),
             )
             SubRef(ref = countRef)
             SubRef(ref = countRef)

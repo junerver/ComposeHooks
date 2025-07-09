@@ -49,7 +49,7 @@ fun <TData : Any> useCustomPluginRequest(
         optionsOf = optionsOf,
         plugins = arrayOf({
             useRollbackPlugin(ref = rollbackRef)
-        })
+        }),
     )
     return with(requestHolder) {
         tuple(
@@ -60,7 +60,7 @@ fun <TData : Any> useCustomPluginRequest(
             mutate,
             refresh,
             cancel,
-            eighth = { rollbackRef.current.invoke() }
+            eighth = { rollbackRef.current.invoke() },
         )
     }
 }

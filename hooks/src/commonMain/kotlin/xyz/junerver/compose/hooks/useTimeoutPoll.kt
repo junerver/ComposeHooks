@@ -86,7 +86,7 @@ fun useTimeoutPoll(
         optionsOf = {
             immediate = false
             immediateCallback = false
-        }
+        },
     )
 
     startRef.current = startTimeoutFn
@@ -122,7 +122,7 @@ fun useTimeoutPoll(
         TimeoutPollHolder(
             isActive = isActiveState,
             pause = pause,
-            resume = resume
+            resume = resume,
         )
     }
 }
@@ -139,6 +139,6 @@ fun useTimeoutPoll(fn: SuspendAsyncFn, interval: Duration = 1.seconds, immediate
     useTimeoutPoll(
         fn = fn,
         interval = interval,
-        optionsOf = { this.immediate = immediate }
+        optionsOf = { this.immediate = immediate },
     )
 }

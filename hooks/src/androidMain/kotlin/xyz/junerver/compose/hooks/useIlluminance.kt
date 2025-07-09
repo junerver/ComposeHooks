@@ -54,7 +54,7 @@ fun useIlluminance(calibrate: Float = 1.0f): IlluminanceHolder {
             now = if (undoState.value.present < 0) 0 else undoState.value.present,
             min = if (min < 0) 0 else min.toInt(),
             max = if (max < 0) 0 else max.toInt(),
-            avg = if (average < 0) 0 else average.toInt()
+            avg = if (average < 0) 0 else average.toInt(),
         )
     }
 
@@ -64,7 +64,7 @@ fun useIlluminance(calibrate: Float = 1.0f): IlluminanceHolder {
         onSensorChangedFn = { event ->
             val currentValue = event.values[0] * calibrate
             setValue(currentValue.toInt())
-        }
+        },
     )
 
     // Define reset function to reset the value to -1
@@ -76,7 +76,7 @@ fun useIlluminance(calibrate: Float = 1.0f): IlluminanceHolder {
     return remember {
         IlluminanceHolder(
             state = illuminanceInfo,
-            reset = reset
+            reset = reset,
         )
     }
 }

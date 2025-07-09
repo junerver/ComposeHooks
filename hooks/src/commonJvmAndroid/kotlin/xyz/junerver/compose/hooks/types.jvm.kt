@@ -44,7 +44,7 @@ import xyz.junerver.compose.hooks.utils.checkIsLegalParameters
  *
  */
 fun <T> KFunction<T?>.asNoopFn(instance: Any? = null): (TParams) -> T? = fun(params: TParams): T? = this.call(
-    *synthesisParametersAndCheck(instance, params, this)
+    *synthesisParametersAndCheck(instance, params, this),
 )
 
 /**

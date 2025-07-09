@@ -46,7 +46,7 @@ fun UseDeviceInfoExample() {
     val (addFlags, clearFlags, isFlagsAddedState) = useWindowFlags(
         key = "secure&wakelock",
         flags =
-            WindowManager.LayoutParams.FLAG_SECURE or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON
+            WindowManager.LayoutParams.FLAG_SECURE or WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON,
     )
     val isFlagsAdded by isFlagsAddedState
     val (setBrightness, initValue) = useScreenBrightness()

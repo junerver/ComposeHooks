@@ -57,7 +57,7 @@ internal object CacheManager : CoroutineScope {
             runIf(it) {
                 cache[key.cacheKey] = Pair(
                     cachedData,
-                    if (duration == (-1).seconds) Instant.DISTANT_FUTURE else cachedData.time + duration
+                    if (duration == (-1).seconds) Instant.DISTANT_FUTURE else cachedData.time + duration,
                 )
             }
         }
@@ -75,7 +75,7 @@ internal object CacheManager : CoroutineScope {
     fun <T> saveCache(key: String, data: T) {
         cache[key] = tuple(
             CachedData(data),
-            Instant.DISTANT_FUTURE
+            Instant.DISTANT_FUTURE,
         )
     }
 

@@ -39,7 +39,7 @@ fun useKeyboard(): KeyboardHolder {
     return remember {
         KeyboardHolder(
             hideKeyboard = { keyboardController?.hide() },
-            showKeyboard = { keyboardController?.show() }
+            showKeyboard = { keyboardController?.show() },
         )
     }
 }

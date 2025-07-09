@@ -26,7 +26,7 @@ private class DebouncePlugin<TData : Any> : Plugin<TData>() {
                 val debounce = Debounce(
                     fn = { params -> fetch._run(params) },
                     scope = this,
-                    requestOptions.debounceOptions
+                    requestOptions.debounceOptions,
                 )
                 fetch.runAsync = {
                     debounce.invoke(it)

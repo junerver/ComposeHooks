@@ -53,7 +53,7 @@ fun UseDebounceExample() {
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .padding(20.dp),
             )
             Text(text = "current: ${stateFn.value}")
             TButton(text = "debounced +1") {
@@ -63,7 +63,7 @@ fun UseDebounceExample() {
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .padding(20.dp),
             )
             Text(text = "deps: ${stateEf.value}")
             TButton(text = "+1 trigger effect execute") {

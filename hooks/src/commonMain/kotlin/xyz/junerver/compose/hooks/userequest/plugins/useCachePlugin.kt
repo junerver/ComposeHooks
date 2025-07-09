@@ -71,7 +71,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                                 loading = false,
                                 data = cacheData.data,
                                 error = null,
-                                returnNow = true // 未过期直接返回
+                                returnNow = true, // 未过期直接返回
                             ).apply {
                                 copyMap = buildMap {
                                     putAll(asNotNullMap())
@@ -82,7 +82,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                             // 过期继续请求
                             OnBeforeReturn(
                                 data = cacheData.data,
-                                error = null
+                                error = null,
                             ).apply {
                                 copyMap = buildMap {
                                     putAll(asNotNullMap())
@@ -118,8 +118,8 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                                 cacheKey,
                                 CachedData(
                                     data,
-                                    params
-                                )
+                                    params,
+                                ),
                             )
                             unSubscribeRef.current = subscribe(cacheKey, ::setFetchState)
                         }
@@ -133,8 +133,8 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                                 cacheKey,
                                 RestoreFetchStateData(
                                     error = e,
-                                    loading = false
-                                )
+                                    loading = false,
+                                ),
                             )
                             unSubscribeRef.current = subscribe(cacheKey, ::setFetchState)
                         }
@@ -148,8 +148,8 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                                 cacheKey,
                                 CachedData(
                                     it,
-                                    fetchInstance.fetchState.params ?: emptyArray()
-                                )
+                                    fetchInstance.fetchState.params ?: emptyArray(),
+                                ),
                             )
                             unSubscribeRef.current = subscribe(cacheKey, ::setFetchState)
                         }
@@ -176,7 +176,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                 if (data.loading.isNotNull) this[Keys.loading] = data.loading
                 if (data.data.isNotNull) this[Keys.data] = data.data
                 if (data.error.isNotNull) this[Keys.error] = data.error
-            }
+            },
         )
     }
 }
@@ -201,8 +201,8 @@ internal fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
             RestoreFetchStateData(
                 data = cachedData.data,
                 loading = false,
-                error = null
-            )
+                error = null,
+            ),
         )
     }
 

@@ -30,7 +30,7 @@ fun DepsRefresh() {
         optionsOf = {
             defaultParams = arrayOf("junerver")
             refreshDeps = arrayOf(getState())
-        }
+        },
     )
     val userInfo by userInfoState
     val loading by loadingState

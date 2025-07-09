@@ -50,7 +50,7 @@ fun <T> useGetState(default: T & Any): GetStateHolder<T & Any> {
                 val newValue = value.fold({ it }, { it(state.value) })
                 state.value = newValue
             },
-            getValue = { state.value }
+            getValue = { state.value },
         )
     }
 }
@@ -74,7 +74,7 @@ fun <T> _useGetState(default: T): GetStateHolder<T> {
                 val newValue = value.fold({ it }, { it(state.value) })
                 state.value = newValue
             },
-            getValue = { state.value }
+            getValue = { state.value },
         )
     }
 }

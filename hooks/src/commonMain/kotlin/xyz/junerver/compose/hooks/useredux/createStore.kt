@@ -73,8 +73,8 @@ class StoreScope private constructor(val list: MutableList<StoreRecord>) {
                 initialState = pair.second,
                 stateType = S::class,
                 actionType = A::class,
-                alias = alias ?: (S::class.qualifiedName ?: "unknown") // default alias
-            )
+                alias = alias ?: (S::class.qualifiedName ?: "unknown"), // default alias
+            ),
         )
     }
 

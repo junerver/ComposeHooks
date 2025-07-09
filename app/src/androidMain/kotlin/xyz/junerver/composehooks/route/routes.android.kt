@@ -16,5 +16,5 @@ actual fun getAndroidRoutes(): Map<String, @Composable () -> Unit> = mapOf(
     "useIlluminance" to { UseIlluminanceExample() },
     "useNetwork" to { UseNetworkExample() },
     "useSensor" to { UseSensorExample() },
-    "useVibrate" to { UseVibrateExample() }
+    "useVibrate" to { UseVibrateExample() },
 )

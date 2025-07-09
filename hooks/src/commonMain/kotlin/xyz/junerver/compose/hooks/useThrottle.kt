@@ -190,7 +190,7 @@ fun useThrottleFn(fn: VoidFunction, optionsOf: ThrottleOptions.() -> Unit = {}):
 fun useThrottleEffect(vararg keys: Any?, optionsOf: ThrottleOptions.() -> Unit = {}, block: SuspendAsyncFn) = useThrottleEffect(
     keys = keys,
     remember { ThrottleOptions.optionOf(optionsOf) },
-    block = block
+    block = block,
 )
 
 /**

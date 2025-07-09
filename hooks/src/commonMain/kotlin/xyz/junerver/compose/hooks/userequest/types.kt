@@ -92,7 +92,7 @@ data class FetchState<TData>(
                 loading = getOrElse(Keys.loading, loading),
                 params = getOrElse(Keys.params, params),
                 data = getOrElse(Keys.data, data),
-                error = getOrElse(Keys.error, error)
+                error = getOrElse(Keys.error, error),
             )
         }
     }
@@ -111,7 +111,7 @@ data class FetchState<TData>(
         Keys.loading to loading,
         Keys.params to params,
         Keys.data to data,
-        Keys.error to error
+        Keys.error to error,
     )
 
     override fun copy(that: FetchState<TData>?): FetchState<TData> {
@@ -171,7 +171,7 @@ data class OnBeforeReturn<TData>(
                 loading = getOrElse(Keys.loading, loading),
                 params = getOrElse(Keys.params, params),
                 data = getOrElse(Keys.data, data),
-                error = getOrElse(Keys.error, error)
+                error = getOrElse(Keys.error, error),
             )
         }
     }
@@ -233,7 +233,7 @@ data class OnRequestReturn<TData>(val requestDeferred: Deferred<TData>? = null) 
     override fun copy(that: OnRequestReturn<TData>?): OnRequestReturn<TData> {
         that ?: return this
         return OnRequestReturn(
-            requestDeferred = that.requestDeferred ?: this.requestDeferred
+            requestDeferred = that.requestDeferred ?: this.requestDeferred,
         )
     }
 }

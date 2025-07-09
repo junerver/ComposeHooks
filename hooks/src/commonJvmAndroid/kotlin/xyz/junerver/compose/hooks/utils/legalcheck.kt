@@ -41,7 +41,7 @@ internal fun checkIsLegalParameters(fn: KFunction<*>, vararg params: Any?) {
         val realParamType = params[i]?.javaClass?.kotlin?.createType()!!
         require(
             fnParamType.toString() == realParamType.toString() ||
-                realParamType.isSubtypeOf(fnParamType)
+                realParamType.isSubtypeOf(fnParamType),
         ) {
             "Parameter at index $i has incorrect type. Expected: $fnParamType, Actual: $realParamType"
         }

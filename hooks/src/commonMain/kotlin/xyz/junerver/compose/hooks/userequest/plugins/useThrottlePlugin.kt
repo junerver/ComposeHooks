@@ -27,7 +27,7 @@ private class ThrottlePlugin<TData : Any> : Plugin<TData>() {
                 val throttle = Throttle(
                     fn = { params -> fetch._run(params) },
                     scope = this,
-                    requestOptions.throttleOptions
+                    requestOptions.throttleOptions,
                 )
                 fetch.run = {
                     throttle.invoke(it)

@@ -67,7 +67,7 @@ fun <KEY, ITEM> useSelectable(
             toggleSelected = toggleSelected,
             selectAll = selectAll,
             invertSelection = invertSelection,
-            revertAll = revertAll
+            revertAll = revertAll,
         )
     }
 }

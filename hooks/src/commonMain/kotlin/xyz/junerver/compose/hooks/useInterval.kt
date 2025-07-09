@@ -121,7 +121,7 @@ private class Interval(private val options: IntervalOptions) {
 @Composable
 fun useInterval(optionsOf: IntervalOptions.() -> Unit = {}, block: SuspendAsyncFn): IntervalHolder = useInterval(
     options = remember { IntervalOptions.optionOf(optionsOf) },
-    block = block
+    block = block,
 )
 
 /**
@@ -154,7 +154,7 @@ fun useInterval(optionsOf: IntervalOptions.() -> Unit = {}, block: SuspendAsyncF
 fun useInterval(optionsOf: IntervalOptions.() -> Unit = {}, ready: Boolean, block: SuspendAsyncFn): Unit = useInterval(
     remember { IntervalOptions.optionOf(optionsOf) },
     ready = ready,
-    block = block
+    block = block,
 )
 
 /**
@@ -194,7 +194,7 @@ private fun useInterval(options: IntervalOptions = remember { IntervalOptions() 
         IntervalHolder(
             resume = interval::resume,
             pause = interval::pause,
-            isActive = isActiveState
+            isActive = isActiveState,
         )
     }
 }

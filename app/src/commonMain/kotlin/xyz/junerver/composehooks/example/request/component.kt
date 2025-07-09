@@ -87,7 +87,7 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
                     if (isUsed) throttleOptionsOf = { wait = 3.seconds }
                 }
             }
-        }
+        },
     )
     useEventSubscribe { _: Unit ->
         request()

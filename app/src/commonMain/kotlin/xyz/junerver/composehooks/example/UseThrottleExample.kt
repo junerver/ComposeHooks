@@ -41,7 +41,7 @@ fun UseThrottleExample() {
         optionsOf = {
             leading = false
             trailing = false
-        }
+        },
     )
     useEffect(stateFn) {
         println("$stateFn: ${Clock.System.now()}")
@@ -65,7 +65,7 @@ fun UseThrottleExample() {
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .padding(20.dp),
             )
             Text(text = "current: ${stateFn.value}")
             TButton(text = "throttled +1") {
@@ -75,7 +75,7 @@ fun UseThrottleExample() {
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .padding(20.dp),
             )
             Text(text = "deps: ${stateEf.value}")
             TButton(text = "+1 trigger effect execute") {

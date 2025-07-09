@@ -40,9 +40,9 @@ fun UseToggleExample() {
                 text = "either: ${
                     either.fold(
                         { "string: $it" },
-                        { "double: $it" }
+                        { "double: $it" },
                     )
-                }"
+                }",
             )
             TButton(text = "toggle") {
                 toggleEither()

@@ -39,10 +39,10 @@ fun UseNowExample() {
                             day(padding = Padding.ZERO)
                             chars("日")
                             dayOfWeek(DayOfWeekNames.CHINESE_FULL)
-                        }
+                        },
                     )
             }
-        }
+        },
     )
     Surface {
         Column {

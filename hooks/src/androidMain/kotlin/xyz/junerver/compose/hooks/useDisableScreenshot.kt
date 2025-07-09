@@ -14,5 +14,5 @@ import androidx.compose.runtime.Composable
 @Composable
 fun useDisableScreenshot(): Triple<DisableFn, EnableFn, IsDisabled> = useWindowFlags(
     key = "${KEY_PREFIX}SCREENSHOT",
-    flags = WindowManager.LayoutParams.FLAG_SECURE
+    flags = WindowManager.LayoutParams.FLAG_SECURE,
 )

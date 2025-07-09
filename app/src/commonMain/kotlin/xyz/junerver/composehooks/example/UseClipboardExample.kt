@@ -36,7 +36,7 @@ private fun Copy() {
         TextField(
             value = state.value,
             onValueChange = setState.left(),
-            label = { Text("Text to copy") }
+            label = { Text("Text to copy") },
         )
         Button(onClick = { copy(state.value) }) {
             Text("Copy to clipboard")

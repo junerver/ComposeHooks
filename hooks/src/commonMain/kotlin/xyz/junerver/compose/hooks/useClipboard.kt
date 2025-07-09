@@ -31,7 +31,7 @@ fun useClipboard(): CopyPasteHolder {
     return remember {
         CopyPasteHolder(
             copy = { text: String -> clipboardManager.setText(AnnotatedString(text)) },
-            paste = { clipboardManager.getText()?.text ?: "" }
+            paste = { clipboardManager.getText()?.text ?: "" },
         )
     }
 }

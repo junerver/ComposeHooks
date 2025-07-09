@@ -37,7 +37,7 @@ fun Lifecycle() {
             onFinally = { _, _, _ ->
                 state += "\n\nonFinally!"
             }
-        }
+        },
     )
     Surface {
         Column {

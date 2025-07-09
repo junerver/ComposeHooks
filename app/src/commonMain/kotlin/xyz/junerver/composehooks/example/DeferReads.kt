@@ -62,7 +62,7 @@ private fun TestDeferReads() {
         optionsOf = {
             leftTime = 10.seconds
             onEnd = toggle
-        }
+        },
     )
     useInterval({
         period = 1.seconds
@@ -75,7 +75,7 @@ private fun TestDeferReads() {
     ReduxProvider(
         createStore {
             { p: String, a: String -> a } with "redux:"
-        }
+        },
     ) {
         Column(modifier = Modifier.randomBackground().size(200.dp, 400.dp)) {
             // by委托
@@ -120,7 +120,7 @@ val colors = arrayOf(
     0x5Dffffff,
     0x5Ded1b24,
     0x5D7092bf,
-    0x5D3f47cc
+    0x5D3f47cc,
 )
 
 @Composable

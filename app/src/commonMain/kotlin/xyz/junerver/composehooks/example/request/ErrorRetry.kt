@@ -64,7 +64,7 @@ fun ErrorRetry() {
             onError = { _, _ ->
                 count += "${Clock.System.now().epochSeconds}\n"
             }
-        }
+        },
     )
     val mockInfo by mockInfoState
     val stuLoading by stuLoadingState

@@ -113,7 +113,7 @@ fun useCancelableAsync(): CancelableAsyncHolder {
         CancelableAsyncHolder(
             asyncRun,
             cancel,
-            isActive
+            isActive,
         )
     }
 }

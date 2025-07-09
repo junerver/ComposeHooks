@@ -30,7 +30,7 @@ fun App() {
         ReduxProvider(store = simpleStore + fetchStore) {
             Surface(
                 modifier = Modifier.fillMaxSize(),
-                color = MaterialTheme.colorScheme.background
+                color = MaterialTheme.colorScheme.background,
             ) {
                 useRoutes(routes = routes + subRequestRoutes + otherSubRoutes)
             }

@@ -30,7 +30,7 @@ fun HomeScreen() {
         // item 和 item 之间的纵向间距
         verticalItemSpacing = 4.dp,
         // item 和 item 之间的横向间距
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         items(routes.entries.filter { !it.key.contains("/") }) { (route, _) ->
             Button(onClick = { nav.navigate(route) }) {

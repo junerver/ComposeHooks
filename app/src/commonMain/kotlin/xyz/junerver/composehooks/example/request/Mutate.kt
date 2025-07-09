@@ -77,7 +77,7 @@ fun Mutate() {
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .padding(20.dp),
             )
             AutoRollback()
         }
@@ -91,7 +91,7 @@ private fun ManualMutateRollback() {
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
             defaultParams = arrayOf("junerver")
-        }
+        },
     )
     val userInfo by userInfoState
     val loading by loadingState
@@ -152,7 +152,7 @@ private fun AutoRollback() {
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
             defaultParams = arrayOf("junerver")
-        }
+        },
     )
     val userInfo by userInfoState
     val loading by loadingState

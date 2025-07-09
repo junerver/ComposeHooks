@@ -20,7 +20,7 @@ fun useWindowFlags(key: String, flags: Int): Triple<AddFlagsFn, ClearFlagsFn, Is
     val (isAdded, setIsAdded) = usePersistent(
         key = key,
         defaultValue = isFlagSet,
-        forceUseMemory = true
+        forceUseMemory = true,
     )
 
     fun addFlags() {
@@ -37,7 +37,7 @@ fun useWindowFlags(key: String, flags: Int): Triple<AddFlagsFn, ClearFlagsFn, Is
         Triple(
             ::addFlags,
             ::clearFlags,
-            isAdded
+            isAdded,
         )
     }
 }

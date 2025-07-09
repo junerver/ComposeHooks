@@ -185,7 +185,7 @@ fun <S : Any, E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>
             canGoBack = canUndo,
             goBack = goBack,
             getAvailableEvents = getAvailableEvents,
-            context = contextState
+            context = contextState,
         )
     }
 }

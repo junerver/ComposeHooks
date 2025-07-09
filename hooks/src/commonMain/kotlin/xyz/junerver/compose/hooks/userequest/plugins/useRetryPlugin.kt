@@ -61,7 +61,7 @@ private class RetryPlugin<TData : Any> : Plugin<TData>() {
                                         retryInterval
                                     } else {
                                         (1.seconds * 2f.pow(count).toInt()).coerceAtMost(30.seconds)
-                                    }
+                                    },
                                 )
                                 triggerByRetry = true
                                 fetch.refreshAsync()

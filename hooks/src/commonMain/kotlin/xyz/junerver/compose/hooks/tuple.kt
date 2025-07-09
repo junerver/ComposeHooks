@@ -62,7 +62,7 @@ infix fun <A, B, C, D, E, F, G, H> Tuple7<A, B, C, D, E, F, G>.to(h: H): Tuple8<
     this.fifth,
     this.sixth,
     this.seventh,
-    h
+    h,
 )
 
 infix fun <A, B, C, D, E, F, G, H, I> Tuple8<A, B, C, D, E, F, G, H>.to(i: I): Tuple9<A, B, C, D, E, F, G, H, I> = Tuple9(
@@ -74,7 +74,7 @@ infix fun <A, B, C, D, E, F, G, H, I> Tuple8<A, B, C, D, E, F, G, H>.to(i: I): T
     this.sixth,
     this.seventh,
     this.eighth,
-    i
+    i,
 )
 
 public operator fun <A, B, C> Pair<A, B>.plus(c: C): Triple<A, B, C> = Triple(this.first, this.second, c)
@@ -98,7 +98,7 @@ public operator fun <A, B, C, D, E, F, G, H> Tuple7<A, B, C, D, E, F, G>.plus(h:
     this.fifth,
     this.sixth,
     this.seventh,
-    h
+    h,
 )
 
 public operator fun <A, B, C, D, E, F, G, H, I> Tuple8<A, B, C, D, E, F, G, H>.plus(i: I): Tuple9<A, B, C, D, E, F, G, H, I> = Tuple9(
@@ -110,7 +110,7 @@ public operator fun <A, B, C, D, E, F, G, H, I> Tuple8<A, B, C, D, E, F, G, H>.p
     this.sixth,
     this.seventh,
     this.eighth,
-    i
+    i,
 )
 //endregion
 

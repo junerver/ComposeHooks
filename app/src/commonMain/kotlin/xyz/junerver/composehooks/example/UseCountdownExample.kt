@@ -43,7 +43,7 @@ private fun SimpleOne() {
             onEnd = {
                 show = true
             }
-        }
+        },
     )
     Column {
         Text(text = "LeftTime: ${leftTime.value.inWholeSeconds}")
@@ -60,7 +60,7 @@ private fun SimpleTwo() {
         optionsOf = {
             targetDate = LocalDateTime.parse("2026-02-17T00:00:00").toInstant(TimeZone.of("UTC+8"))
             interval = 1.seconds
-        }
+        },
     )
     val formated by formattedRes
     Column {
@@ -69,7 +69,7 @@ private fun SimpleTwo() {
             text =
                 """
                 There are ${formated.days} days ${formated.hours} hours ${formated.minutes} minutes ${formated.seconds} seconds ${formated.milliseconds} milliseconds until Chinese New Year
-                """.trimIndent()
+                """.trimIndent(),
         )
     }
 }

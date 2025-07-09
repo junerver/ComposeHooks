@@ -43,7 +43,7 @@ fun useFlashlight(): Pair<TurnOnFn, TurnOffFn> {
     return remember {
         Pair(
             { isFlashOn = true },
-            { isFlashOn = false }
+            { isFlashOn = false },
         )
     }
 }

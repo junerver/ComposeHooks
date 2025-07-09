@@ -30,8 +30,8 @@ fun UseCycleListExample() {
             "Whale",
             "Dolphin",
             "Octopus",
-            "Seal"
-        )
+            "Seal",
+        ),
     ) {
         initialValue = "Lizard1"
         fallbackIndex = 100

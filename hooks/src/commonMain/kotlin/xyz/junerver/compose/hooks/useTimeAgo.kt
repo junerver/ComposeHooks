@@ -166,7 +166,7 @@ private val DEFAULT_UNITS = listOf(
     TimeAgoUnit(518400000, 86400000, TimeAgoUnitNames.DAY),
     TimeAgoUnit(2419200000, 604800000, TimeAgoUnitNames.WEEK),
     TimeAgoUnit(28512000000, 2592000000, TimeAgoUnitNames.MONTH),
-    TimeAgoUnit(Long.MAX_VALUE, 31536000000, TimeAgoUnitNames.YEAR)
+    TimeAgoUnit(Long.MAX_VALUE, 31536000000, TimeAgoUnitNames.YEAR),
 )
 
 /**

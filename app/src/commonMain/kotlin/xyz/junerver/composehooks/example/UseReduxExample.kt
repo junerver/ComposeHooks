@@ -80,25 +80,25 @@ fun UseReduxExample() {
     Surface {
         ScrollColumn(
             modifier = Modifier
-                .padding(20.dp)
+                .padding(20.dp),
         ) {
             SimpleDataContainer()
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 20.dp, bottom = 20.dp)
+                    .padding(top = 20.dp, bottom = 20.dp),
             )
             TodosListContainer()
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 20.dp, bottom = 20.dp)
+                    .padding(top = 20.dp, bottom = 20.dp),
             )
             UseReduxFetchSample()
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 20.dp, bottom = 20.dp)
+                    .padding(top = 20.dp, bottom = 20.dp),
             )
             UseReduxFetch2Sample()
         }
@@ -142,7 +142,7 @@ private fun Header() {
     Row {
         OutlinedTextField(
             value = input.value,
-            onValueChange = setInput.left()
+            onValueChange = setInput.left(),
         )
         TButton(text = "add") {
             dispatch(AddTodo(Todo(input.value, NanoId.generate())))
@@ -312,7 +312,7 @@ private const val FetchAlias2 = "fetch2"
 
 private val NetworkFetchAliases = arrayOf(
     FetchAlias1,
-    FetchAlias2
+    FetchAlias2,
 )
 
 val fetchStore = createStore {
@@ -360,7 +360,7 @@ private fun <T> useFetchAliasFetch(
     }
     return tuple(
         first = fetchResult,
-        second = fetch
+        second = fetch,
     )
 }
 

@@ -112,19 +112,19 @@ fun UseStateMachineExample() {
         getAvailableEvents,
         context,
     ) = useStateMachine(
-        machineGraph = machineGraph
+        machineGraph = machineGraph,
     )
 
     Surface {
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             // Title
             Text(
                 text = "State Machine Example - DSL Approach",
                 style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
 
             // Current state display card
@@ -139,7 +139,7 @@ fun UseStateMachineExample() {
                 transition = transition,
                 reset = reset,
                 canGoBack = canGoBack.value,
-                goBack = goBack
+                goBack = goBack,
             )
 
             // Available events display
@@ -153,21 +153,21 @@ private fun StateDisplayCard(currentState: LoadingState) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(
-            containerColor = getStateColor(currentState).copy(alpha = 0.1f)
+            containerColor = getStateColor(currentState).copy(alpha = 0.1f),
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Box(
                 modifier = Modifier
                     .size(24.dp)
                     .clip(CircleShape)
-                    .background(getStateColor(currentState))
+                    .background(getStateColor(currentState)),
             )
 
             Spacer(modifier = Modifier.width(12.dp))
@@ -176,12 +176,12 @@ private fun StateDisplayCard(currentState: LoadingState) {
                 Text(
                     text = "Current state",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
                     text = getStateDisplayName(currentState),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
                 )
             }
         }
@@ -192,38 +192,38 @@ private fun StateDisplayCard(currentState: LoadingState) {
 private fun HistoryCard(history: PersistentList<LoadingState>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
         ) {
             Text(
                 text = "State history (${history.size} records)",
                 style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 history.takeLast(10).forEach { state ->
                     Box(
                         modifier = Modifier
                             .size(12.dp)
                             .clip(CircleShape)
-                            .background(getStateColor(state))
+                            .background(getStateColor(state)),
                     )
                 }
                 if (history.size > 10) {
                     Text(
                         text = "...",
                         fontSize = 12.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
@@ -241,29 +241,29 @@ private fun ControlButtonsSection(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
                 text = "Control operations",
                 style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
 
             // State transition buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 TButton(
                     text = "Start",
                     enabled = canTransition(LoadingEvent.START),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     transition(LoadingEvent.START)
                 }
@@ -271,7 +271,7 @@ private fun ControlButtonsSection(
                 TButton(
                     text = "Success",
                     enabled = canTransition(LoadingEvent.SUCCESS),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     transition(LoadingEvent.SUCCESS)
                 }
@@ -279,12 +279,12 @@ private fun ControlButtonsSection(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 TButton(
                     text = "Error",
                     enabled = canTransition(LoadingEvent.ERROR),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     transition(LoadingEvent.ERROR)
                 }
@@ -292,7 +292,7 @@ private fun ControlButtonsSection(
                 TButton(
                     text = "Retry",
                     enabled = canTransition(LoadingEvent.RETRY),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     transition(LoadingEvent.RETRY)
                 }
@@ -301,11 +301,11 @@ private fun ControlButtonsSection(
             // Control operation buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 TButton(
                     text = "Reset",
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     reset()
                 }
@@ -313,7 +313,7 @@ private fun ControlButtonsSection(
                 TButton(
                     text = "Go back",
                     enabled = canGoBack,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     goBack()
                 }
@@ -326,17 +326,17 @@ private fun ControlButtonsSection(
 private fun AvailableEventsCard(availableEvents: List<LoadingEvent>) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp)
+                .padding(16.dp),
         ) {
             Text(
                 text = "Current available events (${availableEvents.size})",
                 style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -345,32 +345,32 @@ private fun AvailableEventsCard(availableEvents: List<LoadingEvent>) {
                 Text(
                     text = "No available events",
                     style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             } else {
                 // Use Column to ensure all events are visible
                 Column(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     availableEvents.chunked(3).forEach { eventRow ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
                             eventRow.forEach { event ->
                                 Box(
                                     modifier = Modifier
                                         .background(
                                             MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
-                                            RoundedCornerShape(12.dp)
+                                            RoundedCornerShape(12.dp),
                                         )
-                                        .padding(horizontal = 12.dp, vertical = 6.dp)
+                                        .padding(horizontal = 12.dp, vertical = 6.dp),
                                 ) {
                                     Text(
                                         text = getEventDisplayName(event),
                                         fontSize = 12.sp,
-                                        color = MaterialTheme.colorScheme.primary
+                                        color = MaterialTheme.colorScheme.primary,
                                     )
                                 }
                             }

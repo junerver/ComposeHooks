@@ -59,7 +59,7 @@ private fun useCounter(initialValue: Int = 0, options: CounterOptions): CounterH
     val setValue: SetValueFn<Either<Int, (Int) -> Int>> = { value: Either<Int, (Int) -> Int> ->
         val target = value.fold(
             ifLeft = { it },
-            ifRight = { it(getCurrent()) }
+            ifRight = { it(getCurrent()) },
         )
         setCurrent(getTargetValue(target, options))
     }
@@ -86,7 +86,7 @@ private fun useCounter(initialValue: Int = 0, options: CounterOptions): CounterH
             ::inc,
             ::dec,
             ::set,
-            ::reset
+            ::reset,
         )
     }
 }

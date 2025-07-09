@@ -42,7 +42,7 @@ fun UseTimeAgoExample() {
             Slider(
                 value = sliderPosition.value,
                 onValueChange = setSliderPosition.left(),
-                valueRange = -3800f..3800f
+                valueRange = -3800f..3800f,
             )
             Text(text = "$time ms")
         }

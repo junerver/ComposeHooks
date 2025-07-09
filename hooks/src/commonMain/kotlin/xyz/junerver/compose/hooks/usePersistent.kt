@@ -68,8 +68,8 @@ val PersistentContext by lazy {
         Triple(
             ::memoryGetPersistent,
             ::memorySavePersistent,
-            ::memoryClearPersistent
-        )
+            ::memoryClearPersistent,
+        ),
     )
 }
 
@@ -84,8 +84,8 @@ internal val InternalMemoryPersistentContext by lazy {
         Triple(
             ::memoryGetPersistent,
             ::memorySavePersistent,
-            ::memoryClearPersistent
-        )
+            ::memoryClearPersistent,
+        ),
     )
 }
 
@@ -138,7 +138,7 @@ fun <T> usePersistent(key: String, defaultValue: T, forceUseMemory: Boolean = fa
         PersistentHolder(
             state = state,
             save = { value -> set(key, value) },
-            clear = { clear(key) }
+            clear = { clear(key) },
         )
     }
 }

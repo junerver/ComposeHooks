@@ -46,7 +46,7 @@ fun useBoolean(default: Boolean = false): BooleanHolder {
             toggle = { setState(!getState()) }, // toggle fun
             setValue = { b: Boolean -> setState(b) }, // set fun
             setTrue = { setState(true) }, // setTrue
-            setFalse = { setState(false) } // setFalse
+            setFalse = { setState(false) }, // setFalse
         )
     }
 }

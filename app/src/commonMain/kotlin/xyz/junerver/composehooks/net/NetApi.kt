@@ -43,7 +43,7 @@ object NetApi : WebService {
                 headers {
                     append(HttpHeaders.ContentType, ContentType.Application.Json.withCharset(Charsets.UTF_8).toString())
                     append(HttpHeaders.Authorization, "token $acc_token")
-                }
+                },
             )
         }
         install(HttpTimeout) {
@@ -59,7 +59,7 @@ object NetApi : WebService {
                     ignoreUnknownKeys = true
                     explicitNulls = false
                     coerceInputValues = true
-                }
+                },
             )
         }
         install(Logging) {

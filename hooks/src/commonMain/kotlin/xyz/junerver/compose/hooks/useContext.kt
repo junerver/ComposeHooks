@@ -32,7 +32,7 @@ fun <T> createContext(initialValue: T): ReactContext<T> = object : ReactContext<
     override fun Provider(value: T, content: ComposeComponent) {
         CompositionLocalProvider(
             LocalCtx provides value,
-            content = content
+            content = content,
         )
     }
 }

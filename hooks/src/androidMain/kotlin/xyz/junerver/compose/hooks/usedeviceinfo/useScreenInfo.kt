@@ -25,7 +25,7 @@ fun useScreenInfo(): ScreenInfo {
         IntSize(configuration.screenWidthDp, configuration.screenHeightDp),
         IntSize(displayMetrics.widthPixels, displayMetrics.heightPixels),
         density.density,
-        configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+        configuration.orientation == Configuration.ORIENTATION_LANDSCAPE,
     )
 }
 

@@ -65,8 +65,8 @@ fun UseReducerExample() {
         simpleReducer,
         initialState = SimpleData("default", 18),
         middlewares = arrayOf(
-            logMiddleware()
-        )
+            logMiddleware(),
+        ),
     )
     val (input, setInput) = useGetState("")
     Surface {
@@ -112,7 +112,7 @@ fun TaskItem(task: Task, onChange: (Task) -> Unit, onDelete: (Int) -> Unit) {
             checked = task.done,
             onCheckedChange = { checked ->
                 onChange(task.copy(done = checked))
-            }
+            },
         )
 
         if (isEditing) {
@@ -122,7 +122,7 @@ fun TaskItem(task: Task, onChange: (Task) -> Unit, onDelete: (Int) -> Unit) {
                 onValueChange = { newText ->
                     text = newText
                     onChange(task.copy(text = newText))
-                }
+                },
             )
             Button(onClick = { isEditing = false }) {
                 Text("Save")
@@ -157,7 +157,7 @@ fun AddTask(onAddTask: (String) -> Unit) {
             onValueChange = { newText ->
                 text = newText
             },
-            placeholder = { Text("Add task") }
+            placeholder = { Text("Add task") },
         )
         Button(onClick = {
             onAddTask(text)
@@ -190,8 +190,8 @@ fun TaskApp() {
         },
         initialTasks,
         arrayOf(
-            logMiddleware()
-        )
+            logMiddleware(),
+        ),
     )
 
     fun handleAddTask(text: String) {
@@ -215,7 +215,7 @@ fun TaskApp() {
         TaskList(
             tasks = tasks.value,
             onChangeTask = ::handleChangeTask,
-            onDeleteTask = ::handleDeleteTask
+            onDeleteTask = ::handleDeleteTask,
         )
     }
 }
@@ -224,7 +224,7 @@ var nextId = 3
 val initialTasks = persistentListOf(
     Task(id = 0, text = "Philosopher’s Path", done = true),
     Task(id = 1, text = "Visit the temple", done = false),
-    Task(id = 2, text = "Drink matcha", done = false)
+    Task(id = 2, text = "Drink matcha", done = false),
 )
 
 sealed interface TaskAction {

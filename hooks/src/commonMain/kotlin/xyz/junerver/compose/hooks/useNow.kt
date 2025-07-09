@@ -113,7 +113,7 @@ private fun useNow(options: UseNowOptions = remember { UseNowOptions() }): State
     val (time) = useTimestamp(
         optionsOf = {
             this.interval = interval
-        }
+        },
     )
     val date = useState {
         format?.invoke(time.value) ?: time.value.toLocalDateTime().format(sdfRef)

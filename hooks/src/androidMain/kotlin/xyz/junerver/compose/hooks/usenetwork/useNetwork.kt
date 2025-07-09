@@ -41,8 +41,8 @@ fun useNetwork(): State<NetworkState> {
     return produceState(
         initialValue = NetworkState(
             isConnect = NetConnectManager.isConnected(),
-            connectType = NetConnectManager.getConnectType()
-        )
+            connectType = NetConnectManager.getConnectType(),
+        ),
     ) {
         val typeChangeListener: (type: ConnectType) -> Unit = {
             value = value.copy(connectType = it)

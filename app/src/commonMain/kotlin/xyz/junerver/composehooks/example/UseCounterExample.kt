@@ -26,7 +26,7 @@ fun UseCounterExample() {
         optionsOf = {
             min = 1
             max = 10
-        }
+        },
     )
 
     Surface {

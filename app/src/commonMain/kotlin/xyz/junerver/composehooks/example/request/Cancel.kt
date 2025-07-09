@@ -26,7 +26,7 @@ fun Cancel() {
         optionsOf = {
             manual = true
             defaultParams = arrayOf("junerver")
-        }
+        },
     )
     val userInfo by userInfoState
     val loading by loadingState

@@ -88,7 +88,7 @@ private fun SWR(useCache: Boolean = false) {
         },
         optionsOf = {
             if (useCache) cacheKey = "test-swr-key"
-        }
+        },
     )
     val data by dataState
     val loading by loadingState
@@ -133,7 +133,7 @@ private fun StaleTime(cacheKey: String) {
         optionsOf = {
             this.cacheKey = cacheKey
             staleTime = 5.seconds
-        }
+        },
     )
     val data by dataState
     val loading by loadingState

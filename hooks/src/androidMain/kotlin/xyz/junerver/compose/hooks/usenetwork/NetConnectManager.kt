@@ -57,7 +57,7 @@ internal object NetConnectManager {
             @Suppress("DEPRECATION")
             context.registerReceiver(
                 NetConnectReceiver(),
-                IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
+                IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION),
             )
         }
         return this
@@ -116,7 +116,7 @@ internal object NetConnectManager {
             throw UninitializedPropertyAccessException("请先调用init()初始化")
         }
         return mCurrentConnectType ?: mConnectivityManager?.getNetworkCapabilities(
-            mConnectivityManager?.activeNetwork
+            mConnectivityManager?.activeNetwork,
         ).let {
             return if (it?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) == true) {
                 ConnectType.Mobile

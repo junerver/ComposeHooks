@@ -47,7 +47,7 @@ fun Polling() {
             if (showTips.value) {
                 Text(
                     text = "!!! now push 'home' and wait a moment then back to app",
-                    color = Color.Magenta
+                    color = Color.Magenta,
                 )
             }
         }
@@ -71,7 +71,7 @@ fun Sub(isPollingWhenHidden: Boolean = false) {
                 post(countRef)
                 update()
             }
-        }
+        },
     )
     val userInfo by userInfoState
     val loading by loadingState

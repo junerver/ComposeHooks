@@ -68,7 +68,7 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
                     it.removeLast()
                 },
                 present = past[past.size - 1],
-                future = persistentListOf(present) + future
+                future = persistentListOf(present) + future,
             )
         }
 
@@ -79,7 +79,7 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
                 present = future[0],
                 future = future.mutate {
                     it.removeFirst()
-                }
+                },
             )
         }
 
@@ -89,7 +89,7 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
             preState.copy(
                 past = past + present,
                 present = payload!!,
-                future = persistentListOf()
+                future = persistentListOf(),
             )
         }
 
@@ -98,7 +98,7 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
             preState.copy(
                 past = persistentListOf(),
                 present = payload!!,
-                future = persistentListOf()
+                future = persistentListOf(),
             )
         }
     }

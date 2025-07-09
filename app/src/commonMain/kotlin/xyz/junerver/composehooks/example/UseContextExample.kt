@@ -40,8 +40,8 @@ val SimpleContext = createContext(
     tuple(
         initialState,
         { _: String -> },
-        {}
-    )
+        {},
+    ),
 )
 
 @Composable
@@ -57,13 +57,13 @@ fun UseContextExample() {
              * 不建议直接将[dispatch]传递给[Provider]
              */
             { newName: String -> dispatch(SimpleAction.ChangeName(newName)) },
-            { dispatch(SimpleAction.AgeIncrease) }
-        )
+            { dispatch(SimpleAction.AgeIncrease) },
+        ),
     ) {
         Surface {
             Column {
                 Text(
-                    "Use `useContext` to easily pass states or events to child components, avoiding layer-by-layer transmission between components"
+                    "Use `useContext` to easily pass states or events to child components, avoiding layer-by-layer transmission between components",
                 )
                 DividerSpacer()
                 Text(text = "ChileOne:")

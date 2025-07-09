@@ -46,7 +46,7 @@ private class AutoRunPlugin<TData : Any> : Plugin<TData>() {
                     get() = {
                         runIf(!ready) {
                             OnBeforeReturn(
-                                stopNow = true
+                                stopNow = true,
                             )
                         }
                     }

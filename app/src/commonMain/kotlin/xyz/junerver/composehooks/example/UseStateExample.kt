@@ -57,7 +57,7 @@ fun UseStateExample() {
             DividerSpacer()
             Text(
                 "Don't destructure `useState`, it will cause the following problems：",
-                modifier = Modifier.padding(top = 20.dp, bottom = 20.dp)
+                modifier = Modifier.padding(top = 20.dp, bottom = 20.dp),
             )
             UseStateQuestionOne()
             Spacer(modifier = Modifier.height(20.dp))
@@ -178,7 +178,7 @@ private fun useAddIncorrect(default: Int): Tuple2<Int, () -> Unit> {
     }
     return tuple(
         first = state,
-        second = ::add
+        second = ::add,
     )
 }
 
@@ -192,7 +192,7 @@ private fun useAddCorrect1(default: Int): Tuple2<Int, () -> Unit> {
     }
     return tuple(
         first = state,
-        second = ::add
+        second = ::add,
     )
 }
 
@@ -205,7 +205,7 @@ private fun useAddCorrect2(default: Int): Tuple2<Int, () -> Unit> {
     val add = { setState(state + 1) }
     return tuple(
         first = state,
-        second = add
+        second = add,
     )
 }
 
@@ -225,7 +225,7 @@ private fun useAddCorrect3(default: Int): Tuple2<Int, () -> Unit> {
     }
     return tuple(
         first = state.value,
-        second = ::add
+        second = ::add,
     )
 }
 
@@ -239,7 +239,7 @@ private fun useAddCorrect4(default: Int): Tuple2<Int, () -> Unit> {
     }
     return tuple(
         first = state,
-        second = ::add
+        second = ::add,
     )
 }
 

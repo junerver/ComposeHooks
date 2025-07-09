@@ -32,7 +32,7 @@ fun AutoManual() {
     Surface {
         Column(
             modifier = Modifier
-                .verticalScroll(rememberScrollState())
+                .verticalScroll(rememberScrollState()),
         ) {
             Auto()
             Spacer(modifier = Modifier.height(10.dp))
@@ -50,7 +50,7 @@ fun Auto() {
         optionsOf = {
             defaultParams =
                 arrayOf("junerver") // Automatically requests must set default parameters
-        }
+        },
     )
     val userInfo by userInfoState
     val loading by loadingState
@@ -79,7 +79,7 @@ fun Manual() {
             println("Configure closure execution!")
             manual = true
             defaultParams = arrayOf("junerver", "ComposeHooks") // Automatically requests must set default parameters
-        }
+        },
     )
     val repoInfo by repoInfoState
     val loading by loadingState

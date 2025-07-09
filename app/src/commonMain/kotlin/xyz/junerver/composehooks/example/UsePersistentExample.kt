@@ -44,13 +44,13 @@ fun UsePersistentExample() {
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .padding(20.dp),
             )
             MMKVPersistent()
             HorizontalDivider(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(20.dp)
+                    .padding(20.dp),
             )
             VsViewModel()
         }
@@ -82,8 +82,8 @@ private fun MMKVPersistent() {
         value = Triple(
             first = ::mmkvGet,
             second = ::mmkvSave,
-            third = ::mmkvClear
-        )
+            third = ::mmkvClear,
+        ),
     ) {
         val (hideKeyboard) = useKeyboard()
         var token by usePersistent(key = "token", "123")
@@ -112,7 +112,7 @@ private fun MMKVPersistentSub() {
         modifier = Modifier.clickable {
             clear()
             clearCount += 1
-        }
+        },
     )
     Text("current clear count: $clearCount")
 }
@@ -144,7 +144,7 @@ private fun VsViewModel() {
         HorizontalDivider(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(20.dp)
+                .padding(20.dp),
         )
         VsViewModelSub()
     }

@@ -119,11 +119,11 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
         // 这里等同于runPluginHandler
         val onBeforeReturn = OnBeforeReturn<TData>(
             stopNow = false,
-            returnNow = false
+            returnNow = false,
         ).copy(
             // 如果列表不为空，则说明onBefore有返回，返回的对象必须实现copy函数，来达成用后一个的值覆盖前一个
             (runPluginHandler(Methods.OnBefore(latestParams)) as List<OnBeforeReturn<TData>>).cover()
-                ?.asNotNullMap()
+                ?.asNotNullMap(),
         )
         val (stopNow, returnNow) = onBeforeReturn
         val state = onBeforeReturn.asFetchStateMap()
@@ -135,8 +135,8 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
         setState(
             mapOf(
                 Keys.loading to true,
-                Keys.params to latestParams
-            ) + state
+                Keys.params to latestParams,
+            ) + state,
         )
         if (returnNow!!) return@coroutineScope
         // 调用选项配置的生命周期函数
@@ -146,9 +146,9 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
             var (serviceDeferred) = OnRequestReturn<TData>().copy(
                 (
                     runPluginHandler(
-                        Methods.OnRequest(requestFn, latestParams)
+                        Methods.OnRequest(requestFn, latestParams),
                     ) as List<OnRequestReturn<TData>>
-                ).cover()
+                ).cover(),
             )
             // 此处要明确声明async所在的job，避免异常传递
             serviceDeferred = serviceDeferred ?: async(SupervisorJob()) { requestFn(latestParams) }
@@ -157,7 +157,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
             setState(
                 Keys.loading to false,
                 Keys.data to result,
-                Keys.error to null
+                Keys.error to null,
             )
             options.onSuccess.invoke(result, latestParams)
             runPluginHandler(Methods.OnSuccess(result, latestParams))
@@ -170,7 +170,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
             if (currentCount != count) return@coroutineScope
             setState(
                 Keys.loading to false,
-                Keys.error to error
+                Keys.error to error,
             )
             options.onError.invoke(error, latestParams)
             runPluginHandler(Methods.OnError(error, latestParams))
@@ -232,7 +232,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
             is Methods.OnRequest -> {
                 it.onRequest?.invoke(
                     method.requestFn,
-                    method.params
+                    method.params,
                 )
             }
             /**
@@ -241,7 +241,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
             is Methods.OnSuccess -> {
                 it.onSuccess?.invoke(
                     method.result,
-                    method.params
+                    method.params,
                 )
             }
             /**
@@ -250,7 +250,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
             is Methods.OnError -> {
                 it.onError?.invoke(
                     method.error,
-                    method.params
+                    method.params,
                 )
             }
             /**
@@ -260,7 +260,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
                 it.onFinally?.invoke(
                     method.params,
                     method.result,
-                    method.error
+                    method.error,
                 )
             }
 

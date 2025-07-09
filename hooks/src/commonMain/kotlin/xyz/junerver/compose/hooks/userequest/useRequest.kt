@@ -123,13 +123,13 @@ private fun <TData : Any> useRequest(
             buildInThrottlePlugin,
             buildInAutoRunPlugin,
             buildInCachePlugin,
-            buildInRetryPlugin
+            buildInRetryPlugin,
         )
     }
     val fetch = useRequestPluginsImpl(
         requestFn,
         options,
-        allPlugins
+        allPlugins,
     )
 
     return with(fetch) {
@@ -140,7 +140,7 @@ private fun <TData : Any> useRequest(
             request = run,
             mutate = ::mutate,
             refresh = ::refresh,
-            cancel = ::cancel
+            cancel = ::cancel,
         )
     }
 }
@@ -157,7 +157,7 @@ fun <TData : Any> useRequest(
 ): RequestHolder<TData> = useRequest(
     requestFn,
     remember { RequestOptions.optionOf(optionsOf) }.apply(optionsOf),
-    plugins
+    plugins,
 )
 
 @Composable

@@ -34,10 +34,10 @@ fun UseTimeoutPollExample() {
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp)
+            .padding(16.dp),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(16.dp),
         ) {
             Text("useTimeoutPoll Example")
             Spacer(modifier = Modifier.height(16.dp))
@@ -68,7 +68,7 @@ fun BasicTimeoutPollExample() {
             count++
         },
         interval = 2.seconds,
-        immediate = true
+        immediate = true,
     )
 
     Column {
@@ -98,7 +98,7 @@ fun ControlledTimeoutPollExample() {
         optionsOf = {
             immediate = false // Don't start immediately
             immediateCallback = true // Execute callback immediately when resumed
-        }
+        },
     )
 
     // Get polling status
@@ -118,18 +118,18 @@ fun ControlledTimeoutPollExample() {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Button(
                 onClick = { timeoutPoll.resume() },
-                enabled = !isActive
+                enabled = !isActive,
             ) {
                 Text("Start Polling")
             }
 
             Button(
                 onClick = { timeoutPoll.pause() },
-                enabled = isActive
+                enabled = isActive,
             ) {
                 Text("Pause Polling")
             }
