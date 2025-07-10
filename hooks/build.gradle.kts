@@ -7,7 +7,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.mavenPublish)
-    alias(libs.plugins.dokka)
+//    alias(libs.plugins.dokka)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.jetbrainsCompose)
     alias(libs.plugins.compose.compiler)
@@ -116,12 +116,12 @@ android {
     }
 }
 
-dokka {
-    dokkaPublications.html {
-        outputDirectory.set(file("$rootDir/docs/api"))
-    }
-    dokkaPublications.configureEach {
-        suppressInheritedMembers.set(true)
-    }
-    moduleName.set("hooks2")
-}
+//dokka {
+//    dokkaPublications.html {
+//        outputDirectory.set(file("$rootDir/docs/api"))
+//    }
+//    dokkaPublications.configureEach {
+//        suppressInheritedMembers.set(true)
+//    }
+//    moduleName.set("hooks2")
+//}
