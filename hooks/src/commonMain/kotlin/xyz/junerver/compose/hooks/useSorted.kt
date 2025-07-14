@@ -3,7 +3,6 @@ package xyz.junerver.compose.hooks
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 
 /*
   Description: Reactive sort array
@@ -61,24 +60,22 @@ data class UseSortedOptions<T> internal constructor(
 /**
  * Default sort function that uses the standard sort method
  */
-private val defaultSortFn: SortedFn<Any> = { arr, compareFn ->
+private inline fun <T> defaultSortFn(): SortedFn<T> = { arr, compareFn ->
     arr.sortedWith(Comparator { a, b -> compareFn(a, b) })
 }
 
 /**
  * Default compare function that handles different types appropriately:
- * - For numeric types (Int, Long, Float, Double), compares by numeric value
+ * - For Comparable types, uses their natural ordering via compareTo
  * - For other types, converts to strings and compares lexicographically
  */
-private val defaultCompare: SortedCompareFn<Any> = { a, b ->
+private inline fun <T> defaultCompare(): SortedCompareFn<T> = { a, b ->
     when {
-        // Handle numeric types with numeric comparison
-        a is Int && b is Int -> a.compareTo(b)
-        a is Long && b is Long -> a.compareTo(b)
-        a is Float && b is Float -> a.compareTo(b)
-        a is Double && b is Double -> a.compareTo(b)
-        // Handle mixed numeric types
-        a is Number && b is Number -> a.toDouble().compareTo(b.toDouble())
+        // Check if both are Comparable
+        a is Comparable<*> && b is Comparable<*> -> {
+            @Suppress("UNCHECKED_CAST")
+            (a as Comparable<Any>).compareTo(b)
+        }
         // Default to string comparison for other types
         else -> a.toString().compareTo(b.toString())
     }
@@ -98,10 +95,10 @@ private val defaultCompare: SortedCompareFn<Any> = { a, b ->
  * @example
  * ```kotlin
  * // Basic usage with default comparison
- * // For numeric types, the default comparison is by numeric value
+ * // For Comparable types, the default comparison uses their natural ordering
  * val source = listOf(10, 3, 5, 7, 2, 1, 8, 6, 9, 4)
  * val sorted = useSorted(source)
- * // sorted.value will be [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] (sorted by numeric value)
+ * // sorted.value will be [1, 2, 3, 4, 5, 6, 7, 8, 9, 10] (sorted by natural ordering)
  * // source remains unchanged
  *
  * // Custom comparison for objects
@@ -152,33 +149,28 @@ fun <T> useSorted(
     source: List<T>,
     optionsOf: UseSortedOptions<T>.() -> Unit = {},
 ): State<List<T>> {
+    // Create options only once and track them for changes
     val options by useCreation { UseSortedOptions.optionOf(optionsOf) }
+
     // Create updated state for the source list
     val sourceState = useLatestState(source)
 
-    // Extract options with defaults
-    @Suppress("UNCHECKED_CAST") val sortFn = options.sortFn ?: defaultSortFn as SortedFn<T>
-    val compareFn = options.compareFn ?: { a, b -> defaultCompare(a as Any, b as Any) }
+    // Extract options with defaults, using remember to avoid recreating functions on each recomposition
+    val sortFn by useCreation(options.sortFn) { options.sortFn ?: defaultSortFn() }
+    val compareFn by useCreation(options.compareFn) { options.compareFn ?: defaultCompare() }
+
     val dirty = options.dirty
-
-    // If not in dirty mode, create a computed state that sorts a copy of the source
-    if (!dirty) {
-        return useState(sourceState.value) {
-            sortFn(sourceState.value, compareFn)
-        }
-    }
-
-    // In dirty mode, modify the source directly
-    // This assumes source is mutable
-    val result = remember(sourceState.value) {
+    return useState {
         val sorted = sortFn(sourceState.value, compareFn)
-        if (source is MutableList<T>) {
-            source.clear()
-            source.addAll(sorted)
+        // Only attempt to modify the source if it's actually a MutableList
+        if (dirty && source is MutableList<T>) {
+            // Only clear and add if the source is not already sorted correctly
+            if (source != sorted) {
+                source.clear()
+                source.addAll(sorted)
+            }
         }
         sorted
     }
-
-    return useLatestState(result)
 }
 
