@@ -7,7 +7,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
@@ -15,6 +14,18 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.utils.currentTime
+
+/*
+  Description: Debounce hooks for Compose
+  Author: Junerver
+  Date: 2024/1/29-14:46
+  Email: junerver@gmail.com
+  Version: v1.0
+
+  Update: 2025/7/15-18:54 by Junerver
+  Version: v1.1
+  Description: fix leading
+*/
 
 /**
  * Debounce options
@@ -36,87 +47,128 @@ data class DebounceOptions internal constructor(
     companion object : Options<DebounceOptions>(::DebounceOptions)
 }
 
+/**
+ * Internal implementation of debounce functionality.
+ *
+ * This class handles the core debounce logic, managing timeouts and function execution
+ * according to the specified options.
+ */
 @Stable
 internal class Debounce(
     var fn: VoidFunction,
     private val scope: CoroutineScope,
     private val options: DebounceOptions = DebounceOptions(),
 ) {
-    private var calledCount = 0
-    private val jobs: MutableList<Pair<Job, Boolean>> = arrayListOf()
+    private var timeoutJob: Job? = null // Job for tracking delayed tasks
     private var latestInvokedTime = Instant.DISTANT_PAST
     private var latestCalledTime = latestInvokedTime
+    private var lastArgs: TParams? = null // Store the latest parameters for trailing execution
 
-    private fun clear() {
-        if (jobs.isNotEmpty()) {
-            jobs.removeAll {
-                if (!it.second) {
-                    it.first.cancel()
-                }
-                !it.second
-            }
-        }
+    // Flag to manage whether leading execution is allowed
+    // When a debounce cycle ends, isAwaitingNextDebounce is set to true, indicating the next leading can be triggered
+    private var isAwaitingNextDebounce: Boolean = true
+
+    private fun cancelTimeout() {
+        timeoutJob?.cancel()
+        timeoutJob = null
+    }
+
+    // The actual function execution
+    private fun executeFn(params: TParams) {
+        fn(params)
+        latestInvokedTime = currentTime
+    }
+
+    private fun resetDebounceState() {
+        isAwaitingNextDebounce = true
+        timeoutJob = null // 清空 job
     }
 
     fun invoke(p1: TParams) {
         val (wait, leading, trailing, maxWait) = options
+        lastArgs = p1 // Save the latest parameters on each call
 
-        fun task(guarantee: Boolean, isDelay: Boolean) {
-            scope.launch {
-                if (isDelay) delay(wait)
-                fn(p1)
-                latestInvokedTime = currentTime
-            }.also { jobs.add(it to guarantee) }
-        }
+        val currentTimeStamp = currentTime
+        val waitTime = currentTimeStamp - latestInvokedTime
 
-        val waitTime = currentTime - latestInvokedTime
-        val interval = currentTime - latestCalledTime
-        val isMaxWait = maxWait in 1.milliseconds..waitTime
-        if ((isMaxWait && calledCount != 0) || (calledCount == 0 && leading)) {
-            task(guarantee = true, isDelay = false)
-        } else {
-            if (calledCount > 0 && interval < wait) {
-                clear()
-                if (trailing) {
-                    task(guarantee = false, isDelay = true)
+        val isMaxWaitExceeded = maxWait > 0.seconds && waitTime >= maxWait
+
+        val shouldInvokeImmediately = leading && isAwaitingNextDebounce
+
+        latestCalledTime = currentTimeStamp // Update the latest call time
+        cancelTimeout() // Cancel any previous delayed tasks
+        // 1. If leading is set and the next leading trigger is allowed, execute immediately
+        if (shouldInvokeImmediately) {
+            executeFn(p1)
+            isAwaitingNextDebounce = false // After leading triggers, no more triggers in the current debounce cycle
+            // If trailing is also set, set up a new delayed task to handle trailing behavior
+            timeoutJob = scope.launch {
+                delay(wait)
+                // Ensure that if there are no new calls at the end of the delay, execute trailing
+                // And check latestCalledTime to ensure it wasn't called again during the delay
+                if (currentTime - latestCalledTime >= wait && trailing) {
+                    executeFn(lastArgs ?: arrayOf()) // Execute trailing
                 }
-            } else {
-                task(guarantee = false, isDelay = true)
+                resetDebounceState()
+            }
+        } else {
+            // 2. If not executing immediately, cancel previous delayed tasks and set up new ones
+            timeoutJob = scope.launch {
+                delay(wait)
+                // Check if maximum wait time is exceeded or wait time has passed
+                // And ensure that no new calls occurred at the end of the delay
+                if ((currentTime - latestCalledTime >= wait || isMaxWaitExceeded) && trailing) {
+                    executeFn(lastArgs ?: arrayOf())
+                }
+                resetDebounceState()
+            }
+            // 3. If maxWait is reached, execute immediately regardless of leading/trailing
+            if (isMaxWaitExceeded) {
+                // If there's a pending trailing task, cancel it and execute immediately
+                cancelTimeout()
+                executeFn(lastArgs ?: arrayOf())
+                isAwaitingNextDebounce = true // Allow next leading after execution
             }
         }
-        calledCount++
-        latestCalledTime = currentTime
     }
 }
 
 /**
- * useDebounce
+ * A hook that returns a debounced value of the input value.
  *
- * @param value value
- * @param optionsOf options
- * @return
+ * This hook is useful when you want to limit how often a function is called,
+ * especially for expensive operations like API calls or DOM updates.
+ *
+ * @param value The value to be debounced
+ * @param optionsOf Lambda with receiver to configure debounce options
+ * @return A State containing the debounced value
  */
 @Composable
 fun <S> useDebounce(value: S, optionsOf: DebounceOptions.() -> Unit = {}): State<S> = useDebounce(value, useDynamicOptions(optionsOf))
 
 /**
- * useDebounceFn
+ * A hook that returns a debounced version of the provided function.
  *
- * @param fn fn
- * @param optionsOf options
- * @return
+ * This hook creates a debounced function that delays invoking the provided function
+ * until after a specified wait time has elapsed since the last time it was invoked.
+ *
+ * @param fn The function to debounce
+ * @param optionsOf Lambda with receiver to configure debounce options
+ * @return A debounced version of the provided function
  */
 @Composable
 fun useDebounceFn(fn: VoidFunction, optionsOf: DebounceOptions.() -> Unit = {}): VoidFunction =
     useDebounceFn(fn, useDynamicOptions(optionsOf))
 
 /**
- * useDebounceEffect
+ * A hook that applies debounce to an effect function.
  *
- * @param keys keys
- * @param optionsOf options
- * @param block block
- * @return
+ * This hook is similar to useEffect but with debounce functionality applied.
+ * The effect will only run after the specified wait time has elapsed since the last dependency change.
+ *
+ * @param keys Array of dependencies that will trigger the debounced effect when changed
+ * @param optionsOf Lambda with receiver to configure debounce options
+ * @param block The suspend function to be executed as the debounced effect
  */
 @Composable
 fun useDebounceEffect(vararg keys: Any?, optionsOf: DebounceOptions.() -> Unit = {}, block: SuspendAsyncFn) = useDebounceEffect(
@@ -125,12 +177,26 @@ fun useDebounceEffect(vararg keys: Any?, optionsOf: DebounceOptions.() -> Unit =
     block,
 )
 
+/**
+ * Internal implementation of the useDebounce hook.
+ *
+ * This function creates a debounced version of the provided value, which will only update
+ * after the specified wait time has elapsed since the last value change.
+ *
+ * @param value The value to be debounced
+ * @param options Debounce configuration options
+ * @return A State containing the debounced value
+ */
 @Composable
 private fun <S> useDebounce(value: S, options: DebounceOptions = remember { DebounceOptions() }): State<S> {
+    // Create a state to hold the debounced value, using _useGetState to avoid closure problems
     val (debounced, setDebounced) = _useGetState(value)
-    val debouncedSet = useDebounceFn(fn = {
-        setDebounced(value)
-    }, options)
+    val debouncedSet = useDebounceFn(
+        fn = {
+            setDebounced(value)
+        },
+        options,
+    )
     useEffect(value) {
         debouncedSet()
     }
@@ -138,9 +204,14 @@ private fun <S> useDebounce(value: S, options: DebounceOptions = remember { Debo
 }
 
 /**
- * 需要注意：[Debounce] 不返回计算结果，在 Compose 中我们无法使用 [Debounce] 透传出结算结果，应该使用状态，而非
- * [Debounce] 的返回值。 例如我们有一个计算函数，我们应该设置一个状态作为结果的保存。函数计算后的结果，通过调用对应的
- * `setState(state:T)` 函数来传递。保证结算结果（状态）与计算解耦。 这样我们的[Debounce] 就可以无缝接入。
+ * Internal implementation of the useDebounceFn hook.
+ *
+ * Note: [Debounce] does not return calculation results. In Compose, we cannot use [Debounce] to pass through
+ * calculation results directly. Instead, we should use state rather than the return value of [Debounce].
+ * For example, if we have a calculation function, we should set up a state to store the result.
+ * The result after function calculation should be passed by calling the corresponding `setState(state:T)` function,
+ * ensuring that the calculation result (state) is decoupled from the calculation process.
+ * This way, our [Debounce] can be seamlessly integrated.
  */
 @Composable
 private fun useDebounceFn(fn: VoidFunction, options: DebounceOptions = remember { DebounceOptions() }): VoidFunction {
@@ -152,13 +223,26 @@ private fun useDebounceFn(fn: VoidFunction, options: DebounceOptions = remember 
     return remember { { p1 -> debounced.invoke(p1) } }
 }
 
+/**
+ * Internal implementation of the useDebounceEffect hook.
+ *
+ * This function applies debounce functionality to an effect, ensuring the effect only runs
+ * after the specified wait time has elapsed since the last dependency change.
+ *
+ * @param keys Array of dependencies that will trigger the debounced effect when changed
+ * @param options Debounce configuration options
+ * @param block The suspend function to be executed as the debounced effect
+ */
 @Composable
 private fun useDebounceEffect(vararg keys: Any?, options: DebounceOptions = remember { DebounceOptions() }, block: SuspendAsyncFn) {
-    val debouncedBlock = useDebounceFn(fn = { params ->
-        (params[0] as CoroutineScope).launch {
-            this.block()
-        }
-    }, options)
+    val debouncedBlock = useDebounceFn(
+        fn = { params ->
+            (params[0] as CoroutineScope).launch {
+                this.block()
+            }
+        },
+        options,
+    )
     val scope = rememberCoroutineScope()
     useEffect(*keys) {
         debouncedBlock(scope)
