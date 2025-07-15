@@ -286,6 +286,7 @@ If you are using ProGuard you might need to add the following option:
 
 1. [alibaba](https://github.com/alibaba)/[hooks](https://github.com/alibaba/hooks)
 2. [pavi2410](https://github.com/pavi2410)/[useCompose](https://github.com/pavi2410/useCompose)
+3. [vueuse](https://github.com/vueuse)/[vueuse](https://github.com/vueuse/vueuse)
 
 ## Contributing Guidelines
 

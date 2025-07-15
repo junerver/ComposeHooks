@@ -292,8 +292,11 @@ Editor - Inlay Hints - Types - Kotlin
 
 1. [alibaba](https://github.com/alibaba)/[hooks](https://github.com/alibaba/hooks)
 2. [pavi2410](https://github.com/pavi2410)/[useCompose](https://github.com/pavi2410/useCompose)
+3. [vueuse](https://github.com/vueuse)/[vueuse](https://github.com/vueuse/vueuse)
 
+## 贡献指南
 
+[Contributing guidelines](https://github.com/junerver/ComposeHooks/blob/master/CONTRIBUTING.md)
 
 ## License
 
