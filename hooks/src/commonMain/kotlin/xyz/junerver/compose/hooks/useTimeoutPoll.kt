@@ -6,6 +6,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import xyz.junerver.compose.hooks.useDynamicOptions
 
 /*
   Description: Use timeout to poll for content. Triggers the callback after the last task is completed.
@@ -64,7 +65,7 @@ fun useTimeoutPoll(
     interval: Duration = 1.seconds,
     optionsOf: UseTimeoutPollOptions.() -> Unit = {},
 ): TimeoutPollHolder {
-    val options = remember { UseTimeoutPollOptions.optionOf(optionsOf) }
+    val options = useDynamicOptions(optionsOf)
     val latestFn = useLatestRef(value = fn)
     val isActiveState = useState(default = false)
     val asyncRun = useAsync()

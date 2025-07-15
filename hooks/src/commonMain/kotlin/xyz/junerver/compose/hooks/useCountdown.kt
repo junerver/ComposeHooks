@@ -105,7 +105,8 @@ private fun useCountdown(options: CountdownOptions): CountdownHolder {
  * ```
  */
 @Composable
-fun useCountdown(optionsOf: CountdownOptions.() -> Unit): CountdownHolder = useCountdown(remember { CountdownOptions.optionOf(optionsOf) })
+fun useCountdown(optionsOf: CountdownOptions.() -> Unit): CountdownHolder =
+    useCountdown(useDynamicOptions(optionsOf))
 
 /**
  * Calculates the remaining time until the target date.

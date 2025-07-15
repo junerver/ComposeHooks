@@ -269,14 +269,8 @@ fun <S, T : S> rememberImmutableListReduce(list: PersistentList<T>, operation: (
 
 //region useSorted
 @Composable
-fun <T> rememberSorted(
-    source: List<T>,
-    compareFn: SortedCompareFn<T>
-): State<List<T>> = useSorted(source, compareFn)
+fun <T> rememberSorted(source: List<T>, compareFn: SortedCompareFn<T>): State<List<T>> = useSorted(source, compareFn)
 
 @Composable
-fun <T> rememberSorted(
-    source: List<T>,
-    optionsOf: UseSortedOptions<T>.() -> Unit = {},
-): State<List<T>> = useSorted(source, optionsOf)
+fun <T> rememberSorted(source: List<T>, optionsOf: UseSortedOptions<T>.() -> Unit = {}): State<List<T>> = useSorted(source, optionsOf)
 //endregion

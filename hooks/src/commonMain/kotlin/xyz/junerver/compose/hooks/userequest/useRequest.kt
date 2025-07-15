@@ -14,6 +14,7 @@ import xyz.junerver.compose.hooks.getValue
 import xyz.junerver.compose.hooks.left
 import xyz.junerver.compose.hooks.setValue
 import xyz.junerver.compose.hooks.useCreation
+import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUnmount
 import xyz.junerver.compose.hooks.userequest.plugins.useAutoRunPlugin
@@ -156,7 +157,7 @@ fun <TData : Any> useRequest(
     plugins: Array<ComposablePluginGenFn<TData>> = emptyArray(),
 ): RequestHolder<TData> = useRequest(
     requestFn,
-    remember { RequestOptions.optionOf(optionsOf) }.apply(optionsOf),
+    useDynamicOptions(optionsOf),
     plugins,
 )
 

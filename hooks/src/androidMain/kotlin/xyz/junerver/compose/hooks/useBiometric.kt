@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.fragment.app.FragmentActivity
 import kotlin.properties.Delegates
+import xyz.junerver.compose.hooks.useDynamicOptions
 
 /*
   Description: use biometrics conveniently
@@ -55,7 +56,7 @@ private fun useBiometric(options: BiometricOptions = remember { BiometricOptions
 }
 
 @Composable
-fun useBiometric(optionsOf: BiometricOptions.() -> Unit = {}) = useBiometric(remember(optionsOf) { BiometricOptions.optionOf(optionsOf) })
+fun useBiometric(optionsOf: BiometricOptions.() -> Unit = {}) = useBiometric(useDynamicOptions(optionsOf))
 
 class BiometricActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

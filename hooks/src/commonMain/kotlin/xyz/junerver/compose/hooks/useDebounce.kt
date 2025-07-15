@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.utils.currentTime
 
 /**
@@ -98,7 +99,7 @@ internal class Debounce(
  */
 @Composable
 fun <S> useDebounce(value: S, optionsOf: DebounceOptions.() -> Unit = {}): State<S> =
-    useDebounce(value, remember { DebounceOptions.optionOf(optionsOf) })
+    useDebounce(value, useDynamicOptions(optionsOf))
 
 /**
  * useDebounceFn
@@ -109,7 +110,7 @@ fun <S> useDebounce(value: S, optionsOf: DebounceOptions.() -> Unit = {}): State
  */
 @Composable
 fun useDebounceFn(fn: VoidFunction, optionsOf: DebounceOptions.() -> Unit = {}): VoidFunction =
-    useDebounceFn(fn, remember { DebounceOptions.optionOf(optionsOf) })
+    useDebounceFn(fn, useDynamicOptions(optionsOf))
 
 /**
  * useDebounceEffect
@@ -122,7 +123,7 @@ fun useDebounceFn(fn: VoidFunction, optionsOf: DebounceOptions.() -> Unit = {}):
 @Composable
 fun useDebounceEffect(vararg keys: Any?, optionsOf: DebounceOptions.() -> Unit = {}, block: SuspendAsyncFn) = useDebounceEffect(
     keys = keys,
-    remember { DebounceOptions.optionOf(optionsOf) },
+    useDynamicOptions(optionsOf),
     block,
 )
 

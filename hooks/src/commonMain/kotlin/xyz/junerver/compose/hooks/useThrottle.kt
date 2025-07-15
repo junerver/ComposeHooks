@@ -14,6 +14,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.utils.currentTime
 
 /**
@@ -126,7 +127,7 @@ internal class Throttle(
  */
 @Composable
 fun <S> useThrottle(value: S, optionsOf: ThrottleOptions.() -> Unit = {}): State<S> =
-    useThrottle(value, remember { ThrottleOptions.optionOf(optionsOf) })
+    useThrottle(value, useDynamicOptions(optionsOf))
 
 /**
  * A hook for creating a throttled function.
@@ -161,7 +162,7 @@ fun <S> useThrottle(value: S, optionsOf: ThrottleOptions.() -> Unit = {}): State
  */
 @Composable
 fun useThrottleFn(fn: VoidFunction, optionsOf: ThrottleOptions.() -> Unit = {}): VoidFunction =
-    useThrottleFn(fn, remember { ThrottleOptions.optionOf(optionsOf) })
+    useThrottleFn(fn, useDynamicOptions(optionsOf))
 
 /**
  * A hook for throttling effect execution.
@@ -189,7 +190,7 @@ fun useThrottleFn(fn: VoidFunction, optionsOf: ThrottleOptions.() -> Unit = {}):
 @Composable
 fun useThrottleEffect(vararg keys: Any?, optionsOf: ThrottleOptions.() -> Unit = {}, block: SuspendAsyncFn) = useThrottleEffect(
     keys = keys,
-    remember { ThrottleOptions.optionOf(optionsOf) },
+    useDynamicOptions(optionsOf),
     block = block,
 )
 

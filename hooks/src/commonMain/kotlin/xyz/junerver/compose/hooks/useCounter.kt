@@ -127,7 +127,7 @@ private fun useCounter(initialValue: Int = 0, options: CounterOptions): CounterH
  */
 @Composable
 fun useCounter(initialValue: Int = 0, optionsOf: CounterOptions.() -> Unit) =
-    useCounter(initialValue, remember { CounterOptions.optionOf(optionsOf) })
+    useCounter(initialValue, useDynamicOptions(optionsOf))
 
 /**
  * Ensures the value is within the specified min/max bounds.

@@ -1,5 +1,10 @@
 package xyz.junerver.compose.hooks.test
 
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+import kotlin.test.assertTrue
+import kotlin.time.Clock
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
@@ -8,14 +13,8 @@ import kotlinx.datetime.toLocalDateTime
 import xyz.junerver.compose.hooks.UseDateFormatOptions
 import xyz.junerver.compose.hooks.formatDate
 import xyz.junerver.compose.hooks.normalizeDate
-import kotlin.test.Test
-import kotlin.test.assertEquals
-import kotlin.test.assertIs
-import kotlin.test.assertTrue
-import kotlin.time.Clock
 
 class UseDateFormatTest {
-
     // Test date: Monday, July 14, 2025, 13:45:30.123
     private val testDate = LocalDateTime(2025, 7, 14, 13, 45, 30, 123_000_000)
     private val options = UseDateFormatOptions.Companion.optionOf {}
@@ -165,11 +164,11 @@ class UseDateFormatTest {
         assertEquals("14/07/25 01:45:30.123 PM", formatDate(testDate, "DD/MM/YY hh:mm:ss.SSS A", options))
         assertEquals(
             "Mon, Jul 14, 2025",
-            formatDate(testDate, "ddd, MMM DD, YYYY", options)
+            formatDate(testDate, "ddd, MMM DD, YYYY", options),
         ) // Added from original query context
         assertEquals(
             "1, July 14, 2025",
-            formatDate(testDate, "d, MMMM DD, YYYY", options)
+            formatDate(testDate, "d, MMMM DD, YYYY", options),
         ) // Added from original query context
         assertEquals("July 1, 2025", formatDate(testDate, "MMMM d, YYYY", options)) // Added from original query context
         assertEquals("Monday 1, Mon", formatDate(testDate, "dddd d, ddd", options)) // Added from original query context
@@ -280,7 +279,6 @@ class UseDateFormatTest {
         assertTrue(normalizedIsoString.nanosecond / 1_000_000 >= 123 || normalizedIsoString.nanosecond / 1_000_000 == 0) // It multiplies by 1_000_000, so check if at least 123
         // Also check if nanosecond is correctly handled for 123_000_000. It depends on `getOrElse(6) { 0 } * 1_000_000`
         assertEquals(123_000_000, normalizedIsoString.nanosecond)
-
 
         // Test malformed String input (should fallback to current time)
         val malformedString = "not a valid date"

@@ -13,6 +13,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import xyz.junerver.compose.hooks.useDynamicOptions
 
 /*
   Description: 一个间隔固定时间执行的interval函数。
@@ -120,7 +121,7 @@ private class Interval(private val options: IntervalOptions) {
  */
 @Composable
 fun useInterval(optionsOf: IntervalOptions.() -> Unit = {}, block: SuspendAsyncFn): IntervalHolder = useInterval(
-    options = remember { IntervalOptions.optionOf(optionsOf) },
+    options = useDynamicOptions(optionsOf),
     block = block,
 )
 
@@ -152,7 +153,7 @@ fun useInterval(optionsOf: IntervalOptions.() -> Unit = {}, block: SuspendAsyncF
  */
 @Composable
 fun useInterval(optionsOf: IntervalOptions.() -> Unit = {}, ready: Boolean, block: SuspendAsyncFn): Unit = useInterval(
-    remember { IntervalOptions.optionOf(optionsOf) },
+    useDynamicOptions(optionsOf),
     ready = ready,
     block = block,
 )

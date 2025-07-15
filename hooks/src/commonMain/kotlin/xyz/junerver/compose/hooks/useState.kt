@@ -10,6 +10,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import kotlin.coroutines.cancellation.CancellationException
+import xyz.junerver.compose.hooks.useDynamicOptions
 
 /*
   Description:
@@ -134,9 +135,7 @@ fun <T> useStateAsync(
     optionsOf: StateAsyncOptions.() -> Unit = {},
     factory: suspend () -> T,
 ): State<T?> {
-    val options by useCreation {
-        StateAsyncOptions.optionOf(optionsOf)
-    }
+    val options = useDynamicOptions(optionsOf)
     val (lazy, onError) = options
     val (asyncRun) = useCancelableAsync()
     val (state, setState) = _useGetState(initValue)

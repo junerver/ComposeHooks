@@ -264,10 +264,7 @@ private fun InteractiveDateFormatDemo() {
  * Card component for displaying examples
  */
 @Composable
-private fun ExampleCard(
-    title: String,
-    content: @Composable () -> Unit,
-) {
+private fun ExampleCard(title: String, content: @Composable () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
     ) {

@@ -60,7 +60,7 @@ data class UseCycleListOptions<T> internal constructor(
 @Composable
 fun <T> useCycleList(list: PersistentList<T>, optionsOf: UseCycleListOptions<T>.() -> Unit = {}): CycleListHolder<T> {
     // Initialize options with remember and apply user-provided configuration
-    val options by useCreation { UseCycleListOptions.optionOf(optionsOf) }
+    val options = useDynamicOptions(optionsOf)
     // Create a mutable reference with useRef, initialized with the configured initial value or the first item in the list
     val (state, setState) = _useGetState(getInitialValue(list, options))
 
@@ -131,7 +131,7 @@ data class CycleListHolder<T>(
  * @throws IllegalArgumentException when the list is empty and no initial value is provided
  */
 private fun <T> getInitialValue(list: PersistentList<T>, options: UseCycleListOptions<T>): T = options.initialValue ?: list.firstOrNull()
-?: throw IllegalArgumentException("List cannot be empty when no initialValue is provided")
+    ?: throw IllegalArgumentException("List cannot be empty when no initialValue is provided")
 
 /**
  * Helper function to get the current index of a value in the list.

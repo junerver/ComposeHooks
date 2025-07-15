@@ -6,6 +6,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.utils.currentTime
 
 /*
@@ -77,7 +78,7 @@ data class TimestampOptions internal constructor(
  */
 @Composable
 fun useTimestamp(optionsOf: TimestampOptions.() -> Unit = {}, autoResume: Boolean = true): TimestampHolder =
-    useTimestamp(remember { TimestampOptions.optionOf(optionsOf) }, autoResume)
+    useTimestamp(useDynamicOptions(optionsOf), autoResume)
 
 /**
  * A hook for tracking the current timestamp with a reference.
@@ -109,7 +110,7 @@ fun useTimestamp(optionsOf: TimestampOptions.() -> Unit = {}, autoResume: Boolea
  */
 @Composable
 fun useTimestampRef(optionsOf: TimestampOptions.() -> Unit = {}, autoResume: Boolean = true): TimestampRefHolder = useTimestampRef(
-    remember { TimestampOptions.optionOf(optionsOf) },
+    useDynamicOptions(optionsOf),
     autoResume,
 )
 

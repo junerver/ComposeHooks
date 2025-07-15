@@ -12,6 +12,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import xyz.junerver.compose.hooks.useDynamicOptions
 
 /*
   Description: A wrapper for delayed function execution with controls.
@@ -135,7 +136,7 @@ private class TimeoutFn(private val options: TimeoutFnOptions) {
  */
 @Composable
 fun useTimeoutFn(fn: SuspendAsyncFn, interval: Duration = 1.seconds, optionsOf: TimeoutFnOptions.() -> Unit = {}): TimeoutFnHolder {
-    val options by useCreation { TimeoutFnOptions.optionOf(optionsOf) }
+    val options = useDynamicOptions(optionsOf)
     val latestFn = useLatestRef(value = fn)
     val isPendingState = useState(default = false)
     val scope = rememberCoroutineScope()

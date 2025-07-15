@@ -13,6 +13,7 @@ import kotlinx.datetime.format
 import kotlinx.datetime.format.Padding
 import kotlinx.datetime.format.char
 import kotlinx.datetime.toLocalDateTime
+import xyz.junerver.compose.hooks.useDynamicOptions
 
 /*
   Description:
@@ -75,7 +76,7 @@ data class UseNowOptions internal constructor(
  * ```
  */
 @Composable
-fun useNow(optionsOf: UseNowOptions.() -> Unit = {}) = useNow(remember { UseNowOptions.optionOf(optionsOf) })
+fun useNow(optionsOf: UseNowOptions.() -> Unit = {}) = useNow(useDynamicOptions(optionsOf))
 
 /**
  * Converts a timestamp to a LocalDateTime in the specified timezone.
@@ -93,7 +94,7 @@ internal fun Long.toLocalDateTime(timeZone: TimeZone = TimeZone.currentSystemDef
  * @return A [State] containing the formatted time string
  */
 @Composable
-private fun useNow(options: UseNowOptions = remember { UseNowOptions() }): State<String> {
+private fun useNow(options: UseNowOptions): State<String> {
     val (interval, format) = with(options) { Pair(interval, format) }
     val sdfRef = remember {
         LocalDateTime.Format {

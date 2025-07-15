@@ -112,17 +112,12 @@ private inline fun <T> defaultCompare(): SortedCompareFn<T> = { a, b ->
  * ```
  */
 @Composable
-fun <T> useSorted(
-    source: List<T>,
-    compareFn: SortedCompareFn<T>,
-): State<List<T>> {
-    return useSorted(
-        source,
-        optionsOf = {
-            this.compareFn = compareFn
-        },
-    )
-}
+fun <T> useSorted(source: List<T>, compareFn: SortedCompareFn<T>): State<List<T>> = useSorted(
+    source,
+    optionsOf = {
+        this.compareFn = compareFn
+    },
+)
 
 /**
  * A hook for creating a sorted version of an array with custom options.
@@ -145,12 +140,9 @@ fun <T> useSorted(
  * ```
  */
 @Composable
-fun <T> useSorted(
-    source: List<T>,
-    optionsOf: UseSortedOptions<T>.() -> Unit = {},
-): State<List<T>> {
+fun <T> useSorted(source: List<T>, optionsOf: UseSortedOptions<T>.() -> Unit = {}): State<List<T>> {
     // Create options only once and track them for changes
-    val options by useCreation { UseSortedOptions.optionOf(optionsOf) }
+    val options = useDynamicOptions(optionsOf)
 
     // Create updated state for the source list
     val sourceState = useLatestState(source)
@@ -173,4 +165,3 @@ fun <T> useSorted(
         sorted
     }
 }
-

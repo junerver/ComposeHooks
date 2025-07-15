@@ -13,7 +13,7 @@ import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.number
 import kotlinx.datetime.offsetAt
 import kotlinx.datetime.toLocalDateTime
-import xyz.junerver.compose.hooks.utils.useDynamicOptions
+import xyz.junerver.compose.hooks.useDynamicOptions
 
 /*
   Description: Format date according to the string of tokens passed in, inspired by dayjs
@@ -43,12 +43,10 @@ data class UseDateFormatOptions internal constructor(
      * Default is system locale
      */
     var locale: String? = null,
-
     /**
      * A custom function to modify how meridiem is displayed
      */
     var customMeridiem: CustomMeridiemFn? = null,
-
     /**
      * The timezone to use for formatting
      * Default is system timezone
@@ -138,7 +136,7 @@ fun useDateFormat(
     formatStr: String = "HH:mm:ss",
     optionsOf: UseDateFormatOptions.() -> Unit = {},
 ): State<String> {
-    val options = useDynamicOptions(optionsOf, UseDateFormatOptions::optionOf)
+    val options = useDynamicOptions(optionsOf)
     val dateState = useLatestState(date)
     val formatStrState = useLatestState(formatStr)
 
@@ -151,22 +149,20 @@ fun useDateFormat(
 /**
  * Normalizes various date types to a LocalDateTime object
  */
-internal fun normalizeDate(date: DateLike): LocalDateTime {
-    return when (date) {
-        is LocalDateTime -> date
-        is Instant -> date.toLocalDateTime(TimeZone.currentSystemDefault())
-        is Long -> Instant.fromEpochMilliseconds(date).toLocalDateTime(TimeZone.currentSystemDefault())
-        is String -> {
-            try {
-                LocalDateTime.parse(date)
-            } catch (_: Exception) {
-                Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-            }
+internal fun normalizeDate(date: DateLike): LocalDateTime = when (date) {
+    is LocalDateTime -> date
+    is Instant -> date.toLocalDateTime(TimeZone.currentSystemDefault())
+    is Long -> Instant.fromEpochMilliseconds(date).toLocalDateTime(TimeZone.currentSystemDefault())
+    is String -> {
+        try {
+            LocalDateTime.parse(date)
+        } catch (_: Exception) {
+            Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
         }
-
-        null -> Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-        else -> Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
     }
+
+    null -> Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+    else -> Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
 }
 
 /**
@@ -182,15 +178,15 @@ internal fun formatDate(date: LocalDateTime, formatStr: String, options: UseDate
     val formatRegex = Regex(
         "(\\[[^]]*])|" + // Capture anything inside square brackets as a literal
             "zzzz|zzz|zz|z|" + // Timezone tokens
-            "YYYY|YY|Yo|" +    // Year tokens
+            "YYYY|YY|Yo|" + // Year tokens
             "MMMM|MMM|MM|Mo|M|" + // Month tokens
             "dddd|ddd|DD|Do|dd|D|d|" + // Day of week & Day of month tokens (order DD/Do before D)
-            "HH|Ho|H|" +       // 24-hour tokens
-            "hh|ho|h|" +       // 12-hour tokens
-            "mm|mo|m|" +       // Minute tokens
-            "ss|so|s|" +       // Second tokens
-            "SSS|" +           // Millisecond token
-            "AA|A|aa|a",          // Meridiem tokens
+            "HH|Ho|H|" + // 24-hour tokens
+            "hh|ho|h|" + // 12-hour tokens
+            "mm|mo|m|" + // Minute tokens
+            "ss|so|s|" + // Second tokens
+            "SSS|" + // Millisecond token
+            "AA|A|aa|a", // Meridiem tokens
     )
 
     // Using replace (or replaceAll in newer versions) with a lambda to handle each match
