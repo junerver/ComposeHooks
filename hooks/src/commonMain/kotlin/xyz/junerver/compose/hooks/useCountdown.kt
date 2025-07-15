@@ -3,6 +3,7 @@ package xyz.junerver.compose.hooks
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -30,9 +31,13 @@ import xyz.junerver.compose.hooks.utils.currentTime
  */
 @Stable
 data class CountdownOptions internal constructor(
+    @Stable
     var leftTime: Duration? = null,
+    @Stable
     var targetDate: Instant? = null,
+    @Stable
     var interval: Duration = 1.seconds,
+    @Stable
     var onEnd: OnEndCallback? = null,
 ) {
     companion object : Options<CountdownOptions>(::CountdownOptions)
@@ -44,13 +49,15 @@ private fun useCountdown(options: CountdownOptions): CountdownHolder {
     require(leftTime.asBoolean() || targetDate.asBoolean()) {
         "'leftTime' or 'targetDate' must be set"
     }
-    val target = useCreation {
-        if (leftTime.asBoolean()) {
-            currentTime + leftTime
+    val leftTimeState = useLatestState(leftTime)
+    val targetDateState = useLatestState(targetDate)
+    val target by useState {
+        if (leftTimeState.value.asBoolean()) {
+            currentTime + leftTimeState.value!!
         } else {
-            targetDate
+            targetDateState.value
         }
-    }.current
+    }
 
     val (timeLeft, setTimeLeft) = useGetState(calcLeft(target))
     val onEndRef by useLatestRef(value = onEnd)
@@ -66,6 +73,9 @@ private fun useCountdown(options: CountdownOptions): CountdownHolder {
             pauseRef()
             onEndRef?.invoke()
         }
+    }
+    useEffect(targetDate) {
+        resume()
     }
     pauseRef = pause
     useEffect(interval) {

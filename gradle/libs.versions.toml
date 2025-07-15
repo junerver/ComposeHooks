@@ -15,6 +15,7 @@ androidx-lifecycle = "2.9.1"
 biometric = "1.2.0-alpha05"
 
 compose-plugin = "1.8.2"
+material-icons = "1.7.3"
 kotlinxDatetime = "0.7.0"
 kotlinxCollectionsImmutable = "0.4.0"
 kotlinxCoroutines = "1.10.2"
@@ -30,6 +31,8 @@ compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-mani
 compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 compose-ui-test = { group = "androidx.compose.ui", name = "ui-test" }
 compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+material-icons-core = { group = "org.jetbrains.compose.material", name = "material-icons-core" , version.ref = "material-icons"}
+material-icons-extended = { group = "org.jetbrains.compose.material", name = "material-icons-extended" , version.ref = "material-icons"}
 
 # composeX
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }

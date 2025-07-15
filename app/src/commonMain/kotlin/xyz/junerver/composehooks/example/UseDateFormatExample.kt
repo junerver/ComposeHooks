@@ -7,9 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Card
 import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -19,8 +17,6 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +24,10 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
 import kotlin.time.Clock
 import xyz.junerver.compose.hooks.useDateFormat
+import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.useTimestamp
+import xyz.junerver.composehooks.ui.component.ExampleCard
+import xyz.junerver.composehooks.ui.component.ScrollColumn
 
 /*
   Description: Example component for useDateFormat hook
@@ -43,12 +42,10 @@ import xyz.junerver.compose.hooks.useTimestamp
  */
 @Composable
 fun UseDateFormatExample() {
-    val scrollState = rememberScrollState()
 
-    Column(
+    ScrollColumn(
         modifier = Modifier
-            .padding(16.dp)
-            .verticalScroll(scrollState),
+            .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
@@ -173,8 +170,8 @@ private fun FormatRow(format: String, result: String) {
  */
 @Composable
 private fun InteractiveDateFormatDemo() {
-    var formatter by remember { mutableStateOf("dddd YYYY-MM-DD HH:mm:ss") }
-    var selectedLocale by remember { mutableStateOf("en-US") }
+    var formatter by useState("dddd YYYY-MM-DD HH:mm:ss")
+    var selectedLocale by useState("en-US")
 
     val (timestamp) = useTimestamp()
     val formatted by useDateFormat(timestamp.value, formatter) {
@@ -256,30 +253,6 @@ private fun InteractiveDateFormatDemo() {
                     }
                 }
             }
-        }
-    }
-}
-
-/**
- * Card component for displaying examples
- */
-@Composable
-private fun ExampleCard(title: String, content: @Composable () -> Unit) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary,
-            )
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = 8.dp),
-                thickness = DividerDefaults.Thickness,
-                color = DividerDefaults.color,
-            )
-            content()
         }
     }
 }
