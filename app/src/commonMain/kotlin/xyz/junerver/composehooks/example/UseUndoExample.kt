@@ -10,9 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.left
-import xyz.junerver.compose.hooks.useGetState
+import xyz.junerver.compose.hooks.useControllable
 import xyz.junerver.compose.hooks.useUndo
 import xyz.junerver.composehooks.ui.component.SimpleContainer
 import xyz.junerver.composehooks.ui.component.TButton
@@ -27,10 +25,10 @@ import xyz.junerver.composehooks.ui.component.TButton
 @Composable
 fun UseUndoExample() {
     val (state, set, reset, undo, redo, canUndo, canRedo) = useUndo(initialPresent = "")
-    val (input, setInput) = useGetState("")
+    val (input, setInput) = useControllable("")
     Surface {
         Column(modifier = Modifier.randomBackground()) {
-            SimpleContainer { OutlinedTextField(value = input.value, onValueChange = setInput.left()) }
+            SimpleContainer { OutlinedTextField(value = input.value, onValueChange = setInput) }
             SimpleContainer {
                 TButton(text = "submit") {
                     set(input.value)

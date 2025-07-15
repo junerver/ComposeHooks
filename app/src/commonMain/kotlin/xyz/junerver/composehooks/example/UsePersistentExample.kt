@@ -16,9 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import xyz.junerver.compose.hooks.PersistentContext
-import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.left
-import xyz.junerver.compose.hooks.useGetState
+import xyz.junerver.compose.hooks.useControllable
 import xyz.junerver.compose.hooks.useKeyboard
 import xyz.junerver.compose.hooks.usePersistent
 import xyz.junerver.composehooks.example.sub.PersistentVm
@@ -87,11 +85,11 @@ private fun MMKVPersistent() {
     ) {
         val (hideKeyboard) = useKeyboard()
         var token by usePersistent(key = "token", "123")
-        val (state, setState) = useGetState("")
+        val (state, setState) = useControllable("")
         Column {
             Text(text = "MMKVPersistent : exit app will NOT lose state")
             Text(text = "token: $token")
-            OutlinedTextField(value = state.value, onValueChange = setState.left())
+            OutlinedTextField(value = state.value, onValueChange = setState)
             TButton(text = "saveToken") {
                 hideKeyboard()
                 token = state.value
@@ -120,7 +118,7 @@ private fun MMKVPersistentSub() {
 @Composable
 private fun VsViewModel() {
     var vsvm by usePersistent(key = "vsVm", "")
-    val (state, setState) = useGetState("")
+    val (state, setState) = useControllable("")
     val vm = viewModel { PersistentVm() }
     var vmstate by vm.vmState
     val nav = useNavigate()
@@ -129,7 +127,7 @@ private fun VsViewModel() {
     Column {
         Text(text = "state from persistent: $vsvm")
         Text(text = "state from vm: $vmstate")
-        OutlinedTextField(value = state.value, onValueChange = setState.left())
+        OutlinedTextField(value = state.value, onValueChange = setState)
         Row {
             TButton(text = "set state ") {
                 hideKeyboard()

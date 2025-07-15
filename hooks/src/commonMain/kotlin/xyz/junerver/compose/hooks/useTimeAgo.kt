@@ -16,7 +16,6 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import xyz.junerver.compose.hooks.useDynamicOptions
 
 /*
   Description: Reactive time ago. Automatically update the time ago string when the time changes.
@@ -253,8 +252,7 @@ fun formatTimeAgo(from: Instant, options: FormatTimeAgoOptions = FormatTimeAgoOp
  * ```
  */
 @Composable
-fun useTimeAgo(time: Instant, optionsOf: UseTimeAgoOptions.() -> Unit = {}): State<String> =
-    useTimeAgo(time, useDynamicOptions(optionsOf))
+fun useTimeAgo(time: Instant, optionsOf: UseTimeAgoOptions.() -> Unit = {}): State<String> = useTimeAgo(time, useDynamicOptions(optionsOf))
 
 /**
  * Internal implementation of the time difference hook

@@ -7,8 +7,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.left
 import xyz.junerver.compose.hooks.useClipboard
+import xyz.junerver.compose.hooks.useControllable
 import xyz.junerver.compose.hooks.useGetState
 
 /*
@@ -30,12 +30,12 @@ fun UseClipboardExample() {
 
 @Composable
 private fun Copy() {
-    val (state, setState) = useGetState("")
+    val (state, setState) = useControllable("")
     val (copy, _) = useClipboard()
     Column {
         TextField(
             value = state.value,
-            onValueChange = setState.left(),
+            onValueChange = setState,
             label = { Text("Text to copy") },
         )
         Button(onClick = { copy(state.value) }) {

@@ -14,7 +14,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.utils.currentTime
 
 /**
@@ -126,8 +125,7 @@ internal class Throttle(
  * ```
  */
 @Composable
-fun <S> useThrottle(value: S, optionsOf: ThrottleOptions.() -> Unit = {}): State<S> =
-    useThrottle(value, useDynamicOptions(optionsOf))
+fun <S> useThrottle(value: S, optionsOf: ThrottleOptions.() -> Unit = {}): State<S> = useThrottle(value, useDynamicOptions(optionsOf))
 
 /**
  * A hook for creating a throttled function.

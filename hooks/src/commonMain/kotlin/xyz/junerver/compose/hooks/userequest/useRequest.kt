@@ -9,9 +9,8 @@ import kotlin.reflect.KFunction0
 import kotlin.reflect.KFunction1
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.VoidFunction
-import xyz.junerver.compose.hooks._useGetState
+import xyz.junerver.compose.hooks._useControllable
 import xyz.junerver.compose.hooks.getValue
-import xyz.junerver.compose.hooks.left
 import xyz.junerver.compose.hooks.setValue
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useDynamicOptions
@@ -167,18 +166,18 @@ private fun <TData : Any> useRequestPluginsImpl(
     options: RequestOptions<TData> = RequestOptions(),
     plugins: Array<Plugin<TData>> = emptyArray(),
 ): Fetch<TData> {
-    val (dataState, setData) = _useGetState<TData?>(null)
-    val (loadingState, setLoading) = _useGetState(false)
-    val (errorState, setError) = _useGetState<Throwable?>(null)
+    val (dataState, setData) = _useControllable<TData?>(null)
+    val (loadingState, setLoading) = _useControllable(false)
+    val (errorState, setError) = _useControllable<Throwable?>(null)
 
     val fetch = remember {
         Fetch(options).apply {
             this.dataState = dataState
-            this.setData = setData.left<TData?>()
+            this.setData = setData
             this.loadingState = loadingState
-            this.setLoading = setLoading.left<Boolean>()
+            this.setLoading = setLoading
             this.errorState = errorState
-            this.setError = setError.left<Throwable?>()
+            this.setError = setError
             this.requestFn = requestFn
 
             this.fetchState = plugins.mapNotNull {

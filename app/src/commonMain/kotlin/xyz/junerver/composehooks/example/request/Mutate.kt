@@ -14,9 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.left
-import xyz.junerver.compose.hooks.useGetState
+import xyz.junerver.compose.hooks.useControllable
 import xyz.junerver.compose.hooks.usePrevious
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.compose.hooks.utils.asBoolean
@@ -86,7 +84,7 @@ fun Mutate() {
 
 @Composable
 private fun ManualMutateRollback() {
-    val (input, setInput) = useGetState("")
+    val (input, setInput) = useControllable("")
     val (userInfoState, loadingState, _, _, mutate) = useRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
@@ -112,7 +110,7 @@ private fun ManualMutateRollback() {
 
     Column {
         Text("Use `usePrevious` to save the previous data requested, and roll back through `mutate`")
-        OutlinedTextField(value = input.value, onValueChange = setInput.left())
+        OutlinedTextField(value = input.value, onValueChange = setInput)
         Row {
             TButton(text = "changeName") {
                 mockFnChangeName(input.value)
@@ -147,7 +145,7 @@ private fun ManualMutateRollback() {
  */
 @Composable
 private fun AutoRollback() {
-    val (input, setInput) = useGetState("")
+    val (input, setInput) = useControllable("")
     val (userInfoState, loadingState, _, _, mutate, _, _, triggerRollback) = useCustomPluginRequest(
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
@@ -161,7 +159,7 @@ private fun AutoRollback() {
 
     Column {
         Text("Extend the rollback function by implementing a custom plug-in")
-        OutlinedTextField(value = input.value, onValueChange = setInput.left())
+        OutlinedTextField(value = input.value, onValueChange = setInput)
         Row {
             TButton(text = "changeName") {
                 mockFnChangeName(input.value)
