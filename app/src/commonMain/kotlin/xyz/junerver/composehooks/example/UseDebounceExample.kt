@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Slider
@@ -97,81 +98,84 @@ private fun InteractiveDebounceDemo() {
             this.trailing = trailing
         },
     )
-
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(
-            text = "Interactive Demo",
-            style = MaterialTheme.typography.titleMedium,
-            color = MaterialTheme.colorScheme.primary,
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Display the debounced value
-        Text(
-            text = "Debounced Value:",
-            style = MaterialTheme.typography.bodyMedium,
-        )
-
-        Text(
-            text = debouncedValue,
-            style = MaterialTheme.typography.headlineSmall,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(vertical = 8.dp),
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Input field
-        OutlinedTextField(
-            value = inputValue,
-            onValueChange = { inputValue = it },
-            label = { Text("Type something...") },
-            modifier = Modifier.fillMaxWidth(),
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Wait time slider
-        Text(
-            text = "Wait Time: ${waitTime}ms",
-            style = MaterialTheme.typography.bodyMedium,
-        )
-
-        Slider(
-            value = waitTime.toFloat(),
-            onValueChange = { waitTime = it.toInt() },
-            valueRange = 100f..2000f,
-            steps = 19,
-            modifier = Modifier.padding(vertical = 8.dp),
-        )
-
-        // Options
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            TButton(
-                text = if (leading) "Leading: ON" else "Leading: OFF",
-                onClick = { leading = !leading },
-                modifier = Modifier.weight(1f),
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = "Interactive Demo",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
             )
 
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-            TButton(
-                text = if (trailing) "Trailing: ON" else "Trailing: OFF",
-                onClick = { trailing = !trailing },
-                modifier = Modifier.weight(1f),
+            // Display the debounced value
+            Text(
+                text = "Debounced Value:",
+                style = MaterialTheme.typography.bodyMedium,
             )
-            Spacer(modifier = Modifier.width(8.dp))
-            TButton(
-                text = "Reset",
-                onClick = {
-                    inputValue = ""
-                    waitTime = 500
-                    leading = false
-                    trailing = true
-                },
-                modifier = Modifier.weight(1f),
+
+            Text(
+                text = debouncedValue,
+                style = MaterialTheme.typography.headlineSmall,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(vertical = 8.dp),
             )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Input field
+            OutlinedTextField(
+                value = inputValue,
+                onValueChange = { inputValue = it },
+                label = { Text("Type something...") },
+                modifier = Modifier.fillMaxWidth(),
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Wait time slider
+            Text(
+                text = "Wait Time: ${waitTime}ms",
+                style = MaterialTheme.typography.bodyMedium,
+            )
+
+            Slider(
+                value = waitTime.toFloat(),
+                onValueChange = { waitTime = it.toInt() },
+                valueRange = 100f..2000f,
+                steps = 19,
+                modifier = Modifier.padding(vertical = 8.dp),
+            )
+
+            // Options
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                TButton(
+                    text = if (leading) "Leading: ON" else "Leading: OFF",
+                    onClick = { leading = !leading },
+                    modifier = Modifier.weight(1f),
+                )
+
+                Spacer(modifier = Modifier.width(8.dp))
+
+                TButton(
+                    text = if (trailing) "Trailing: ON" else "Trailing: OFF",
+                    onClick = { trailing = !trailing },
+                    modifier = Modifier.weight(1f),
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                TButton(
+                    text = "Reset",
+                    onClick = {
+                        inputValue = ""
+                        waitTime = 500
+                        leading = false
+                        trailing = true
+                    },
+                    modifier = Modifier.weight(1f),
+                )
+            }
         }
     }
 }
