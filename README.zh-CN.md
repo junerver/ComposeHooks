@@ -99,15 +99,16 @@ implementation("xyz.junerver.compose:hooks2:<latest_release>")
 
 #### Time
 
-| Hook 名称                                                                                                                                           | 描述                                                                       |
-| :-------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------- |
-| [useInterval](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseIntervalExample.kt) | 一个处理 `setInterval` 定时器函数的 Hook。                                 |
-| [useNow](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseNowExample.kt)         | 一个返回当前日期时间的 Hook，默认格式为 `yyyy-MM-dd HH:mm:ss`。            |
-| [useTimeAgo](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseLastChangedExample.kt) | 响应式时间戳。当时间变化时自动更新“距离现在多久”的字符串。                 |
-| [useTimeout](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimeoutExample.kt) | 一个处理 `setTimeout` 定时器函数的 Hook。                                  |
-| [useTimeoutFn](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimeoutFnExample.kt) | 一个用于在指定延迟后执行函数并提供控制功能的 Hook。                        |
-| [useTimeoutPoll](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimeoutPollExample.kt) | 使用超时来轮询内容。在最后一个任务完成后触发回调。                         |
-| [useTimestamp](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimestampExample.kt) | 一个返回当前时间戳作为响应式状态的 Hook。                                  |
+| Hook 名称                                                    | 描述                                                         |
+| :----------------------------------------------------------- | :----------------------------------------------------------- |
+| [useDateFormat](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseDateFormatExample.kt) | 受[dayjs](https://github.com/iamkun/dayjs)启发，根据传递的令牌对日期进行格式化的 Hook。 |
+| [useInterval](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseIntervalExample.kt) | 一个处理 `setInterval` 定时器函数的 Hook。                   |
+| [useNow](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseNowExample.kt) | 一个返回当前日期时间的 Hook，默认格式为 `yyyy-MM-dd HH:mm:ss`。 |
+| [useTimeAgo](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseLastChangedExample.kt) | 响应式时间戳。当时间变化时自动更新“距离现在多久”的字符串。   |
+| [useTimeout](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimeoutExample.kt) | 一个处理 `setTimeout` 定时器函数的 Hook。                    |
+| [useTimeoutFn](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimeoutFnExample.kt) | 一个用于在指定延迟后执行函数并提供控制功能的 Hook。          |
+| [useTimeoutPoll](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimeoutPollExample.kt) | 使用超时来轮询内容。在最后一个任务完成后触发回调。           |
+| [useTimestamp](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTimestampExample.kt) | 一个返回当前时间戳作为响应式状态的 Hook。                    |
 
 ---
 
@@ -146,11 +147,12 @@ implementation("xyz.junerver.compose:hooks2:<latest_release>")
 | `useKeyboard`                                                | 一个控制软键盘显示和隐藏的 Hook。                            |
 | [useNetwork](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseNetworkExample.kt)\* | 一个用于获取网络连接状态和类型的 Hook。                      |
 | [useRequest](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseRequestExample.kt) | 管理网络请求并实现：[手动和自动](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Auto%26Manual.kt) 触发；[生命周期回调](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Lifecycle.kt)；[刷新](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Refresh.kt)；[修改变化](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Mutate.kt)；[取消请求](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Cancel.kt); [轮询](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Polling.kt); [Ready](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Ready.kt); [依赖刷新](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/DepsRefresh.kt); [防抖](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Debounce.kt), [节流](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/Throttle.kt); [错误重试](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/request/ErrorRetry.kt); |
-| [useScreenInfo](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | 一个获取屏幕宽度、高度、横向和纵向方向信息的 Hook。 |
-| [useThrottleFn](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseThrottleExample.kt) | 一个处理节流函数的 Hook。                     |
-| [useUndo](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseUndoExample.kt) | 一个用于处理撤销和重做的 Hook。               |
-| [useUpdate](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseUpdateExample.kt) | 一个返回可以强制组件重新渲染的函数的 Hook。   |
-| [useVibrate](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseVibrateExample.kt)* | 一个让振动反馈变得简单的 Hook。               |
+| [useScreenInfo](https://github.com/junerver/ComposeHooks/blob/master/app/src/androidMain/kotlin/xyz/junerver/composehooks/example/UseDeviceInfoExample.kt)* | 一个获取屏幕宽度、高度、横向和纵向方向信息的 Hook。          |
+| [useSorted](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseSortedExample.kt) | 一个处理列表排序的 Hook。                                    |
+| [useThrottleFn](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseThrottleExample.kt) | 一个处理节流函数的 Hook。                                    |
+| [useUndo](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseUndoExample.kt) | 一个用于处理撤销和重做的 Hook。                              |
+| [useUpdate](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseUpdateExample.kt) | 一个返回可以强制组件重新渲染的函数的 Hook。                  |
+| [useVibrate](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseVibrateExample.kt)* | 一个让振动反馈变得简单的 Hook。                              |
 
 > 注意，标记 `*` 的函数，只可以在 Android 中使用
 
