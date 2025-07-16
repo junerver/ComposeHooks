@@ -188,7 +188,7 @@ fun useDebounceEffect(vararg keys: Any?, optionsOf: DebounceOptions.() -> Unit =
  * @return A State containing the debounced value
  */
 @Composable
-private fun <S> useDebounce(value: S, options: DebounceOptions = remember { DebounceOptions() }): State<S> {
+private fun <S> useDebounce(value: S, options: DebounceOptions): State<S> {
     // Create a state to hold the debounced value, using _useGetState to avoid closure problems
     val (debounced, setDebounced) = _useGetState(value)
     val debouncedSet = useDebounceFn(
@@ -214,7 +214,7 @@ private fun <S> useDebounce(value: S, options: DebounceOptions = remember { Debo
  * This way, our [Debounce] can be seamlessly integrated.
  */
 @Composable
-private fun useDebounceFn(fn: VoidFunction, options: DebounceOptions = remember { DebounceOptions() }): VoidFunction {
+private fun useDebounceFn(fn: VoidFunction, options: DebounceOptions): VoidFunction {
     val latestFn by useLatestState(value = fn)
     val scope = rememberCoroutineScope()
     val debounced = remember {
@@ -234,7 +234,7 @@ private fun useDebounceFn(fn: VoidFunction, options: DebounceOptions = remember 
  * @param block The suspend function to be executed as the debounced effect
  */
 @Composable
-private fun useDebounceEffect(vararg keys: Any?, options: DebounceOptions = remember { DebounceOptions() }, block: SuspendAsyncFn) {
+private fun useDebounceEffect(vararg keys: Any?, options: DebounceOptions, block: SuspendAsyncFn) {
     val debouncedBlock = useDebounceFn(
         fn = { params ->
             (params[0] as CoroutineScope).launch {

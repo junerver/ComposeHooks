@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -24,12 +25,14 @@ import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useLatestRef
+import xyz.junerver.compose.hooks.useLatestState
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.useStateAsync
-import xyz.junerver.composehooks.example.request.DividerSpacer
+import xyz.junerver.composehooks.ui.component.DividerSpacer
 import xyz.junerver.composehooks.ui.component.ScrollColumn
 import xyz.junerver.composehooks.ui.component.SimpleContainer
 import xyz.junerver.composehooks.ui.component.TButton
+import xyz.junerver.composehooks.ui.component.randomBackground
 
 /*
   Description: [useState]can make controlled components easier to create
@@ -114,6 +117,13 @@ private fun UseStateQuestionOne() {
  * 1. 使用 `by` 委托
  * 2. 直接使用 [MutableState.value]
  * 3. 使用 [useGetState]
+ *
+ * 发生这一现象的原因是因为重组是异步的，当我们快速更新状态时，并没有立即进行重组，
+ * 只有**重组**发生后解构得到的 state 才能更新为最新值。
+ * 而 [useLatestState]、 [useLatestRef] 都依赖于重组，他们需要在重组发生后才能拿到最新的值，
+ * 并更新自己持有的内容，这是 Compose 中一个需要注意的点。
+ *
+ * 而通过 by 委托进行读写时，访问的是 [State.getValue] 函数，拿到的是最新的值，所以不会出现这个问题
  */
 @Composable
 private fun UseStateQuestionTwo() {
@@ -264,9 +274,11 @@ private fun Computed() {
         SimpleContainer { Text("current: ${state.value}", modifier = Modifier.randomBackground()) }
         SimpleContainer { Text("bigger than 5: ${isBiggerThanFive.value}", modifier = Modifier.randomBackground()) }
         SimpleContainer {
-            val asyncComputed = useStateAsync(optionsOf = {
-                lazy = true
-            }) {
+            val asyncComputed = useStateAsync(
+                optionsOf = {
+                    lazy = true
+                },
+            ) {
                 delay(2.seconds)
                 "after 2 seconds, state: ${state.value + 1}"
             }

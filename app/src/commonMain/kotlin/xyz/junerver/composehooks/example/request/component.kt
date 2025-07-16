@@ -1,21 +1,23 @@
 package xyz.junerver.composehooks.example.request
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.*
+import xyz.junerver.compose.hooks.DebounceOptions
+import xyz.junerver.compose.hooks.ThrottleOptions
+import xyz.junerver.compose.hooks.invoke
+import xyz.junerver.compose.hooks.useEventPublish
+import xyz.junerver.compose.hooks.useEventSubscribe
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.composehooks.net.NetApi
+import xyz.junerver.composehooks.ui.component.DividerSpacer
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -26,10 +28,6 @@ import xyz.junerver.composehooks.ui.component.TButton
   Version: v1.0
 */
 
-@Composable
-fun DividerSpacer() {
-    HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 20.dp))
-}
 
 enum class OptionFunc {
     LoadingDelay,

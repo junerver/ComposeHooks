@@ -8,13 +8,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import kotlin.coroutines.coroutineContext
 import kotlin.random.Random
-import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.compose.hooks.utils.asBoolean
+import xyz.junerver.composehooks.utils.now
 
 /*
   Description:
@@ -62,7 +62,7 @@ fun ErrorRetry() {
             retryCount = 5
             retryInterval = 2.seconds
             onError = { _, _ ->
-                count += "${Clock.System.now().epochSeconds}\n"
+                count += "${now().epochSeconds}\n"
             }
         },
     )

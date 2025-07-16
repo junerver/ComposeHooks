@@ -1,28 +1,15 @@
 package xyz.junerver.composehooks.example
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.DividerDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.useEffect
-import xyz.junerver.compose.hooks.useGetState
-import xyz.junerver.compose.hooks.useRef
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.*
 import xyz.junerver.composehooks.ui.component.ExampleCard
+import xyz.junerver.composehooks.ui.component.LogCard
 import xyz.junerver.composehooks.ui.component.ScrollColumn
 import xyz.junerver.composehooks.ui.component.TButton
 
@@ -81,19 +68,19 @@ private fun InteractiveEffectDemo() {
     var mountCount by useState(0)
     var stateValue by useState(0)
     var refValue by useState(0)
-    var effectLog by useState(listOf<String>())
+    val effectLog = useList<String>()
 
     // Effect with no dependencies - runs only once
     useEffect {
         val message = "Mount effect executed (count: ${++mountCount})"
-        effectLog = effectLog + message
+        effectLog.add(message)
         println(message)
     }
 
     // Effect with state dependency
     useEffect(stateValue) {
         val message = "State effect executed: stateValue = $stateValue"
-        effectLog = effectLog + message
+        effectLog.add(message)
         println(message)
     }
 
@@ -101,7 +88,7 @@ private fun InteractiveEffectDemo() {
     val ref = useRef(refValue)
     useEffect(ref) {
         val message = "Ref effect executed: ref.current = ${ref.current}"
-        effectLog = effectLog + message
+        effectLog.add(message)
         println(message)
     }
 
@@ -158,45 +145,13 @@ private fun InteractiveEffectDemo() {
                 text = "Clear Log",
                 modifier = Modifier.fillMaxWidth(),
             ) {
-                effectLog = emptyList()
+                effectLog.clear()
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Effect log display
-            Text(
-                text = "Effect Log:",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Column(modifier = Modifier.padding(8.dp)) {
-                    if (effectLog.isEmpty()) {
-                        Text(
-                            text = "No effects executed yet",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    } else {
-                        effectLog.takeLast(5).forEach { log ->
-                            Text(
-                                text = "• $log",
-                                style = MaterialTheme.typography.bodySmall,
-                                modifier = Modifier.padding(vertical = 2.dp),
-                            )
-                        }
-                        if (effectLog.size > 5) {
-                            Text(
-                                text = "... and ${effectLog.size - 5} more",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                }
-            }
+            LogCard(title = "Effect Log:", logs = effectLog)
         }
     }
 }

@@ -82,6 +82,9 @@ fun <T> useList(vararg elements: T): SnapshotStateList<T> = remember {
  * Reactive List.reduce.
  */
 @Composable
-fun <S, T : S> useListReduce(list: SnapshotStateList<T>, operation: (acc: S, T) -> S): State<S> = useState(list.toList()) {
-    list.toList().reduce(operation)
+fun <S, T : S> useListReduce(list: List<T>, operation: (acc: S, T) -> S): State<S?> {
+    val latestList = useLatestState(list)
+    return useState {
+        latestList.value.takeIf { it.isNotEmpty() }?.reduce(operation)
+    }
 }

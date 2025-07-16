@@ -1,5 +1,9 @@
 package xyz.junerver.composehooks.utils
 
+import kotlin.math.pow
+import kotlin.time.Clock
+import kotlin.time.Instant
+
 /*
   Description:
   Author: Junerver
@@ -19,3 +23,18 @@ fun String.subStringIf(length: Int = 100) = if (this.length > length) this.subst
 //    }
 //    return viewModel(factory = factory)
 // }
+
+fun Double.formatToDecimalPlaces(places: Int): String {
+    val multiplier = 10.0.pow(places)
+    val rounded = (this * multiplier).toLong().toDouble() / multiplier
+    return rounded.toString().let {
+        val parts = it.split(".")
+        if (parts.size == 1) {
+            "$it.0".padEnd(it.length + places + 1, '0')
+        } else {
+            parts[0] + "." + parts[1].padEnd(places, '0')
+        }
+    }
+}
+
+fun now(): Instant = Clock.System.now()

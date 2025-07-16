@@ -1,6 +1,5 @@
 package xyz.junerver.composehooks.example
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
@@ -10,10 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.getValue
 import xyz.junerver.compose.hooks.invoke
@@ -30,6 +26,7 @@ import xyz.junerver.compose.hooks.useredux.createStore
 import xyz.junerver.compose.hooks.useredux.useDispatch
 import xyz.junerver.compose.hooks.useredux.useSelector
 import xyz.junerver.composehooks.ui.component.SimpleContainer
+import xyz.junerver.composehooks.ui.component.randomBackground
 
 @Composable
 fun DeferReads() {
@@ -102,28 +99,4 @@ private fun TestDeferReads() {
             SimpleContainer { Text(text = formattedRes.value.toString()) }
         }
     }
-}
-
-val colors = arrayOf(
-    0x5D000000,
-    0x5Dfef200,
-    0x5Db5e51d,
-    0x5D9ad9ea,
-    0x5Dc3c3c3,
-    0x5Dff7f26,
-    0x5D23b14d,
-    0x5D00a3e8,
-    0x5D7f7f7f,
-    0x5Dfeaec9,
-    0x5Dc7bfe8,
-    0x5Da349a3,
-    0x5Dffffff,
-    0x5Ded1b24,
-    0x5D7092bf,
-    0x5D3f47cc,
-)
-
-@Composable
-fun Modifier.randomBackground(): Modifier = composed {
-    this.background(Color(colors[Random.nextInt(colors.size)]))
 }

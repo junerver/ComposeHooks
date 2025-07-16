@@ -12,18 +12,17 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.useTimeoutPoll
+import xyz.junerver.composehooks.utils.now
 
 /**
  * useTimeoutPoll example
@@ -58,7 +57,7 @@ fun UseTimeoutPollExample() {
  */
 @Composable
 fun BasicTimeoutPollExample() {
-    var count by remember { mutableStateOf(0) }
+    var count by useState(0)
 
     // Use useTimeoutPoll to increment count every 2 seconds
     useTimeoutPoll(
@@ -83,8 +82,8 @@ fun BasicTimeoutPollExample() {
  */
 @Composable
 fun ControlledTimeoutPollExample() {
-    var pollCount by remember { mutableStateOf(0) }
-    var lastPollTime by remember { mutableStateOf("") }
+    var pollCount by useState(0)
+    var lastPollTime by useState("")
 
     // Use useTimeoutPoll and get control functions
     val timeoutPoll = useTimeoutPoll(
@@ -141,7 +140,7 @@ fun ControlledTimeoutPollExample() {
  * Get current time string
  */
 private fun getCurrentTimeString(): String {
-    val now = Clock.System.now()
+    val now = now()
     val localDateTime = now.toLocalDateTime(TimeZone.currentSystemDefault())
     return "${localDateTime.hour}:${localDateTime.minute}:${localDateTime.second}"
 }

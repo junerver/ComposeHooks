@@ -159,7 +159,7 @@ data class TimestampRefHolder(
  * @return A [TimestampHolder] containing the timestamp and control functions
  */
 @Composable
-private fun useTimestamp(options: TimestampOptions = remember { TimestampOptions() }, autoResume: Boolean = true): TimestampHolder {
+private fun useTimestamp(options: TimestampOptions, autoResume: Boolean = true): TimestampHolder {
     val (interval, offset, callback) = with(options) { Triple(interval, offset, callback) }
     val timestamp = useState(default = currentTime)
     val (resume, pause, isActive) = useInterval(
@@ -185,7 +185,7 @@ private fun useTimestamp(options: TimestampOptions = remember { TimestampOptions
  * @return A [TimestampRefHolder] containing the timestamp reference and control functions
  */
 @Composable
-private fun useTimestampRef(options: TimestampOptions = remember { TimestampOptions() }, autoResume: Boolean = true): TimestampRefHolder {
+private fun useTimestampRef(options: TimestampOptions, autoResume: Boolean = true): TimestampRefHolder {
     val (interval, offset, callback) = with(options) { Triple(interval, offset, callback) }
     val timestampRef = useRef(default = currentTime.toEpochMilliseconds())
     val (resume, pause, isActive) = useInterval(

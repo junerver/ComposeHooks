@@ -12,10 +12,9 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import xyz.junerver.compose.hooks.useList
 import xyz.junerver.compose.hooks.useSorted
 
 /**
@@ -29,21 +28,20 @@ data class Person(val name: String, val age: Int)
 @Composable
 fun UseSortedExample() {
     // Create a list of numbers
-    val numbers = remember { mutableStateListOf(10, 3, 5, 7, 2, 1, 8, 6, 9, 4) }
+    val numbers = useList(10, 3, 5, 7, 2, 1, 8, 6, 9, 4)
 
     // Sort numbers using the default comparison function
     // Note: The default comparison function automatically detects numeric types and sorts them by value
     val sortedNumbers by useSorted(numbers)
 
     // Create a list of Person objects
-    val people = remember {
-        mutableStateListOf(
-            Person("John", 40),
-            Person("Joe", 20),
-            Person("Jane", 30),
-            Person("Jenny", 22),
-        )
-    }
+    val people = useList(
+        Person("John", 40),
+        Person("Joe", 20),
+        Person("Jane", 30),
+        Person("Jenny", 22),
+    )
+
 
     // Sort by age
     val sortedByAge by useSorted(people) { a, b -> a.age - b.age }
@@ -52,7 +50,7 @@ fun UseSortedExample() {
     val sortedByName by useSorted(people) { a, b -> a.name.compareTo(b.name) }
 
     // Using dirty mode (modifies the source array)
-    val dirtyNumbers = remember { mutableStateListOf(10, 3, 5, 7, 2, 1, 8, 6, 9, 4) }
+    val dirtyNumbers = useList(10, 3, 5, 7, 2, 1, 8, 6, 9, 4)
     val sortedDirtyNumbers by useSorted(
         dirtyNumbers,
         optionsOf = {

@@ -1,32 +1,20 @@
 package xyz.junerver.composehooks.example
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
-import androidx.compose.material3.DividerDefaults
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Slider
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlin.math.pow
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useCounter
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.composehooks.ui.component.ExampleCard
 import xyz.junerver.composehooks.ui.component.ScrollColumn
 import xyz.junerver.composehooks.ui.component.TButton
+import xyz.junerver.composehooks.utils.formatToDecimalPlaces
 
 /*
   Description: Example component for useCounter hook
@@ -196,19 +184,6 @@ private fun QuantitySelectorExample() {
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
             )
-        }
-    }
-}
-
-fun Double.formatToDecimalPlaces(places: Int): String {
-    val multiplier = 10.0.pow(places)
-    val rounded = (this * multiplier).toLong().toDouble() / multiplier
-    return rounded.toString().let {
-        val parts = it.split(".")
-        if (parts.size == 1) {
-            "$it.0".padEnd(it.length + places + 1, '0')
-        } else {
-            parts[0] + "." + parts[1].padEnd(places, '0')
         }
     }
 }

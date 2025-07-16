@@ -9,7 +9,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import kotlin.coroutines.coroutineContext
 import kotlin.random.Random
-import kotlin.time.Clock
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -18,9 +17,11 @@ import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.compose.hooks.userequest.utils.clearCache
 import xyz.junerver.compose.hooks.utils.asBoolean
+import xyz.junerver.composehooks.ui.component.DividerSpacer
 import xyz.junerver.composehooks.ui.component.ScrollColumn
 import xyz.junerver.composehooks.ui.component.TButton
 import xyz.junerver.composehooks.utils.NanoId
+import xyz.junerver.composehooks.utils.Timestamp
 
 /*
   Description:
@@ -40,7 +41,7 @@ data class MockArticle(
 suspend fun mockRequestArticle(): MockArticle {
     delay(1000 + Random.nextLong(500, 1000))
     if (coroutineContext.isActive) {
-        return MockArticle(Clock.System.now().toEpochMilliseconds(), NanoId.generate(200))
+        return MockArticle(Timestamp.now().value, NanoId.generate(200))
     } else {
         error("coroutine cancelled")
     }

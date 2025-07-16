@@ -8,12 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import kotlin.math.pow
-import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 import xyz.junerver.compose.hooks.DefaultEnglishTimeAgoMessages
 import xyz.junerver.compose.hooks.useControllable
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.useTimeAgo
+import xyz.junerver.composehooks.utils.now
 
 /*
   Description:
@@ -30,7 +30,7 @@ fun UseTimeAgoExample() {
         sliderPosition.value.pow(3).toLong()
     }
     val fromInstant by useState {
-        Clock.System.now() + time.milliseconds
+        now() + time.milliseconds
     }
     val timeAgo by useTimeAgo(fromInstant) {
         messages = DefaultEnglishTimeAgoMessages

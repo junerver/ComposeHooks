@@ -22,12 +22,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.unit.dp
-import kotlin.time.Clock
 import xyz.junerver.compose.hooks.useDateFormat
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.useTimestamp
 import xyz.junerver.composehooks.ui.component.ExampleCard
 import xyz.junerver.composehooks.ui.component.ScrollColumn
+import xyz.junerver.composehooks.utils.now
 
 /*
   Description: Example component for useDateFormat hook
@@ -58,7 +58,7 @@ fun UseDateFormatExample() {
         // Basic usage example
         ExampleCard(title = "Basic Usage") {
             val formattedDate by useDateFormat(
-                date = Clock.System.now(),
+                date = now(),
                 formatStr = "YYYY-MM-DD HH:mm:ss",
             )
 
@@ -67,7 +67,7 @@ fun UseDateFormatExample() {
 
         // Different format tokens
         ExampleCard(title = "Different Format Tokens") {
-            val now = Clock.System.now()
+            val now = now()
 
             val format1 by useDateFormat(now, "YYYY-MM-DD")
             val format2 by useDateFormat(now, "MMM DD, YYYY")
@@ -92,7 +92,7 @@ fun UseDateFormatExample() {
 
         // Custom locale example
         ExampleCard(title = "Custom Locale") {
-            val now = Clock.System.now()
+            val now = now()
 
             val englishFormat by useDateFormat(now, "dddd, MMMM DD") {
                 locale = "en-US"
@@ -111,7 +111,7 @@ fun UseDateFormatExample() {
 
         // Custom meridiem example
         ExampleCard(title = "Custom Meridiem") {
-            val now = Clock.System.now()
+            val now = now()
 
             val customMeridiem by useDateFormat(now, "hh:mm:ss A") {
                 customMeridiem = { hours, _, isLowercase, _ ->

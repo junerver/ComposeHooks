@@ -4,7 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
@@ -13,8 +14,6 @@ import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
 
 /*
   Description: Reactive time ago. Automatically update the time ago string when the time changes.
@@ -261,7 +260,7 @@ fun useTimeAgo(time: Instant, optionsOf: UseTimeAgoOptions.() -> Unit = {}): Sta
  * @return State containing the formatted time difference string
  */
 @Composable
-private fun useTimeAgo(time: Instant, options: UseTimeAgoOptions = remember { UseTimeAgoOptions() }): State<String> {
+private fun useTimeAgo(time: Instant, options: UseTimeAgoOptions): State<String> {
     val latestTime by useLatestState(time)
     val updateInterval = options.updateInterval
     val (timestamp) = useTimestamp({ interval = updateInterval }, updateInterval > Duration.ZERO)

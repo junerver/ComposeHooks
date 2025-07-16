@@ -8,7 +8,7 @@ import androidx.compose.runtime.Composable
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.useTimestamp
 import xyz.junerver.compose.hooks.useTimestampRef
-import xyz.junerver.composehooks.example.request.DividerSpacer
+import xyz.junerver.composehooks.ui.component.DividerSpacer
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*

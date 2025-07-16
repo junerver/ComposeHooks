@@ -179,7 +179,7 @@ data class IntervalHolder(
  * @return An [IntervalHolder] containing control functions for the interval
  */
 @Composable
-private fun useInterval(options: IntervalOptions = remember { IntervalOptions() }, block: SuspendAsyncFn): IntervalHolder {
+private fun useInterval(options: IntervalOptions, block: SuspendAsyncFn): IntervalHolder {
     val latestFn = useLatestRef(value = block)
     val isActiveState = useState(default = false)
     val scope = rememberCoroutineScope()
@@ -207,7 +207,7 @@ private fun useInterval(options: IntervalOptions = remember { IntervalOptions() 
  * @param block The suspend function to be executed in each interval
  */
 @Composable
-private fun useInterval(options: IntervalOptions = remember { IntervalOptions() }, ready: Boolean, block: SuspendAsyncFn) {
+private fun useInterval(options: IntervalOptions, ready: Boolean, block: SuspendAsyncFn) {
     val latestFn = useLatestRef(value = block)
     val scope = rememberCoroutineScope()
     val interval = remember {

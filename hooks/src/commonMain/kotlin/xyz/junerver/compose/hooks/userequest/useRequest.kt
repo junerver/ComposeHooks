@@ -99,7 +99,7 @@ typealias ComposablePluginGenFn<TData> = @Composable (RequestOptions<TData>) -> 
 @Composable
 private fun <TData : Any> useRequest(
     requestFn: SuspendNormalFunction<TData>,
-    options: RequestOptions<TData> = remember { RequestOptions() },
+    options: RequestOptions<TData>,
     plugins: Array<ComposablePluginGenFn<TData>> = emptyArray(),
 ): RequestHolder<TData> {
     var customPluginsRef by useRef<Array<Plugin<TData>>>(emptyArray())

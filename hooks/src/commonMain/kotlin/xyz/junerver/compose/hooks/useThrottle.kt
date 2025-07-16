@@ -222,7 +222,7 @@ fun useThrottleEffect(vararg keys: Any?, optionsOf: ThrottleOptions.() -> Unit =
  * @return A [State] containing the throttled value
  */
 @Composable
-private fun <S> useThrottle(value: S, options: ThrottleOptions = remember { ThrottleOptions() }): State<S> {
+private fun <S> useThrottle(value: S, options: ThrottleOptions): State<S> {
     val (throttled, setThrottled) = _useGetState(value)
     val throttledSet = useThrottleFn(fn = {
         setThrottled(value)
@@ -241,7 +241,7 @@ private fun <S> useThrottle(value: S, options: ThrottleOptions = remember { Thro
  * @return A throttled version of the input function
  */
 @Composable
-private fun useThrottleFn(fn: VoidFunction, options: ThrottleOptions = remember { ThrottleOptions() }): VoidFunction {
+private fun useThrottleFn(fn: VoidFunction, options: ThrottleOptions): VoidFunction {
     val latestFn by useLatestState(value = fn)
     val scope = rememberCoroutineScope()
     val throttled = remember {
@@ -258,7 +258,7 @@ private fun useThrottleFn(fn: VoidFunction, options: ThrottleOptions = remember 
  * @param block The effect to throttle
  */
 @Composable
-private fun useThrottleEffect(vararg keys: Any?, options: ThrottleOptions = remember { ThrottleOptions() }, block: SuspendAsyncFn) {
+private fun useThrottleEffect(vararg keys: Any?, options: ThrottleOptions, block: SuspendAsyncFn) {
     val throttledBlock = useThrottleFn(
         fn = { params ->
             (params[0] as CoroutineScope).launch {

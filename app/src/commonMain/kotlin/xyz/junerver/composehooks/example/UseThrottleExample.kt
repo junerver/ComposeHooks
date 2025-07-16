@@ -20,11 +20,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlin.time.Clock
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.useThrottle
@@ -42,10 +40,6 @@ import xyz.junerver.composehooks.utils.subStringIf
   Date: 2024/3/8-14:13
   Email: junerver@gmail.com
   Version: v1.0
-
-  Update: 2025/1/20-10:00 by Junerver
-  Version: v1.1
-  Description: Refactored with improved UI and interactive demo
 */
 
 /**
@@ -63,9 +57,6 @@ private fun InteractiveThrottleDemo() {
         wait = waitTime.toInt().milliseconds
         this.leading = leading
         this.trailing = trailing
-    }
-    useEffect(throttledCounter) {
-        println("Throttled value: $throttledCounter  : ${Clock.System.now()}")
     }
 
     Card(
@@ -130,9 +121,6 @@ private fun InteractiveThrottleDemo() {
                 ) {
                     setCounter(counter + 1)
                     setClickCount(clickCount + 1)
-                    if (counter == 0) {
-                        println("first click: $counter :${Clock.System.now()}")
-                    }
                 }
 
                 TButton(
