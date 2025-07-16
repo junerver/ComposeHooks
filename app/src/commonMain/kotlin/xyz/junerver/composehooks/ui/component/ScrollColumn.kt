@@ -29,7 +29,7 @@ fun ScrollColumn(
     Column(
         modifier = modifier.fillMaxSize().verticalScroll(scrollState),
         verticalArrangement = verticalArrangement,
-        horizontalAlignment = horizontalAlignment
+        horizontalAlignment = horizontalAlignment,
     ) {
         content.invoke(this)
     }

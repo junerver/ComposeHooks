@@ -45,7 +45,6 @@ import xyz.junerver.composehooks.ui.component.TButton
  */
 @Composable
 fun UseCountdownExample() {
-
     ScrollColumn(
         modifier = Modifier
             .padding(16.dp),
@@ -438,4 +437,3 @@ private fun EventTimerExample() {
 /**
  * Card component for displaying examples
  */
-

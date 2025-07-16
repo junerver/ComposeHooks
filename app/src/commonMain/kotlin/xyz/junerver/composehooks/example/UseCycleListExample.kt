@@ -277,7 +277,7 @@ private fun CarouselExample() {
         "Beach Sunset",
         "Forest Path",
         "City Skyline",
-        "Desert Landscape"
+        "Desert Landscape",
     )
 
     val (state, index, next, prev, go) = useCycleList(images)

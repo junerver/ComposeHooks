@@ -69,16 +69,16 @@ private fun InteractiveThrottleDemo() {
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
                 text = "Interactive Throttle Demo",
                 style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
 
             HorizontalDivider()
@@ -87,7 +87,7 @@ private fun InteractiveThrottleDemo() {
             Text(
                 text = "Original: $counter | Throttled: $throttledCounter | Clicks: $clickCount",
                 style = MaterialTheme.typography.headlineSmall,
-                color = MaterialTheme.colorScheme.primary
+                color = MaterialTheme.colorScheme.primary,
             )
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -98,16 +98,16 @@ private fun InteractiveThrottleDemo() {
                 value = waitTime,
                 onValueChange = { waitTime = it },
                 valueRange = 100f..3000f,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
 
             // Leading/Trailing options
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 RadioButton(
                     selected = leading,
-                    onClick = { leading = !leading }
+                    onClick = { leading = !leading },
                 )
                 Text("Leading")
 
@@ -115,18 +115,18 @@ private fun InteractiveThrottleDemo() {
 
                 RadioButton(
                     selected = trailing,
-                    onClick = { trailing = !trailing }
+                    onClick = { trailing = !trailing },
                 )
                 Text("Trailing")
             }
 
             // Action buttons
             Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 TButton(
                     text = "Increment",
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     setCounter(counter + 1)
                     setClickCount(clickCount + 1)
@@ -137,7 +137,7 @@ private fun InteractiveThrottleDemo() {
 
                 TButton(
                     text = "Reset",
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 ) {
                     setCounter(0)
                     setClickCount(0)
@@ -158,7 +158,7 @@ private fun BasicThrottleExample() {
     }
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text("Original value: ${state.value}")
         Text("Throttled value: $throttledState")
@@ -193,7 +193,7 @@ private fun ThrottleFnExample() {
     )
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text("Function executions: ${stateFn.value}")
         Text("Button clicks: $executionCount")
@@ -230,7 +230,7 @@ private fun ThrottleEffectExample() {
     }
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text("Trigger count: ${stateEf.value}")
         Text("API calls made: $requestCount")
@@ -275,7 +275,7 @@ private fun AdvancedThrottleExample() {
     }
 
     Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         Text("Original: $counter")
         Text("Leading only: $leadingOnly")
@@ -283,18 +283,18 @@ private fun AdvancedThrottleExample() {
         Text("Both: $both")
 
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             TButton(
                 text = "Increment",
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             ) {
                 setCounter(counter + 1)
             }
 
             TButton(
                 text = "Reset",
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             ) {
                 setCounter(0)
             }
@@ -306,11 +306,11 @@ private fun AdvancedThrottleExample() {
 fun UseThrottleExample() {
     ScrollColumn(
         modifier = Modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
             text = "useThrottle Examples",
-            style = MaterialTheme.typography.headlineMedium
+            style = MaterialTheme.typography.headlineMedium,
         )
 
         // Interactive Demo

@@ -36,7 +36,6 @@ import xyz.junerver.composehooks.ui.component.TButton
 
 @Composable
 fun UseBooleanExample() {
-
     ScrollColumn(
         modifier = Modifier
             .padding(16.dp),
@@ -96,7 +95,7 @@ private fun InteractiveBooleanDemo() {
                 Spacer(modifier = Modifier.weight(1f))
                 Switch(
                     checked = defaultValue,
-                    onCheckedChange = { defaultValue = it }
+                    onCheckedChange = { defaultValue = it },
                 )
             }
 
@@ -115,7 +114,7 @@ private fun InteractiveBooleanDemo() {
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     TButton(text = "Toggle", onClick = toggle)
                     TButton(text = "Set True", onClick = setTrue)
@@ -181,7 +180,7 @@ private fun ToggleControlsExample() {
         ) {
             Checkbox(
                 checked = state.value,
-                onCheckedChange = setValue
+                onCheckedChange = setValue,
             )
             Text("Current value: ${state.value}")
         }
@@ -189,7 +188,7 @@ private fun ToggleControlsExample() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             TButton(text = "Toggle", onClick = toggle)
             TButton(text = "Set True", onClick = setTrue)
@@ -245,11 +244,11 @@ private fun SettingItem(title: String, checked: Boolean, onToggle: () -> Unit) {
         Text(
             text = title,
             style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.weight(1f)
+            modifier = Modifier.weight(1f),
         )
         Switch(
             checked = checked,
-            onCheckedChange = { onToggle() }
+            onCheckedChange = { onToggle() },
         )
     }
 }

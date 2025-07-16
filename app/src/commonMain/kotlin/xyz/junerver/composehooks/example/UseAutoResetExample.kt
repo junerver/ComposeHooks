@@ -41,7 +41,6 @@ import xyz.junerver.composehooks.ui.component.ScrollColumn
  */
 @Composable
 fun UseAutoResetExample() {
-
     ScrollColumn(
         modifier = Modifier
             .padding(16.dp),
@@ -309,4 +308,3 @@ private fun InteractiveAutoResetDemo() {
         }
     }
 }
-

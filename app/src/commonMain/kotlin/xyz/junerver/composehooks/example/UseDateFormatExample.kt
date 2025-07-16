@@ -42,7 +42,6 @@ import xyz.junerver.composehooks.ui.component.ScrollColumn
  */
 @Composable
 fun UseDateFormatExample() {
-
     ScrollColumn(
         modifier = Modifier
             .padding(16.dp),

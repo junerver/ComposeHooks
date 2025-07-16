@@ -152,7 +152,7 @@ private fun QuantitySelectorExample() {
             )
 
             Text(
-                text = "$${price} each",
+                text = "$$price each",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(vertical = 4.dp),
             )
@@ -205,8 +205,11 @@ fun Double.formatToDecimalPlaces(places: Int): String {
     val rounded = (this * multiplier).toLong().toDouble() / multiplier
     return rounded.toString().let {
         val parts = it.split(".")
-        if (parts.size == 1) "$it.0".padEnd(it.length + places + 1, '0')
-        else parts[0] + "." + parts[1].padEnd(places, '0')
+        if (parts.size == 1) {
+            "$it.0".padEnd(it.length + places + 1, '0')
+        } else {
+            parts[0] + "." + parts[1].padEnd(places, '0')
+        }
     }
 }
 

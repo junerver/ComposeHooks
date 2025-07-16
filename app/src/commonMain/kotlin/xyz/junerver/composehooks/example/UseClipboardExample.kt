@@ -47,7 +47,6 @@ import xyz.junerver.composehooks.ui.component.ScrollColumn
 
 @Composable
 fun UseClipboardExample() {
-
     ScrollColumn(
         modifier = Modifier
             .padding(16.dp),

@@ -56,7 +56,6 @@ val SimpleContext = createContext(
 
 @Composable
 fun UseContextExample() {
-
     ScrollColumn(
         modifier = Modifier
             .padding(16.dp),
