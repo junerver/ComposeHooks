@@ -10,7 +10,6 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -60,44 +59,55 @@ internal class Throttle(
     private val scope: CoroutineScope,
     private val options: ThrottleOptions = ThrottleOptions(),
 ) {
-    private var calledCount = 0
-    private val trailingJobs: MutableList<Job> = arrayListOf()
+    private var timeoutJob: Job? = null
+    private var lastArgs: TParams? = null
     private var latestInvokedTime = Instant.DISTANT_PAST
 
-    private fun clearTrailing() {
-        if (trailingJobs.isNotEmpty()) {
-            trailingJobs.forEach {
-                it.cancel()
-            }
-            trailingJobs.clear()
+    private fun trailingEdge() {
+        if (options.trailing) {
+            lastArgs?.let { fn(it) }
+            latestInvokedTime = currentTime
         }
+        timeoutJob = null
+    }
+
+    fun cancel() {
+        timeoutJob?.cancel()
+        timeoutJob = null
+        latestInvokedTime = Instant.DISTANT_PAST
     }
 
     fun invoke(p1: TParams) {
         val (wait, leading, trailing) = options
-        val waitTime = currentTime - latestInvokedTime
+        val now = currentTime
+        lastArgs = p1
 
-        fun task(isTrailing: Boolean) {
-            scope.launch(start = CoroutineStart.DEFAULT) {
-                if (isTrailing) delay(wait)
+        if (latestInvokedTime == Instant.DISTANT_PAST && !leading) {
+            latestInvokedTime = now
+        }
+
+        val remaining = wait - (now - latestInvokedTime)
+
+        if (remaining <= Duration.ZERO || remaining > wait) {
+            timeoutJob?.cancel()
+            timeoutJob = null
+            latestInvokedTime = now
+            if (leading) {
                 fn(p1)
-                if (isTrailing) latestInvokedTime = currentTime
-            }.also {
-                if (isTrailing) {
-                    trailingJobs.add(it)
+            } else if (trailing) {
+                // If leading is false, we still need to schedule a trailing call
+                // to ensure the function is called after the cooldown period.
+                timeoutJob = scope.launch {
+                    delay(wait)
+                    trailingEdge()
                 }
             }
-        }
-        if (waitTime > wait) {
-            task(isTrailing = calledCount == 0 && !leading)
-            latestInvokedTime = currentTime
-        } else {
-            if (trailing) {
-                clearTrailing()
-                task(isTrailing = true)
+        } else if (timeoutJob == null && trailing) {
+            timeoutJob = scope.launch {
+                delay(remaining)
+                trailingEdge()
             }
         }
-        calledCount++
     }
 }
 
@@ -237,11 +247,14 @@ private fun useThrottleFn(fn: VoidFunction, options: ThrottleOptions = remember 
  */
 @Composable
 private fun useThrottleEffect(vararg keys: Any?, options: ThrottleOptions = remember { ThrottleOptions() }, block: SuspendAsyncFn) {
-    val throttledBlock = useThrottleFn(fn = { params ->
-        (params[0] as CoroutineScope).launch {
-            this.block()
-        }
-    }, options)
+    val throttledBlock = useThrottleFn(
+        fn = { params ->
+            (params[0] as CoroutineScope).launch {
+                this.block()
+            }
+        },
+        options,
+    )
     val scope = rememberCoroutineScope()
     useEffect(*keys) {
         throttledBlock(scope)
