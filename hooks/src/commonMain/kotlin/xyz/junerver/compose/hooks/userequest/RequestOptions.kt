@@ -5,9 +5,7 @@ package xyz.junerver.compose.hooks.userequest
 import androidx.compose.runtime.Stable
 import kotlin.reflect.KProperty
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.minutes
-import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.DebounceOptions
 import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.ThrottleOptions
@@ -67,12 +65,12 @@ data class RequestOptions<TData> internal constructor(
      * 如果不设置，默认采用简易的指数退避算法，取 1000 * 2 * retryCount
      */
     @Stable
-    var retryInterval: Duration = 0.milliseconds,
+    var retryInterval: Duration = Duration.ZERO,
     /**
      * 轮询间隔，单位为毫秒。如果值大于 0，则处于轮询模式。
      */
     @Stable
-    var pollingInterval: Duration = 0.milliseconds,
+    var pollingInterval: Duration = Duration.ZERO,
     /**
      * 在页面隐藏时，是否继续轮询。如果设置为 false，在页面隐藏时会暂时停止轮询，页面重新显示时继续上次轮询。
      */
@@ -117,7 +115,7 @@ data class RequestOptions<TData> internal constructor(
      * 如果设置为 `(-1).seconds`，则表示数据永远新鲜
      */
     @Stable
-    var staleTime: Duration = 0.seconds,
+    var staleTime: Duration = Duration.ZERO,
     /**
      * 自定义缓存策略，无则采取默认策略
      */
@@ -133,7 +131,7 @@ data class RequestOptions<TData> internal constructor(
      * 将loading延时，增加loading的对外表现时间，这种需求接近于节流，又稍有区别
      */
     @Stable
-    var loadingDelay: Duration = 0.seconds,
+    var loadingDelay: Duration = Duration.ZERO,
 ) {
     @Suppress("unused")
     companion object {
@@ -146,19 +144,19 @@ data class RequestOptions<TData> internal constructor(
      * 通过配置参数为 [DebounceOptions.wait] 开启防抖功能，默认值为0，不开启防抖
      */
     @Stable
-    internal var debounceOptions: DebounceOptions = DebounceOptions.optionOf { wait = 0.seconds }
+    internal var debounceOptions: DebounceOptions = DebounceOptions.optionOf { wait = Duration.ZERO }
 
     /**
      * 通过配置参数为 [ThrottleOptions.wait] 开启节流功能，默认值为0，不开启节流
      */
     @Stable
-    internal var throttleOptions: ThrottleOptions = ThrottleOptions.optionOf { wait = 0.seconds }
+    internal var throttleOptions: ThrottleOptions = ThrottleOptions.optionOf { wait = Duration.ZERO }
 
     @Stable
-    var debounceOptionsOf: DebounceOptions.() -> Unit by DebounceOptionsDelegate { wait = 0.seconds }
+    var debounceOptionsOf: DebounceOptions.() -> Unit by DebounceOptionsDelegate { wait = Duration.ZERO }
 
     @Stable
-    var throttleOptionsOf: ThrottleOptions.() -> Unit by ThrottleOptionsDelegate { wait = 0.seconds }
+    var throttleOptionsOf: ThrottleOptions.() -> Unit by ThrottleOptionsDelegate { wait = Duration.ZERO }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

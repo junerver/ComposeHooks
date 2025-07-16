@@ -11,7 +11,6 @@ import kotlin.math.floor
 import kotlin.math.round
 import kotlin.time.Clock
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
@@ -265,7 +264,7 @@ fun useTimeAgo(time: Instant, optionsOf: UseTimeAgoOptions.() -> Unit = {}): Sta
 private fun useTimeAgo(time: Instant, options: UseTimeAgoOptions = remember { UseTimeAgoOptions() }): State<String> {
     val latestTime by useLatestState(time)
     val updateInterval = options.updateInterval
-    val (timestamp) = useTimestamp({ interval = updateInterval }, updateInterval > 0.milliseconds)
+    val (timestamp) = useTimestamp({ interval = updateInterval }, updateInterval > Duration.ZERO)
     return useState {
         formatTimeAgo(latestTime, options, Instant.fromEpochMilliseconds(timestamp.value))
     }

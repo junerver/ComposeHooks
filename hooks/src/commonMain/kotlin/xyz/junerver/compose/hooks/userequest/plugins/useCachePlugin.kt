@@ -50,7 +50,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
     lateinit var unSubscribeRef: MutableRef<(() -> Unit)?>
     lateinit var currentPromiseRef: MutableRef<Deferred<*>?>
 
-    private var staleTime: Duration = 0.seconds
+    private var staleTime: Duration = Duration.ZERO
     lateinit var setCache: (key: String, cachedData: CachedData<TData>) -> Unit
     lateinit var getCache: (String, TParams) -> CachedData<TData>?
 

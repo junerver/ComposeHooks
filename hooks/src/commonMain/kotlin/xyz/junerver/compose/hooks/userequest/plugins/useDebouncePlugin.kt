@@ -2,7 +2,7 @@ package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration
 import xyz.junerver.compose.hooks.Debounce
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
@@ -22,7 +22,7 @@ import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 private class DebouncePlugin<TData : Any> : Plugin<TData>() {
     override val invoke: GenPluginLifecycleFn<TData>
         get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
-            if (requestOptions.debounceOptions.wait > 0.seconds) {
+            if (requestOptions.debounceOptions.wait > Duration.ZERO) {
                 val debounce = Debounce(
                     fn = { params -> fetch._run(params) },
                     scope = this,
@@ -46,7 +46,7 @@ private class DebouncePlugin<TData : Any> : Plugin<TData>() {
 
 @Composable
 internal fun <T : Any> useDebouncePlugin(options: RequestOptions<T>): Plugin<T> {
-    if (options.debounceOptions.wait == 0.seconds) {
+    if (options.debounceOptions.wait == Duration.ZERO) {
         return useEmptyPlugin()
     }
     val debouncePlugin = remember {

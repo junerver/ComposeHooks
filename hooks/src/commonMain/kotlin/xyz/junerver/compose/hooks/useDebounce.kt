@@ -42,7 +42,7 @@ data class DebounceOptions internal constructor(
     var wait: Duration = 1.seconds,
     var leading: Boolean = false,
     var trailing: Boolean = true,
-    var maxWait: Duration = 0.seconds,
+    var maxWait: Duration = Duration.ZERO,
 ) {
     companion object : Options<DebounceOptions>(::DebounceOptions)
 }
@@ -91,7 +91,7 @@ internal class Debounce(
         val currentTimeStamp = currentTime
         val waitTime = currentTimeStamp - latestInvokedTime
 
-        val isMaxWaitExceeded = maxWait > 0.seconds && waitTime >= maxWait
+        val isMaxWaitExceeded = maxWait > Duration.ZERO && waitTime >= maxWait
 
         val shouldInvokeImmediately = leading && isAwaitingNextDebounce
 

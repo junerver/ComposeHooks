@@ -6,7 +6,6 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.utils.currentTime
 
 /*
@@ -41,7 +40,7 @@ import xyz.junerver.compose.hooks.utils.currentTime
 @Stable
 data class TimestampOptions internal constructor(
     var interval: Duration = 1.0.milliseconds,
-    var offset: Duration = 0.milliseconds,
+    var offset: Duration = Duration.ZERO,
     var callback: ((Long) -> Unit)? = null,
 ) {
     companion object : Options<TimestampOptions>(::TimestampOptions)

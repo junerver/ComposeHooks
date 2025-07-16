@@ -13,7 +13,6 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import xyz.junerver.compose.hooks.useDynamicOptions
 
 /*
   Description: 一个间隔固定时间执行的interval函数。
@@ -35,7 +34,7 @@ import xyz.junerver.compose.hooks.useDynamicOptions
  */
 @Stable
 data class IntervalOptions internal constructor(
-    var initialDelay: Duration = 0.seconds,
+    var initialDelay: Duration = Duration.ZERO,
     var period: Duration = 5.seconds,
 ) {
     companion object : Options<IntervalOptions>(::IntervalOptions)

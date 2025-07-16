@@ -69,7 +69,7 @@ private fun useCountdown(options: CountdownOptions): CountdownHolder {
     ) {
         val targetLeft = calcLeft(target)
         setTimeLeft(targetLeft)
-        if (targetLeft == 0.seconds) {
+        if (targetLeft == Duration.ZERO) {
             pauseRef()
             onEndRef?.invoke()
         }
@@ -80,7 +80,7 @@ private fun useCountdown(options: CountdownOptions): CountdownHolder {
     pauseRef = pause
     useEffect(interval) {
         if (!target.asBoolean()) {
-            setTimeLeft(0.seconds)
+            setTimeLeft(Duration.ZERO)
             return@useEffect
         }
         setTimeLeft(calcLeft(target))
@@ -125,9 +125,9 @@ fun useCountdown(optionsOf: CountdownOptions.() -> Unit): CountdownHolder = useC
  */
 @Stable
 private fun calcLeft(target: Instant?): Duration {
-    if (target == null) return 0.seconds
+    if (target == null) return Duration.ZERO
     val left = target - currentTime
-    return if (left < 0.seconds) 0.seconds else left
+    return if (left < Duration.ZERO) Duration.ZERO else left
 }
 
 /**

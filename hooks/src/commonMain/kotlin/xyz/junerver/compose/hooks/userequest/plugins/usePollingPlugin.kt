@@ -2,11 +2,25 @@ package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.*
+import kotlin.time.Duration
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.useBackToFrontEffect
 import xyz.junerver.compose.hooks.useFrontToBackEffect
-import xyz.junerver.compose.hooks.userequest.*
+import xyz.junerver.compose.hooks.userequest.Fetch
+import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
+import xyz.junerver.compose.hooks.userequest.Plugin
+import xyz.junerver.compose.hooks.userequest.PluginLifecycle
+import xyz.junerver.compose.hooks.userequest.PluginOnBefore
+import xyz.junerver.compose.hooks.userequest.PluginOnCancel
+import xyz.junerver.compose.hooks.userequest.PluginOnError
+import xyz.junerver.compose.hooks.userequest.PluginOnFinally
+import xyz.junerver.compose.hooks.userequest.PluginOnSuccess
+import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 
 /*
   Description:
@@ -100,7 +114,7 @@ private class PollingPlugin<TData : Any> : Plugin<TData>() {
 
 @Composable
 internal fun <T : Any> usePollingPlugin(options: RequestOptions<T>): Plugin<T> {
-    if (options.pollingInterval == 0.milliseconds) {
+    if (options.pollingInterval == Duration.ZERO) {
         return useEmptyPlugin()
     }
     val pollingPlugin = remember {

@@ -2,7 +2,7 @@ package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Duration
 import xyz.junerver.compose.hooks.Throttle
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
@@ -23,7 +23,7 @@ private class ThrottlePlugin<TData : Any> : Plugin<TData>() {
     override val invoke: GenPluginLifecycleFn<TData>
         get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
             initFetch(fetch, requestOptions)
-            if (requestOptions.throttleOptions.wait > 0.seconds) {
+            if (requestOptions.throttleOptions.wait > Duration.ZERO) {
                 val throttle = Throttle(
                     fn = { params -> fetch._run(params) },
                     scope = this,
@@ -47,7 +47,7 @@ private class ThrottlePlugin<TData : Any> : Plugin<TData>() {
 
 @Composable
 internal fun <T : Any> useThrottlePlugin(options: RequestOptions<T>): Plugin<T> {
-    if (options.throttleOptions.wait == 0.seconds) {
+    if (options.throttleOptions.wait == Duration.ZERO) {
         return useEmptyPlugin()
     }
     val throttlePlugin = remember {
