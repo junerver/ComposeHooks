@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.invoke
@@ -310,7 +311,7 @@ private fun AdvancedConfigurationExample() {
             wait = 2.seconds
             leading = true
             trailing = true
-            maxWait = if (maxWaitEnabled) 3.seconds else 0.seconds
+            maxWait = if (maxWaitEnabled) 3.seconds else Duration.ZERO
         },
     )
 
