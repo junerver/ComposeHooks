@@ -127,7 +127,7 @@ internal class Debounce(
                 // If there's a pending trailing task, cancel it and execute immediately
                 cancelTimeout()
                 executeFn(lastArgs ?: arrayOf())
-                isAwaitingNextDebounce = true // Allow next leading after execution
+                isAwaitingNextDebounce = false // do not allow next leading after execution
             }
         }
     }
