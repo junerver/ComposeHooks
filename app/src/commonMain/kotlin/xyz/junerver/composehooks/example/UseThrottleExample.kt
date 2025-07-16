@@ -154,7 +154,11 @@ private fun BasicThrottleExample() {
     ) {
         Text("Original value: ${state.value}")
         Text("Throttled value: $throttledState")
-
+        Text(
+            text = "Configuration: leading=true, trailing=true, wait=1s",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(bottom = 16.dp),
+        )
         TButton(text = "Increment (+1)") {
             setState(state.value + 1)
         }
@@ -185,7 +189,11 @@ private fun ThrottleFnExample() {
     ) {
         Text("Function executions: ${stateFn.value}")
         Text("Button clicks: $executionCount")
-
+        Text(
+            text = "Configuration: leading=true, trailing=true, wait=1s",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(bottom = 16.dp),
+        )
         TButton(text = "Throttled Function Call") {
             throttledFn()
             setExecutionCount(executionCount + 1)
@@ -219,7 +227,11 @@ private fun ThrottleEffectExample() {
         Text("Trigger count: ${stateEf.value}")
         Text("API calls made: $requestCount")
         Text("Result: ${result.value}")
-
+        Text(
+            text = "Configuration: leading=true, trailing=true, wait=1s",
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.padding(bottom = 16.dp),
+        )
         TButton(text = "Trigger Effect") {
             setStateEf(stateEf.value + 1)
         }
