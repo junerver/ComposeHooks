@@ -15,6 +15,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.utils.currentTime
 
+/*
+  Description:
+  Author: Junerver
+  date: 2024/1/30-11:02
+  Email: junerver@gmail.com
+  Version: v1.0
+
+  Update: 2025/7/16-10:00 by Junerver
+  Version: v1.1
+  Description: fix leading
+ */
+
 /**
  * Options for configuring throttle behavior.
  *
