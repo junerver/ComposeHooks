@@ -16,11 +16,7 @@ import androidx.compose.ui.unit.dp
   Version: v1.0
 */
 
-
 @Composable
-fun DividerSpacer(
-    top: Dp = 20.dp,
-    bottom: Dp = 20.dp
-) {
+fun DividerSpacer(top: Dp = 20.dp, bottom: Dp = 20.dp) {
     HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 20.dp))
 }

@@ -1,7 +1,11 @@
 package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -166,9 +170,9 @@ private fun MMKVPersistent() {
     // with MMKV-based persistence functions for get, save, and clear operations
     PersistentContext.Provider(
         value = Triple(
-            first = ::mmkvGet,    // Custom get function
-            second = ::mmkvSave,  // Custom save function
-            third = ::mmkvClear,  // Custom clear function
+            first = ::mmkvGet, // Custom get function
+            second = ::mmkvSave, // Custom save function
+            third = ::mmkvClear, // Custom clear function
         ),
     ) {
         val (hideKeyboard) = useKeyboard()

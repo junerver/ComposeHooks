@@ -75,7 +75,7 @@ private fun InteractivePreviousDemo() {
                 value = input.value,
                 onValueChange = setInput,
                 label = { Text("Type something...") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -120,7 +120,7 @@ private fun BasicPreviousExample() {
             value = input.value,
             onValueChange = setInput,
             label = { Text("Edit this text") },
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         )
 
         Spacer(modifier = Modifier.height(8.dp))

@@ -42,9 +42,10 @@ import xyz.junerver.composehooks.ui.component.TButton
   Email: junerver@gmail.com
   Version: v1.0
 */
+
 /**
  * Simple data model for demonstrating the basic usage of useReducer
- * 
+ *
  * In the useReducer pattern, state is designed as an immutable data class containing all state fields to be managed.
  * This design makes the state structure clear, easy to track and debug.
  */
@@ -55,7 +56,7 @@ data class SimpleData(
 
 /**
  * Define possible Action types for modifying SimpleData state
- * 
+ *
  * Action is one of the core concepts in the useReducer pattern, describing "intent" rather than "how to implement".
  * By encapsulating state changes as explicit Action types, we achieve the following advantages:
  * 1. Clear state change intent - each Action has a clear meaning and purpose
@@ -65,29 +66,29 @@ data class SimpleData(
  */
 sealed interface SimpleAction {
     /**
- * Action to change name
- * 
- * Contains the new name to be set as a parameter, so the reducer function can get the information it needs
- */
+     * Action to change name
+     *
+     * Contains the new name to be set as a parameter, so the reducer function can get the information it needs
+     */
     data class ChangeName(val newName: String) : SimpleAction
 
     /**
- * Action to increase age
- * 
- * This is a simple Action that doesn't need additional parameters, implemented using data object
- */
+     * Action to increase age
+     *
+     * This is a simple Action that doesn't need additional parameters, implemented using data object
+     */
     data object AgeIncrease : SimpleAction
 }
 
 /**
  * Simple Reducer function that updates state based on different Action types
- * 
+ *
  * Reducer is the core of the useReducer pattern, it's a pure function that takes the current state and an action, returning a new state.
  * Characteristics of Reducer functions:
  * 1. Pure function - same input always produces same output, no side effects
  * 2. Immutability - doesn't directly modify original state, but returns new state objects
  * 3. Single responsibility - only handles state transformation logic, doesn't process side effects
- * 
+ *
  * The Reducer function is key to decoupling state and events:
  * - UI components only need to focus on "what Action to send", not "how to handle the Action"
  * - All state handling logic is centralized in the Reducer, making code more maintainable
@@ -100,7 +101,7 @@ val simpleReducer: Reducer<SimpleData, SimpleAction> =
             // When receiving ChangeName Action, update the name
             // Note we use the copy method to create a new state object, maintaining immutability
             is SimpleAction.ChangeName -> prevState.copy(name = action.newName)
-            
+
             // When receiving AgeIncrease Action, increase age by one
             // Similarly use the copy method to create a new state object
             is SimpleAction.AgeIncrease -> prevState.copy(age = prevState.age + 1)
@@ -110,14 +111,14 @@ val simpleReducer: Reducer<SimpleData, SimpleAction> =
 
 /**
  * useReducer example page
- * 
+ *
  * This page demonstrates the usage methods and application scenarios of the useReducer hook. useReducer is a powerful state management solution,
  * particularly suitable for handling complex state logic, based on the following core concepts:
- * 
+ *
  * 1. Centralized state management - all related states are centralized in one state object
  * 2. Action-driven updates - all state changes are triggered by sending Actions
  * 3. Reducer handling logic - state update logic is centralized in the Reducer function
- * 
+ *
  * Main advantages of this pattern:
  * - Separation of state logic and UI logic, improving code maintainability
  * - Traceable state change process, facilitating debugging
@@ -161,17 +162,17 @@ fun UseReducerExample() {
 
 /**
  * Example logging middleware, recording action and state changes
- * 
+ *
  * Middleware is an important extension mechanism in the useReducer pattern, allowing us to:
  * 1. Intercept Actions - process before Actions reach the Reducer
  * 2. Enhance Dispatch - add additional functionality, such as logging, performance monitoring, etc.
  * 3. Handle side effects - process side effects without polluting the pure Reducer function
- * 
+ *
  * Middleware workflow:
  * 1. Receive the original dispatch function and current state
  * 2. Return an enhanced dispatch function
  * 3. The enhanced dispatch function receives actions and can execute additional logic before and after calling the original dispatch
- * 
+ *
  * This design ensures that:
  * - Reducer maintains pure function characteristics, focusing on state transformation
  * - Side effects and cross-cutting concerns (like logging, monitoring) can be handled through middleware
@@ -182,10 +183,10 @@ fun <S, A> logMiddleware(): Middleware<S, A> = { dispatch, state ->
     { action ->
         // Before calling the original dispatch, log the action and current state
         println("Action: $action, PrevState: $state")
-        
+
         // Call the original dispatch function, passing the action to the reducer
         dispatch(action)
-        
+
         // Note: If needed, you can also add post-dispatch logic here
         // For example, logging the updated state: println("NewState: ${state.value}")
     }
@@ -193,14 +194,14 @@ fun <S, A> logMiddleware(): Middleware<S, A> = { dispatch, state ->
 
 /**
  * Interactive useReducer demo component
- * 
+ *
  * This component demonstrates the complete usage process of useReducer in practical applications:
  * 1. Define state and Action
  * 2. Create Reducer function
  * 3. Use useReducer to initialize state and dispatch function
  * 4. Trigger Action dispatch through UI events
  * 5. Use middleware to enhance functionality
- * 
+ *
  * This example demonstrates the core advantages of useReducer:
  * - Separation of state logic and UI logic - Reducer handles all state update logic
  * - UI components only responsible for rendering and event triggering - no complex state logic
@@ -226,10 +227,10 @@ fun InteractiveReducerDemo() {
             // 2. initialState - initial state
             // 3. middlewares - middleware array, used to enhance dispatch functionality
             val (state, dispatch) = useReducer(
-                simpleReducer,  // 传入我们定义的 reducer 函数
-                initialState = SimpleData("default", 18),  // 设置初始状态
+                simpleReducer, // 传入我们定义的 reducer 函数
+                initialState = SimpleData("default", 18), // 设置初始状态
                 middlewares = arrayOf(
-                    logMiddleware(),  // 使用日志中间件记录状态变化
+                    logMiddleware(), // 使用日志中间件记录状态变化
                 ),
             )
             // useReducer returns:
@@ -279,12 +280,12 @@ fun InteractiveReducerDemo() {
 
 /**
  * Basic useReducer usage example
- * 
+ *
  * This component demonstrates the simplest usage of useReducer, without using middleware, focusing on core functionality:
  * 1. Use useReducer to initialize state and dispatch function
  * 2. Render current state
  * 3. Trigger Action dispatch through buttons
- * 
+ *
  * This simplified example clearly demonstrates the basic workflow of useReducer:
  * - State is uniformly managed by the reducer function
  * - UI sends Actions through the dispatch function
@@ -295,8 +296,8 @@ fun BasicReducerExample() {
     // Using useReducer to manage state - simplest form, only providing reducer and initial state
     // Note that no middleware is provided here, demonstrating the most basic usage
     val (state, dispatch) = useReducer(
-        simpleReducer,  // reducer 函数
-        initialState = SimpleData("John", 25),  // 初始状态
+        simpleReducer, // reducer 函数
+        initialState = SimpleData("John", 25), // 初始状态
     )
     // useReducer returns state object and dispatch function
 
@@ -331,12 +332,12 @@ fun BasicReducerExample() {
 
 /**
  * Task list component, displaying all task items
- * 
+ *
  * This component is responsible for rendering the task list, demonstrating how to design child components in the useReducer pattern:
  * 1. Receive data as parameters, rather than directly accessing global state
  * 2. Receive callback functions, rather than directly modifying state
  * 3. Focus on UI rendering, without containing state management logic
- * 
+ *
  * This design implements separation of concerns:
  * - Parent component (TaskApp) is responsible for state management and Action dispatch
  * - Child component (TaskList) is only responsible for UI rendering and event callbacks
@@ -361,12 +362,12 @@ fun TaskList(tasks: List<Task>, onChangeTask: (Task) -> Unit, onDeleteTask: (Int
 
 /**
  * Single task item component, displaying task content and providing edit and delete functionality
- * 
+ *
  * This component demonstrates how to handle complex UI interactions in the useReducer pattern:
  * 1. Component internally maintains its own local state (edit mode and temporary text)
  * 2. Passes state changes to parent component through callback functions
  * 3. Renders different UI based on state conditions
- * 
+ *
  * This design implements separation of responsibilities:
  * - Internal component state (such as edit mode) is managed by the component itself
  * - Changes to global state (task data) are passed to the reducer through callback functions
@@ -376,8 +377,8 @@ fun TaskList(tasks: List<Task>, onChangeTask: (Task) -> Unit, onDeleteTask: (Int
 fun TaskItem(task: Task, onChange: (Task) -> Unit, onDelete: (Int) -> Unit) {
     // Use useState to manage component internal state
     // These states are only used within the component, don't need to be managed through reducer
-    var isEditing by useState(false)  // Whether in edit mode
-    var text by useState(task.text)   // Temporary text during editing
+    var isEditing by useState(false) // Whether in edit mode
+    var text by useState(task.text) // Temporary text during editing
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -436,19 +437,19 @@ fun TaskItem(task: Task, onChange: (Task) -> Unit, onDelete: (Int) -> Unit) {
                 )
 
                 // Edit button
-                TButton(text = "Edit", onClick = { 
+                TButton(text = "Edit", onClick = {
                     // Enter edit mode, update component internal state
-                    isEditing = true 
+                    isEditing = true
                 })
             }
 
             // Delete button
             TButton(
                 text = "Delete",
-                onClick = { 
+                onClick = {
                     // Delete task through callback function
                     // Callback function will eventually trigger TaskAction.Deleted Action
-                    onDelete(task.id) 
+                    onDelete(task.id)
                 },
             )
         }
@@ -457,31 +458,31 @@ fun TaskItem(task: Task, onChange: (Task) -> Unit, onDelete: (Int) -> Unit) {
 
 /**
  * Task data class
- * 
+ *
  * In the useReducer pattern, data models are the foundation of state management:
  * 1. Using immutable data classes ensures state immutability
  * 2. Contains all properties that need to be managed (id, text content, completion status)
  * 3. Provides a clear structure, facilitating state updates in the reducer
- * 
+ *
  * Advantages of immutable data models:
  * - More predictable state changes - by creating new objects rather than modifying existing ones
  * - Easy to debug and track - each state update produces a new object
  * - Supports efficient equality checking - quickly determine changes through reference comparison
  */
 data class Task(
-    val id: Int,       // Task unique identifier
-    val text: String,   // Task text content
-    val done: Boolean,  // Task completion status
+    val id: Int, // Task unique identifier
+    val text: String, // Task text content
+    val done: Boolean, // Task completion status
 )
 
 /**
  * Add task component, providing input field and add button
- * 
+ *
  * This component demonstrates how to handle user input and events in the useReducer pattern:
  * 1. Component internally maintains its own local state (input text)
  * 2. Passes user operations to parent component through callback functions
  * 3. Resets local state after user operations
- * 
+ *
  * This design implements separation of responsibilities:
  * - Input state is managed by the component itself, without needing to be processed through reducer
  * - Add task logic is passed to parent component through callback functions
@@ -520,7 +521,7 @@ fun AddTask(onAddTask: (String) -> Unit) {
                     // Call callback function, passing input text to parent component
                     // Parent component will convert it to TaskAction.Added Action
                     onAddTask(text)
-                    
+
                     // Reset input text, prepare for next input
                     // Note this is an update of component internal state, not involving global state
                     text = ""
@@ -533,13 +534,13 @@ fun AddTask(onAddTask: (String) -> Unit) {
 
 /**
  * Task management application example, demonstrating the application of useReducer in complex scenarios
- * 
+ *
  * This component demonstrates advanced usage of useReducer in practical applications:
  * 1. Managing complex collection type states (task list)
  * 2. Handling multiple different types of Actions (add, update, delete tasks)
  * 3. Using dispatchAsync to handle asynchronous operations
  * 4. Organizing state management in large applications
- * 
+ *
  * This example demonstrates the advantages of useReducer in complex applications:
  * - Centralized management of complex state - all task-related state is centralized in one place
  * - Unified state update logic - all task operations are processed through reducer
@@ -597,7 +598,7 @@ fun TaskApp() {
                 // Can add asynchronous logic here, for example:
                 // delay(2.seconds)  // Simulate network request delay
                 // Or call actual API service
-                
+
                 // Finally return the Action to be dispatched
                 TaskAction.Added(text)
             }
@@ -653,7 +654,7 @@ fun TaskApp() {
 
 /**
  * Task ID counter, used to generate unique task IDs
- * 
+ *
  * In practical applications, this type of ID generation would typically be handled by backend services or more complex ID generation strategies.
  * Here we use a simple incrementing counter as an example.
  */
@@ -661,7 +662,7 @@ var nextId = 3
 
 /**
  * Initial task list
- * 
+ *
  * In the useReducer pattern, initial state is an important configuration:
  * 1. Defines initial data when the application starts
  * 2. Uses immutable collections (persistentListOf) to ensure state immutability
@@ -675,12 +676,12 @@ val initialTasks = persistentListOf(
 
 /**
  * Define task-related Action types
- * 
+ *
  * Action is a core concept in the useReducer pattern, describing "intent" rather than "how to implement":
  * 1. Using sealed interface to define all possible Action types
  * 2. Each Action type contains the data needed to perform the operation
  * 3. Action only describes "what to do", not the logic of "how to do it"
- * 
+ *
  * Advantages of this design:
  * - Type safety - compiler can check all possible Action types
  * - Clear intent - each Action has a clear meaning and purpose
@@ -690,10 +691,10 @@ val initialTasks = persistentListOf(
 sealed interface TaskAction {
     /**
      * Add task Action
-     * 
+     *
      * This Action only needs to contain task text, other information (such as ID and completion status)
      * will be handled in the reducer function.
-     * 
+     *
      * @param text Task text
      */
     data class Added(
@@ -702,10 +703,10 @@ sealed interface TaskAction {
 
     /**
      * Update task Action
-     * 
+     *
      * This Action contains the complete updated task object, the reducer function will
      * find the corresponding task based on task ID and update it.
-     * 
+     *
      * @param task Updated task object
      */
     data class Changed(
@@ -714,10 +715,10 @@ sealed interface TaskAction {
 
     /**
      * Delete task Action
-     * 
+     *
      * This Action only needs to contain the task ID to be deleted, the reducer function will
      * find and delete the corresponding task based on ID.
-     * 
+     *
      * @param taskId Task ID to be deleted
      */
     data class Deleted(

@@ -168,10 +168,7 @@ private fun InteractiveMountDemo() {
  * Component that tracks mount and unmount events
  */
 @Composable
-private fun MountTrackerComponent(
-    onMount: () -> Unit,
-    onUnmount: () -> Unit,
-) {
+private fun MountTrackerComponent(onMount: () -> Unit, onUnmount: () -> Unit) {
     useMount {
         println("Component mounted")
         onMount()

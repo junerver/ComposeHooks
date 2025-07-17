@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 */
 
 @Composable
-fun LogCard(title: String = "Log:", logs: List<String>) {
+fun LogCard(title: String = "Log:", logs: List<String>, limit: Int = 5) {
     Column {
         Text(
             text = title,
@@ -37,16 +37,16 @@ fun LogCard(title: String = "Log:", logs: List<String>) {
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 } else {
-                    logs.takeLast(5).forEach { log ->
+                    logs.takeLast(limit).forEach { log ->
                         Text(
                             text = "• $log",
                             style = MaterialTheme.typography.bodySmall,
                             modifier = Modifier.padding(vertical = 2.dp),
                         )
                     }
-                    if (logs.size > 5) {
+                    if (logs.size > limit) {
                         Text(
-                            text = "... and ${logs.size - 5} more",
+                            text = "... and ${logs.size - limit} more",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )

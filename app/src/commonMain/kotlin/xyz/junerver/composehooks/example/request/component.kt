@@ -28,7 +28,6 @@ import xyz.junerver.composehooks.ui.component.TButton
   Version: v1.0
 */
 
-
 enum class OptionFunc {
     LoadingDelay,
     Debounce,
