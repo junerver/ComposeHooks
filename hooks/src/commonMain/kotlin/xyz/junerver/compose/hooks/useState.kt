@@ -10,7 +10,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import kotlin.coroutines.cancellation.CancellationException
-import xyz.junerver.compose.hooks.useDynamicOptions
+import xyz.junerver.compose.hooks.annotation.ExperimentalComputed
 
 /*
   Description:
@@ -128,6 +128,7 @@ data class StateAsyncOptions internal constructor(
  * @param factory The suspend function that produces the state value
  * @return A State object containing the result of the async computation (or null if not yet computed or on error)
  */
+@ExperimentalComputed
 @Composable
 fun <T> useStateAsync(
     vararg keys: Any?,
@@ -135,33 +136,44 @@ fun <T> useStateAsync(
     optionsOf: StateAsyncOptions.() -> Unit = {},
     factory: suspend () -> T,
 ): State<T?> {
-    val options = useDynamicOptions(optionsOf)
-    val (lazy, onError) = options
+    val (lazy, onError) = useDynamicOptions(optionsOf)
     val (asyncRun) = useCancelableAsync()
     val (state, setState) = _useGetState(initValue)
-    val calcFnRef = useLatestRef {
-        asyncRun {
-            try {
-                setState(factory())
-            } catch (e: Exception) {
-                if (e !is CancellationException) {
-                    onError(e)
-                    setState(null)
+    val factoryRef = useLatestRef(factory)
+    var isComputing by useRef(false)
+    val calcFnRef = useRef {
+        if (!isComputing) {
+            isComputing = true
+            asyncRun {
+                try {
+                    setState(factoryRef.current())
+                } catch (e: Exception) {
+                    if (e !is CancellationException) {
+                        onError(e)
+                        setState(null)
+                    }
+                } finally {
+                    isComputing = false
                 }
             }
         }
     }
     if (lazy) {
-        return useState(keys = keys) {
-            calcFnRef.current()
-            state.value
-        }
+        return remember { AsyncCalcState(calcFnRef, state) }
     } else {
-        useEffect(deps = keys) {
+        useEffect(deps = arrayOf(*keys, factory)) {
             calcFnRef.current()
         }
         return state
     }
+}
+
+internal class AsyncCalcState<T>(val calcFn: Ref<() -> Unit>, val state: State<T?>) : State<T?> {
+    override val value: T?
+        get() {
+            calcFn.current()
+            return state.value
+        }
 }
 
 /**
