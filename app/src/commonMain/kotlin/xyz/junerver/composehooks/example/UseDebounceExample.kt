@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import xyz.junerver.compose.hooks.None
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useDebounce
 import xyz.junerver.compose.hooks.useDebounceEffect
@@ -220,7 +221,7 @@ private fun BasicDebounceExample() {
 @Composable
 private fun DebouncedFunctionExample() {
     val (state, setState) = useGetState(0)
-    val debouncedFn = useDebounceFn(
+    val debouncedFn = useDebounceFn<None>(
         fn = { setState { it + 1 } },
         optionsOf = {
             wait = 500.milliseconds

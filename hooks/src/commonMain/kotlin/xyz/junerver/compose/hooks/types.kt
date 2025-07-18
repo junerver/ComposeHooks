@@ -119,6 +119,8 @@ operator fun <TData> NormalFunction<TData>.invoke(vararg params: Any?) = this(ar
 
 operator fun VoidFunction.invoke(vararg params: Any?) = this(arrayOf(*params))
 
+operator fun <R> ((None) -> R).invoke() = this.invoke(None)
+
 /**
  * 优化函数调用，通过使用[Either]，可以实现在kotlin平台的解构多态，可以实现如下代码，增加灵活性
  * ```kotlin
