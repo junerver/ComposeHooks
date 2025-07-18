@@ -67,7 +67,7 @@ data class ThrottleOptions internal constructor(
  */
 @Stable
 internal class Throttle<TParams>(
-    var fn: (TParams) -> Unit,
+    var fn: VoidFunction<TParams>,
     private val scope: CoroutineScope,
     private val options: ThrottleOptions = ThrottleOptions(),
 ) {
@@ -181,7 +181,7 @@ fun <S> useThrottle(value: S, optionsOf: ThrottleOptions.() -> Unit = {}): State
  * ```
  */
 @Composable
-fun <TParams> useThrottleFn(fn: (TParams) -> Unit, optionsOf: ThrottleOptions.() -> Unit = {}): (TParams) -> Unit =
+fun <TParams> useThrottleFn(fn: VoidFunction<TParams>, optionsOf: ThrottleOptions.() -> Unit = {}): VoidFunction<TParams> =
     useThrottleFn(fn, useDynamicOptions(optionsOf))
 
 /**
@@ -244,7 +244,7 @@ private fun <S> useThrottle(value: S, options: ThrottleOptions): State<S> {
  * @return A throttled version of the input function
  */
 @Composable
-private fun <TParams> useThrottleFn(fn: (TParams) -> Unit, options: ThrottleOptions): (TParams) -> Unit {
+private fun <TParams> useThrottleFn(fn: VoidFunction<TParams>, options: ThrottleOptions): VoidFunction<TParams> {
     val latestFn by useLatestState(value = fn)
     val scope = rememberCoroutineScope()
     val throttled = remember {

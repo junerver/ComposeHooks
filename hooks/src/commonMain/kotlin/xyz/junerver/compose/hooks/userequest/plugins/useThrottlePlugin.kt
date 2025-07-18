@@ -3,7 +3,6 @@ package xyz.junerver.compose.hooks.userequest.plugins
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlin.time.Duration
-import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.Throttle
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
@@ -20,12 +19,12 @@ import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
   Email: junerver@gmail.com
   Version: v1.0
 */
-private class ThrottlePlugin<TData : Any> : Plugin<TData>() {
-    override val invoke: GenPluginLifecycleFn<TData>
-        get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
+private class ThrottlePlugin<TParams,TData : Any> : Plugin<TParams,TData>() {
+    override val invoke: GenPluginLifecycleFn<TParams,TData>
+        get() = { fetch: Fetch<TParams,TData>, requestOptions: RequestOptions<TParams,TData> ->
             initFetch(fetch, requestOptions)
             if (requestOptions.throttleOptions.wait > Duration.ZERO) {
-                val throttle = Throttle<TParams>(
+                val throttle = Throttle<TParams?>(
                     fn = { params -> fetch._run(params) },
                     scope = this,
                     requestOptions.throttleOptions,
@@ -37,7 +36,7 @@ private class ThrottlePlugin<TData : Any> : Plugin<TData>() {
                     throttle.invoke(it)
                 }
             }
-            object : PluginLifecycle<TData>() {
+            object : PluginLifecycle<TParams,TData>() {
                 override val onCancel: PluginOnCancel
                     get() = {
                         cancel()
@@ -47,12 +46,12 @@ private class ThrottlePlugin<TData : Any> : Plugin<TData>() {
 }
 
 @Composable
-internal fun <T : Any> useThrottlePlugin(options: RequestOptions<T>): Plugin<T> {
+internal fun <TParams,TData : Any> useThrottlePlugin(options: RequestOptions<TParams,TData>): Plugin<TParams,TData> {
     if (options.throttleOptions.wait == Duration.ZERO) {
         return useEmptyPlugin()
     }
     val throttlePlugin = remember {
-        ThrottlePlugin<T>()
+        ThrottlePlugin<TParams,TData>()
     }
     return throttlePlugin
 }

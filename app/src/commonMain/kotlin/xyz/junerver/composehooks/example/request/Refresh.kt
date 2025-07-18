@@ -11,7 +11,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.compose.hooks.utils.asBoolean
@@ -30,11 +29,11 @@ import xyz.junerver.composehooks.ui.component.TButton
 fun Refresh() {
     var params by useState("")
     val (userInfoState, loadingState, errorState, request, _, refresh) = useRequest(
-        requestFn = { NetApi.userInfo(it[0] as String) },
+        requestFn = { NetApi.userInfo(it) },
         optionsOf = {
-            defaultParams = arrayOf("junerver")
+            defaultParams = "junerver"
             onBefore = {
-                params = it.joinToString("、")
+                params = "$it"
             }
         },
     )

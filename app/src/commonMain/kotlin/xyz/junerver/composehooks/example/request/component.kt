@@ -10,7 +10,6 @@ import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.DebounceOptions
 import xyz.junerver.compose.hooks.ThrottleOptions
-import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useEventPublish
 import xyz.junerver.compose.hooks.useEventSubscribe
 import xyz.junerver.compose.hooks.userequest.RequestOptions
@@ -50,9 +49,9 @@ fun Container(label: String, optionFunc: OptionFunc) {
 @Composable
 fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc) {
     val (userInfoState, loadingState, _, request) = useRequest(
-        requestFn = { NetApi.userInfo(it[0] as String) },
+        requestFn = { NetApi.userInfo(it) },
         optionsOf = {
-            defaultParams = arrayOf("junerver")
+            defaultParams = "junerver"
             when (optionFunc) {
                 OptionFunc.LoadingDelay -> run {
                     /**
@@ -87,7 +86,7 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
         },
     )
     useEventSubscribe { _: Unit ->
-        request()
+        request("junerver")
     }
     val userInfo by userInfoState
     val loading by loadingState

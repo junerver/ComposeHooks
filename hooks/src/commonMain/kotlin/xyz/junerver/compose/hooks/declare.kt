@@ -36,10 +36,10 @@ inline fun <reified T, R> rememberSelector(alias: String? = null, crossinline bl
 //endregion
 
 @Composable
-fun <TData : Any> rememberRequest(
-    requestFn: SuspendNormalFunction<TData>,
-    optionsOf: RequestOptions<TData>.() -> Unit = {},
-    plugins: Array<@Composable (RequestOptions<TData>) -> Plugin<TData>> = emptyArray(),
+fun <TParams, TData : Any> rememberRequest(
+    requestFn: SuspendNormalFunction<TParams?, TData>,
+    optionsOf: RequestOptions<TParams, TData>.() -> Unit = {},
+    plugins: Array<@Composable (RequestOptions<TParams, TData>) -> Plugin<TParams, TData>> = emptyArray(),
 ) = useRequest(requestFn, optionsOf, plugins)
 
 //region useAsync
@@ -85,7 +85,7 @@ fun <T> rememberCreation(vararg keys: Any?, factory: () -> T) = useCreation(*key
 fun <S> rememberDebounce(value: S, optionsOf: DebounceOptions.() -> Unit = {}) = useDebounce(value, optionsOf)
 
 @Composable
-fun rememberDebounceFn(fn: VoidFunction, optionsOf: DebounceOptions.() -> Unit = {}) = useDebounceFn(fn, optionsOf)
+fun <TParams> rememberDebounceFn(fn: VoidFunction<TParams>, optionsOf: DebounceOptions.() -> Unit = {}) = useDebounceFn(fn, optionsOf)
 
 @Composable
 fun LaunchedDebounceEffect(vararg keys: Any?, optionsOf: DebounceOptions.() -> Unit = {}, block: SuspendAsyncFn) =
@@ -185,13 +185,14 @@ fun <T> _rememberState(default: T) = _useState(default)
 fun <S> rememberThrottle(value: S, optionsOf: ThrottleOptions.() -> Unit = {}) = useThrottle(value, optionsOf)
 
 @Composable
-fun rememberThrottleFn(fn: VoidFunction, optionsOf: ThrottleOptions.() -> Unit = {}) = useThrottleFn(fn, optionsOf)
+fun <TParams> rememberThrottleFn(fn: VoidFunction<TParams>, optionsOf: ThrottleOptions.() -> Unit = {}) = useThrottleFn(fn, optionsOf)
 
 @Composable
 fun LaunchedThrottleEffect(vararg keys: Any?, optionsOf: ThrottleOptions.() -> Unit = {}, block: SuspendAsyncFn) =
     useThrottleEffect(*keys, optionsOf = optionsOf, block = block)
 //endregion
 
+@Deprecated(message = "useTimeout with delay and block is deprecated. Use rememberTimeoutFn instead.")
 @Composable
 fun rememberTimeout(delay: Duration = 1.seconds, block: () -> Unit) = useTimeout(delay, block)
 

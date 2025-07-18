@@ -55,7 +55,7 @@ data class DebounceOptions internal constructor(
  */
 @Stable
 internal class Debounce<TParams>(
-    var fn: (TParams) -> Unit,
+    var fn: VoidFunction<TParams>,
     private val scope: CoroutineScope,
     private val options: DebounceOptions = DebounceOptions(),
 ) {
@@ -157,7 +157,7 @@ fun <S> useDebounce(value: S, optionsOf: DebounceOptions.() -> Unit = {}): State
  * @return A debounced version of the provided function
  */
 @Composable
-fun <TParams> useDebounceFn(fn: (TParams) -> Unit, optionsOf: DebounceOptions.() -> Unit = {}): (TParams) -> Unit =
+fun <TParams> useDebounceFn(fn: VoidFunction<TParams>, optionsOf: DebounceOptions.() -> Unit = {}): VoidFunction<TParams> =
     useDebounceFn(fn, useDynamicOptions(optionsOf))
 
 /**
@@ -214,7 +214,7 @@ private fun <S> useDebounce(value: S, options: DebounceOptions): State<S> {
  * This way, our [Debounce] can be seamlessly integrated.
  */
 @Composable
-private fun <TParams> useDebounceFn(fn: (TParams) -> Unit, options: DebounceOptions): (TParams) -> Unit {
+private fun <TParams> useDebounceFn(fn: VoidFunction<TParams>, options: DebounceOptions): VoidFunction<TParams> {
     val latestFn by useLatestState(value = fn)
     val scope = rememberCoroutineScope()
     val debounced = remember {

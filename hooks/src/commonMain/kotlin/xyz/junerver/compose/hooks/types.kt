@@ -17,14 +17,14 @@ import kotlinx.coroutines.CoroutineScope
   Version: v1.0
 */
 
-// 原始函数模型 (TParams) -> TData
-internal typealias TParams = Array<Any?> // 原函数可变长度的参数
+// 函数参数抽象
+typealias ArrayParams = Array<Any?>
 
 // 对所有函数固定抽象
-internal typealias NormalFunction<TData> = (TParams) -> TData
-typealias SuspendNormalFunction<TData> = suspend (TParams) -> TData
-internal typealias VoidFunction = NormalFunction<Unit>
-internal typealias SuspendVoidFunction = SuspendNormalFunction<Unit>
+internal typealias NormalFunction<TParams, TData> = (TParams) -> TData
+typealias SuspendNormalFunction<TParams, TData> = suspend (TParams) -> TData
+internal typealias VoidFunction<TParams> = NormalFunction<TParams, Unit>
+internal typealias SuspendVoidFunction<TParams> = SuspendNormalFunction<TParams, Unit>
 
 // 最常规的函数 ()->Unit
 internal typealias NoParamsVoidFunction = () -> Unit
@@ -115,11 +115,74 @@ internal typealias DispatchCallback<A> = (Dispatch<A>) -> Unit
  * import xyz.junerver.compose.hooks.invoke
  * ```
  */
-operator fun <TData> NormalFunction<TData>.invoke(vararg params: Any?) = this(arrayOf(*params))
+operator fun <TData> NormalFunction<ArrayParams,TData>.invoke(vararg params: Any?) = this(arrayOf(*params))
 
-operator fun VoidFunction.invoke(vararg params: Any?) = this(arrayOf(*params))
+operator fun VoidFunction<ArrayParams>.invoke(vararg params: Any?) = this(arrayOf(*params))
 
 operator fun <R> ((None) -> R).invoke() = this.invoke(None)
+
+operator fun <P1, R> ((Tuple1<P1>) -> R).invoke(p1: P1) = this.invoke(tuple(p1))
+
+operator fun <P1, P2, R> ((Tuple2<P1, P2>) -> R).invoke(p1: P1, p2: P2) = this.invoke(tuple(p1, p2))
+
+operator fun <P1, P2, P3, R> ((Tuple3<P1, P2, P3>) -> R).invoke(p1: P1, p2: P2, p3: P3) = this.invoke(tuple(p1, p2, p3))
+
+operator fun <P1, P2, P3, P4, R> ((Tuple4<P1, P2, P3, P4>) -> R).invoke(
+    p1: P1,
+    p2: P2,
+    p3: P3,
+    p4: P4,
+) = this.invoke(tuple(p1, p2, p3, p4))
+
+operator fun <P1, P2, P3, P4, P5, R> ((Tuple5<P1, P2, P3, P4, P5>) -> R).invoke(
+    p1: P1,
+    p2: P2,
+    p3: P3,
+    p4: P4,
+    p5: P5,
+) = this.invoke(tuple(p1, p2, p3, p4, p5))
+
+operator fun <P1, P2, P3, P4, P5, P6, R> ((Tuple6<P1, P2, P3, P4, P5, P6>) -> R).invoke(
+    p1: P1,
+    p2: P2,
+    p3: P3,
+    p4: P4,
+    p5: P5,
+    p6: P6,
+) = this.invoke(tuple(p1, p2, p3, p4, p5, p6))
+
+operator fun <P1, P2, P3, P4, P5, P6, P7, R> ((Tuple7<P1, P2, P3, P4, P5, P6, P7>) -> R).invoke(
+    p1: P1,
+    p2: P2,
+    p3: P3,
+    p4: P4,
+    p5: P5,
+    p6: P6,
+    p7: P7,
+) = this.invoke(tuple(p1, p2, p3, p4, p5, p6, p7))
+
+operator fun <P1, P2, P3, P4, P5, P6, P7, P8, R> ((Tuple8<P1, P2, P3, P4, P5, P6, P7, P8>) -> R).invoke(
+    p1: P1,
+    p2: P2,
+    p3: P3,
+    p4: P4,
+    p5: P5,
+    p6: P6,
+    p7: P7,
+    p8: P8,
+) = this.invoke(tuple(p1, p2, p3, p4, p5, p6, p7, p8))
+
+operator fun <P1, P2, P3, P4, P5, P6, P7, P8, P9, R> ((Tuple9<P1, P2, P3, P4, P5, P6, P7, P8, P9>) -> R).invoke(
+    p1: P1,
+    p2: P2,
+    p3: P3,
+    p4: P4,
+    p5: P5,
+    p6: P6,
+    p7: P7,
+    p8: P8,
+    p9: P9,
+) = this.invoke(tuple(p1, p2, p3, p4, p5, p6, p7, p8, p9))
 
 /**
  * 优化函数调用，通过使用[Either]，可以实现在kotlin平台的解构多态，可以实现如下代码，增加灵活性

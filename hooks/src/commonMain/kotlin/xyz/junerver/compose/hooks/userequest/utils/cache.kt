@@ -1,7 +1,6 @@
 package xyz.junerver.compose.hooks.userequest.utils
 
 import kotlin.time.Instant
-import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.cacheKey
 import xyz.junerver.compose.hooks.utils.CacheManager
 import xyz.junerver.compose.hooks.utils.currentTime
@@ -15,7 +14,7 @@ import xyz.junerver.compose.hooks.utils.currentTime
 */
 data class CachedData<TData>(
     val data: TData,
-    val params: TParams = emptyArray(),
+    val params: Any? = null,
 ) {
     val time: Instant = currentTime
 
@@ -26,13 +25,13 @@ data class CachedData<TData>(
         other as CachedData<*>
 
         if (data != other.data) return false
-        if (!params.contentEquals(other.params)) return false
+        if (params != other.params) return false
         return time == other.time
     }
 
     override fun hashCode(): Int {
         var result = data?.hashCode() ?: 0
-        result = 31 * result + params.contentHashCode()
+        result = 31 * result + params.hashCode()
         result = 31 * result + time.hashCode()
         return result
     }

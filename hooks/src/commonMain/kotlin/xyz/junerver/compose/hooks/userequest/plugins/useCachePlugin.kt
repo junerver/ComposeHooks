@@ -8,7 +8,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import xyz.junerver.compose.hooks.MutableRef
-import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.Tuple4
 import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.useRef
@@ -46,7 +45,7 @@ import xyz.junerver.compose.hooks.utils.isNotNull
   Email: junerver@gmail.com
   Version: v1.0
 */
-private class CachePlugin<TData : Any> : Plugin<TData>() {
+private class CachePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
     lateinit var unSubscribeRef: MutableRef<(() -> Unit)?>
     lateinit var currentPromiseRef: MutableRef<Deferred<*>?>
 
@@ -54,20 +53,20 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
     lateinit var setCache: (key: String, cachedData: CachedData<TData>) -> Unit
     lateinit var getCache: (String, TParams) -> CachedData<TData>?
 
-    override val invoke: GenPluginLifecycleFn<TData>
-        get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
+    override val invoke: GenPluginLifecycleFn<TParams, TData>
+        get() = { fetch: Fetch<TParams, TData>, requestOptions: RequestOptions<TParams, TData> ->
             initFetch(fetch, requestOptions)
             val (cacheKey, staleTimeOp) = with(requestOptions) { tuple(cacheKey, staleTime) }
             staleTime = staleTimeOp
 
-            object : PluginLifecycle<TData>() {
-                override val onBefore: PluginOnBefore<TData>
+            object : PluginLifecycle<TParams, TData>() {
+                override val onBefore: PluginOnBefore<TParams, TData>
                     get() = onBefore@{
                         val cacheData = getCache(cacheKey, it)
                         // 正在请求，啥也不做
                         if (!cacheData.asBoolean()) return@onBefore null
                         if (staleTime == (-1).seconds || currentTime - cacheData.time <= staleTime) {
-                            OnBeforeReturn(
+                            OnBeforeReturn<TParams, TData>(
                                 loading = false,
                                 data = cacheData.data,
                                 error = null,
@@ -80,7 +79,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                             }
                         } else {
                             // 过期继续请求
-                            OnBeforeReturn(
+                            OnBeforeReturn<TParams, TData>(
                                 data = cacheData.data,
                                 error = null,
                             ).apply {
@@ -92,7 +91,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                         }
                     }
 
-                override val onRequest: PluginOnRequest<TData>
+                override val onRequest: PluginOnRequest<TParams, TData>
                     get() = onRequest@{ requestFn, param ->
                         var servicePromise: Deferred<TData>? = getCacheDeferred(cacheKey)
                         trigger(cacheKey, RestoreFetchStateData(loading = true))
@@ -109,7 +108,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                         OnRequestReturn(servicePromise)
                     }
 
-                override val onSuccess: PluginOnSuccess<TData>
+                override val onSuccess: PluginOnSuccess<TParams, TData>
                     get() = { data: TData, params: TParams ->
                         if (cacheKey.asBoolean()) {
                             // 取消订阅，保存
@@ -118,14 +117,14 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                                 cacheKey,
                                 CachedData(
                                     data,
-                                    params,
+                                    params as Any?,
                                 ),
                             )
                             unSubscribeRef.current = subscribe(cacheKey, ::setFetchState)
                         }
                     }
 
-                override val onError: PluginOnError
+                override val onError: PluginOnError<TParams>
                     get() = { e: Throwable, _ ->
                         if (cacheKey.asBoolean()) {
                             unSubscribeRef.current?.invoke()
@@ -148,7 +147,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
                                 cacheKey,
                                 CachedData(
                                     it,
-                                    fetchInstance.fetchState.params ?: emptyArray(),
+                                    fetchInstance.fetchState.params as Any?,
                                 ),
                             )
                             unSubscribeRef.current = subscribe(cacheKey, ::setFetchState)
@@ -163,7 +162,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
     fun initFetchStateWithCachedData(cacheData: CachedData<TData>) {
         with(fetchInstance.fetchState) {
             data = cacheData.data
-            params = cacheData.params
+            params = cacheData.params as TParams
             if (staleTime == (-1).seconds || currentTime - cacheData.time <= staleTime) {
                 loading = false
             }
@@ -182,7 +181,7 @@ private class CachePlugin<TData : Any> : Plugin<TData>() {
 }
 
 @Composable
-internal fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
+internal fun <TParams, TData : Any> useCachePlugin(options: RequestOptions<TParams, TData>): Plugin<TParams, TData> {
     val (cacheKey, cacheTime, customSetCache, customGetCache) = with(options) {
         Tuple4(cacheKey, cacheTime, setCache, getCache)
     }
@@ -190,7 +189,7 @@ internal fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
         return useEmptyPlugin()
     }
 
-    fun setCache(key: String, cachedData: CachedData<T>) {
+    fun setCache(key: String, cachedData: CachedData<TData>) {
         if (customSetCache.asBoolean()) {
             customSetCache(cachedData)
         } else {
@@ -206,8 +205,8 @@ internal fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
         )
     }
 
-    fun getCache(key: String, params: TParams = emptyArray()): CachedData<T>? = if (customGetCache.asBoolean()) {
-        customGetCache(params)
+    fun getCache(key: String, params: TParams? = null): CachedData<TData>? = if (customGetCache.asBoolean()) {
+        params?.let { customGetCache(params) }
     } else {
         CacheManager.getCache(key)
     }
@@ -217,7 +216,7 @@ internal fun <T : Any> useCachePlugin(options: RequestOptions<T>): Plugin<T> {
     val currentPromiseRef = useRef<Deferred<*>?>(null)
 
     val cachePlugin = remember {
-        CachePlugin<T>().apply {
+        CachePlugin<TParams, TData>().apply {
             this.setCache = ::setCache
             this.getCache = ::getCache
             this.unSubscribeRef = unSubscribeRef

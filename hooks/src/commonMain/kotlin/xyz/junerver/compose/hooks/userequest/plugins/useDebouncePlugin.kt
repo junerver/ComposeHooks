@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import xyz.junerver.compose.hooks.Debounce
-import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
 import xyz.junerver.compose.hooks.userequest.Plugin
@@ -20,11 +19,11 @@ import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
   Email: junerver@gmail.com
   Version: v1.0
 */
-private class DebouncePlugin<TData : Any> : Plugin<TData>() {
-    override val invoke: GenPluginLifecycleFn<TData>
-        get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
+private class DebouncePlugin<TParams,TData : Any> : Plugin<TParams,TData>() {
+    override val invoke: GenPluginLifecycleFn<TParams,TData>
+        get() = { fetch: Fetch<TParams,TData>, requestOptions: RequestOptions<TParams,TData> ->
             if (requestOptions.debounceOptions.wait > Duration.ZERO) {
-                val debounce = Debounce<TParams>(
+                val debounce = Debounce<TParams?>(
                     fn = { params -> fetch._run(params) },
                     scope = this,
                     requestOptions.debounceOptions,
@@ -36,7 +35,7 @@ private class DebouncePlugin<TData : Any> : Plugin<TData>() {
                     debounce.invoke(it)
                 }
             }
-            object : PluginLifecycle<TData>() {
+            object : PluginLifecycle<TParams,TData>() {
                 override val onCancel: PluginOnCancel
                     get() = {
                         cancel()
@@ -46,12 +45,12 @@ private class DebouncePlugin<TData : Any> : Plugin<TData>() {
 }
 
 @Composable
-internal fun <T : Any> useDebouncePlugin(options: RequestOptions<T>): Plugin<T> {
+internal fun <TParams,TData : Any> useDebouncePlugin(options: RequestOptions<TParams,TData>): Plugin<TParams,TData> {
     if (options.debounceOptions.wait == Duration.ZERO) {
         return useEmptyPlugin()
     }
     val debouncePlugin = remember {
-        DebouncePlugin<T>()
+        DebouncePlugin<TParams,TData>()
     }
     return debouncePlugin
 }

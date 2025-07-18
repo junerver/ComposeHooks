@@ -2,7 +2,6 @@ package xyz.junerver.compose.hooks.userequest.plugins
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.Tuple5
 import xyz.junerver.compose.hooks.getValue
 import xyz.junerver.compose.hooks.setValue
@@ -27,22 +26,22 @@ import xyz.junerver.compose.hooks.utils.runIf
   Version: v1.0
 */
 
-private class AutoRunPlugin<TData : Any> : Plugin<TData>() {
+private class AutoRunPlugin<TParams,TData : Any> : Plugin<TParams,TData>() {
     /**
      * [ready]是动态值，可以通过外部副作用修改传递
      */
     var ready = true
 
-    override val onInit: (RequestOptions<TData>) -> FetchState<TData> = {
+    override val onInit: (RequestOptions<TParams,TData>) -> FetchState<TParams,TData> = {
         // 如果是手动模式 则不loading，自动模式则loading
         FetchState(loading = it.manual.not() && ready)
     }
 
-    override val invoke: GenPluginLifecycleFn<TData>
-        get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
+    override val invoke: GenPluginLifecycleFn<TParams,TData>
+        get() = { fetch: Fetch<TParams,TData>, requestOptions: RequestOptions<TParams,TData> ->
             initFetch(fetch, requestOptions)
-            object : PluginLifecycle<TData>() {
-                override val onBefore: PluginOnBefore<TData>
+            object : PluginLifecycle<TParams,TData>() {
+                override val onBefore: PluginOnBefore<TParams,TData>
                     get() = {
                         runIf(!ready) {
                             OnBeforeReturn(
@@ -65,7 +64,7 @@ private class AutoRunPlugin<TData : Any> : Plugin<TData>() {
         fetchInstance.refresh()
     }
 
-    override fun _run(params: TParams) {
+    override fun _run(params: TParams?) {
         fetchInstance.run(params)
     }
     //endregion
@@ -75,14 +74,14 @@ private class AutoRunPlugin<TData : Any> : Plugin<TData>() {
  * 钩子应该返回两个值，一个是plugin自身，方便调用init函数，另一个是pluginreturn，用来调用周期得methods
  */
 @Composable
-internal fun <T : Any> useAutoRunPlugin(options: RequestOptions<T>): Plugin<T> {
+internal fun <TParams,TData : Any> useAutoRunPlugin(options: RequestOptions<TParams,TData>): Plugin<TParams,TData> {
     val (manual, ready, defaultParams, refreshDeps, refreshDepsAction) = with(options) {
         Tuple5(manual, ready, defaultParams, refreshDeps, refreshDepsAction)
     }
     var hasAutoRun by useRef(default = false)
     hasAutoRun = false
     val autoRunPlugin = remember {
-        AutoRunPlugin<T>()
+        AutoRunPlugin<TParams,TData>()
     }.apply {
         this.ready = ready
     }

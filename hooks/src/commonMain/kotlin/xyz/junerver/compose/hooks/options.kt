@@ -32,7 +32,7 @@ private inline fun <reified T> createOptions(noinline opt: T.() -> Unit): T = wh
     UseNowOptions::class -> UseNowOptions.optionOf(opt as UseNowOptions.() -> Unit)
     ThrottleOptions::class -> ThrottleOptions.optionOf(opt as ThrottleOptions.() -> Unit)
     TimestampOptions::class -> TimestampOptions.optionOf(opt as TimestampOptions.() -> Unit)
-    RequestOptions::class -> RequestOptions.optionOf(opt as RequestOptions<Any>.() -> Unit)
+    RequestOptions::class -> RequestOptions.optionOf(opt as RequestOptions<Any,Any>.() -> Unit)
     UseDateFormatOptions::class -> UseDateFormatOptions.optionOf(opt as UseDateFormatOptions.() -> Unit)
     StateAsyncOptions::class -> StateAsyncOptions.optionOf(opt as StateAsyncOptions.() -> Unit)
     UseTimeAgoOptions::class -> UseTimeAgoOptions.optionOf(opt as UseTimeAgoOptions.() -> Unit)

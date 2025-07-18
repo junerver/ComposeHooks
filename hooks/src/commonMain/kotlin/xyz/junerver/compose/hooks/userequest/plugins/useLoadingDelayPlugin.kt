@@ -27,7 +27,7 @@ import xyz.junerver.compose.hooks.utils.asBoolean
   Email: junerver@gmail.com
   Version: v1.0
 */
-private class LoadingDelayPlugin<TData : Any> : Plugin<TData>() {
+private class LoadingDelayPlugin<TParams,TData : Any> : Plugin<TParams,TData>() {
     /**
      * [ready]是动态值，可以通过外部副作用修改传递
      */
@@ -39,11 +39,11 @@ private class LoadingDelayPlugin<TData : Any> : Plugin<TData>() {
         timeoutJob = null
     } ?: Unit
 
-    override val invoke: GenPluginLifecycleFn<TData>
-        get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
+    override val invoke: GenPluginLifecycleFn<TParams,TData>
+        get() = { fetch: Fetch<TParams,TData>, requestOptions: RequestOptions<TParams,TData> ->
             val (loadingDelay, staleTime) = with(requestOptions) { tuple(loadingDelay, staleTime) }
-            object : PluginLifecycle<TData>() {
-                override val onBefore: PluginOnBefore<TData>
+            object : PluginLifecycle<TParams,TData>() {
+                override val onBefore: PluginOnBefore<TParams,TData>
                     get() = {
                         // 清空并创建一个新的定时器对象
                         cancelTimeout()
@@ -57,7 +57,7 @@ private class LoadingDelayPlugin<TData : Any> : Plugin<TData>() {
                         OnBeforeReturn(loading = false)
                     }
 
-                override val onFinally: PluginOnFinally<TData>
+                override val onFinally: PluginOnFinally<TParams,TData>
                     get() = { _, _, _ -> cancelTimeout() }
 
                 override val onCancel: PluginOnCancel
@@ -72,7 +72,7 @@ private class LoadingDelayPlugin<TData : Any> : Plugin<TData>() {
 }
 
 @Composable
-internal fun <T : Any> useLoadingDelayPlugin(options: RequestOptions<T>): Plugin<T> {
+internal fun <TParams,TData : Any> useLoadingDelayPlugin(options: RequestOptions<TParams,TData>): Plugin<TParams,TData> {
     val (loadingDelay, ready) = with(options) {
         loadingDelay to ready
     }
@@ -81,7 +81,7 @@ internal fun <T : Any> useLoadingDelayPlugin(options: RequestOptions<T>): Plugin
     }
 
     val loadingDelayPlugin = remember {
-        LoadingDelayPlugin<T>()
+        LoadingDelayPlugin<TParams,TData>()
     }.apply {
         this.ready = ready
     }

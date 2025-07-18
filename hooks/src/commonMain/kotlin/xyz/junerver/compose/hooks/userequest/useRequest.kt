@@ -24,11 +24,11 @@ import xyz.junerver.compose.hooks.userequest.plugins.usePollingPlugin
 import xyz.junerver.compose.hooks.userequest.plugins.useRetryPlugin
 import xyz.junerver.compose.hooks.userequest.plugins.useThrottlePlugin
 
-typealias ReqFn = VoidFunction
+typealias ReqFn<TParams> = VoidFunction<TParams>
 typealias MutateFn<TData> = KFunction1<(TData?) -> TData, Unit>
 typealias RefreshFn = KFunction0<Unit>
 typealias CancelFn = KFunction0<Unit>
-typealias ComposablePluginGenFn<TData> = @Composable (RequestOptions<TData>) -> Plugin<TData>
+typealias ComposablePluginGenFn<TParams, TData> = @Composable (RequestOptions<TParams, TData>) -> Plugin<TParams, TData>
 /*
   Description:
   Author: Junerver
@@ -97,12 +97,12 @@ typealias ComposablePluginGenFn<TData> = @Composable (RequestOptions<TData>) -> 
  * @param plugins 自定义的插件，这是一个数组，请通过arrayOf传入
  */
 @Composable
-private fun <TData : Any> useRequest(
-    requestFn: SuspendNormalFunction<TData>,
-    options: RequestOptions<TData>,
-    plugins: Array<ComposablePluginGenFn<TData>> = emptyArray(),
-): RequestHolder<TData> {
-    var customPluginsRef by useRef<Array<Plugin<TData>>>(emptyArray())
+private fun <TParams, TData : Any> useRequestPrivate(
+    requestFn: SuspendNormalFunction<TParams, TData>,
+    options: RequestOptions<TParams, TData>,
+    plugins: Array<ComposablePluginGenFn<TParams, TData>> = emptyArray(),
+): RequestHolder<TParams, TData> {
+    var customPluginsRef by useRef<Array<Plugin<TParams, TData>>>(emptyArray())
     if (customPluginsRef.size != plugins.size) {
         customPluginsRef = plugins.map {
             it(options)
@@ -150,22 +150,22 @@ private fun <TData : Any> useRequest(
  * 在未来版本将会把原始的直接传递对象这类api转变为私有，只允许通过闭包方式使用。
  */
 @Composable
-fun <TData : Any> useRequest(
-    requestFn: SuspendNormalFunction<TData>,
-    optionsOf: RequestOptions<TData>.() -> Unit = {},
-    plugins: Array<ComposablePluginGenFn<TData>> = emptyArray(),
-): RequestHolder<TData> = useRequest(
+fun <TParams, TData : Any> useRequest(
+    requestFn: SuspendNormalFunction<TParams, TData>,
+    optionsOf: RequestOptions<TParams, TData>.() -> Unit = {},
+    plugins: Array<ComposablePluginGenFn<TParams, TData>> = emptyArray(),
+): RequestHolder<TParams, TData> = useRequestPrivate(
     requestFn,
     useDynamicOptions(optionsOf),
     plugins,
 )
 
 @Composable
-private fun <TData : Any> useRequestPluginsImpl(
-    requestFn: SuspendNormalFunction<TData>,
-    options: RequestOptions<TData> = RequestOptions(),
-    plugins: Array<Plugin<TData>> = emptyArray(),
-): Fetch<TData> {
+private fun <TParams, TData : Any> useRequestPluginsImpl(
+    requestFn: SuspendNormalFunction<TParams, TData>,
+    options: RequestOptions<TParams, TData> = RequestOptions(),
+    plugins: Array<Plugin<TParams, TData>> = emptyArray(),
+): Fetch<TParams, TData> {
     val (dataState, setData) = _useControllable<TData?>(null)
     val (loadingState, setLoading) = _useControllable(false)
     val (errorState, setError) = _useControllable<Throwable?>(null)
@@ -197,11 +197,11 @@ private fun <TData : Any> useRequestPluginsImpl(
 }
 
 @Stable
-data class RequestHolder<TData>(
+data class RequestHolder<TParams, TData>(
     val data: State<TData?>,
     val isLoading: State<Boolean>,
     val error: State<Throwable?>,
-    val request: ReqFn,
+    val request: ReqFn<TParams>,
     val mutate: MutateFn<TData>,
     val refresh: RefreshFn,
     val cancel: CancelFn,

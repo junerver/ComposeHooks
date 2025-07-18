@@ -6,10 +6,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import xyz.junerver.compose.hooks.ArrayParams
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.composehooks.net.NetApi
+import xyz.junerver.composehooks.net.bean.UserInfo
 import xyz.junerver.composehooks.ui.component.DividerSpacer
 import xyz.junerver.composehooks.ui.component.TButton
 
@@ -22,7 +24,7 @@ import xyz.junerver.composehooks.ui.component.TButton
  */
 @Composable
 fun Cancel() {
-    val (userInfoState, loadingState, _, request, _, _, cancel) = useRequest(
+    val (userInfoState, loadingState, _, request, _, _, cancel) = useRequest<ArrayParams,UserInfo>(
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
             manual = true

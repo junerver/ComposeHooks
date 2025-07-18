@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.NetApi
+import xyz.junerver.composehooks.net.bean.UserInfo
 
 /*
   Description:
@@ -20,19 +21,19 @@ import xyz.junerver.composehooks.net.NetApi
 @Composable
 fun Lifecycle() {
     var state by useState(default = "")
-    useRequest(
-        requestFn = { NetApi.userInfo(it[0] as String) },
+    useRequest<String, UserInfo>(
+        requestFn = { NetApi.userInfo(it) },
         optionsOf = {
-            defaultParams = arrayOf("junerver")
+            defaultParams = "junerver"
             onBefore = {
-                state += "onBefore: ${it.joinToString("、")}"
+                state += "onBefore: $it"
             }
             onSuccess = { data, _ ->
                 println("Lifecycle Lifecycle: onSuccess")
                 state += "\n\nonSuccess:\nData:$data"
             }
             onError = { err, pa ->
-                state += "\n\nonError: ${pa.joinToString("、")}\nError: ${err.message}"
+                state += "\n\nonError: $pa\nError: ${err.message}"
             }
             onFinally = { _, _, _ ->
                 state += "\n\nonFinally!"
