@@ -6,7 +6,18 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import xyz.junerver.compose.hooks.userequest.*
+import xyz.junerver.compose.hooks.tuple
+import xyz.junerver.compose.hooks.userequest.Fetch
+import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
+import xyz.junerver.compose.hooks.userequest.Keys
+import xyz.junerver.compose.hooks.userequest.OnBeforeReturn
+import xyz.junerver.compose.hooks.userequest.Plugin
+import xyz.junerver.compose.hooks.userequest.PluginLifecycle
+import xyz.junerver.compose.hooks.userequest.PluginOnBefore
+import xyz.junerver.compose.hooks.userequest.PluginOnCancel
+import xyz.junerver.compose.hooks.userequest.PluginOnFinally
+import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 import xyz.junerver.compose.hooks.utils.asBoolean
 
 /*
@@ -30,7 +41,7 @@ private class LoadingDelayPlugin<TData : Any> : Plugin<TData>() {
 
     override val invoke: GenPluginLifecycleFn<TData>
         get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
-            val (loadingDelay, staleTime) = with(requestOptions) { Pair(loadingDelay, staleTime) }
+            val (loadingDelay, staleTime) = with(requestOptions) { tuple(loadingDelay, staleTime) }
             object : PluginLifecycle<TData>() {
                 override val onBefore: PluginOnBefore<TData>
                     get() = {

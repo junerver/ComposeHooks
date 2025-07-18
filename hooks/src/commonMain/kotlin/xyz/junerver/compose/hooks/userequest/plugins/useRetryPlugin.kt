@@ -6,6 +6,7 @@ import kotlin.math.pow
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
 import xyz.junerver.compose.hooks.userequest.Plugin
@@ -32,7 +33,7 @@ private class RetryPlugin<TData : Any> : Plugin<TData>() {
     override val invoke: GenPluginLifecycleFn<TData>
         get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
             val (retryInterval, retryCount) = with(requestOptions) {
-                Pair(retryInterval, retryCount)
+                tuple(retryInterval, retryCount)
             }
 
             object : PluginLifecycle<TData>() {

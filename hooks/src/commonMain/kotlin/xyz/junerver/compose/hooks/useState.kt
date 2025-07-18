@@ -139,7 +139,7 @@ fun <T> useStateAsync(
     val (lazy, onError) = useDynamicOptions(optionsOf)
     val (asyncRun) = useCancelableAsync()
     val (state, setState) = _useGetState(initValue)
-    val calcFnRef =  useRef {
+    val calcFnRef = useRef {
         asyncRun {
             try {
                 setState(factory())

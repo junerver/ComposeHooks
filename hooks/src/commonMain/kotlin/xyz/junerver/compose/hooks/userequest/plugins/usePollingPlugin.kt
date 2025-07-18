@@ -8,6 +8,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.useBackToFrontEffect
 import xyz.junerver.compose.hooks.useFrontToBackEffect
 import xyz.junerver.compose.hooks.userequest.Fetch
@@ -60,7 +61,7 @@ private class PollingPlugin<TData : Any> : Plugin<TData>() {
         get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
             initFetch(fetch, requestOptions)
             val (pollingInterval, pollingWhenHidden, pollingErrorRetryCount) = with(requestOptions) {
-                Triple(pollingInterval, pollingWhenHidden, pollingErrorRetryCount)
+                tuple(pollingInterval, pollingWhenHidden, pollingErrorRetryCount)
             }
             val pluginScope = this
 
