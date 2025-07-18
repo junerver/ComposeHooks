@@ -61,6 +61,7 @@ kotlin {
             api(libs.kotlinx.collections.immutable)
 
             api(libs.arrow.core)
+            api(libs.arrow.functions)
         }
 
         val commonJvmAndroid by creating {
