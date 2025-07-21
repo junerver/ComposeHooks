@@ -8,7 +8,6 @@ import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.time.Clock
 import kotlin.time.Duration
-import kotlin.time.DurationUnit
 import kotlin.time.Instant
 import xyz.junerver.compose.hooks.Ref
 import xyz.junerver.compose.hooks.observeAsState
@@ -157,7 +156,9 @@ fun toBoolean(value: Any?): Boolean = when (value) {
     is Array<*> -> value.isNotEmpty()
     is Collection<*> -> value.isNotEmpty()
     is Map<*, *> -> value.isNotEmpty()
-    is Duration -> value.toLong(DurationUnit.MILLISECONDS) > 0
+    is Duration -> value > Duration.ZERO
+    is State<*> -> toBoolean(value.value)
+    is Ref<*> -> toBoolean(value.current)
     else -> true
 }
 
