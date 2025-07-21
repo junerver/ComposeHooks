@@ -12,12 +12,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import xyz.junerver.compose.hooks.ArrayParams
 import xyz.junerver.compose.hooks.asSuspendNoopFn
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.composehooks.net.NetApi
+import xyz.junerver.composehooks.net.bean.RepoInfo
 import xyz.junerver.composehooks.ui.component.DividerSpacer
 import xyz.junerver.composehooks.ui.component.TButton
 
@@ -70,13 +72,13 @@ fun Auto() {
 
 @Composable
 fun Manual() {
-    val (repoInfoState, loadingState, errorState, request) = useRequest(
+    val (repoInfoState, loadingState, errorState, request) = useRequest<ArrayParams, RepoInfo>(
         requestFn = NetApi::repoInfo.asSuspendNoopFn(),
         // 使用 `options = optionsOf {}`这种传参会带来性能问题，请尽快更新使用性能优化版本，你可以简单的在`optionsOf`后面加`=`来进行替换
         optionsOf = {
             println("Configure closure execution!")
             manual = true
-            defaultParams = tuple("junerver", "ComposeHooks") // Automatically requests must set default parameters
+            defaultParams = arrayOf("junerver", "ComposeHooks") // Automatically requests must set default parameters
         },
     )
     val repoInfo by repoInfoState
