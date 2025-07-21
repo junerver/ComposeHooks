@@ -132,7 +132,7 @@ inline operator fun <reified P : Tuple, R> ((P) -> R).invoke() = this.invoke(
         P::class == Tuple8::class -> tuple(None, None, None, None, None, None, None, None)
         P::class == Tuple9::class -> tuple(None, None, None, None, None, None, None, None, None)
         else -> {
-            throw IllegalArgumentException("useDebounce only support up to 9 parameters")
+            throw IllegalArgumentException("TupleN only support up to 9 parameters")
         }
     } as P,
 )
