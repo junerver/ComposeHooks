@@ -9,7 +9,6 @@ import androidx.compose.runtime.setValue
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.composehooks.net.NetApi
-import xyz.junerver.composehooks.net.bean.UserInfo
 
 /*
   Description:
@@ -21,7 +20,7 @@ import xyz.junerver.composehooks.net.bean.UserInfo
 @Composable
 fun Lifecycle() {
     var state by useState(default = "")
-    useRequest<String, UserInfo>(
+    useRequest(
         requestFn = { NetApi.userInfo(it) },
         optionsOf = {
             defaultParams = "junerver"

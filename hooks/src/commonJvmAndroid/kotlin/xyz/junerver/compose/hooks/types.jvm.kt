@@ -43,10 +43,7 @@ import xyz.junerver.compose.hooks.utils.checkIsLegalParameters
  * @param instance 对应函数的实例，如果是顶层函数可以不传递。
  * @param mapParams 参数转换函数，你需要明确的告知如何将一个抽象的参数实例，转换成函数的参数列表数组
  */
-fun <TParams, T> KFunction<T?>.asNoopFn(
-    instance: Any? = null,
-    mapParams: (TParams) -> Array<Any?> = ::defaultTupleMap,
-): (TParams) -> T? =
+fun <TParams, T> KFunction<T?>.asNoopFn(instance: Any? = null, mapParams: (TParams) -> Array<Any?> = ::defaultTupleMap): (TParams) -> T? =
     fun(params: TParams): T? = this.call(
         *synthesisParametersAndCheck(instance, mapParams(params), this),
     )
@@ -76,48 +73,46 @@ internal fun <T> synthesisParametersAndCheck(instance: Any?, params: Array<Any?>
 /**
  * 默认的参数映射，默认使用 [Tuple] 包装参数
  */
-internal fun <TParams> defaultTupleMap(params: TParams): Array<Any?> {
-    return when (params) {
-        is None -> emptyArray()
-        is Tuple1<*> -> arrayOf(params.first)
-        is Tuple2<*, *> -> arrayOf(params.first, params.second)
-        is Tuple3<*, *, *> -> arrayOf(params.first, params.second, params.third)
-        is Tuple4<*, *, *, *> -> arrayOf(params.first, params.second, params.third, params.fourth)
-        is Tuple5<*, *, *, *, *> -> arrayOf(params.first, params.second, params.third, params.fourth, params.fifth)
-        is Tuple6<*, *, *, *, *, *> -> arrayOf(params.first, params.second, params.third, params.fourth, params.fifth, params.sixth)
-        is Tuple7<*, *, *, *, *, *, *> -> arrayOf(
-            params.first,
-            params.second,
-            params.third,
-            params.fourth,
-            params.fifth,
-            params.sixth,
-            params.seventh,
-        )
+internal fun <TParams> defaultTupleMap(params: TParams): Array<Any?> = when (params) {
+    is None -> emptyArray()
+    is Tuple1<*> -> arrayOf(params.first)
+    is Tuple2<*, *> -> arrayOf(params.first, params.second)
+    is Tuple3<*, *, *> -> arrayOf(params.first, params.second, params.third)
+    is Tuple4<*, *, *, *> -> arrayOf(params.first, params.second, params.third, params.fourth)
+    is Tuple5<*, *, *, *, *> -> arrayOf(params.first, params.second, params.third, params.fourth, params.fifth)
+    is Tuple6<*, *, *, *, *, *> -> arrayOf(params.first, params.second, params.third, params.fourth, params.fifth, params.sixth)
+    is Tuple7<*, *, *, *, *, *, *> -> arrayOf(
+        params.first,
+        params.second,
+        params.third,
+        params.fourth,
+        params.fifth,
+        params.sixth,
+        params.seventh,
+    )
 
-        is Tuple8<*, *, *, *, *, *, *, *> -> arrayOf(
-            params.first,
-            params.second,
-            params.third,
-            params.fourth,
-            params.fifth,
-            params.sixth,
-            params.seventh,
-            params.eighth,
-        )
+    is Tuple8<*, *, *, *, *, *, *, *> -> arrayOf(
+        params.first,
+        params.second,
+        params.third,
+        params.fourth,
+        params.fifth,
+        params.sixth,
+        params.seventh,
+        params.eighth,
+    )
 
-        is Tuple9<*, *, *, *, *, *, *, *, *> -> arrayOf(
-            params.first,
-            params.second,
-            params.third,
-            params.fourth,
-            params.fifth,
-            params.sixth,
-            params.seventh,
-            params.eighth,
-            params.ninth,
-        )
+    is Tuple9<*, *, *, *, *, *, *, *, *> -> arrayOf(
+        params.first,
+        params.second,
+        params.third,
+        params.fourth,
+        params.fifth,
+        params.sixth,
+        params.seventh,
+        params.eighth,
+        params.ninth,
+    )
 
-        else -> throw IllegalArgumentException("The parameter abstract type you provide is not a tuple type")
-    }
+    else -> throw IllegalArgumentException("The parameter abstract type you provide is not a tuple type")
 }

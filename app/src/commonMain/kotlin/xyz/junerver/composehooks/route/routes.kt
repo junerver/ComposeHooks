@@ -128,6 +128,9 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useSorted" to { UseSortedExample() },
 ) + androidRoutes
 
+expect fun getSubRequestRoutes(): Map<String, @Composable () -> Unit>
+
+val extRequestRoutes: Map<String, @Composable () -> Unit> by lazy { getSubRequestRoutes() }
 val subRequestRoutes = mapOf<String, @Composable () -> Unit>(
     "auto&manual" to { AutoManual() },
     "lifecycle" to { Lifecycle() },
@@ -142,7 +145,7 @@ val subRequestRoutes = mapOf<String, @Composable () -> Unit>(
     "throttle" to { Throttle() },
     "cache&swr" to { Cache() },
     "errorRetry" to { ErrorRetry() },
-)
+) + extRequestRoutes
 
 val otherSubRoutes = mapOf<String, @Composable () -> Unit>(
     "PersistentSub" to { PersistentSub() },
