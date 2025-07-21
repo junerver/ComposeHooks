@@ -13,7 +13,6 @@ import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.number
 import kotlinx.datetime.offsetAt
 import kotlinx.datetime.toLocalDateTime
-import xyz.junerver.compose.hooks.useDynamicOptions
 
 /*
   Description: Format date according to the string of tokens passed in, inspired by dayjs
@@ -34,13 +33,70 @@ typealias DateLike = Any?
 typealias CustomMeridiemFn = (hours: Int, minutes: Int, isLowercase: Boolean, hasPeriod: Boolean) -> String
 
 /**
+ * Date format messages interface for localization
+ */
+interface DateFormatMessages {
+    val months: Array<String>
+    val monthsShort: Array<String>
+    val weekdays: Array<String>
+    val weekdaysShort: Array<String>
+    val weekdaysMin: Array<String>
+}
+
+/**
+ * Default Chinese date format messages
+ */
+object DefaultChineseDateFormatMessages : DateFormatMessages {
+    override val months = arrayOf(
+        "一月", "二月", "三月", "四月", "五月", "六月",
+        "七月", "八月", "九月", "十月", "十一月", "十二月"
+    )
+    override val monthsShort = arrayOf(
+        "一月", "二月", "三月", "四月", "五月", "六月",
+        "七月", "八月", "九月", "十月", "十一月", "十二月"
+    )
+    override val weekdays = arrayOf(
+        "星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"
+    )
+    override val weekdaysShort = arrayOf(
+        "周日", "周一", "周二", "周三", "周四", "周五", "周六"
+    )
+    override val weekdaysMin = arrayOf(
+        "周日", "周一", "周二", "周三", "周四", "周五", "周六"
+    )
+}
+
+/**
+ * Default English date format messages
+ */
+object DefaultEnglishDateFormatMessages : DateFormatMessages {
+    override val months = arrayOf(
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+    )
+    override val monthsShort = arrayOf(
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+    )
+    override val weekdays = arrayOf(
+        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+    )
+    override val weekdaysShort = arrayOf(
+        "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+    )
+    override val weekdaysMin = arrayOf(
+        "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"
+    )
+}
+
+/**
  * Options for configuring date formatting behavior
  */
 @Stable
 data class UseDateFormatOptions internal constructor(
     /**
      * The locale to use for formatting
-     * Default is system locale
+     * Default is system locale, support "zh-CN", "en-US"
      */
     var locale: String? = null,
     /**
@@ -172,6 +228,12 @@ internal fun formatDate(date: LocalDateTime, formatStr: String, options: UseDate
     val locale = options.locale
     val timeZone = options.timeZone
     val customMeridiem = options.customMeridiem
+    // Select messages based on locale
+    val messages = when (locale) {
+        "zh-CN" -> DefaultChineseDateFormatMessages
+        "en-US" -> DefaultEnglishDateFormatMessages
+        else ->  DefaultEnglishDateFormatMessages
+    }
 
     // Regex pattern to match format tokens and literal strings in square brackets
     // Order matters: literal match ([^\]]+) should come first to ensure it's prioritized
@@ -202,8 +264,8 @@ internal fun formatDate(date: LocalDateTime, formatStr: String, options: UseDate
                 "Yo" -> getOrdinal(date.year)
 
                 // Month
-                "MMMM" -> getMonthName(date.month.number, locale, false)
-                "MMM" -> getMonthName(date.month.number, locale, true)
+                "MMMM" -> getMonthName(date.month.number, messages, false)
+                "MMM" -> getMonthName(date.month.number, messages, true)
                 "MM" -> date.month.number.toString().padStart(2, '0')
                 "Mo" -> getOrdinal(date.month.number)
                 "M" -> date.month.number.toString()
@@ -216,36 +278,17 @@ internal fun formatDate(date: LocalDateTime, formatStr: String, options: UseDate
                 // Day of week
                 "dddd" -> {
                     val dayOfWeek = getDayOfWeek(date)
-                    getDayName(dayOfWeek, locale, false)
+                    getDayName(dayOfWeek, messages, false)
                 }
 
                 "ddd" -> {
                     val dayOfWeek = getDayOfWeek(date)
-                    getDayName(dayOfWeek, locale, true)
+                    getDayName(dayOfWeek, messages, true)
                 }
 
-                "dd" -> { // **这里是需要修改的地方**
+                "dd" -> {
                     val dayOfWeek = getDayOfWeek(date)
-                    if (locale?.startsWith("zh") == true) {
-                        // 对于中文，dd 可能期望是单字（例如“一”）或两字（例如“周一”）
-                        // 根据Day.js的Min name定义，可以考虑返回更短的，或者直接使用ddd的缩写
-                        // 如果希望是“周一”这样的，就直接 getDayName(dayOfWeek, locale, true)
-                        // 如果希望是“一”，则需要一个更细粒度的映射
-                        when (dayOfWeek) {
-                            0 -> "周日"
-                            1 -> "周一"
-                            2 -> "周二"
-                            3 -> "周三"
-                            4 -> "周四"
-                            5 -> "周五"
-                            6 -> "周六"
-                            else -> ""
-                        }
-                    } else {
-                        // 英文下仍保持取首字母的逻辑，或者改为 Day.js 约定，如 "Su", "Mo"
-                        // 根据您现在的测试，是取首字母，所以保持
-                        getDayName(dayOfWeek, locale, true).take(1) // 返回 "M"
-                    }
+                    getDayName(dayOfWeek, messages, true, true)
                 }
 
                 "d" -> {
@@ -349,57 +392,24 @@ private fun getDayOfWeek(date: LocalDateTime): Int {
 }
 
 /**
- * Gets the month name based on locale
+ * Gets the month name based on messages
  */
-private fun getMonthName(month: Int, locale: String?, abbreviated: Boolean): String {
-    val months = if (locale?.startsWith("zh") == true) {
-        if (abbreviated) {
-            arrayOf("一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月")
-        } else {
-            arrayOf("一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月")
-        }
-    } else {
-        if (abbreviated) {
-            arrayOf("Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec")
-        } else {
-            arrayOf(
-                "January",
-                "February",
-                "March",
-                "April",
-                "May",
-                "June",
-                "July",
-                "August",
-                "September",
-                "October",
-                "November",
-                "December",
-            )
-        }
-    }
-
+private fun getMonthName(month: Int, messages: DateFormatMessages, abbreviated: Boolean): String {
+    val months = if (abbreviated) messages.monthsShort else messages.months
     return months[month - 1]
 }
 
 /**
- * Gets the day name based on locale
+ * Gets the day name based on messages
  */
-private fun getDayName(day: Int, locale: String?, abbreviated: Boolean): String {
-    val days = if (locale?.startsWith("zh") == true) {
-        if (abbreviated) {
-            arrayOf("周日", "周一", "周二", "周三", "周四", "周五", "周六")
-        } else {
-            arrayOf("星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六")
-        }
+private fun getDayName(day: Int, messages: DateFormatMessages, abbreviated: Boolean, minimal: Boolean = false): String {
+    val days = if (minimal) {
+        messages.weekdaysMin
+    } else if (abbreviated) {
+        messages.weekdaysShort
     } else {
-        if (abbreviated) {
-            arrayOf("Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat")
-        } else {
-            arrayOf("Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
-        }
+        messages.weekdays
     }
-
     return days[day]
 }
 
@@ -421,24 +431,24 @@ private fun getOrdinal(number: Int): String {
  * Gets the timezone string representation
  */
 private fun getTimezoneString(timeZone: TimeZone, longFormat: Boolean): String {
-    // 获取当前时间点，因为时区偏移量可能会因夏令时而变化
+    // Get the current time point, as timezone offset may vary due to daylight saving time
     val now = Clock.System.now()
-    // 获取指定时区在当前时间点的 UTC 偏移量
+    // Get the UTC offset for the specified timezone at the current time point
     val offset: UtcOffset = timeZone.offsetAt(now)
 
-    // 根据偏移量的总秒数计算小时和分钟，并处理正负号
+    // Calculate hours and minutes based on the total seconds of the offset, and handle the sign
     val sign = if (offset.totalSeconds >= 0) "+" else "-"
     val absHours = abs(offset.totalSeconds / 3600)
     val absMinutes = abs((offset.totalSeconds % 3600) / 60)
 
-    // 根据 longFormat 参数返回不同的格式
+    // Return different formats based on the longFormat parameter
     return if (longFormat) {
-        // 长格式 (GMT+HH:MM) - 小时和分钟都需要两位数填充
+        // Long format (GMT+HH:MM) - both hours and minutes need to be padded to two digits
         val hourStringPadded = absHours.toString().padStart(2, '0')
         val minuteStringPadded = absMinutes.toString().padStart(2, '0')
-        "GMT$sign$hourStringPadded:$minuteStringPadded" // 例如 "GMT+08:00"
+        "GMT$sign$hourStringPadded:$minuteStringPadded" // e.g., "GMT+08:00"
     } else {
-        // 非长格式 (GMT+H 或 GMT+HH) - 只使用小时，不进行零填充
-        "GMT$sign$absHours" // 例如 "GMT+8" 或 "GMT+9"
+        // Non-long format (GMT+H or GMT+HH) - only use hours, no zero padding
+        "GMT$sign$absHours" // e.g., "GMT+8" or "GMT+9"
     }
 }
