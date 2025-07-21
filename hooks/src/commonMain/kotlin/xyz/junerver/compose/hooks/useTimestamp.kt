@@ -38,12 +38,12 @@ import xyz.junerver.compose.hooks.utils.currentTime
  * ```
  */
 @Stable
-data class TimestampOptions internal constructor(
+data class UseTimestampOptions internal constructor(
     var interval: Duration = 1.0.milliseconds,
     var offset: Duration = Duration.ZERO,
     var callback: ((Long) -> Unit)? = null,
 ) {
-    companion object : Options<TimestampOptions>(::TimestampOptions)
+    companion object : Options<UseTimestampOptions>(::UseTimestampOptions)
 }
 
 /**
@@ -76,7 +76,7 @@ data class TimestampOptions internal constructor(
  * ```
  */
 @Composable
-fun useTimestamp(optionsOf: TimestampOptions.() -> Unit = {}, autoResume: Boolean = true): TimestampHolder =
+fun useTimestamp(optionsOf: UseTimestampOptions.() -> Unit = {}, autoResume: Boolean = true): TimestampHolder =
     useTimestamp(useDynamicOptions(optionsOf), autoResume)
 
 /**
@@ -108,7 +108,7 @@ fun useTimestamp(optionsOf: TimestampOptions.() -> Unit = {}, autoResume: Boolea
  * ```
  */
 @Composable
-fun useTimestampRef(optionsOf: TimestampOptions.() -> Unit = {}, autoResume: Boolean = true): TimestampRefHolder = useTimestampRef(
+fun useTimestampRef(optionsOf: UseTimestampOptions.() -> Unit = {}, autoResume: Boolean = true): TimestampRefHolder = useTimestampRef(
     useDynamicOptions(optionsOf),
     autoResume,
 )
@@ -159,7 +159,7 @@ data class TimestampRefHolder(
  * @return A [TimestampHolder] containing the timestamp and control functions
  */
 @Composable
-private fun useTimestamp(options: TimestampOptions, autoResume: Boolean = true): TimestampHolder {
+private fun useTimestamp(options: UseTimestampOptions, autoResume: Boolean = true): TimestampHolder {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
     val timestamp = useState(default = currentTime)
     val (resume, pause, isActive) = useInterval(
@@ -185,7 +185,7 @@ private fun useTimestamp(options: TimestampOptions, autoResume: Boolean = true):
  * @return A [TimestampRefHolder] containing the timestamp reference and control functions
  */
 @Composable
-private fun useTimestampRef(options: TimestampOptions, autoResume: Boolean = true): TimestampRefHolder {
+private fun useTimestampRef(options: UseTimestampOptions, autoResume: Boolean = true): TimestampRefHolder {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
     val timestampRef = useRef(default = currentTime.toEpochMilliseconds())
     val (resume, pause, isActive) = useInterval(

@@ -28,7 +28,7 @@ typealias ReqFn<TParams> = VoidFunction<TParams>
 typealias MutateFn<TData> = KFunction1<(TData?) -> TData, Unit>
 typealias RefreshFn = KFunction0<Unit>
 typealias CancelFn = KFunction0<Unit>
-typealias ComposablePluginGenFn<TParams, TData> = @Composable (RequestOptions<TParams, TData>) -> Plugin<TParams, TData>
+typealias ComposablePluginGenFn<TParams, TData> = @Composable (UseRequestOptions<TParams, TData>) -> Plugin<TParams, TData>
 /*
   Description:
   Author: Junerver
@@ -84,7 +84,7 @@ typealias ComposablePluginGenFn<TParams, TData> = @Composable (RequestOptions<TP
  *   )
  * ```
  *
- * 是的，它可以简单到只有一行代码，通过[RequestOptions]选项配置，你可以设置：手动请求、Ready、错误重试、
+ * 是的，它可以简单到只有一行代码，通过[UseRequestOptions]选项配置，你可以设置：手动请求、Ready、错误重试、
  * 生命周期回调、轮询、防抖、节流、依赖刷新等待功能。
  *
  * Tips: 强烈建议开启Android Studio中类型镶嵌提示，位于：Editor - Inlay Hints - Types -
@@ -99,7 +99,7 @@ typealias ComposablePluginGenFn<TParams, TData> = @Composable (RequestOptions<TP
 @Composable
 private fun <TParams, TData : Any> useRequestPrivate(
     requestFn: SuspendNormalFunction<TParams, TData>,
-    options: RequestOptions<TParams, TData>,
+    options: UseRequestOptions<TParams, TData>,
     plugins: Array<ComposablePluginGenFn<TParams, TData>> = emptyArray(),
 ): RequestHolder<TParams, TData> {
     var customPluginsRef by useRef<Array<Plugin<TParams, TData>>>(emptyArray())
@@ -152,7 +152,7 @@ private fun <TParams, TData : Any> useRequestPrivate(
 @Composable
 fun <TParams, TData : Any> useRequest(
     requestFn: SuspendNormalFunction<TParams, TData>,
-    optionsOf: RequestOptions<TParams, TData>.() -> Unit = {},
+    optionsOf: UseRequestOptions<TParams, TData>.() -> Unit = {},
     plugins: Array<ComposablePluginGenFn<TParams, TData>> = emptyArray(),
 ): RequestHolder<TParams, TData> = useRequestPrivate(
     requestFn,
@@ -163,7 +163,7 @@ fun <TParams, TData : Any> useRequest(
 @Composable
 private fun <TParams, TData : Any> useRequestPluginsImpl(
     requestFn: SuspendNormalFunction<TParams, TData>,
-    options: RequestOptions<TParams, TData> = RequestOptions(),
+    options: UseRequestOptions<TParams, TData> = UseRequestOptions(),
     plugins: Array<Plugin<TParams, TData>> = emptyArray(),
 ): Fetch<TParams, TData> {
     val (dataState, setData) = _useControllable<TData?>(null)

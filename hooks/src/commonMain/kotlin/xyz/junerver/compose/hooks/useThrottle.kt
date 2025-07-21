@@ -47,12 +47,12 @@ import xyz.junerver.compose.hooks.utils.currentTime
  * ```
  */
 @Stable
-data class ThrottleOptions internal constructor(
+data class UseThrottleOptions internal constructor(
     var wait: Duration = 1.seconds,
     var leading: Boolean = true,
     var trailing: Boolean = true,
 ) {
-    companion object : Options<ThrottleOptions>(::ThrottleOptions)
+    companion object : Options<UseThrottleOptions>(::UseThrottleOptions)
 }
 
 /**
@@ -69,7 +69,7 @@ data class ThrottleOptions internal constructor(
 internal class Throttle<TParams>(
     var fn: VoidFunction<TParams>,
     private val scope: CoroutineScope,
-    private val options: ThrottleOptions = ThrottleOptions(),
+    private val options: UseThrottleOptions = UseThrottleOptions(),
 ) {
     private var timeoutJob: Job? = null
     private var lastArgs: TParams? = null
@@ -147,7 +147,7 @@ internal class Throttle<TParams>(
  * ```
  */
 @Composable
-fun <S> useThrottle(value: S, optionsOf: ThrottleOptions.() -> Unit = {}): State<S> = useThrottle(value, useDynamicOptions(optionsOf))
+fun <S> useThrottle(value: S, optionsOf: UseThrottleOptions.() -> Unit = {}): State<S> = useThrottle(value, useDynamicOptions(optionsOf))
 
 /**
  * A hook for creating a throttled function.
@@ -181,7 +181,7 @@ fun <S> useThrottle(value: S, optionsOf: ThrottleOptions.() -> Unit = {}): State
  * ```
  */
 @Composable
-fun <TParams> useThrottleFn(fn: VoidFunction<TParams>, optionsOf: ThrottleOptions.() -> Unit = {}): VoidFunction<TParams> =
+fun <TParams> useThrottleFn(fn: VoidFunction<TParams>, optionsOf: UseThrottleOptions.() -> Unit = {}): VoidFunction<TParams> =
     useThrottleFn(fn, useDynamicOptions(optionsOf))
 
 /**
@@ -208,7 +208,7 @@ fun <TParams> useThrottleFn(fn: VoidFunction<TParams>, optionsOf: ThrottleOption
  * ```
  */
 @Composable
-fun useThrottleEffect(vararg keys: Any?, optionsOf: ThrottleOptions.() -> Unit = {}, block: SuspendAsyncFn) = useThrottleEffect(
+fun useThrottleEffect(vararg keys: Any?, optionsOf: UseThrottleOptions.() -> Unit = {}, block: SuspendAsyncFn) = useThrottleEffect(
     keys = keys,
     useDynamicOptions(optionsOf),
     block = block,
@@ -222,7 +222,7 @@ fun useThrottleEffect(vararg keys: Any?, optionsOf: ThrottleOptions.() -> Unit =
  * @return A [State] containing the throttled value
  */
 @Composable
-private fun <S> useThrottle(value: S, options: ThrottleOptions): State<S> {
+private fun <S> useThrottle(value: S, options: UseThrottleOptions): State<S> {
     val (throttled, setThrottled) = _useGetState(value)
     val throttledSet = useThrottleFn<None>(
         fn = {
@@ -244,7 +244,7 @@ private fun <S> useThrottle(value: S, options: ThrottleOptions): State<S> {
  * @return A throttled version of the input function
  */
 @Composable
-private fun <TParams> useThrottleFn(fn: VoidFunction<TParams>, options: ThrottleOptions): VoidFunction<TParams> {
+private fun <TParams> useThrottleFn(fn: VoidFunction<TParams>, options: UseThrottleOptions): VoidFunction<TParams> {
     val latestFn by useLatestState(value = fn)
     val scope = rememberCoroutineScope()
     val throttled = remember {
@@ -261,7 +261,7 @@ private fun <TParams> useThrottleFn(fn: VoidFunction<TParams>, options: Throttle
  * @param block The effect to throttle
  */
 @Composable
-private fun useThrottleEffect(vararg keys: Any?, options: ThrottleOptions, block: SuspendAsyncFn) {
+private fun useThrottleEffect(vararg keys: Any?, options: UseThrottleOptions, block: SuspendAsyncFn) {
     val throttledBlock = useThrottleFn<CoroutineScope>(
         fn = { coroutineScope ->
             coroutineScope.launch {

@@ -9,7 +9,7 @@ import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
 import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.PluginLifecycle
 import xyz.junerver.compose.hooks.userequest.PluginOnCancel
-import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.userequest.UseRequestOptions
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 
 /*
@@ -21,12 +21,12 @@ import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 */
 private class DebouncePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
     override val invoke: GenPluginLifecycleFn<TParams, TData>
-        get() = { fetch: Fetch<TParams, TData>, requestOptions: RequestOptions<TParams, TData> ->
-            if (requestOptions.debounceOptions.wait > Duration.ZERO) {
+        get() = { fetch: Fetch<TParams, TData>, useRequestOptions: UseRequestOptions<TParams, TData> ->
+            if (useRequestOptions.debounceOptions.wait > Duration.ZERO) {
                 val debounce = Debounce<TParams?>(
                     fn = { params -> fetch._run(params) },
                     scope = this,
-                    requestOptions.debounceOptions,
+                    useRequestOptions.debounceOptions,
                 )
                 fetch.runAsync = {
                     debounce.invoke(it)
@@ -45,7 +45,7 @@ private class DebouncePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
 }
 
 @Composable
-internal fun <TParams, TData : Any> useDebouncePlugin(options: RequestOptions<TParams, TData>): Plugin<TParams, TData> {
+internal fun <TParams, TData : Any> useDebouncePlugin(options: UseRequestOptions<TParams, TData>): Plugin<TParams, TData> {
     if (options.debounceOptions.wait == Duration.ZERO) {
         return useEmptyPlugin()
     }

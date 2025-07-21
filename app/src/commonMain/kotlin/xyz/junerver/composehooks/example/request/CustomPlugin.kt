@@ -18,7 +18,7 @@ import xyz.junerver.compose.hooks.userequest.PluginLifecycle
 import xyz.junerver.compose.hooks.userequest.PluginOnMutate
 import xyz.junerver.compose.hooks.userequest.RefreshFn
 import xyz.junerver.compose.hooks.userequest.ReqFn
-import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.userequest.UseRequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 
 /**
@@ -42,7 +42,7 @@ typealias RollbackFn = () -> Unit
 @Composable
 fun <TData : Any> useCustomPluginRequest(
     requestFn: suspend (ArrayParams) -> TData,
-    optionsOf: RequestOptions<ArrayParams, TData>.() -> Unit = {},
+    optionsOf: UseRequestOptions<ArrayParams, TData>.() -> Unit = {},
 ): Tuple8<State<TData?>, State<Boolean>, State<Throwable?>, ReqFn<ArrayParams>, MutateFn<TData>, RefreshFn, CancelFn, RollbackFn> {
     val rollbackRef = useRef(default = { })
     val requestHolder = useRequest(
@@ -76,7 +76,7 @@ private fun <TData : Any> useRollbackPlugin(ref: MutableRef<() -> Unit>): Plugin
         }
 
         override val invoke: GenPluginLifecycleFn<ArrayParams, TData>
-            get() = { fetch: Fetch<ArrayParams, TData>, options: RequestOptions<ArrayParams, TData> ->
+            get() = { fetch: Fetch<ArrayParams, TData>, options: UseRequestOptions<ArrayParams, TData> ->
                 initFetch(fetch, options)
                 object : PluginLifecycle<ArrayParams, TData>() {
                     override val onMutate: PluginOnMutate<TData>

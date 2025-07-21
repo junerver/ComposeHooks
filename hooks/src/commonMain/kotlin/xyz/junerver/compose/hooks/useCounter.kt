@@ -24,11 +24,11 @@ import arrow.core.right
  * @property max The maximum value of the counter (inclusive)
  */
 @Stable
-data class CounterOptions internal constructor(
+data class UseCounterOptions internal constructor(
     var min: Int = 0,
     var max: Int = 10,
 ) {
-    companion object : Options<CounterOptions>(::CounterOptions)
+    companion object : Options<UseCounterOptions>(::UseCounterOptions)
 }
 
 /**
@@ -54,7 +54,7 @@ data class CounterOptions internal constructor(
  * ```
  */
 @Composable
-private fun useCounter(initialValue: Int = 0, options: CounterOptions): CounterHolder {
+private fun useCounter(initialValue: Int = 0, options: UseCounterOptions): CounterHolder {
     val (current, setCurrent, getCurrent) = useGetState(getTargetValue(initialValue, options))
     val setValue: SetValueFn<Either<Int, (Int) -> Int>> = { value: Either<Int, (Int) -> Int> ->
         val target = value.fold(
@@ -126,7 +126,7 @@ private fun useCounter(initialValue: Int = 0, options: CounterOptions): CounterH
  * ```
  */
 @Composable
-fun useCounter(initialValue: Int = 0, optionsOf: CounterOptions.() -> Unit) = useCounter(initialValue, useDynamicOptions(optionsOf))
+fun useCounter(initialValue: Int = 0, optionsOf: UseCounterOptions.() -> Unit) = useCounter(initialValue, useDynamicOptions(optionsOf))
 
 /**
  * Ensures the value is within the specified min/max bounds.
@@ -135,7 +135,7 @@ fun useCounter(initialValue: Int = 0, optionsOf: CounterOptions.() -> Unit) = us
  * @param options The counter options containing min/max bounds
  * @return The constrained value
  */
-private fun getTargetValue(value: Int, options: CounterOptions): Int {
+private fun getTargetValue(value: Int, options: UseCounterOptions): Int {
     val (min, max) = options
     return value.coerceIn(min, max)
 }

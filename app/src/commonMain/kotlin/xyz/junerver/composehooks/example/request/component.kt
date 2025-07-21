@@ -8,11 +8,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.DebounceOptions
-import xyz.junerver.compose.hooks.ThrottleOptions
+import xyz.junerver.compose.hooks.UseDebounceOptions
+import xyz.junerver.compose.hooks.UseThrottleOptions
 import xyz.junerver.compose.hooks.useEventPublish
 import xyz.junerver.compose.hooks.useEventSubscribe
-import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.userequest.UseRequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.composehooks.net.NetApi
@@ -55,9 +55,9 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
             when (optionFunc) {
                 OptionFunc.LoadingDelay -> run {
                     /**
-                     * 当你配置了[RequestOptions.loadingDelay]，如果请求在这个时间之内返回就不会引起loading的变化，
+                     * 当你配置了[UseRequestOptions.loadingDelay]，如果请求在这个时间之内返回就不会引起loading的变化，
                      * 这可以避免闪烁，适用于接口较为快速返回的场景。
-                     * When you configure [RequestOptions.loadingDelay], if the request response within this duration,
+                     * When you configure [UseRequestOptions.loadingDelay], if the request response within this duration,
                      * it will not cause loading state changes.
                      * This can avoid flickering and is suitable for scenarios
                      * where the interface returns quickly.
@@ -67,18 +67,18 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
 
                 OptionFunc.Debounce -> run {
                     /**
-                     * 当你配置了[DebounceOptions.wait]，会按照设置值进行防抖处理
+                     * 当你配置了[UseDebounceOptions.wait]，会按照设置值进行防抖处理
                      *
-                     * When you configure [DebounceOptions.wait], anti-shake processing will be performed according to the set value.
+                     * When you configure [UseDebounceOptions.wait], anti-shake processing will be performed according to the set value.
                      */
                     if (isUsed) debounceOptionsOf = { wait = 3.seconds }
                 }
 
                 OptionFunc.Throttle -> run {
                     /**
-                     * 当你配置了[ThrottleOptions.wait]，会按照设置值进行节流处理
+                     * 当你配置了[UseThrottleOptions.wait]，会按照设置值进行节流处理
                      *
-                     * When you configure [ThrottleOptions.wait], throttling will be performed according to the set value.
+                     * When you configure [UseThrottleOptions.wait], throttling will be performed according to the set value.
                      */
                     if (isUsed) throttleOptionsOf = { wait = 3.seconds }
                 }

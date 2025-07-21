@@ -30,7 +30,7 @@ import xyz.junerver.compose.hooks.utils.currentTime
  * @property onEnd callback function for end of countdown
  */
 @Stable
-data class CountdownOptions internal constructor(
+data class UseCountdownOptions internal constructor(
     @Stable
     var leftTime: Duration? = null,
     @Stable
@@ -40,11 +40,11 @@ data class CountdownOptions internal constructor(
     @Stable
     var onEnd: OnEndCallback? = null,
 ) {
-    companion object : Options<CountdownOptions>(::CountdownOptions)
+    companion object : Options<UseCountdownOptions>(::UseCountdownOptions)
 }
 
 @Composable
-private fun useCountdown(options: CountdownOptions): CountdownHolder {
+private fun useCountdown(options: UseCountdownOptions): CountdownHolder {
     val (leftTime, targetDate, interval, onEnd) = options
     require(leftTime.asBoolean() || targetDate.asBoolean()) {
         "'leftTime' or 'targetDate' must be set"
@@ -115,7 +115,7 @@ private fun useCountdown(options: CountdownOptions): CountdownHolder {
  * ```
  */
 @Composable
-fun useCountdown(optionsOf: CountdownOptions.() -> Unit): CountdownHolder = useCountdown(useDynamicOptions(optionsOf))
+fun useCountdown(optionsOf: UseCountdownOptions.() -> Unit): CountdownHolder = useCountdown(useDynamicOptions(optionsOf))
 
 /**
  * Calculates the remaining time until the target date.

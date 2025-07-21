@@ -4,7 +4,7 @@ package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.userequest.UseRequestOptions
 
 /**
  * Description: 规范Options的形式
@@ -25,18 +25,18 @@ abstract class Options<T>(val creator: () -> T) {
 }
 
 private inline fun <reified T> createOptions(noinline opt: T.() -> Unit): T = when (T::class) {
-    CountdownOptions::class -> CountdownOptions.optionOf(opt as CountdownOptions.() -> Unit)
-    CounterOptions::class -> CounterOptions.optionOf(opt as CounterOptions.() -> Unit)
-    DebounceOptions::class -> DebounceOptions.optionOf(opt as DebounceOptions.() -> Unit)
-    IntervalOptions::class -> IntervalOptions.optionOf(opt as IntervalOptions.() -> Unit)
+    UseCountdownOptions::class -> UseCountdownOptions.optionOf(opt as UseCountdownOptions.() -> Unit)
+    UseCounterOptions::class -> UseCounterOptions.optionOf(opt as UseCounterOptions.() -> Unit)
+    UseDebounceOptions::class -> UseDebounceOptions.optionOf(opt as UseDebounceOptions.() -> Unit)
+    UseIntervalOptions::class -> UseIntervalOptions.optionOf(opt as UseIntervalOptions.() -> Unit)
     UseNowOptions::class -> UseNowOptions.optionOf(opt as UseNowOptions.() -> Unit)
-    ThrottleOptions::class -> ThrottleOptions.optionOf(opt as ThrottleOptions.() -> Unit)
-    TimestampOptions::class -> TimestampOptions.optionOf(opt as TimestampOptions.() -> Unit)
-    RequestOptions::class -> RequestOptions.optionOf(opt as RequestOptions<Any, Any>.() -> Unit)
+    UseThrottleOptions::class -> UseThrottleOptions.optionOf(opt as UseThrottleOptions.() -> Unit)
+    UseTimestampOptions::class -> UseTimestampOptions.optionOf(opt as UseTimestampOptions.() -> Unit)
+    UseRequestOptions::class -> UseRequestOptions.optionOf(opt as UseRequestOptions<Any, Any>.() -> Unit)
     UseDateFormatOptions::class -> UseDateFormatOptions.optionOf(opt as UseDateFormatOptions.() -> Unit)
-    StateAsyncOptions::class -> StateAsyncOptions.optionOf(opt as StateAsyncOptions.() -> Unit)
+    UseStateAsyncOptions::class -> UseStateAsyncOptions.optionOf(opt as UseStateAsyncOptions.() -> Unit)
     UseTimeAgoOptions::class -> UseTimeAgoOptions.optionOf(opt as UseTimeAgoOptions.() -> Unit)
-    TimeoutFnOptions::class -> TimeoutFnOptions.optionOf(opt as TimeoutFnOptions.() -> Unit)
+    UseTimeoutFnOptions::class -> UseTimeoutFnOptions.optionOf(opt as UseTimeoutFnOptions.() -> Unit)
     UseTimeoutPollOptions::class -> UseTimeoutPollOptions.optionOf(opt as UseTimeoutPollOptions.() -> Unit)
     UseCycleListOptions::class -> UseCycleListOptions.optionOf(opt as UseCycleListOptions<Any>.() -> Unit)
     UseSortedOptions::class -> UseSortedOptions.optionOf(opt as UseSortedOptions<Any>.() -> Unit)

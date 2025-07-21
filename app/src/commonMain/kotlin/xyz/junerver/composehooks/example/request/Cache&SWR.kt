@@ -14,7 +14,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import xyz.junerver.compose.hooks.None
 import xyz.junerver.compose.hooks.useBoolean
-import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.userequest.UseRequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.compose.hooks.userequest.utils.clearCache
 import xyz.junerver.compose.hooks.utils.asBoolean
@@ -77,7 +77,7 @@ private fun TestSWR() {
 }
 
 /**
- * 当配置了[RequestOptions.cacheKey]时，发起请求时会先查询是否存在缓存，
+ * 当配置了[UseRequestOptions.cacheKey]时，发起请求时会先查询是否存在缓存，
  * 如果缓存存在则优先使用缓存返回，同时发起请求，在请求成功后更新状态
  *
  * @param useCache

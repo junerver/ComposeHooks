@@ -283,14 +283,14 @@ abstract class PluginLifecycle<TParams, TData> {
 
 /**
  * [Fetch.pluginImpls] 本质是调用[GenPluginLifecycleFn]函数后保存的[PluginLifecycle]列表
- * ，这个函数的入参是[Fetch]实例与[RequestOptions]配置。
+ * ，这个函数的入参是[Fetch]实例与[UseRequestOptions]配置。
  */
-typealias GenPluginLifecycleFn<TParams, TData> = (Fetch<TParams, TData>, RequestOptions<TParams, TData>) -> PluginLifecycle<TParams, TData>
+typealias GenPluginLifecycleFn<TParams, TData> = (Fetch<TParams, TData>, UseRequestOptions<TParams, TData>) -> PluginLifecycle<TParams, TData>
 
 /**
  * 插件函数 `useXXXPlugin` 的返回值是真实的插件[Plugin]对象，
  * 可以通过在[useRequestPluginsImpl]中调用[onInit]函数，用来初始化 [Fetch.fetchState]状态。
- * 插件对象自身实现了协程作用域[CoroutineScope]，持有[Fetch]的实例、请求[RequestOptions]配置等内容。
+ * 插件对象自身实现了协程作用域[CoroutineScope]，持有[Fetch]的实例、请求[UseRequestOptions]配置等内容。
  * 按需实现[IFetch]对应[Fetch]中的各个函数调用，就可以在插件函数`useXXXPlugin`中需要使用副作用函数时，间接回调[Fetch]实例。
  * 具体用例可以参考：[useAutoRunPlugin]
  */
@@ -300,9 +300,9 @@ abstract class Plugin<TParams, TData : Any> : IFetch<TParams, TData>, CoroutineS
         get() = Dispatchers.Default + pluginJob
 
     lateinit var fetchInstance: Fetch<TParams, TData>
-    lateinit var options: RequestOptions<TParams, TData>
+    lateinit var options: UseRequestOptions<TParams, TData>
 
-    fun initFetch(fetchInstance: Fetch<TParams, TData>, options: RequestOptions<TParams, TData>) {
+    fun initFetch(fetchInstance: Fetch<TParams, TData>, options: UseRequestOptions<TParams, TData>) {
         if (!this::fetchInstance.isInitialized) {
             this.fetchInstance = fetchInstance
         }
@@ -313,7 +313,7 @@ abstract class Plugin<TParams, TData : Any> : IFetch<TParams, TData>, CoroutineS
 
     abstract val invoke: GenPluginLifecycleFn<TParams, TData>
 
-    open val onInit: ((RequestOptions<TParams, TData>) -> FetchState<TParams, TData>)? = null
+    open val onInit: ((UseRequestOptions<TParams, TData>) -> FetchState<TParams, TData>)? = null
 
     override fun cancel() {
         pluginJob.cancelChildren()

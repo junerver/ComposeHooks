@@ -25,7 +25,7 @@ import xyz.junerver.compose.hooks.userequest.PluginOnError
 import xyz.junerver.compose.hooks.userequest.PluginOnMutate
 import xyz.junerver.compose.hooks.userequest.PluginOnRequest
 import xyz.junerver.compose.hooks.userequest.PluginOnSuccess
-import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.userequest.UseRequestOptions
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 import xyz.junerver.compose.hooks.userequest.utils.RestoreFetchStateData
@@ -54,9 +54,9 @@ private class CachePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
     lateinit var getCache: (String, TParams) -> CachedData<TData>?
 
     override val invoke: GenPluginLifecycleFn<TParams, TData>
-        get() = { fetch: Fetch<TParams, TData>, requestOptions: RequestOptions<TParams, TData> ->
-            initFetch(fetch, requestOptions)
-            val (cacheKey, staleTimeOp) = with(requestOptions) { tuple(cacheKey, staleTime) }
+        get() = { fetch: Fetch<TParams, TData>, useRequestOptions: UseRequestOptions<TParams, TData> ->
+            initFetch(fetch, useRequestOptions)
+            val (cacheKey, staleTimeOp) = with(useRequestOptions) { tuple(cacheKey, staleTime) }
             staleTime = staleTimeOp
 
             object : PluginLifecycle<TParams, TData>() {
@@ -182,7 +182,7 @@ private class CachePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
 }
 
 @Composable
-internal fun <TParams, TData : Any> useCachePlugin(options: RequestOptions<TParams, TData>): Plugin<TParams, TData> {
+internal fun <TParams, TData : Any> useCachePlugin(options: UseRequestOptions<TParams, TData>): Plugin<TParams, TData> {
     val (cacheKey, cacheTime, customSetCache, customGetCache) = with(options) {
         Tuple4(cacheKey, cacheTime, setCache, getCache)
     }

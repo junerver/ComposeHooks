@@ -91,11 +91,11 @@ fun <T> useState(vararg keys: Any?, factory: () -> T): State<T> = remember(keys 
  *                  By default, it prints the stack trace of the error.
  */
 @Stable
-data class StateAsyncOptions internal constructor(
+data class UseStateAsyncOptions internal constructor(
     var lazy: Boolean = false,
     var onError: (Throwable) -> Unit = { error -> error.printStackTrace() },
 ) {
-    companion object : Options<StateAsyncOptions>(::StateAsyncOptions)
+    companion object : Options<UseStateAsyncOptions>(::UseStateAsyncOptions)
 }
 
 /**
@@ -133,7 +133,7 @@ data class StateAsyncOptions internal constructor(
 fun <T> useStateAsync(
     vararg keys: Any?,
     initValue: T? = null,
-    optionsOf: StateAsyncOptions.() -> Unit = {},
+    optionsOf: UseStateAsyncOptions.() -> Unit = {},
     factory: suspend () -> T,
 ): State<T?> {
     val (lazy, onError) = useDynamicOptions(optionsOf)

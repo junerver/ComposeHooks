@@ -33,11 +33,11 @@ import kotlinx.coroutines.launch
  * @property period The time between subsequent executions
  */
 @Stable
-data class IntervalOptions internal constructor(
+data class UseIntervalOptions internal constructor(
     var initialDelay: Duration = Duration.ZERO,
     var period: Duration = 5.seconds,
 ) {
-    companion object : Options<IntervalOptions>(::IntervalOptions)
+    companion object : Options<UseIntervalOptions>(::UseIntervalOptions)
 }
 
 /**
@@ -50,7 +50,7 @@ data class IntervalOptions internal constructor(
  * @property intervalJob The job managing the interval execution
  */
 @Stable
-private class Interval(private val options: IntervalOptions) {
+private class Interval(private val options: UseIntervalOptions) {
     var ready = true
     var scope: CoroutineScope by Delegates.notNull()
     var isActiveState: MutableState<Boolean>? = null
@@ -119,7 +119,7 @@ private class Interval(private val options: IntervalOptions) {
  * ```
  */
 @Composable
-fun useInterval(optionsOf: IntervalOptions.() -> Unit = {}, block: SuspendAsyncFn): IntervalHolder = useInterval(
+fun useInterval(optionsOf: UseIntervalOptions.() -> Unit = {}, block: SuspendAsyncFn): IntervalHolder = useInterval(
     options = useDynamicOptions(optionsOf),
     block = block,
 )
@@ -151,7 +151,7 @@ fun useInterval(optionsOf: IntervalOptions.() -> Unit = {}, block: SuspendAsyncF
  * ```
  */
 @Composable
-fun useInterval(optionsOf: IntervalOptions.() -> Unit = {}, ready: Boolean, block: SuspendAsyncFn): Unit = useInterval(
+fun useInterval(optionsOf: UseIntervalOptions.() -> Unit = {}, ready: Boolean, block: SuspendAsyncFn): Unit = useInterval(
     useDynamicOptions(optionsOf),
     ready = ready,
     block = block,
@@ -179,7 +179,7 @@ data class IntervalHolder(
  * @return An [IntervalHolder] containing control functions for the interval
  */
 @Composable
-private fun useInterval(options: IntervalOptions, block: SuspendAsyncFn): IntervalHolder {
+private fun useInterval(options: UseIntervalOptions, block: SuspendAsyncFn): IntervalHolder {
     val latestFn = useLatestRef(value = block)
     val isActiveState = useState(default = false)
     val scope = rememberCoroutineScope()
@@ -207,7 +207,7 @@ private fun useInterval(options: IntervalOptions, block: SuspendAsyncFn): Interv
  * @param block The suspend function to be executed in each interval
  */
 @Composable
-private fun useInterval(options: IntervalOptions, ready: Boolean, block: SuspendAsyncFn) {
+private fun useInterval(options: UseIntervalOptions, ready: Boolean, block: SuspendAsyncFn) {
     val latestFn = useLatestRef(value = block)
     val scope = rememberCoroutineScope()
     val interval = remember {

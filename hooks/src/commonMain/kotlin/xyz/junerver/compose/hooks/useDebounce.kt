@@ -38,13 +38,13 @@ import xyz.junerver.compose.hooks.utils.currentTime
  *    it’s invoked.
  */
 @Stable
-data class DebounceOptions internal constructor(
+data class UseDebounceOptions internal constructor(
     var wait: Duration = 1.seconds,
     var leading: Boolean = false,
     var trailing: Boolean = true,
     var maxWait: Duration = Duration.ZERO,
 ) {
-    companion object : Options<DebounceOptions>(::DebounceOptions)
+    companion object : Options<UseDebounceOptions>(::UseDebounceOptions)
 }
 
 /**
@@ -57,7 +57,7 @@ data class DebounceOptions internal constructor(
 internal class Debounce<TParams>(
     var fn: VoidFunction<TParams>,
     private val scope: CoroutineScope,
-    private val options: DebounceOptions = DebounceOptions(),
+    private val options: UseDebounceOptions = UseDebounceOptions(),
 ) {
     private var timeoutJob: Job? = null // Job for tracking delayed tasks
     private var latestInvokedTime = Instant.DISTANT_PAST
@@ -144,7 +144,7 @@ internal class Debounce<TParams>(
  * @return A State containing the debounced value
  */
 @Composable
-fun <S> useDebounce(value: S, optionsOf: DebounceOptions.() -> Unit = {}): State<S> = useDebounce(value, useDynamicOptions(optionsOf))
+fun <S> useDebounce(value: S, optionsOf: UseDebounceOptions.() -> Unit = {}): State<S> = useDebounce(value, useDynamicOptions(optionsOf))
 
 /**
  * A hook that returns a debounced version of the provided function.
@@ -157,7 +157,7 @@ fun <S> useDebounce(value: S, optionsOf: DebounceOptions.() -> Unit = {}): State
  * @return A debounced version of the provided function
  */
 @Composable
-fun <TParams> useDebounceFn(fn: VoidFunction<TParams>, optionsOf: DebounceOptions.() -> Unit = {}): VoidFunction<TParams> =
+fun <TParams> useDebounceFn(fn: VoidFunction<TParams>, optionsOf: UseDebounceOptions.() -> Unit = {}): VoidFunction<TParams> =
     useDebounceFn(fn, useDynamicOptions(optionsOf))
 
 /**
@@ -171,7 +171,7 @@ fun <TParams> useDebounceFn(fn: VoidFunction<TParams>, optionsOf: DebounceOption
  * @param block The suspend function to be executed as the debounced effect
  */
 @Composable
-fun useDebounceEffect(vararg keys: Any?, optionsOf: DebounceOptions.() -> Unit = {}, block: SuspendAsyncFn) = useDebounceEffect(
+fun useDebounceEffect(vararg keys: Any?, optionsOf: UseDebounceOptions.() -> Unit = {}, block: SuspendAsyncFn) = useDebounceEffect(
     keys = keys,
     useDynamicOptions(optionsOf),
     block,
@@ -188,7 +188,7 @@ fun useDebounceEffect(vararg keys: Any?, optionsOf: DebounceOptions.() -> Unit =
  * @return A State containing the debounced value
  */
 @Composable
-private fun <S> useDebounce(value: S, options: DebounceOptions): State<S> {
+private fun <S> useDebounce(value: S, options: UseDebounceOptions): State<S> {
     // Create a state to hold the debounced value, using _useGetState to avoid closure problems
     val (debounced, setDebounced) = _useGetState(value)
     val debouncedSet = useDebounceFn<None>(
@@ -214,7 +214,7 @@ private fun <S> useDebounce(value: S, options: DebounceOptions): State<S> {
  * This way, our [Debounce] can be seamlessly integrated.
  */
 @Composable
-private fun <TParams> useDebounceFn(fn: VoidFunction<TParams>, options: DebounceOptions): VoidFunction<TParams> {
+private fun <TParams> useDebounceFn(fn: VoidFunction<TParams>, options: UseDebounceOptions): VoidFunction<TParams> {
     val latestFn by useLatestState(value = fn)
     val scope = rememberCoroutineScope()
     val debounced = remember {
@@ -234,7 +234,7 @@ private fun <TParams> useDebounceFn(fn: VoidFunction<TParams>, options: Debounce
  * @param block The suspend function to be executed as the debounced effect
  */
 @Composable
-private fun useDebounceEffect(vararg keys: Any?, options: DebounceOptions, block: SuspendAsyncFn) {
+private fun useDebounceEffect(vararg keys: Any?, options: UseDebounceOptions, block: SuspendAsyncFn) {
     val debouncedBlock = useDebounceFn<CoroutineScope>(
         fn = { coroutineScope ->
             coroutineScope.launch {

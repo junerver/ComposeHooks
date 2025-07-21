@@ -16,7 +16,7 @@ import xyz.junerver.compose.hooks.userequest.PluginLifecycle
 import xyz.junerver.compose.hooks.userequest.PluginOnBefore
 import xyz.junerver.compose.hooks.userequest.PluginOnCancel
 import xyz.junerver.compose.hooks.userequest.PluginOnFinally
-import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.userequest.UseRequestOptions
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 import xyz.junerver.compose.hooks.utils.asBoolean
 
@@ -40,8 +40,8 @@ private class LoadingDelayPlugin<TParams, TData : Any> : Plugin<TParams, TData>(
     } ?: Unit
 
     override val invoke: GenPluginLifecycleFn<TParams, TData>
-        get() = { fetch: Fetch<TParams, TData>, requestOptions: RequestOptions<TParams, TData> ->
-            val (loadingDelay, staleTime) = with(requestOptions) { tuple(loadingDelay, staleTime) }
+        get() = { fetch: Fetch<TParams, TData>, useRequestOptions: UseRequestOptions<TParams, TData> ->
+            val (loadingDelay, staleTime) = with(useRequestOptions) { tuple(loadingDelay, staleTime) }
             object : PluginLifecycle<TParams, TData>() {
                 override val onBefore: PluginOnBefore<TParams, TData>
                     get() = {
@@ -72,7 +72,7 @@ private class LoadingDelayPlugin<TParams, TData : Any> : Plugin<TParams, TData>(
 }
 
 @Composable
-internal fun <TParams, TData : Any> useLoadingDelayPlugin(options: RequestOptions<TParams, TData>): Plugin<TParams, TData> {
+internal fun <TParams, TData : Any> useLoadingDelayPlugin(options: UseRequestOptions<TParams, TData>): Plugin<TParams, TData> {
     val (loadingDelay, ready) = with(options) {
         loadingDelay to ready
     }

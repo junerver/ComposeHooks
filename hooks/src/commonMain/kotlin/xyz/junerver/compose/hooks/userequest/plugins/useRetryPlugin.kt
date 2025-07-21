@@ -15,7 +15,7 @@ import xyz.junerver.compose.hooks.userequest.PluginOnBefore
 import xyz.junerver.compose.hooks.userequest.PluginOnCancel
 import xyz.junerver.compose.hooks.userequest.PluginOnError
 import xyz.junerver.compose.hooks.userequest.PluginOnSuccess
-import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.userequest.UseRequestOptions
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 import xyz.junerver.compose.hooks.utils.asBoolean
 
@@ -31,8 +31,8 @@ private class RetryPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
     var triggerByRetry = false // 触发retry标志
 
     override val invoke: GenPluginLifecycleFn<TParams, TData>
-        get() = { fetch: Fetch<TParams, TData>, requestOptions: RequestOptions<TParams, TData> ->
-            val (retryInterval, retryCount) = with(requestOptions) {
+        get() = { fetch: Fetch<TParams, TData>, useRequestOptions: UseRequestOptions<TParams, TData> ->
+            val (retryInterval, retryCount) = with(useRequestOptions) {
                 tuple(retryInterval, retryCount)
             }
 
@@ -81,7 +81,7 @@ private class RetryPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
 }
 
 @Composable
-internal fun <TParams, TData : Any> useRetryPlugin(options: RequestOptions<TParams, TData>): Plugin<TParams, TData> {
+internal fun <TParams, TData : Any> useRetryPlugin(options: UseRequestOptions<TParams, TData>): Plugin<TParams, TData> {
     if (options.retryCount == 0) {
         return useEmptyPlugin()
     }

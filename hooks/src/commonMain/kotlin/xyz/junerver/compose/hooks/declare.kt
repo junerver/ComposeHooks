@@ -12,7 +12,7 @@ import xyz.junerver.compose.hooks.useredux.useDispatch
 import xyz.junerver.compose.hooks.useredux.useDispatchAsync
 import xyz.junerver.compose.hooks.useredux.useSelector
 import xyz.junerver.compose.hooks.userequest.Plugin
-import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.userequest.UseRequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
 
 /** 更符合 Compose 的函数命名方式 */
@@ -38,8 +38,8 @@ inline fun <reified T, R> rememberSelector(alias: String? = null, crossinline bl
 @Composable
 fun <TParams, TData : Any> rememberRequest(
     requestFn: SuspendNormalFunction<TParams?, TData>,
-    optionsOf: RequestOptions<TParams, TData>.() -> Unit = {},
-    plugins: Array<@Composable (RequestOptions<TParams, TData>) -> Plugin<TParams, TData>> = emptyArray(),
+    optionsOf: UseRequestOptions<TParams, TData>.() -> Unit = {},
+    plugins: Array<@Composable (UseRequestOptions<TParams, TData>) -> Plugin<TParams, TData>> = emptyArray(),
 ) = useRequest(requestFn, optionsOf, plugins)
 
 //region useAsync
@@ -72,23 +72,23 @@ fun rememberClipboard() = useClipboard()
 fun <T> rememberContext(context: ReactContext<T>) = useContext(context)
 
 @Composable
-fun rememberCountdown(optionsOf: CountdownOptions.() -> Unit) = useCountdown(optionsOf)
+fun rememberCountdown(optionsOf: UseCountdownOptions.() -> Unit) = useCountdown(optionsOf)
 
 @Composable
-fun rememberCounter(initialValue: Int = 0, optionsOf: CounterOptions.() -> Unit) = useCounter(initialValue, optionsOf)
+fun rememberCounter(initialValue: Int = 0, optionsOf: UseCounterOptions.() -> Unit) = useCounter(initialValue, optionsOf)
 
 @Composable
 fun <T> rememberCreation(vararg keys: Any?, factory: () -> T) = useCreation(*keys, factory = factory)
 
 //region useDebounce
 @Composable
-fun <S> rememberDebounce(value: S, optionsOf: DebounceOptions.() -> Unit = {}) = useDebounce(value, optionsOf)
+fun <S> rememberDebounce(value: S, optionsOf: UseDebounceOptions.() -> Unit = {}) = useDebounce(value, optionsOf)
 
 @Composable
-fun <TParams> rememberDebounceFn(fn: VoidFunction<TParams>, optionsOf: DebounceOptions.() -> Unit = {}) = useDebounceFn(fn, optionsOf)
+fun <TParams> rememberDebounceFn(fn: VoidFunction<TParams>, optionsOf: UseDebounceOptions.() -> Unit = {}) = useDebounceFn(fn, optionsOf)
 
 @Composable
-fun LaunchedDebounceEffect(vararg keys: Any?, optionsOf: DebounceOptions.() -> Unit = {}, block: SuspendAsyncFn) =
+fun LaunchedDebounceEffect(vararg keys: Any?, optionsOf: UseDebounceOptions.() -> Unit = {}, block: SuspendAsyncFn) =
     useDebounceEffect(*keys, optionsOf = optionsOf, block = block)
 //endregion
 
@@ -113,10 +113,10 @@ fun <T> _rememberGetState(default: T) = _useGetState(default = default)
 //endregion
 
 @Composable
-fun rememberInterval(optionsOf: IntervalOptions.() -> Unit = {}, block: SuspendAsyncFn) = useInterval(optionsOf, block)
+fun rememberInterval(optionsOf: UseIntervalOptions.() -> Unit = {}, block: SuspendAsyncFn) = useInterval(optionsOf, block)
 
 @Composable
-fun rememberInterval(optionsOf: IntervalOptions.() -> Unit = {}, ready: Boolean, block: SuspendAsyncFn) =
+fun rememberInterval(optionsOf: UseIntervalOptions.() -> Unit = {}, ready: Boolean, block: SuspendAsyncFn) =
     useInterval(optionsOf, ready, block)
 
 @Composable
@@ -182,13 +182,13 @@ fun <T> _rememberState(default: T) = _useState(default)
 
 //region useThrottle
 @Composable
-fun <S> rememberThrottle(value: S, optionsOf: ThrottleOptions.() -> Unit = {}) = useThrottle(value, optionsOf)
+fun <S> rememberThrottle(value: S, optionsOf: UseThrottleOptions.() -> Unit = {}) = useThrottle(value, optionsOf)
 
 @Composable
-fun <TParams> rememberThrottleFn(fn: VoidFunction<TParams>, optionsOf: ThrottleOptions.() -> Unit = {}) = useThrottleFn(fn, optionsOf)
+fun <TParams> rememberThrottleFn(fn: VoidFunction<TParams>, optionsOf: UseThrottleOptions.() -> Unit = {}) = useThrottleFn(fn, optionsOf)
 
 @Composable
-fun LaunchedThrottleEffect(vararg keys: Any?, optionsOf: ThrottleOptions.() -> Unit = {}, block: SuspendAsyncFn) =
+fun LaunchedThrottleEffect(vararg keys: Any?, optionsOf: UseThrottleOptions.() -> Unit = {}, block: SuspendAsyncFn) =
     useThrottleEffect(*keys, optionsOf = optionsOf, block = block)
 //endregion
 
@@ -197,10 +197,10 @@ fun LaunchedThrottleEffect(vararg keys: Any?, optionsOf: ThrottleOptions.() -> U
 fun rememberTimeout(delay: Duration = 1.seconds, block: () -> Unit) = useTimeout(delay, block)
 
 @Composable
-fun rememberTimestamp(optionsOf: TimestampOptions.() -> Unit = {}, autoResume: Boolean = true) = useTimestamp(optionsOf, autoResume)
+fun rememberTimestamp(optionsOf: UseTimestampOptions.() -> Unit = {}, autoResume: Boolean = true) = useTimestamp(optionsOf, autoResume)
 
 @Composable
-fun rememberTimestampRef(optionsOf: TimestampOptions.() -> Unit = {}, autoResume: Boolean = true) = useTimestampRef(optionsOf, autoResume)
+fun rememberTimestampRef(optionsOf: UseTimestampOptions.() -> Unit = {}, autoResume: Boolean = true) = useTimestampRef(optionsOf, autoResume)
 
 //region useToggle
 @Composable
@@ -247,7 +247,7 @@ fun <S : Any, E, CTX> rememberStateMachine(machineGraph: Ref<MachineGraph<S, E, 
     useStateMachine(machineGraph)
 
 @Composable
-fun rememberTimeoutFn(fn: SuspendAsyncFn, interval: Duration = 1.seconds, optionsOf: TimeoutFnOptions.() -> Unit = {}): TimeoutFnHolder =
+fun rememberTimeoutFn(fn: SuspendAsyncFn, interval: Duration = 1.seconds, optionsOf: UseTimeoutFnOptions.() -> Unit = {}): TimeoutFnHolder =
     useTimeoutFn(fn, interval, optionsOf)
 
 @Composable

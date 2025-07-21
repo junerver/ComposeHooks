@@ -14,7 +14,7 @@ import xyz.junerver.compose.hooks.userequest.OnBeforeReturn
 import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.PluginLifecycle
 import xyz.junerver.compose.hooks.userequest.PluginOnBefore
-import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.userequest.UseRequestOptions
 import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.compose.hooks.utils.runIf
 
@@ -32,14 +32,14 @@ private class AutoRunPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
      */
     var ready = true
 
-    override val onInit: (RequestOptions<TParams, TData>) -> FetchState<TParams, TData> = {
+    override val onInit: (UseRequestOptions<TParams, TData>) -> FetchState<TParams, TData> = {
         // 如果是手动模式 则不loading，自动模式则loading
         FetchState(loading = it.manual.not() && ready)
     }
 
     override val invoke: GenPluginLifecycleFn<TParams, TData>
-        get() = { fetch: Fetch<TParams, TData>, requestOptions: RequestOptions<TParams, TData> ->
-            initFetch(fetch, requestOptions)
+        get() = { fetch: Fetch<TParams, TData>, useRequestOptions: UseRequestOptions<TParams, TData> ->
+            initFetch(fetch, useRequestOptions)
             object : PluginLifecycle<TParams, TData>() {
                 override val onBefore: PluginOnBefore<TParams, TData>
                     get() = {
@@ -74,7 +74,7 @@ private class AutoRunPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
  * 钩子应该返回两个值，一个是plugin自身，方便调用init函数，另一个是pluginreturn，用来调用周期得methods
  */
 @Composable
-internal fun <TParams, TData : Any> useAutoRunPlugin(options: RequestOptions<TParams, TData>): Plugin<TParams, TData> {
+internal fun <TParams, TData : Any> useAutoRunPlugin(options: UseRequestOptions<TParams, TData>): Plugin<TParams, TData> {
     val (manual, ready, defaultParams, refreshDeps, refreshDepsAction) = with(options) {
         Tuple5(manual, ready, defaultParams, refreshDeps, refreshDepsAction)
     }

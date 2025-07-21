@@ -20,7 +20,7 @@ import xyz.junerver.compose.hooks.userequest.PluginOnCancel
 import xyz.junerver.compose.hooks.userequest.PluginOnError
 import xyz.junerver.compose.hooks.userequest.PluginOnFinally
 import xyz.junerver.compose.hooks.userequest.PluginOnSuccess
-import xyz.junerver.compose.hooks.userequest.RequestOptions
+import xyz.junerver.compose.hooks.userequest.UseRequestOptions
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 
 /*
@@ -58,9 +58,9 @@ private class PollingPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
     }
 
     override val invoke: GenPluginLifecycleFn<TParams, TData>
-        get() = { fetch: Fetch<TParams, TData>, requestOptions: RequestOptions<TParams, TData> ->
-            initFetch(fetch, requestOptions)
-            val (pollingInterval, pollingWhenHidden, pollingErrorRetryCount) = with(requestOptions) {
+        get() = { fetch: Fetch<TParams, TData>, useRequestOptions: UseRequestOptions<TParams, TData> ->
+            initFetch(fetch, useRequestOptions)
+            val (pollingInterval, pollingWhenHidden, pollingErrorRetryCount) = with(useRequestOptions) {
                 tuple(pollingInterval, pollingWhenHidden, pollingErrorRetryCount)
             }
             val pluginScope = this
@@ -114,7 +114,7 @@ private class PollingPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
 }
 
 @Composable
-internal fun <TParams, TData : Any> usePollingPlugin(options: RequestOptions<TParams, TData>): Plugin<TParams, TData> {
+internal fun <TParams, TData : Any> usePollingPlugin(options: UseRequestOptions<TParams, TData>): Plugin<TParams, TData> {
     if (options.pollingInterval == Duration.ZERO) {
         return useEmptyPlugin()
     }

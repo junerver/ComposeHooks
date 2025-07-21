@@ -26,7 +26,7 @@ import xyz.junerver.compose.hooks.userequest.utils.awaitPlus
 
 @Suppress("unused")
 @Stable
-class Fetch<TParams, TData : Any>(private val options: RequestOptions<TParams, TData> = RequestOptions()) :
+class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams, TData> = UseRequestOptions()) :
     IFetch<TParams, TData> {
     // 请求的计数器
     private var count: Int = 0

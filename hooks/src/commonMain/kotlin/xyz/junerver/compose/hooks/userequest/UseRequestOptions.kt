@@ -6,8 +6,8 @@ import androidx.compose.runtime.Stable
 import kotlin.reflect.KProperty
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
-import xyz.junerver.compose.hooks.DebounceOptions
-import xyz.junerver.compose.hooks.ThrottleOptions
+import xyz.junerver.compose.hooks.UseDebounceOptions
+import xyz.junerver.compose.hooks.UseThrottleOptions
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 
 /*
@@ -23,7 +23,7 @@ internal typealias OnErrorCallback<TParams> = (Throwable, TParams?) -> Unit
 internal typealias OnFinallyCallback<TParams, TData> = (TParams?, TData?, Throwable?) -> Unit
 
 @Stable
-data class RequestOptions<TParams, TData> internal constructor(
+data class UseRequestOptions<TParams, TData> internal constructor(
     /**
      * 默认 false。 即在初始化时自动执行 requestFn。
      * 如果设置为 true，则需要手动调用 run
@@ -134,35 +134,35 @@ data class RequestOptions<TParams, TData> internal constructor(
 ) {
     @Suppress("unused")
     companion object {
-        fun <TParams, TData> optionOf(opt: RequestOptions<TParams, TData>.() -> Unit): RequestOptions<TParams, TData> =
-            RequestOptions<TParams, TData>().apply {
+        fun <TParams, TData> optionOf(opt: UseRequestOptions<TParams, TData>.() -> Unit): UseRequestOptions<TParams, TData> =
+            UseRequestOptions<TParams, TData>().apply {
                 opt()
             }
     }
 
     /**
-     * 通过配置参数为 [DebounceOptions.wait] 开启防抖功能，默认值为0，不开启防抖
+     * 通过配置参数为 [UseDebounceOptions.wait] 开启防抖功能，默认值为0，不开启防抖
      */
     @Stable
-    internal var debounceOptions: DebounceOptions = DebounceOptions.optionOf { wait = Duration.ZERO }
+    internal var debounceOptions: UseDebounceOptions = UseDebounceOptions.optionOf { wait = Duration.ZERO }
 
     /**
-     * 通过配置参数为 [ThrottleOptions.wait] 开启节流功能，默认值为0，不开启节流
+     * 通过配置参数为 [UseThrottleOptions.wait] 开启节流功能，默认值为0，不开启节流
      */
     @Stable
-    internal var throttleOptions: ThrottleOptions = ThrottleOptions.optionOf { wait = Duration.ZERO }
+    internal var throttleOptions: UseThrottleOptions = UseThrottleOptions.optionOf { wait = Duration.ZERO }
 
     @Stable
-    var debounceOptionsOf: DebounceOptions.() -> Unit by DebounceOptionsDelegate { wait = Duration.ZERO }
+    var debounceOptionsOf: UseDebounceOptions.() -> Unit by DebounceOptionsDelegate { wait = Duration.ZERO }
 
     @Stable
-    var throttleOptionsOf: ThrottleOptions.() -> Unit by ThrottleOptionsDelegate { wait = Duration.ZERO }
+    var throttleOptionsOf: UseThrottleOptions.() -> Unit by ThrottleOptionsDelegate { wait = Duration.ZERO }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
-        other as RequestOptions<*, *>
+        other as UseRequestOptions<*, *>
 
         if (manual != other.manual) return false
         if (retryCount != other.retryCount) return false
@@ -223,17 +223,17 @@ data class RequestOptions<TParams, TData> internal constructor(
  * 使用代理来实现通过函数配置防抖选项
  */
 private class DebounceOptionsDelegate(
-    private var configure: DebounceOptions.() -> Unit,
+    private var configure: UseDebounceOptions.() -> Unit,
 ) {
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): DebounceOptions.() -> Unit = configure
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): UseDebounceOptions.() -> Unit = configure
 
     operator fun <TParams, TData> setValue(
-        requestOptions: RequestOptions<TParams, TData>,
+        useRequestOptions: UseRequestOptions<TParams, TData>,
         property: KProperty<*>,
-        function: DebounceOptions.() -> Unit,
+        function: UseDebounceOptions.() -> Unit,
     ) {
         this.configure = function
-        requestOptions.debounceOptions = DebounceOptions.optionOf(function)
+        useRequestOptions.debounceOptions = UseDebounceOptions.optionOf(function)
     }
 }
 
@@ -241,16 +241,16 @@ private class DebounceOptionsDelegate(
  * 使用代理来实现通过函数配置节流选项
  */
 private class ThrottleOptionsDelegate(
-    private var configure: ThrottleOptions.() -> Unit,
+    private var configure: UseThrottleOptions.() -> Unit,
 ) {
-    operator fun getValue(thisRef: Any?, property: KProperty<*>): ThrottleOptions.() -> Unit = configure
+    operator fun getValue(thisRef: Any?, property: KProperty<*>): UseThrottleOptions.() -> Unit = configure
 
     operator fun <TParams, TData> setValue(
-        requestOptions: RequestOptions<TParams, TData>,
+        useRequestOptions: UseRequestOptions<TParams, TData>,
         property: KProperty<*>,
-        function: ThrottleOptions.() -> Unit,
+        function: UseThrottleOptions.() -> Unit,
     ) {
         this.configure = function
-        requestOptions.throttleOptions = ThrottleOptions.optionOf(function)
+        useRequestOptions.throttleOptions = UseThrottleOptions.optionOf(function)
     }
 }
