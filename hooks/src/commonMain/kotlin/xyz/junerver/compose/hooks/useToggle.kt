@@ -1,7 +1,6 @@
 package xyz.junerver.compose.hooks
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
@@ -62,8 +61,8 @@ fun <T> useToggle(defaultValue: T? = null, reverseValue: T? = null): Pair<T?, To
 @Composable
 fun <L, R> useToggleEither(defaultValue: L? = null, reverseValue: R? = null): Pair<Either<L?, R?>, ToggleFn> {
     val (isLeft, toggle) = useBoolean(true)
-    val leftEither = remember { defaultValue.left() }
-    val rightEither = remember { reverseValue.right() }
+    val leftEither by useLatestRef(defaultValue.left())
+    val rightEither by useLatestRef(reverseValue.right())
     return (if (isLeft.value) leftEither else rightEither) to toggle
 }
 
