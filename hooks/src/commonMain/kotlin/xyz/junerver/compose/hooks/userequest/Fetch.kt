@@ -227,9 +227,11 @@ class Fetch<TParams, TData : Any>(private val options: RequestOptions<TParams, T
         setState(Keys.data to targetData)
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun runPluginHandler(method: Methods<*, *>): List<*> = pluginImpls.mapNotNull {
         when (method) {
             is Methods.OnBefore -> {
+                @Suppress("UNCHECKED_CAST")
                 it.onBefore?.invoke(method.params as TParams)
             }
 
@@ -243,6 +245,7 @@ class Fetch<TParams, TData : Any>(private val options: RequestOptions<TParams, T
              * 参数1：请求的返回值，参数2：请求使用的参数
              */
             is Methods.OnSuccess -> {
+                @Suppress("UNCHECKED_CAST")
                 it.onSuccess?.invoke(
                     method.result as TData,
                     method.params as TParams,
@@ -252,6 +255,7 @@ class Fetch<TParams, TData : Any>(private val options: RequestOptions<TParams, T
              * 参数1：错误，参数2：请求使用的参数
              */
             is Methods.OnError -> {
+                @Suppress("UNCHECKED_CAST")
                 it.onError?.invoke(
                     method.error,
                     method.params as TParams,
@@ -261,6 +265,7 @@ class Fetch<TParams, TData : Any>(private val options: RequestOptions<TParams, T
              * 参数1：请求使用的参数，参数2：请求的返回值，参数3：错误
              */
             is Methods.OnFinally -> {
+                @Suppress("UNCHECKED_CAST")
                 it.onFinally?.invoke(
                     method.params as TParams,
                     method.result as TData?,

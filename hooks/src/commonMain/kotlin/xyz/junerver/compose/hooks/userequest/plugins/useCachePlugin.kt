@@ -162,6 +162,7 @@ private class CachePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
     fun initFetchStateWithCachedData(cacheData: CachedData<TData>) {
         with(fetchInstance.fetchState) {
             data = cacheData.data
+            @Suppress("UNCHECKED_CAST")
             params = cacheData.params as TParams
             if (staleTime == (-1).seconds || currentTime - cacheData.time <= staleTime) {
                 loading = false
