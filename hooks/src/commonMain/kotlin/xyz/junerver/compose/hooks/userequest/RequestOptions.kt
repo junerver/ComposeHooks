@@ -18,12 +18,12 @@ import xyz.junerver.compose.hooks.userequest.utils.CachedData
   Version: v1.0
 */
 internal typealias OnBeforeCallback<TParams> = (TParams?) -> Unit
-internal typealias OnSuccessCallback<TParams,TData> = (TData?, TParams?) -> Unit
+internal typealias OnSuccessCallback<TParams, TData> = (TData?, TParams?) -> Unit
 internal typealias OnErrorCallback<TParams> = (Throwable, TParams?) -> Unit
-internal typealias OnFinallyCallback<TParams,TData> = (TParams?, TData?, Throwable?) -> Unit
+internal typealias OnFinallyCallback<TParams, TData> = (TParams?, TData?, Throwable?) -> Unit
 
 @Stable
-data class RequestOptions<TParams,TData> internal constructor(
+data class RequestOptions<TParams, TData> internal constructor(
     /**
      * 默认 false。 即在初始化时自动执行 requestFn。
      * 如果设置为 true，则需要手动调用 run
@@ -43,7 +43,7 @@ data class RequestOptions<TParams,TData> internal constructor(
      * requestFn 成功时触发；参数1：请求返回值，参数2：请求参数
      */
     @Stable
-    var onSuccess: OnSuccessCallback<TParams,TData> = { _, _ -> },
+    var onSuccess: OnSuccessCallback<TParams, TData> = { _, _ -> },
     /**
      * requestFn 抛出异常时触发
      */
@@ -53,7 +53,7 @@ data class RequestOptions<TParams,TData> internal constructor(
      * requestFn 执行完成时触发；参数1：请求参数，参数2：返回值，参数3：异常
      */
     @Stable
-    var onFinally: OnFinallyCallback<TParams,TData> = { _, _, _ -> },
+    var onFinally: OnFinallyCallback<TParams, TData> = { _, _, _ -> },
     /**
      * 错误重试次数。如果设置为 -1，则无限次重试。
      */
@@ -134,9 +134,10 @@ data class RequestOptions<TParams,TData> internal constructor(
 ) {
     @Suppress("unused")
     companion object {
-        fun <TParams,TData> optionOf(opt: RequestOptions<TParams,TData>.() -> Unit): RequestOptions<TParams,TData> = RequestOptions<TParams,TData>().apply {
-            opt()
-        }
+        fun <TParams, TData> optionOf(opt: RequestOptions<TParams, TData>.() -> Unit): RequestOptions<TParams, TData> =
+            RequestOptions<TParams, TData>().apply {
+                opt()
+            }
     }
 
     /**
@@ -226,7 +227,11 @@ private class DebounceOptionsDelegate(
 ) {
     operator fun getValue(thisRef: Any?, property: KProperty<*>): DebounceOptions.() -> Unit = configure
 
-    operator fun <TParams,TData> setValue(requestOptions: RequestOptions<TParams,TData>, property: KProperty<*>, function: DebounceOptions.() -> Unit) {
+    operator fun <TParams, TData> setValue(
+        requestOptions: RequestOptions<TParams, TData>,
+        property: KProperty<*>,
+        function: DebounceOptions.() -> Unit,
+    ) {
         this.configure = function
         requestOptions.debounceOptions = DebounceOptions.optionOf(function)
     }
@@ -240,7 +245,11 @@ private class ThrottleOptionsDelegate(
 ) {
     operator fun getValue(thisRef: Any?, property: KProperty<*>): ThrottleOptions.() -> Unit = configure
 
-    operator fun <TParams,TData> setValue(requestOptions: RequestOptions<TParams,TData>, property: KProperty<*>, function: ThrottleOptions.() -> Unit) {
+    operator fun <TParams, TData> setValue(
+        requestOptions: RequestOptions<TParams, TData>,
+        property: KProperty<*>,
+        function: ThrottleOptions.() -> Unit,
+    ) {
         this.configure = function
         requestOptions.throttleOptions = ThrottleOptions.optionOf(function)
     }

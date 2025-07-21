@@ -19,9 +19,9 @@ import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
   Email: junerver@gmail.com
   Version: v1.0
 */
-private class ThrottlePlugin<TParams,TData : Any> : Plugin<TParams,TData>() {
-    override val invoke: GenPluginLifecycleFn<TParams,TData>
-        get() = { fetch: Fetch<TParams,TData>, requestOptions: RequestOptions<TParams,TData> ->
+private class ThrottlePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
+    override val invoke: GenPluginLifecycleFn<TParams, TData>
+        get() = { fetch: Fetch<TParams, TData>, requestOptions: RequestOptions<TParams, TData> ->
             initFetch(fetch, requestOptions)
             if (requestOptions.throttleOptions.wait > Duration.ZERO) {
                 val throttle = Throttle<TParams?>(
@@ -36,7 +36,7 @@ private class ThrottlePlugin<TParams,TData : Any> : Plugin<TParams,TData>() {
                     throttle.invoke(it)
                 }
             }
-            object : PluginLifecycle<TParams,TData>() {
+            object : PluginLifecycle<TParams, TData>() {
                 override val onCancel: PluginOnCancel
                     get() = {
                         cancel()
@@ -46,12 +46,12 @@ private class ThrottlePlugin<TParams,TData : Any> : Plugin<TParams,TData>() {
 }
 
 @Composable
-internal fun <TParams,TData : Any> useThrottlePlugin(options: RequestOptions<TParams,TData>): Plugin<TParams,TData> {
+internal fun <TParams, TData : Any> useThrottlePlugin(options: RequestOptions<TParams, TData>): Plugin<TParams, TData> {
     if (options.throttleOptions.wait == Duration.ZERO) {
         return useEmptyPlugin()
     }
     val throttlePlugin = remember {
-        ThrottlePlugin<TParams,TData>()
+        ThrottlePlugin<TParams, TData>()
     }
     return throttlePlugin
 }

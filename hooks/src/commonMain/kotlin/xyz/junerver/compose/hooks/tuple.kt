@@ -5,15 +5,21 @@ typealias Tuple0 = None
 //endregion
 
 //region 元组类与扩展函数
-sealed interface Tuple
+sealed interface Tuple {
+    fun isEmpty(): Boolean
+}
 
-object None : Tuple
+object None : Tuple {
+    override fun isEmpty(): Boolean = true
+}
 
 public fun <T> None.toList(): List<T> = emptyList()
 
 data class Tuple1<out A>(
     val first: A,
 ) : Tuple {
+    override fun isEmpty(): Boolean = this.first is None
+
     public override fun toString(): String = "($first)"
 }
 
@@ -23,6 +29,8 @@ data class Tuple2<out A, out B>(
     val first: A,
     val second: B,
 ) : Tuple {
+    override fun isEmpty(): Boolean = this.first is None && this.second is None
+
     public override fun toString(): String = "($first, $second)"
 }
 
@@ -33,6 +41,8 @@ data class Tuple3<out A, out B, out C>(
     val second: B,
     val third: C,
 ) : Tuple {
+    override fun isEmpty(): Boolean = this.first is None && this.second is None && this.third is None
+
     public override fun toString(): String = "($first, $second, $third)"
 }
 
@@ -44,6 +54,8 @@ data class Tuple4<out A, out B, out C, out D>(
     val third: C,
     val fourth: D,
 ) : Tuple {
+    override fun isEmpty(): Boolean = this.first is None && this.second is None && this.third is None && this.fourth is None
+
     public override fun toString(): String = "($first, $second, $third, $fourth)"
 }
 
@@ -56,6 +68,9 @@ data class Tuple5<out A, out B, out C, out D, out E>(
     val fourth: D,
     val fifth: E,
 ) : Tuple {
+    override fun isEmpty(): Boolean =
+        this.first is None && this.second is None && this.third is None && this.fourth is None && this.fifth is None
+
     public override fun toString(): String = "($first, $second, $third, $fourth, $fifth)"
 }
 
@@ -69,6 +84,9 @@ data class Tuple6<out A, out B, out C, out D, out E, out F>(
     val fifth: E,
     val sixth: F,
 ) : Tuple {
+    override fun isEmpty(): Boolean =
+        this.first is None && this.second is None && this.third is None && this.fourth is None && this.fifth is None && this.sixth is None
+
     public override fun toString(): String = "($first, $second, $third, $fourth, $fifth, $sixth)"
 }
 
@@ -83,6 +101,9 @@ data class Tuple7<out A, out B, out C, out D, out E, out F, out G>(
     val sixth: F,
     val seventh: G,
 ) : Tuple {
+    override fun isEmpty(): Boolean =
+        this.first is None && this.second is None && this.third is None && this.fourth is None && this.fifth is None && this.sixth is None && this.seventh is None
+
     public override fun toString(): String = "($first, $second, $third, $fourth, $fifth, $sixth, $seventh)"
 }
 
@@ -98,6 +119,9 @@ data class Tuple8<out A, out B, out C, out D, out E, out F, out G, out H>(
     val seventh: G,
     val eighth: H,
 ) : Tuple {
+    override fun isEmpty(): Boolean =
+        this.first is None && this.second is None && this.third is None && this.fourth is None && this.fifth is None && this.sixth is None && this.seventh is None && this.eighth is None
+
     public override fun toString(): String = "($first, $second, $third, $fourth, $fifth, $sixth, $seventh, $eighth)"
 }
 
@@ -114,6 +138,9 @@ data class Tuple9<out A, out B, out C, out D, out E, out F, out G, out H, out I>
     val eighth: H,
     val ninth: I,
 ) : Tuple {
+    override fun isEmpty(): Boolean =
+        this.first is None && this.second is None && this.third is None && this.fourth is None && this.fifth is None && this.sixth is None && this.seventh is None && this.eighth is None && this.ninth is None
+
     public override fun toString(): String = "($first, $second, $third, $fourth, $fifth, $sixth, $seventh, $eighth, $ninth)"
 }
 

@@ -42,7 +42,7 @@ typealias RollbackFn = () -> Unit
 @Composable
 fun <TData : Any> useCustomPluginRequest(
     requestFn: suspend (ArrayParams) -> TData,
-    optionsOf: RequestOptions<ArrayParams,TData>.() -> Unit = {},
+    optionsOf: RequestOptions<ArrayParams, TData>.() -> Unit = {},
 ): Tuple8<State<TData?>, State<Boolean>, State<Throwable?>, ReqFn<ArrayParams>, MutateFn<TData>, RefreshFn, CancelFn, RollbackFn> {
     val rollbackRef = useRef(default = { })
     val requestHolder = useRequest(
@@ -67,18 +67,18 @@ fun <TData : Any> useCustomPluginRequest(
 }
 
 @Composable
-private fun <TData : Any> useRollbackPlugin(ref: MutableRef<() -> Unit>): Plugin<ArrayParams,TData> = remember {
-    object : Plugin<ArrayParams,TData>() {
-        var pervState: FetchState<ArrayParams,TData>? = null
+private fun <TData : Any> useRollbackPlugin(ref: MutableRef<() -> Unit>): Plugin<ArrayParams, TData> = remember {
+    object : Plugin<ArrayParams, TData>() {
+        var pervState: FetchState<ArrayParams, TData>? = null
 
         fun rollback() {
             pervState?.let { fetchInstance.setState(it.asMap()) }
         }
 
-        override val invoke: GenPluginLifecycleFn<ArrayParams,TData>
-            get() = { fetch: Fetch<ArrayParams,TData>, options: RequestOptions<ArrayParams,TData> ->
+        override val invoke: GenPluginLifecycleFn<ArrayParams, TData>
+            get() = { fetch: Fetch<ArrayParams, TData>, options: RequestOptions<ArrayParams, TData> ->
                 initFetch(fetch, options)
-                object : PluginLifecycle<ArrayParams,TData>() {
+                object : PluginLifecycle<ArrayParams, TData>() {
                     override val onMutate: PluginOnMutate<TData>
                         get() = {
                             pervState = fetch.fetchState

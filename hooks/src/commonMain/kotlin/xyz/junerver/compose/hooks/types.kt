@@ -115,11 +115,27 @@ internal typealias DispatchCallback<A> = (Dispatch<A>) -> Unit
  * import xyz.junerver.compose.hooks.invoke
  * ```
  */
-operator fun <TData> NormalFunction<ArrayParams,TData>.invoke(vararg params: Any?) = this(arrayOf(*params))
+operator fun <TData> NormalFunction<ArrayParams, TData>.invoke(vararg params: Any?) = this(arrayOf(*params))
 
 operator fun VoidFunction<ArrayParams>.invoke(vararg params: Any?) = this(arrayOf(*params))
 
-operator fun <R> ((None) -> R).invoke() = this.invoke(None)
+inline operator fun <reified P : Tuple, R> ((P) -> R).invoke() = this.invoke(
+    when {
+        P::class == None::class -> tuple()
+        P::class == Tuple1::class -> tuple(None)
+        P::class == Tuple2::class -> tuple(None, None)
+        P::class == Tuple3::class -> tuple(None, None, None)
+        P::class == Tuple4::class -> tuple(None, None, None, None)
+        P::class == Tuple5::class -> tuple(None, None, None, None, None)
+        P::class == Tuple6::class -> tuple(None, None, None, None, None, None)
+        P::class == Tuple7::class -> tuple(None, None, None, None, None, None, None)
+        P::class == Tuple8::class -> tuple(None, None, None, None, None, None, None, None)
+        P::class == Tuple9::class -> tuple(None, None, None, None, None, None, None, None, None)
+        else -> {
+            throw IllegalArgumentException("useDebounce only support up to 9 parameters")
+        }
+    } as P,
+)
 
 operator fun <P1, R> ((Tuple1<P1>) -> R).invoke(p1: P1) = this.invoke(tuple(p1))
 

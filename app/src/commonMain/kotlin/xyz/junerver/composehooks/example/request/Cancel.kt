@@ -24,7 +24,7 @@ import xyz.junerver.composehooks.ui.component.TButton
  */
 @Composable
 fun Cancel() {
-    val (userInfoState, loadingState, _, request, _, _, cancel) = useRequest<ArrayParams,UserInfo>(
+    val (userInfoState, loadingState, _, request, _, _, cancel) = useRequest<ArrayParams, UserInfo>(
         requestFn = { NetApi.userInfo(it[0] as String) },
         optionsOf = {
             manual = true

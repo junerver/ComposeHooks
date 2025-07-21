@@ -30,7 +30,7 @@ import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
   Email: junerver@gmail.com
   Version: v1.0
 */
-private class PollingPlugin<TParams,TData : Any> : Plugin<TParams,TData>() {
+private class PollingPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
     // 已经重试计数
     var currentRetryCount = 0
 
@@ -57,16 +57,16 @@ private class PollingPlugin<TParams,TData : Any> : Plugin<TParams,TData>() {
         }
     }
 
-    override val invoke: GenPluginLifecycleFn<TParams,TData>
-        get() = { fetch: Fetch<TParams,TData>, requestOptions: RequestOptions<TParams,TData> ->
+    override val invoke: GenPluginLifecycleFn<TParams, TData>
+        get() = { fetch: Fetch<TParams, TData>, requestOptions: RequestOptions<TParams, TData> ->
             initFetch(fetch, requestOptions)
             val (pollingInterval, pollingWhenHidden, pollingErrorRetryCount) = with(requestOptions) {
                 tuple(pollingInterval, pollingWhenHidden, pollingErrorRetryCount)
             }
             val pluginScope = this
 
-            object : PluginLifecycle<TParams,TData>() {
-                override val onBefore: PluginOnBefore<TParams,TData>
+            object : PluginLifecycle<TParams, TData>() {
+                override val onBefore: PluginOnBefore<TParams, TData>
                     get() = {
                         stopPolling()
                         null
@@ -77,12 +77,12 @@ private class PollingPlugin<TParams,TData : Any> : Plugin<TParams,TData>() {
                         currentRetryCount += 1
                     }
 
-                override val onSuccess: PluginOnSuccess<TParams,TData>
+                override val onSuccess: PluginOnSuccess<TParams, TData>
                     get() = { _, _ ->
                         currentRetryCount = 0
                     }
 
-                override val onFinally: PluginOnFinally<TParams,TData>
+                override val onFinally: PluginOnFinally<TParams, TData>
                     get() = onFinally@{ _, _, _ ->
                         usedScope = if (pollingWhenHidden) pluginScope else fetch.scope
                         if (!pollingWhenHidden && inBackground) return@onFinally
@@ -114,12 +114,12 @@ private class PollingPlugin<TParams,TData : Any> : Plugin<TParams,TData>() {
 }
 
 @Composable
-internal fun <TParams,TData : Any> usePollingPlugin(options: RequestOptions<TParams,TData>): Plugin<TParams,TData> {
+internal fun <TParams, TData : Any> usePollingPlugin(options: RequestOptions<TParams, TData>): Plugin<TParams, TData> {
     if (options.pollingInterval == Duration.ZERO) {
         return useEmptyPlugin()
     }
     val pollingPlugin = remember {
-        PollingPlugin<TParams,TData>()
+        PollingPlugin<TParams, TData>()
     }
     if (!options.pollingWhenHidden) {
         useBackToFrontEffect {

@@ -10,9 +10,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import xyz.junerver.compose.hooks.None
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.SuspendVoidFunction
+import xyz.junerver.compose.hooks.Tuple
 import xyz.junerver.compose.hooks.VoidFunction
 import xyz.junerver.compose.hooks.userequest.utils.awaitPlus
 
@@ -111,9 +111,11 @@ class Fetch<TParams, TData : Any>(private val options: RequestOptions<TParams, T
         // 请求参数，如果为空则使用默认参数
         if (params is Array<*> && params.isEmpty()) {
             latestParams = options.defaultParams
-        }else if (params is None) {
+        } else if (params is Tuple && params.isEmpty()) {
             latestParams = options.defaultParams
-        }else {
+        } else if (params == null) {
+            latestParams = options.defaultParams
+        } else {
             latestParams = params
         }
         count += 1
@@ -150,7 +152,7 @@ class Fetch<TParams, TData : Any>(private val options: RequestOptions<TParams, T
                     runPluginHandler(
                         Methods.OnRequest(requestFn, latestParams),
                     ) as List<OnRequestReturn<TData>>
-                    ).cover(),
+                ).cover(),
             )
             // 此处要明确声明async所在的job，避免异常传递
             serviceDeferred = serviceDeferred ?: async(SupervisorJob()) { requestFn(latestParams!!) }

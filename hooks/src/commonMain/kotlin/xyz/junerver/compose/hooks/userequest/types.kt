@@ -324,7 +324,7 @@ abstract class Plugin<TParams, TData : Any> : IFetch<TParams, TData>, CoroutineS
  * 一个空插件，部分插件例如[useDebouncePlugin]是根据相应参数决定是否启用的，
  * 为了避免在插件实例中处理最终返回生命周期对象的问题，我们直接在入口判断返回。
  */
-internal class EmptyPlugin<TParams,TData : Any> : Plugin<TParams, TData>() {
+internal class EmptyPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
     override val invoke: GenPluginLifecycleFn<TParams, TData>
         get() = { _, _ ->
             object : PluginLifecycle<TParams, TData>() {}
@@ -333,9 +333,9 @@ internal class EmptyPlugin<TParams,TData : Any> : Plugin<TParams, TData>() {
 
 /** 返回一个空插件，避免直接使用[EmptyPlugin]实例 */
 @Composable
-fun <TParams,TData : Any> useEmptyPlugin(): Plugin<TParams, TData> {
+fun <TParams, TData : Any> useEmptyPlugin(): Plugin<TParams, TData> {
     val emptyPluginRef = useCreation {
-        EmptyPlugin<TParams,TData>()
+        EmptyPlugin<TParams, TData>()
     }
     return emptyPluginRef.current
 }
