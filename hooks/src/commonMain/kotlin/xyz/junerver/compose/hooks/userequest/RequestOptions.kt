@@ -7,7 +7,6 @@ import kotlin.reflect.KProperty
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import xyz.junerver.compose.hooks.DebounceOptions
-import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.ThrottleOptions
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 
@@ -18,13 +17,13 @@ import xyz.junerver.compose.hooks.userequest.utils.CachedData
   Email: junerver@gmail.com
   Version: v1.0
 */
-internal typealias OnBeforeCallback = (TParams) -> Unit
-internal typealias OnSuccessCallback<TData> = (TData?, TParams) -> Unit
-internal typealias OnErrorCallback = (Throwable, TParams) -> Unit
-internal typealias OnFinallyCallback<TData> = (TParams, TData?, Throwable?) -> Unit
+internal typealias OnBeforeCallback<TParams> = (TParams?) -> Unit
+internal typealias OnSuccessCallback<TParams, TData> = (TData?, TParams?) -> Unit
+internal typealias OnErrorCallback<TParams> = (Throwable, TParams?) -> Unit
+internal typealias OnFinallyCallback<TParams, TData> = (TParams?, TData?, Throwable?) -> Unit
 
 @Stable
-data class RequestOptions<TData> internal constructor(
+data class RequestOptions<TParams, TData> internal constructor(
     /**
      * 默认 false。 即在初始化时自动执行 requestFn。
      * 如果设置为 true，则需要手动调用 run
@@ -34,27 +33,27 @@ data class RequestOptions<TData> internal constructor(
     /**
      * 首次默认执行时，传递给 requestFn 的参数
      */
-    var defaultParams: TParams = emptyArray(),
+    var defaultParams: TParams? = null,
     /**
      * requestFn 执行前触发
      */
     @Stable
-    var onBefore: OnBeforeCallback = {},
+    var onBefore: OnBeforeCallback<TParams> = {},
     /**
      * requestFn 成功时触发；参数1：请求返回值，参数2：请求参数
      */
     @Stable
-    var onSuccess: OnSuccessCallback<TData> = { _, _ -> },
+    var onSuccess: OnSuccessCallback<TParams, TData> = { _, _ -> },
     /**
      * requestFn 抛出异常时触发
      */
     @Stable
-    var onError: OnErrorCallback = { error, _ -> error.printStackTrace() },
+    var onError: OnErrorCallback<TParams> = { error, _ -> error.printStackTrace() },
     /**
      * requestFn 执行完成时触发；参数1：请求参数，参数2：返回值，参数3：异常
      */
     @Stable
-    var onFinally: OnFinallyCallback<TData> = { _, _, _ -> },
+    var onFinally: OnFinallyCallback<TParams, TData> = { _, _, _ -> },
     /**
      * 错误重试次数。如果设置为 -1，则无限次重试。
      */
@@ -135,9 +134,10 @@ data class RequestOptions<TData> internal constructor(
 ) {
     @Suppress("unused")
     companion object {
-        fun <T> optionOf(opt: RequestOptions<T>.() -> Unit): RequestOptions<T> = RequestOptions<T>().apply {
-            opt()
-        }
+        fun <TParams, TData> optionOf(opt: RequestOptions<TParams, TData>.() -> Unit): RequestOptions<TParams, TData> =
+            RequestOptions<TParams, TData>().apply {
+                opt()
+            }
     }
 
     /**
@@ -162,22 +162,20 @@ data class RequestOptions<TData> internal constructor(
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
-        other as RequestOptions<*>
+        other as RequestOptions<*, *>
 
         if (manual != other.manual) return false
-        if (!defaultParams.contentEquals(other.defaultParams)) return false
+        if (retryCount != other.retryCount) return false
+        if (pollingWhenHidden != other.pollingWhenHidden) return false
+        if (pollingErrorRetryCount != other.pollingErrorRetryCount) return false
+        if (ready != other.ready) return false
+        if (defaultParams != other.defaultParams) return false
         if (onBefore != other.onBefore) return false
         if (onSuccess != other.onSuccess) return false
         if (onError != other.onError) return false
         if (onFinally != other.onFinally) return false
-        if (retryCount != other.retryCount) return false
         if (retryInterval != other.retryInterval) return false
         if (pollingInterval != other.pollingInterval) return false
-        if (pollingWhenHidden != other.pollingWhenHidden) return false
-        if (pollingErrorRetryCount != other.pollingErrorRetryCount) return false
-        if (debounceOptions != other.debounceOptions) return false
-        if (throttleOptions != other.throttleOptions) return false
-        if (ready != other.ready) return false
         if (!refreshDeps.contentEquals(other.refreshDeps)) return false
         if (refreshDepsAction != other.refreshDepsAction) return false
         if (cacheKey != other.cacheKey) return false
@@ -186,13 +184,17 @@ data class RequestOptions<TData> internal constructor(
         if (setCache != other.setCache) return false
         if (getCache != other.getCache) return false
         if (loadingDelay != other.loadingDelay) return false
+        if (debounceOptions != other.debounceOptions) return false
+        if (throttleOptions != other.throttleOptions) return false
+        if (debounceOptionsOf != other.debounceOptionsOf) return false
+        if (throttleOptionsOf != other.throttleOptionsOf) return false
 
         return true
     }
 
     override fun hashCode(): Int {
         var result = manual.hashCode()
-        result = 31 * result + defaultParams.contentHashCode()
+        result = 31 * result + defaultParams.hashCode()
         result = 31 * result + onBefore.hashCode()
         result = 31 * result + onSuccess.hashCode()
         result = 31 * result + onError.hashCode()
@@ -225,7 +227,11 @@ private class DebounceOptionsDelegate(
 ) {
     operator fun getValue(thisRef: Any?, property: KProperty<*>): DebounceOptions.() -> Unit = configure
 
-    operator fun <TData> setValue(requestOptions: RequestOptions<TData>, property: KProperty<*>, function: DebounceOptions.() -> Unit) {
+    operator fun <TParams, TData> setValue(
+        requestOptions: RequestOptions<TParams, TData>,
+        property: KProperty<*>,
+        function: DebounceOptions.() -> Unit,
+    ) {
         this.configure = function
         requestOptions.debounceOptions = DebounceOptions.optionOf(function)
     }
@@ -239,7 +245,11 @@ private class ThrottleOptionsDelegate(
 ) {
     operator fun getValue(thisRef: Any?, property: KProperty<*>): ThrottleOptions.() -> Unit = configure
 
-    operator fun <TData> setValue(requestOptions: RequestOptions<TData>, property: KProperty<*>, function: ThrottleOptions.() -> Unit) {
+    operator fun <TParams, TData> setValue(
+        requestOptions: RequestOptions<TParams, TData>,
+        property: KProperty<*>,
+        function: ThrottleOptions.() -> Unit,
+    ) {
         this.configure = function
         requestOptions.throttleOptions = ThrottleOptions.optionOf(function)
     }

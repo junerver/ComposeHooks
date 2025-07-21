@@ -3,6 +3,7 @@ package xyz.junerver.composehooks.example.request
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
+import xyz.junerver.compose.hooks.ArrayParams
 import xyz.junerver.compose.hooks.MutableRef
 import xyz.junerver.compose.hooks.Tuple8
 import xyz.junerver.compose.hooks.tuple
@@ -35,14 +36,14 @@ import xyz.junerver.compose.hooks.userequest.useRequest
  */
 
 // You can copy the aliases in the source code to be consistent with me, or you can use the original type directly
-typealias TParams = Array<Any?>
+
 typealias RollbackFn = () -> Unit
 
 @Composable
 fun <TData : Any> useCustomPluginRequest(
-    requestFn: suspend (TParams) -> TData,
-    optionsOf: RequestOptions<TData>.() -> Unit = {},
-): Tuple8<State<TData?>, State<Boolean>, State<Throwable?>, ReqFn, MutateFn<TData>, RefreshFn, CancelFn, RollbackFn> {
+    requestFn: suspend (ArrayParams) -> TData,
+    optionsOf: RequestOptions<ArrayParams, TData>.() -> Unit = {},
+): Tuple8<State<TData?>, State<Boolean>, State<Throwable?>, ReqFn<ArrayParams>, MutateFn<TData>, RefreshFn, CancelFn, RollbackFn> {
     val rollbackRef = useRef(default = { })
     val requestHolder = useRequest(
         requestFn = requestFn,
@@ -66,18 +67,18 @@ fun <TData : Any> useCustomPluginRequest(
 }
 
 @Composable
-private fun <TData : Any> useRollbackPlugin(ref: MutableRef<() -> Unit>): Plugin<TData> = remember {
-    object : Plugin<TData>() {
-        var pervState: FetchState<TData>? = null
+private fun <TData : Any> useRollbackPlugin(ref: MutableRef<() -> Unit>): Plugin<ArrayParams, TData> = remember {
+    object : Plugin<ArrayParams, TData>() {
+        var pervState: FetchState<ArrayParams, TData>? = null
 
         fun rollback() {
             pervState?.let { fetchInstance.setState(it.asMap()) }
         }
 
-        override val invoke: GenPluginLifecycleFn<TData>
-            get() = { fetch: Fetch<TData>, options: RequestOptions<TData> ->
+        override val invoke: GenPluginLifecycleFn<ArrayParams, TData>
+            get() = { fetch: Fetch<ArrayParams, TData>, options: RequestOptions<ArrayParams, TData> ->
                 initFetch(fetch, options)
-                object : PluginLifecycle<TData>() {
+                object : PluginLifecycle<ArrayParams, TData>() {
                     override val onMutate: PluginOnMutate<TData>
                         get() = {
                             pervState = fetch.fetchState

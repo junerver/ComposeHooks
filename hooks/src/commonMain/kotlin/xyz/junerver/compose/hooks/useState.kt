@@ -139,21 +139,14 @@ fun <T> useStateAsync(
     val (lazy, onError) = useDynamicOptions(optionsOf)
     val (asyncRun) = useCancelableAsync()
     val (state, setState) = _useGetState(initValue)
-    val factoryRef = useLatestRef(factory)
-    var isComputing by useRef(false)
     val calcFnRef = useRef {
-        if (!isComputing) {
-            isComputing = true
-            asyncRun {
-                try {
-                    setState(factoryRef.current())
-                } catch (e: Exception) {
-                    if (e !is CancellationException) {
-                        onError(e)
-                        setState(null)
-                    }
-                } finally {
-                    isComputing = false
+        asyncRun {
+            try {
+                setState(factory())
+            } catch (e: Exception) {
+                if (e !is CancellationException) {
+                    onError(e)
+                    setState(null)
                 }
             }
         }

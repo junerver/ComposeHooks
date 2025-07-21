@@ -12,6 +12,7 @@ import kotlin.random.Random
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
+import xyz.junerver.compose.hooks.None
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.userequest.RequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
@@ -88,6 +89,7 @@ private fun SWR(useCache: Boolean = false) {
             mockRequestArticle()
         },
         optionsOf = {
+            defaultParams = None
             if (useCache) cacheKey = "test-swr-key"
         },
     )
@@ -132,6 +134,7 @@ private fun StaleTime(cacheKey: String) {
             mockRequestArticle()
         },
         optionsOf = {
+            defaultParams = None
             this.cacheKey = cacheKey
             staleTime = 5.seconds
         },

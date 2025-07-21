@@ -54,8 +54,8 @@ data class DebounceOptions internal constructor(
  * according to the specified options.
  */
 @Stable
-internal class Debounce(
-    var fn: VoidFunction,
+internal class Debounce<TParams>(
+    var fn: VoidFunction<TParams>,
     private val scope: CoroutineScope,
     private val options: DebounceOptions = DebounceOptions(),
 ) {
@@ -74,8 +74,8 @@ internal class Debounce(
     }
 
     // The actual function execution
-    private fun executeFn(params: TParams) {
-        fn(params)
+    private fun executeFn(params: TParams?) {
+        params?.let { fn(it) }
         latestInvokedTime = currentTime
     }
 
@@ -107,7 +107,7 @@ internal class Debounce(
                 // Ensure that if there are no new calls at the end of the delay, execute trailing
                 // And check latestCalledTime to ensure it wasn't called again during the delay
                 if (currentTime - latestCalledTime >= wait && trailing) {
-                    executeFn(lastArgs ?: arrayOf()) // Execute trailing
+                    executeFn(lastArgs) // Execute trailing
                 }
                 resetDebounceState()
             }
@@ -118,7 +118,7 @@ internal class Debounce(
                 // Check if maximum wait time is exceeded or wait time has passed
                 // And ensure that no new calls occurred at the end of the delay
                 if ((currentTime - latestCalledTime >= wait || isMaxWaitExceeded) && trailing) {
-                    executeFn(lastArgs ?: arrayOf())
+                    executeFn(lastArgs)
                 }
                 resetDebounceState()
             }
@@ -126,7 +126,7 @@ internal class Debounce(
             if (isMaxWaitExceeded) {
                 // If there's a pending trailing task, cancel it and execute immediately
                 cancelTimeout()
-                executeFn(lastArgs ?: arrayOf())
+                executeFn(lastArgs)
                 isAwaitingNextDebounce = false // do not allow next leading after execution
             }
         }
@@ -157,7 +157,7 @@ fun <S> useDebounce(value: S, optionsOf: DebounceOptions.() -> Unit = {}): State
  * @return A debounced version of the provided function
  */
 @Composable
-fun useDebounceFn(fn: VoidFunction, optionsOf: DebounceOptions.() -> Unit = {}): VoidFunction =
+fun <TParams> useDebounceFn(fn: VoidFunction<TParams>, optionsOf: DebounceOptions.() -> Unit = {}): VoidFunction<TParams> =
     useDebounceFn(fn, useDynamicOptions(optionsOf))
 
 /**
@@ -191,7 +191,7 @@ fun useDebounceEffect(vararg keys: Any?, optionsOf: DebounceOptions.() -> Unit =
 private fun <S> useDebounce(value: S, options: DebounceOptions): State<S> {
     // Create a state to hold the debounced value, using _useGetState to avoid closure problems
     val (debounced, setDebounced) = _useGetState(value)
-    val debouncedSet = useDebounceFn(
+    val debouncedSet = useDebounceFn<None>(
         fn = {
             setDebounced(value)
         },
@@ -214,7 +214,7 @@ private fun <S> useDebounce(value: S, options: DebounceOptions): State<S> {
  * This way, our [Debounce] can be seamlessly integrated.
  */
 @Composable
-private fun useDebounceFn(fn: VoidFunction, options: DebounceOptions): VoidFunction {
+private fun <TParams> useDebounceFn(fn: VoidFunction<TParams>, options: DebounceOptions): VoidFunction<TParams> {
     val latestFn by useLatestState(value = fn)
     val scope = rememberCoroutineScope()
     val debounced = remember {
@@ -235,9 +235,9 @@ private fun useDebounceFn(fn: VoidFunction, options: DebounceOptions): VoidFunct
  */
 @Composable
 private fun useDebounceEffect(vararg keys: Any?, options: DebounceOptions, block: SuspendAsyncFn) {
-    val debouncedBlock = useDebounceFn(
-        fn = { params ->
-            (params[0] as CoroutineScope).launch {
+    val debouncedBlock = useDebounceFn<CoroutineScope>(
+        fn = { coroutineScope ->
+            coroutineScope.launch {
                 this.block()
             }
         },

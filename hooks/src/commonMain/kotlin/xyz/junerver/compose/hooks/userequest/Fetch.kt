@@ -12,7 +12,7 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.SuspendVoidFunction
-import xyz.junerver.compose.hooks.TParams
+import xyz.junerver.compose.hooks.Tuple
 import xyz.junerver.compose.hooks.VoidFunction
 import xyz.junerver.compose.hooks.userequest.utils.awaitPlus
 
@@ -26,20 +26,20 @@ import xyz.junerver.compose.hooks.userequest.utils.awaitPlus
 
 @Suppress("unused")
 @Stable
-class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOptions()) :
-    IFetch<TData> {
+class Fetch<TParams, TData : Any>(private val options: RequestOptions<TParams, TData> = RequestOptions()) :
+    IFetch<TParams, TData> {
     // 请求的计数器
     private var count: Int = 0
 
-    lateinit var fetchState: FetchState<TData>
+    lateinit var fetchState: FetchState<TParams, TData>
 
     /**
      * 最后一次调用时的参数，该数据用于[refresh]函数发起请求
      */
-    private var latestParams: TParams = emptyArray()
+    private var latestParams: TParams? = null
 
     // 插件实现
-    lateinit var pluginImpls: Array<PluginLifecycle<TData>>
+    lateinit var pluginImpls: Array<PluginLifecycle<TParams, TData>>
 
     /**
      * 请求结果的封装，最终类型会通过泛型[TData]对外暴露成正确的类型
@@ -77,15 +77,15 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
     /**
      * 真实的retrofit请求函数 - 的 - 包装函数
      */
-    lateinit var requestFn: SuspendNormalFunction<TData>
+    lateinit var requestFn: SuspendNormalFunction<TParams, TData>
 
     /**
      * 由于js非常灵活，可以动态的替换实例的方法，这一点在kotlin时无法完成的，所以我们通过
      * 实例属性来达成这一效果，所有的原始方法通过`_`前缀来标识，对外方法通过属性来达成。
      */
-    var runAsync: SuspendVoidFunction = ::_runAsync
+    var runAsync: SuspendVoidFunction<TParams?> = ::_runAsync
     val originRunAsync: KFunction<Any> = ::_runAsync
-    var run: VoidFunction = ::_run
+    var run: VoidFunction<TParams?> = ::_run
     val originRun: KFunction<Any> = ::_run
 
     fun setState(map: Map<String, Any?>) {
@@ -107,22 +107,26 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
      * 因为请求发生在调用者自己的作用域，而非Fetch实例所在的作用域。
      */
     @Suppress("UNCHECKED_CAST")
-    override suspend fun _runAsync(params: TParams) = coroutineScope {
-        // 有手动参数但是与默认参数不匹配，报错
-        if (params.isNotEmpty() && options.defaultParams.isNotEmpty()) {
-            check(params.size == options.defaultParams.size) { "pass parameters length mismatch defaultParams" }
-        }
+    override suspend fun _runAsync(params: TParams?) = coroutineScope {
         // 请求参数，如果为空则使用默认参数
-        latestParams = if (params.isNotEmpty()) params else options.defaultParams
+        if (params is Array<*> && params.isEmpty()) {
+            latestParams = options.defaultParams
+        } else if (params is Tuple && params.isEmpty()) {
+            latestParams = options.defaultParams
+        } else if (params == null) {
+            latestParams = options.defaultParams
+        } else {
+            latestParams = params
+        }
         count += 1
         val currentCount = count
         // 这里等同于runPluginHandler
-        val onBeforeReturn = OnBeforeReturn<TData>(
+        val onBeforeReturn = OnBeforeReturn<TParams, TData>(
             stopNow = false,
             returnNow = false,
         ).copy(
             // 如果列表不为空，则说明onBefore有返回，返回的对象必须实现copy函数，来达成用后一个的值覆盖前一个
-            (runPluginHandler(Methods.OnBefore(latestParams)) as List<OnBeforeReturn<TData>>).cover()
+            (runPluginHandler(Methods.OnBefore(latestParams)) as List<OnBeforeReturn<TParams, TData>>).cover()
                 ?.asNotNullMap(),
         )
         val (stopNow, returnNow) = onBeforeReturn
@@ -151,7 +155,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
                 ).cover(),
             )
             // 此处要明确声明async所在的job，避免异常传递
-            serviceDeferred = serviceDeferred ?: async(SupervisorJob()) { requestFn(latestParams) }
+            serviceDeferred = serviceDeferred ?: async(SupervisorJob()) { requestFn(latestParams!!) }
             val result = serviceDeferred.awaitPlus()
             if (currentCount != count) return@coroutineScope
             setState(
@@ -184,7 +188,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
     /**
      * 使用自身作用域的同步请求函数
      */
-    override fun _run(params: TParams) {
+    override fun _run(params: TParams?) {
         this.scope.launch {
             _runAsync(params)
         }.also { requestJobs.add(it) }
@@ -204,14 +208,14 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
      * 刷新请求
      */
     override fun refresh() {
-        this._run(this.fetchState.params ?: emptyArray())
+        this.fetchState.params?.let { this._run(it) }
     }
 
     /**
      * 异步刷新
      */
     override suspend fun refreshAsync() {
-        this._runAsync(this.fetchState.params ?: emptyArray())
+        this.fetchState.params?.let { this._runAsync(it) }
     }
 
     /**
@@ -223,43 +227,48 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
         setState(Keys.data to targetData)
     }
 
-    private fun runPluginHandler(method: Methods<TData>): List<*> = pluginImpls.mapNotNull {
+    @Suppress("UNCHECKED_CAST")
+    private fun runPluginHandler(method: Methods<*, *>): List<*> = pluginImpls.mapNotNull {
         when (method) {
             is Methods.OnBefore -> {
-                it.onBefore?.invoke(method.params)
+                @Suppress("UNCHECKED_CAST")
+                it.onBefore?.invoke(method.params as TParams)
             }
 
             is Methods.OnRequest -> {
                 it.onRequest?.invoke(
-                    method.requestFn,
-                    method.params,
+                    method.requestFn as SuspendNormalFunction<TParams, TData>,
+                    method.params as TParams,
                 )
             }
             /**
              * 参数1：请求的返回值，参数2：请求使用的参数
              */
             is Methods.OnSuccess -> {
+                @Suppress("UNCHECKED_CAST")
                 it.onSuccess?.invoke(
-                    method.result,
-                    method.params,
+                    method.result as TData,
+                    method.params as TParams,
                 )
             }
             /**
              * 参数1：错误，参数2：请求使用的参数
              */
             is Methods.OnError -> {
+                @Suppress("UNCHECKED_CAST")
                 it.onError?.invoke(
                     method.error,
-                    method.params,
+                    method.params as TParams,
                 )
             }
             /**
              * 参数1：请求使用的参数，参数2：请求的返回值，参数3：错误
              */
             is Methods.OnFinally -> {
+                @Suppress("UNCHECKED_CAST")
                 it.onFinally?.invoke(
-                    method.params,
-                    method.result,
+                    method.params as TParams,
+                    method.result as TData?,
                     method.error,
                 )
             }
@@ -271,7 +280,7 @@ class Fetch<TData : Any>(private val options: RequestOptions<TData> = RequestOpt
              * 参数1：要修改的目标数据
              */
             is Methods.OnMutate -> {
-                it.onMutate?.invoke(method.result)
+                it.onMutate?.invoke(method.result as TData)
             }
         }
     }

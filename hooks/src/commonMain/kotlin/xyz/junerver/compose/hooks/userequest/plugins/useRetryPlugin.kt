@@ -6,6 +6,7 @@ import kotlin.math.pow
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
 import xyz.junerver.compose.hooks.userequest.Plugin
@@ -25,18 +26,18 @@ import xyz.junerver.compose.hooks.utils.asBoolean
   Email: junerver@gmail.com
   Version: v1.0
 */
-private class RetryPlugin<TData : Any> : Plugin<TData>() {
+private class RetryPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
     var count = 0
     var triggerByRetry = false // 触发retry标志
 
-    override val invoke: GenPluginLifecycleFn<TData>
-        get() = { fetch: Fetch<TData>, requestOptions: RequestOptions<TData> ->
+    override val invoke: GenPluginLifecycleFn<TParams, TData>
+        get() = { fetch: Fetch<TParams, TData>, requestOptions: RequestOptions<TParams, TData> ->
             val (retryInterval, retryCount) = with(requestOptions) {
-                Pair(retryInterval, retryCount)
+                tuple(retryInterval, retryCount)
             }
 
-            object : PluginLifecycle<TData>() {
-                override val onBefore: PluginOnBefore<TData>
+            object : PluginLifecycle<TParams, TData>() {
+                override val onBefore: PluginOnBefore<TParams, TData>
                     get() = {
                         // 未触发retry时，
                         if (!triggerByRetry) {
@@ -46,12 +47,12 @@ private class RetryPlugin<TData : Any> : Plugin<TData>() {
                         null
                     }
 
-                override val onSuccess: PluginOnSuccess<TData>
+                override val onSuccess: PluginOnSuccess<TParams, TData>
                     get() = { _, _ ->
                         count = 0
                     }
 
-                override val onError: PluginOnError
+                override val onError: PluginOnError<TParams>
                     get() = { _, _ ->
                         count++
                         if (retryCount == -1 || count <= retryCount) {
@@ -80,12 +81,12 @@ private class RetryPlugin<TData : Any> : Plugin<TData>() {
 }
 
 @Composable
-internal fun <T : Any> useRetryPlugin(options: RequestOptions<T>): Plugin<T> {
+internal fun <TParams, TData : Any> useRetryPlugin(options: RequestOptions<TParams, TData>): Plugin<TParams, TData> {
     if (options.retryCount == 0) {
         return useEmptyPlugin()
     }
     val retryPlugin = remember {
-        RetryPlugin<T>()
+        RetryPlugin<TParams, TData>()
     }
     return retryPlugin
 }

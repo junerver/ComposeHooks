@@ -24,6 +24,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.plus
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
+import xyz.junerver.compose.hooks.ArrayParams
 import xyz.junerver.compose.hooks.Reducer
 import xyz.junerver.compose.hooks.Tuple2
 import xyz.junerver.compose.hooks.getValue
@@ -38,7 +39,6 @@ import xyz.junerver.compose.hooks.useredux.createStore
 import xyz.junerver.compose.hooks.useredux.useDispatch
 import xyz.junerver.compose.hooks.useredux.useDispatchAsync
 import xyz.junerver.compose.hooks.useredux.useSelector
-import xyz.junerver.composehooks.example.request.TParams
 import xyz.junerver.composehooks.net.NetApi
 import xyz.junerver.composehooks.net.bean.UserInfo
 import xyz.junerver.composehooks.ui.component.ExampleCard
@@ -712,9 +712,9 @@ private fun <T> useFetchAliasFetch(
     alias: String,
     autoFetch: Boolean = false,
     errorRetry: Int = 0,
-    defaultParams: TParams = emptyArray<Any?>(),
-    block: suspend CoroutineScope.(TParams) -> T,
-): Tuple2<NetFetchResult<T>, (TParams) -> Unit> {
+    defaultParams: ArrayParams = emptyArray<Any?>(),
+    block: suspend CoroutineScope.(ArrayParams) -> T,
+): Tuple2<NetFetchResult<T>, (ArrayParams) -> Unit> {
     // Get the current fetch result from the store
     val fetchResult: NetFetchResult<T> by useSelector(alias)
 
@@ -726,7 +726,7 @@ private fun <T> useFetchAliasFetch(
     var latestParams by useRef(defaultParams)
 
     // Create the fetch function with exponential backoff
-    val fetch = { params: TParams ->
+    val fetch = { params: ArrayParams ->
         latestParams = if (defaultParams.size == params.size) {
             params
         } else {

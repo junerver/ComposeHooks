@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import xyz.junerver.compose.hooks.None
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useState
@@ -169,7 +170,7 @@ private fun ThrottleFnExample() {
     val (stateFn, setStateFn) = useGetState(0)
     val (executionCount, setExecutionCount) = useState(0)
 
-    val throttledFn = useThrottleFn(
+    val throttledFn = useThrottleFn<None>(
         fn = {
             setStateFn(stateFn.value + 1)
         },

@@ -18,3 +18,5 @@ actual fun getAndroidRoutes(): Map<String, @Composable () -> Unit> = mapOf(
     "useSensor" to { UseSensorExample() },
     "useVibrate" to { UseVibrateExample() },
 )
+
+actual fun getSubRequestRoutes(): Map<String, @Composable () -> Unit> = mapOf()

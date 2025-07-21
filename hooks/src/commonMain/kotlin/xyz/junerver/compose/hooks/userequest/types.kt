@@ -4,9 +4,12 @@ package xyz.junerver.compose.hooks.userequest
 
 import androidx.compose.runtime.Composable
 import kotlin.coroutines.CoroutineContext
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelChildren
 import xyz.junerver.compose.hooks.SuspendNormalFunction
-import xyz.junerver.compose.hooks.TParams
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.userequest.plugins.useAutoRunPlugin
 import xyz.junerver.compose.hooks.userequest.plugins.useDebouncePlugin
@@ -63,7 +66,7 @@ internal fun <T> Map<String, Any?>.getOrElse(key: String, default: T?) = if (thi
  * @param data 请求的响应值
  * @param error 请求出错后的错误信息
  */
-sealed class IFetchStata<out TData>(
+sealed class IFetchState<TParams, out TData>(
     open val loading: Boolean? = null,
     open val params: TParams? = null,
     open val data: TData? = null,
@@ -74,17 +77,17 @@ sealed class IFetchStata<out TData>(
 
     abstract fun asNotNullMap(): Map<String, Any?>
 
-    abstract fun copy(needCopyMap: Map<String, Any?>?): IFetchStata<TData>
+    abstract fun copy(needCopyMap: Map<String, Any?>?): IFetchState<TParams, TData>
 }
 
 //region [Fetch] 类持有数据的内部状态
-data class FetchState<TData>(
+data class FetchState<TParams, TData>(
     override var loading: Boolean? = null,
     override var params: TParams? = null,
     override var data: TData? = null,
     override var error: Throwable? = null,
-) : IFetchStata<TData>(), Copyable<FetchState<TData>> {
-    override fun copy(needCopyMap: Map<String, Any?>?): FetchState<TData> {
+) : IFetchState<TParams, TData>(), Copyable<FetchState<TParams, TData>> {
+    override fun copy(needCopyMap: Map<String, Any?>?): FetchState<TParams, TData> {
         needCopyMap ?: return this
         if (needCopyMap.entries.isEmpty()) return this
         return with(needCopyMap) {
@@ -114,7 +117,7 @@ data class FetchState<TData>(
         Keys.error to error,
     )
 
-    override fun copy(that: FetchState<TData>?): FetchState<TData> {
+    override fun copy(that: FetchState<TParams, TData>?): FetchState<TParams, TData> {
         that ?: return this
         return this.copy(that.asNotNullMap())
     }
@@ -123,12 +126,12 @@ data class FetchState<TData>(
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
-        other as FetchState<*>
+        other as FetchState<*, *>
 
         if (loading != other.loading) return false
         if (params != null) {
             if (other.params == null) return false
-            if (!params.contentEquals(other.params)) return false
+            if (!(params as Any).equals(other.params)) return false
         } else if (other.params != null) {
             return false
         }
@@ -140,7 +143,7 @@ data class FetchState<TData>(
 
     override fun hashCode(): Int {
         var result = loading?.hashCode() ?: 0
-        result = 31 * result + (params?.contentHashCode() ?: 0)
+        result = 31 * result + (params?.hashCode() ?: 0)
         result = 31 * result + (data?.hashCode() ?: 0)
         result = 31 * result + (error?.hashCode() ?: 0)
         return result
@@ -149,19 +152,19 @@ data class FetchState<TData>(
 //endregion
 
 //region 插件化后所有插件的[onBefore]函数执行的返回值
-data class OnBeforeReturn<TData>(
+data class OnBeforeReturn<TParams, TData>(
     val stopNow: Boolean? = null,
     val returnNow: Boolean? = null,
     override val loading: Boolean? = null,
     override val params: TParams? = null,
     override val data: TData? = null,
     override val error: Throwable? = null,
-) : IFetchStata<TData>(), Copyable<OnBeforeReturn<TData>> {
+) : IFetchState<TParams, TData>(), Copyable<OnBeforeReturn<TParams, TData>> {
     fun asFetchStateMap(): Map<String, Any?> = this.asNotNullMap().filter {
         it.key in Keys.FetchStateKeys
     }
 
-    override fun copy(needCopyMap: Map<String, Any?>?): OnBeforeReturn<TData> {
+    override fun copy(needCopyMap: Map<String, Any?>?): OnBeforeReturn<TParams, TData> {
         needCopyMap ?: return this
         if (needCopyMap.entries.isEmpty()) return this
         return with(needCopyMap) {
@@ -188,7 +191,7 @@ data class OnBeforeReturn<TData>(
         }
     }
 
-    override fun copy(that: OnBeforeReturn<TData>?): OnBeforeReturn<TData> {
+    override fun copy(that: OnBeforeReturn<TParams, TData>?): OnBeforeReturn<TParams, TData> {
         that ?: return this
         return this.copy(that.asNotNullMap())
     }
@@ -197,14 +200,14 @@ data class OnBeforeReturn<TData>(
         if (this === other) return true
         if (other == null || this::class != other::class) return false
 
-        other as OnBeforeReturn<*>
+        other as OnBeforeReturn<*, *>
 
         if (stopNow != other.stopNow) return false
         if (returnNow != other.returnNow) return false
         if (loading != other.loading) return false
         if (params != null) {
             if (other.params == null) return false
-            if (!params.contentEquals(other.params)) return false
+            if (!params.equals(other.params)) return false
         } else if (other.params != null) {
             return false
         }
@@ -218,7 +221,7 @@ data class OnBeforeReturn<TData>(
         var result = stopNow?.hashCode() ?: 0
         result = 31 * result + (returnNow?.hashCode() ?: 0)
         result = 31 * result + (loading?.hashCode() ?: 0)
-        result = 31 * result + (params?.contentHashCode() ?: 0)
+        result = 31 * result + (params?.hashCode() ?: 0)
         result = 31 * result + (data?.hashCode() ?: 0)
         result = 31 * result + (error?.hashCode() ?: 0)
         return result
@@ -240,10 +243,10 @@ data class OnRequestReturn<TData>(val requestDeferred: Deferred<TData>? = null) 
 //endregion
 
 /** 因为[Fetch]的相关操作要同样暴露给插件实例，所以创建一个接口， 这样避免插件实例命名出错，对应调用更直白。 */
-internal sealed interface IFetch<TData> {
-    suspend fun _runAsync(params: TParams) {}
+internal sealed interface IFetch<TParams, TData> {
+    suspend fun _runAsync(params: TParams?) {}
 
-    fun _run(params: TParams) {}
+    fun _run(params: TParams?) {}
 
     fun cancel() {}
 
@@ -255,11 +258,11 @@ internal sealed interface IFetch<TData> {
 }
 
 /** 插件声明周期回调函数的类型定义 */
-typealias PluginOnBefore<TData> = (TParams) -> OnBeforeReturn<TData>?
-typealias PluginOnRequest<TData> = (requestFn: SuspendNormalFunction<TData>, params: TParams) -> OnRequestReturn<TData>?
-typealias PluginOnSuccess<TData> = (data: TData, params: TParams) -> Unit
-typealias PluginOnError = (e: Throwable, params: TParams) -> Unit
-typealias PluginOnFinally<TData> = (params: TParams, data: TData?, e: Throwable?) -> Unit
+typealias PluginOnBefore<TParams, TData> = (TParams) -> OnBeforeReturn<TParams, TData>?
+typealias PluginOnRequest<TParams, TData> = (requestFn: SuspendNormalFunction<TParams, TData>, params: TParams) -> OnRequestReturn<TData>?
+typealias PluginOnSuccess<TParams, TData> = (data: TData, params: TParams) -> Unit
+typealias PluginOnError<TParams> = (e: Throwable, params: TParams) -> Unit
+typealias PluginOnFinally<TParams, TData> = (params: TParams, data: TData?, e: Throwable?) -> Unit
 typealias PluginOnCancel = () -> Unit
 typealias PluginOnMutate<TData> = (data: TData) -> Unit
 
@@ -267,13 +270,13 @@ typealias PluginOnMutate<TData> = (data: TData) -> Unit
  * 插件的生命周期对象：这个对象是插件[Plugin.invoke]方法执行后的返回值，
  * 用来让插件监听请求的生命周期，当执行异步请求时，会在不同的阶段调用插件的生命周期；
  */
-abstract class PluginLifecycle<TData> {
+abstract class PluginLifecycle<TParams, TData> {
     // 插件 onBefore 之后会返回fetch的状态，并且扩展了两个新的字段
-    open val onBefore: PluginOnBefore<TData>? = null
-    open val onRequest: PluginOnRequest<TData>? = null
-    open val onSuccess: PluginOnSuccess<TData>? = null
-    open val onError: PluginOnError? = null
-    open val onFinally: PluginOnFinally<TData>? = null
+    open val onBefore: PluginOnBefore<TParams, TData>? = null
+    open val onRequest: PluginOnRequest<TParams, TData>? = null
+    open val onSuccess: PluginOnSuccess<TParams, TData>? = null
+    open val onError: PluginOnError<TParams>? = null
+    open val onFinally: PluginOnFinally<TParams, TData>? = null
     open val onCancel: PluginOnCancel? = null
     open val onMutate: PluginOnMutate<TData>? = null
 }
@@ -282,7 +285,7 @@ abstract class PluginLifecycle<TData> {
  * [Fetch.pluginImpls] 本质是调用[GenPluginLifecycleFn]函数后保存的[PluginLifecycle]列表
  * ，这个函数的入参是[Fetch]实例与[RequestOptions]配置。
  */
-typealias GenPluginLifecycleFn<TData> = (Fetch<TData>, RequestOptions<TData>) -> PluginLifecycle<TData>
+typealias GenPluginLifecycleFn<TParams, TData> = (Fetch<TParams, TData>, RequestOptions<TParams, TData>) -> PluginLifecycle<TParams, TData>
 
 /**
  * 插件函数 `useXXXPlugin` 的返回值是真实的插件[Plugin]对象，
@@ -291,15 +294,15 @@ typealias GenPluginLifecycleFn<TData> = (Fetch<TData>, RequestOptions<TData>) ->
  * 按需实现[IFetch]对应[Fetch]中的各个函数调用，就可以在插件函数`useXXXPlugin`中需要使用副作用函数时，间接回调[Fetch]实例。
  * 具体用例可以参考：[useAutoRunPlugin]
  */
-abstract class Plugin<TData : Any> : IFetch<TData>, CoroutineScope {
+abstract class Plugin<TParams, TData : Any> : IFetch<TParams, TData>, CoroutineScope {
     private var pluginJob: Job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + pluginJob
 
-    lateinit var fetchInstance: Fetch<TData>
-    lateinit var options: RequestOptions<TData>
+    lateinit var fetchInstance: Fetch<TParams, TData>
+    lateinit var options: RequestOptions<TParams, TData>
 
-    fun initFetch(fetchInstance: Fetch<TData>, options: RequestOptions<TData>) {
+    fun initFetch(fetchInstance: Fetch<TParams, TData>, options: RequestOptions<TParams, TData>) {
         if (!this::fetchInstance.isInitialized) {
             this.fetchInstance = fetchInstance
         }
@@ -308,9 +311,9 @@ abstract class Plugin<TData : Any> : IFetch<TData>, CoroutineScope {
         }
     }
 
-    abstract val invoke: GenPluginLifecycleFn<TData>
+    abstract val invoke: GenPluginLifecycleFn<TParams, TData>
 
-    open val onInit: ((RequestOptions<TData>) -> FetchState<TData>)? = null
+    open val onInit: ((RequestOptions<TParams, TData>) -> FetchState<TParams, TData>)? = null
 
     override fun cancel() {
         pluginJob.cancelChildren()
@@ -321,35 +324,35 @@ abstract class Plugin<TData : Any> : IFetch<TData>, CoroutineScope {
  * 一个空插件，部分插件例如[useDebouncePlugin]是根据相应参数决定是否启用的，
  * 为了避免在插件实例中处理最终返回生命周期对象的问题，我们直接在入口判断返回。
  */
-internal class EmptyPlugin<TData : Any> : Plugin<TData>() {
-    override val invoke: GenPluginLifecycleFn<TData>
+internal class EmptyPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
+    override val invoke: GenPluginLifecycleFn<TParams, TData>
         get() = { _, _ ->
-            object : PluginLifecycle<TData>() {}
+            object : PluginLifecycle<TParams, TData>() {}
         }
 }
 
 /** 返回一个空插件，避免直接使用[EmptyPlugin]实例 */
 @Composable
-fun <T : Any> useEmptyPlugin(): Plugin<T> {
+fun <TParams, TData : Any> useEmptyPlugin(): Plugin<TParams, TData> {
     val emptyPluginRef = useCreation {
-        EmptyPlugin<T>()
+        EmptyPlugin<TParams, TData>()
     }
     return emptyPluginRef.current
 }
 
 /** 用于判断处理动作 */
-internal sealed interface Methods<out TData> {
-    class OnBefore(val params: TParams) : Methods<Nothing>
+internal sealed interface Methods<TParams, out TData> {
+    class OnBefore<TParams>(val params: TParams?) : Methods<TParams, Nothing>
 
-    class OnRequest<TData>(var requestFn: SuspendNormalFunction<TData>, val params: TParams) : Methods<TData>
+    class OnRequest<TParams, TData>(var requestFn: SuspendNormalFunction<TParams, TData>, val params: TParams?) : Methods<TParams, TData>
 
-    class OnSuccess<TData>(val result: TData, val params: TParams) : Methods<TData>
+    class OnSuccess<TParams, TData>(val result: TData, val params: TParams?) : Methods<TParams, TData>
 
-    class OnError(var error: Throwable, val params: TParams) : Methods<Nothing>
+    class OnError<TParams>(var error: Throwable, val params: TParams?) : Methods<TParams, Nothing>
 
-    class OnFinally<TData>(val params: TParams, val result: TData?, val error: Throwable?) : Methods<TData>
+    class OnFinally<TParams, TData>(val params: TParams?, val result: TData?, val error: Throwable?) : Methods<TParams, TData>
 
-    data object OnCancel : Methods<Nothing>
+    data object OnCancel : Methods<Nothing, Nothing>
 
-    class OnMutate<TData>(val result: TData) : Methods<TData>
+    class OnMutate<TData>(val result: TData) : Methods<Nothing, TData>
 }

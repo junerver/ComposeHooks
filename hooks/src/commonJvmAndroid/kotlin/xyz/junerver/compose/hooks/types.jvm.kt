@@ -41,25 +41,78 @@ import xyz.junerver.compose.hooks.utils.checkIsLegalParameters
  * (Composable 是个函数，我们拿不到其实例)，从而抛出异常。
  *
  * @param instance 对应函数的实例，如果是顶层函数可以不传递。
- *
+ * @param mapParams 参数转换函数，你需要明确的告知如何将一个抽象的参数实例，转换成函数的参数列表数组
  */
-fun <T> KFunction<T?>.asNoopFn(instance: Any? = null): (TParams) -> T? = fun(params: TParams): T? = this.call(
-    *synthesisParametersAndCheck(instance, params, this),
-)
+fun <TParams, T> KFunction<T?>.asNoopFn(instance: Any? = null, mapParams: (TParams) -> Array<Any?> = ::defaultTupleMap): (TParams) -> T? =
+    fun(params: TParams): T? = this.call(
+        *synthesisParametersAndCheck(instance, mapParams(params), this),
+    )
 
 /**
  * 将一个 [suspend] 挂起函数转换成[suspend] 版本的 [NormalFunction] 函数。
  * 直接使用 [asNoopFn] 会抛出异常，因为挂起函数的参数比参数列表还多一个挂起相关标识。
+ * 如果你没有显式的传递 [mapParams] 参数，那么 [mapParams] 会默认使用 [defaultTupleMap]，
+ * 即将原函数的参数列表转换成 [Tuple]，注意不是具体的 TupleN，而是顶级接口 [Tuple]。
  */
-fun <T : Any> KFunction<T>.asSuspendNoopFn(instance: Any? = null): suspend (TParams) -> T {
+fun <TParams, T : Any> KFunction<T>.asSuspendNoopFn(
+    instance: Any? = null,
+    mapParams: (TParams) -> Array<Any?> = ::defaultTupleMap,
+): suspend (TParams) -> T {
     require(this.isSuspend) { "The function type is incorrect, and it must be a 'suspend' function" }
 
-    suspend fun run(params: TParams): T = this.callSuspend(*synthesisParametersAndCheck(instance, params, this))
+    suspend fun run(params: TParams): T = this.callSuspend(*synthesisParametersAndCheck(instance, mapParams(params), this))
     return ::run
 }
 
-internal fun <T> synthesisParametersAndCheck(instance: Any?, params: TParams, fn: KFunction<T?>): TParams {
+internal fun <T> synthesisParametersAndCheck(instance: Any?, params: Array<Any?>, fn: KFunction<T?>): Array<Any?> {
     val finalParams = instance?.let { arrayOf(it, *params) } ?: params
     checkIsLegalParameters(fn, *finalParams)
     return finalParams
+}
+
+/**
+ * 默认的参数映射，默认使用 [Tuple] 包装参数
+ */
+internal fun <TParams> defaultTupleMap(params: TParams): Array<Any?> = when (params) {
+    is None -> emptyArray()
+    is Tuple1<*> -> arrayOf(params.first)
+    is Tuple2<*, *> -> arrayOf(params.first, params.second)
+    is Tuple3<*, *, *> -> arrayOf(params.first, params.second, params.third)
+    is Tuple4<*, *, *, *> -> arrayOf(params.first, params.second, params.third, params.fourth)
+    is Tuple5<*, *, *, *, *> -> arrayOf(params.first, params.second, params.third, params.fourth, params.fifth)
+    is Tuple6<*, *, *, *, *, *> -> arrayOf(params.first, params.second, params.third, params.fourth, params.fifth, params.sixth)
+    is Tuple7<*, *, *, *, *, *, *> -> arrayOf(
+        params.first,
+        params.second,
+        params.third,
+        params.fourth,
+        params.fifth,
+        params.sixth,
+        params.seventh,
+    )
+
+    is Tuple8<*, *, *, *, *, *, *, *> -> arrayOf(
+        params.first,
+        params.second,
+        params.third,
+        params.fourth,
+        params.fifth,
+        params.sixth,
+        params.seventh,
+        params.eighth,
+    )
+
+    is Tuple9<*, *, *, *, *, *, *, *, *> -> arrayOf(
+        params.first,
+        params.second,
+        params.third,
+        params.fourth,
+        params.fifth,
+        params.sixth,
+        params.seventh,
+        params.eighth,
+        params.ninth,
+    )
+
+    else -> throw IllegalArgumentException("The parameter abstract type you provide is not a tuple type")
 }

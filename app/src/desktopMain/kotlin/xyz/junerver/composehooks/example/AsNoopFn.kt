@@ -1,4 +1,4 @@
-package xyz.junerver.composehooks.example.request
+package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,7 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import xyz.junerver.compose.hooks.Tuple2
+import xyz.junerver.compose.hooks.asSuspendNoopFn
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.userequest.useRequest
@@ -24,13 +24,13 @@ import xyz.junerver.composehooks.ui.component.TButton
 /*
   Description:
   Author: Junerver
-  Date: 2024/3/12-8:36
+  Date: 2025/7/21-14:13
   Email: junerver@gmail.com
   Version: v1.0
 */
 
 @Composable
-fun AutoManual() {
+fun AsNoopFn() {
     Surface {
         Column(
             modifier = Modifier
@@ -46,27 +46,24 @@ fun AutoManual() {
 
 @Composable
 fun Auto() {
-    val (userInfoState, loadingState, errorState) = useRequest(
-//        requestFn = NetApi::userInfo.asSuspendNoopFn(), // Make a request directly through the WebService instance
-        requestFn = { NetApi.userInfo(it) }, // Make a request WebService interface
+    val (userInfoState, loading, error) = useRequest(
+        requestFn = NetApi::userInfo.asSuspendNoopFn(), // Make a request directly through the WebService instance
         optionsOf = {
-            defaultParams = "junerver" // Automatically requests must set default parameters
+            defaultParams = tuple("junerver") // Automatically requests must set default parameters
         },
     )
     val userInfo by userInfoState
-    val loading by loadingState
-    val error by errorState
     Column {
         Text(text = "Auto:")
         Spacer(modifier = Modifier.height(10.dp))
-        if (loading) {
+        if (loading.asBoolean()) {
             Text(text = "user info loading ...")
         }
         if (userInfo.asBoolean()) {
             Text(text = userInfo.toString())
         }
         if (error.asBoolean()) {
-            Text(text = "error: ${error!!.message}")
+            Text(text = "error: ${error.value?.message}")
         }
     }
 }
@@ -74,9 +71,7 @@ fun Auto() {
 @Composable
 fun Manual() {
     val (repoInfoState, loadingState, errorState, request) = useRequest(
-        requestFn = { it: Tuple2<String, String> ->
-            NetApi.repoInfo(it.first, it.second)
-        },
+        requestFn = NetApi::repoInfo.asSuspendNoopFn(),
         // 使用 `options = optionsOf {}`这种传参会带来性能问题，请尽快更新使用性能优化版本，你可以简单的在`optionsOf`后面加`=`来进行替换
         optionsOf = {
             println("Configure closure execution!")

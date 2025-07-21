@@ -69,7 +69,7 @@ import androidx.compose.runtime.setValue
 @Composable
 inline fun useUpdate(): () -> Unit {
     var state by useState(0.0)
-    val (single) = Single(state) // core logic
+    val (single) = Tuple1(state) // core logic
     return {
         state += 1
     }
