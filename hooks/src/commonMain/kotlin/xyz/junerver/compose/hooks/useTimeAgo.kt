@@ -14,6 +14,7 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import xyz.junerver.compose.hooks.utils.currentTime
 
 /*
   Description: Reactive time ago. Automatically update the time ago string when the time changes.
@@ -124,7 +125,7 @@ open class FormatTimeAgoOptions internal constructor(
     /**
      * Time difference message configuration
      */
-    var messages: TimeAgoMessages = DefaultChineseTimeAgoMessages,
+    var messages: TimeAgoMessages = DefaultEnglishTimeAgoMessages,
     /**
      * Whether to show second-level units (default minimum is minute)
      */
@@ -263,7 +264,12 @@ fun useTimeAgo(time: Instant, optionsOf: UseTimeAgoOptions.() -> Unit = {}): Sta
 private fun useTimeAgo(time: Instant, options: UseTimeAgoOptions): State<String> {
     val latestTime by useLatestState(time)
     val updateInterval = options.updateInterval
-    val (timestamp) = useTimestamp({ interval = updateInterval }, updateInterval > Duration.ZERO)
+    val timestamp: State<Long> = if (updateInterval > Duration.ZERO) {
+        val timestampHolder = useTimestamp({ interval = updateInterval }, updateInterval > Duration.ZERO)
+        timestampHolder.state
+    } else {
+        useState(currentTime.toEpochMilliseconds())
+    }
     return useState {
         formatTimeAgo(latestTime, options, Instant.fromEpochMilliseconds(timestamp.value))
     }
