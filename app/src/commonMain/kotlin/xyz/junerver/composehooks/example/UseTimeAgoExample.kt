@@ -13,7 +13,6 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -287,7 +286,7 @@ private data class Activity(
 private fun ActivityFeedExample() {
     // Sample activity data
     val currentTime by useCreation { now() }
-    val activities = remember {
+    val activities by useCreation {
         listOf(
             Activity(1, "Alice", "posted a photo", currentTime - 2.minutes),
             Activity(2, "Bob", "commented on your post", currentTime - 15.minutes),

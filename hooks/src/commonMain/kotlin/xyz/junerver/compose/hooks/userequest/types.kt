@@ -285,7 +285,10 @@ abstract class PluginLifecycle<TParams, TData> {
  * [Fetch.pluginImpls] 本质是调用[GenPluginLifecycleFn]函数后保存的[PluginLifecycle]列表
  * ，这个函数的入参是[Fetch]实例与[UseRequestOptions]配置。
  */
-typealias GenPluginLifecycleFn<TParams, TData> = (Fetch<TParams, TData>, UseRequestOptions<TParams, TData>) -> PluginLifecycle<TParams, TData>
+typealias GenPluginLifecycleFn<TParams, TData> = (
+    Fetch<TParams, TData>,
+    UseRequestOptions<TParams, TData>,
+) -> PluginLifecycle<TParams, TData>
 
 /**
  * 插件函数 `useXXXPlugin` 的返回值是真实的插件[Plugin]对象，

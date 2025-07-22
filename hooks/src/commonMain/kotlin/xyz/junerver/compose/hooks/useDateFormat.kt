@@ -48,21 +48,59 @@ interface DateFormatMessages {
  */
 object DefaultChineseDateFormatMessages : DateFormatMessages {
     override val months = arrayOf(
-        "一月", "二月", "三月", "四月", "五月", "六月",
-        "七月", "八月", "九月", "十月", "十一月", "十二月"
+        "一月",
+        "二月",
+        "三月",
+        "四月",
+        "五月",
+        "六月",
+        "七月",
+        "八月",
+        "九月",
+        "十月",
+        "十一月",
+        "十二月",
     )
     override val monthsShort = arrayOf(
-        "一月", "二月", "三月", "四月", "五月", "六月",
-        "七月", "八月", "九月", "十月", "十一月", "十二月"
+        "一月",
+        "二月",
+        "三月",
+        "四月",
+        "五月",
+        "六月",
+        "七月",
+        "八月",
+        "九月",
+        "十月",
+        "十一月",
+        "十二月",
     )
     override val weekdays = arrayOf(
-        "星期日", "星期一", "星期二", "星期三", "星期四", "星期五", "星期六"
+        "星期日",
+        "星期一",
+        "星期二",
+        "星期三",
+        "星期四",
+        "星期五",
+        "星期六",
     )
     override val weekdaysShort = arrayOf(
-        "周日", "周一", "周二", "周三", "周四", "周五", "周六"
+        "周日",
+        "周一",
+        "周二",
+        "周三",
+        "周四",
+        "周五",
+        "周六",
     )
     override val weekdaysMin = arrayOf(
-        "周日", "周一", "周二", "周三", "周四", "周五", "周六"
+        "周日",
+        "周一",
+        "周二",
+        "周三",
+        "周四",
+        "周五",
+        "周六",
     )
 }
 
@@ -71,21 +109,59 @@ object DefaultChineseDateFormatMessages : DateFormatMessages {
  */
 object DefaultEnglishDateFormatMessages : DateFormatMessages {
     override val months = arrayOf(
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
     )
     override val monthsShort = arrayOf(
-        "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-        "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec",
     )
     override val weekdays = arrayOf(
-        "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
     )
     override val weekdaysShort = arrayOf(
-        "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"
+        "Sun",
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat",
     )
     override val weekdaysMin = arrayOf(
-        "Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"
+        "Su",
+        "Mo",
+        "Tu",
+        "We",
+        "Th",
+        "Fr",
+        "Sa",
     )
 }
 
@@ -232,7 +308,7 @@ internal fun formatDate(date: LocalDateTime, formatStr: String, options: UseDate
     val messages = when (locale) {
         "zh-CN" -> DefaultChineseDateFormatMessages
         "en-US" -> DefaultEnglishDateFormatMessages
-        else ->  DefaultEnglishDateFormatMessages
+        else -> DefaultEnglishDateFormatMessages
     }
 
     // Regex pattern to match format tokens and literal strings in square brackets
@@ -402,7 +478,12 @@ private fun getMonthName(month: Int, messages: DateFormatMessages, abbreviated: 
 /**
  * Gets the day name based on messages
  */
-private fun getDayName(day: Int, messages: DateFormatMessages, abbreviated: Boolean, minimal: Boolean = false): String {
+private fun getDayName(
+    day: Int,
+    messages: DateFormatMessages,
+    abbreviated: Boolean,
+    minimal: Boolean = false,
+): String {
     val days = if (minimal) {
         messages.weekdaysMin
     } else if (abbreviated) {

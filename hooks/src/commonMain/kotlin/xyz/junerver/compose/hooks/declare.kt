@@ -200,7 +200,8 @@ fun rememberTimeout(delay: Duration = 1.seconds, block: () -> Unit) = useTimeout
 fun rememberTimestamp(optionsOf: UseTimestampOptions.() -> Unit = {}, autoResume: Boolean = true) = useTimestamp(optionsOf, autoResume)
 
 @Composable
-fun rememberTimestampRef(optionsOf: UseTimestampOptions.() -> Unit = {}, autoResume: Boolean = true) = useTimestampRef(optionsOf, autoResume)
+fun rememberTimestampRef(optionsOf: UseTimestampOptions.() -> Unit = {}, autoResume: Boolean = true) =
+    useTimestampRef(optionsOf, autoResume)
 
 //region useToggle
 @Composable

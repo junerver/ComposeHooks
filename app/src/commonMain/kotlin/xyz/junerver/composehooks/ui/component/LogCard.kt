@@ -19,8 +19,8 @@ import androidx.compose.ui.unit.dp
 */
 
 @Composable
-fun LogCard(title: String = "Log:", logs: List<String>, limit: Int = 5) {
-    Column {
+fun LogCard(title: String = "Log:", logs: List<String>, limit: Int = 5,modifier: Modifier = Modifier) {
+    Column(modifier = modifier) {
         Text(
             text = title,
             style = MaterialTheme.typography.bodyLarge,

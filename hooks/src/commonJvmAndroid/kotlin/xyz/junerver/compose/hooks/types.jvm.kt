@@ -74,7 +74,7 @@ internal fun <T> synthesisParametersAndCheck(instance: Any?, params: Array<Any?>
  * 默认的参数映射，默认使用 [Tuple] 包装参数
  */
 internal fun <TParams> defaultTupleMap(params: TParams): Array<Any?> = when (params) {
-    is Array<*> ->  arrayOf(*params)
+    is Array<*> -> arrayOf(*params)
     is None -> emptyArray()
     is Tuple1<*> -> arrayOf(params.first)
     is Tuple2<*, *> -> arrayOf(params.first, params.second)
