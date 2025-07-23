@@ -9,7 +9,7 @@ import xyz.junerver.composehooks.example.UseNetworkExample
 import xyz.junerver.composehooks.example.UseSensorExample
 import xyz.junerver.composehooks.example.UseVibrateExample
 
-actual fun getAndroidRoutes(): Map<String, @Composable () -> Unit> = mapOf(
+actual fun getPlatformSpecialRoutes(): Map<String, @Composable () -> Unit> = mapOf(
     "useBiometric" to { UseBiometricExample() },
     "useDeviceInfo" to { UseDeviceInfoExample() },
     "useIdle" to { UseIdleExample() },

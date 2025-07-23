@@ -72,9 +72,9 @@ import xyz.junerver.composehooks.example.sub.PersistentSub
   Version: v1.0
 */
 
-expect fun getAndroidRoutes(): Map<String, @Composable () -> Unit>
+expect fun getPlatformSpecialRoutes(): Map<String, @Composable () -> Unit>
 
-val androidRoutes: Map<String, @Composable () -> Unit> by lazy { getAndroidRoutes() }
+val platformSpecialRoutes: Map<String, @Composable () -> Unit> by lazy { getPlatformSpecialRoutes() }
 
 val routes = mapOf<String, @Composable () -> Unit>(
     "/" to { HomeScreen() },
@@ -126,7 +126,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "usePausableEffect" to { UsePausableEffectExample() },
     "useCycleList" to { UseCycleListExample() },
     "useSorted" to { UseSortedExample() },
-) + androidRoutes
+) + platformSpecialRoutes
 
 expect fun getSubRequestRoutes(): Map<String, @Composable () -> Unit>
 
