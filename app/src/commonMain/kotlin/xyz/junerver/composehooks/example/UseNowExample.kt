@@ -196,15 +196,7 @@ private fun CustomFormatExample() {
     // Another custom format showing time only
     val timeOnly by useNow(
         optionsOf = {
-            format = {
-                it.tsMs
-                    .toLocalDateTime()
-                    .format(
-                        LocalDateTime.Format {
-                            byUnicodePattern("HH:mm:ss")
-                        },
-                    )
-            }
+            formatPattern = "HH:mm:ss"
         },
     )
 
