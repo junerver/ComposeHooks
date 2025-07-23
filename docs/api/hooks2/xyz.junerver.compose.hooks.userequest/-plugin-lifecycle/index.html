@@ -108,7 +108,7 @@
   <div class="breadcrumbs"><a href="../../../index.html">hooks2</a><span class="delimiter">/</span><a href="../index.html">xyz.junerver.compose.hooks.userequest</a><span class="delimiter">/</span><span class="current">PluginLifecycle</span></div>
   <div class="cover ">
     <h1 class="cover"><span>Plugin</span><wbr></wbr><span><span>Lifecycle</span></span></h1>
-    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="index.html">PluginLifecycle</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt;</span></div><p class="paragraph">插件的生命周期对象：这个对象是插件<a href="../-plugin/invoke.html">Plugin.invoke</a>方法执行后的返回值， 用来让插件监听请求的生命周期，当执行异步请求时，会在不同的阶段调用插件的生命周期；</p></div></div>
+    <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">abstract </span><span class="token keyword">class </span><a href="index.html">PluginLifecycle</a><span class="token operator">&lt;</span><a href="index.html">TParams</a><span class="token punctuation">, </span><a href="index.html">TData</a><span class="token operator">&gt;</span></div><p class="paragraph">插件的生命周期对象：这个对象是插件<a href="../-plugin/invoke.html">Plugin.invoke</a>方法执行后的返回值， 用来让插件监听请求的生命周期，当执行异步请求时，会在不同的阶段调用插件的生命周期；</p></div></div>
   </div>
   <div class="tabbedcontent">
     <div class="tabs-section" tabs-section="tabs-section"><button class="section-tab" data-active="" data-togglable="CONSTRUCTOR,TYPE,PROPERTY,FUNCTION">Members</button></div>
@@ -144,7 +144,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">val </span><a href="on-before.html">onBefore</a><span class="token operator">: </span><a href="../-plugin-on-before/index.html">PluginOnBefore</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null</div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">val </span><a href="on-before.html">onBefore</a><span class="token operator">: </span><a href="../-plugin-on-before/index.html">PluginOnBefore</a><span class="token operator">&lt;</span><a href="index.html">TParams</a><span class="token punctuation">, </span><a href="index.html">TData</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null</div></div></div>
                 </div>
               </div>
             </div>
@@ -174,7 +174,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">val </span><a href="on-error.html">onError</a><span class="token operator">: </span><a href="../-plugin-on-error/index.html">PluginOnError</a><span class="token operator">?</span><span class="token operator"> = </span>null</div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">val </span><a href="on-error.html">onError</a><span class="token operator">: </span><a href="../-plugin-on-error/index.html">PluginOnError</a><span class="token operator">&lt;</span><a href="index.html">TParams</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null</div></div></div>
                 </div>
               </div>
             </div>
@@ -189,7 +189,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">val </span><a href="on-finally.html">onFinally</a><span class="token operator">: </span><a href="../-plugin-on-finally/index.html">PluginOnFinally</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null</div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">val </span><a href="on-finally.html">onFinally</a><span class="token operator">: </span><a href="../-plugin-on-finally/index.html">PluginOnFinally</a><span class="token operator">&lt;</span><a href="index.html">TParams</a><span class="token punctuation">, </span><a href="index.html">TData</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null</div></div></div>
                 </div>
               </div>
             </div>
@@ -219,7 +219,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">val </span><a href="on-request.html">onRequest</a><span class="token operator">: </span><a href="../-plugin-on-request/index.html">PluginOnRequest</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null</div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">val </span><a href="on-request.html">onRequest</a><span class="token operator">: </span><a href="../-plugin-on-request/index.html">PluginOnRequest</a><span class="token operator">&lt;</span><a href="index.html">TParams</a><span class="token punctuation">, </span><a href="index.html">TData</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null</div></div></div>
                 </div>
               </div>
             </div>
@@ -234,7 +234,7 @@
                   </span></span></div>
               <div>
                 <div class="title">
-                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">val </span><a href="on-success.html">onSuccess</a><span class="token operator">: </span><a href="../-plugin-on-success/index.html">PluginOnSuccess</a><span class="token operator">&lt;</span><a href="index.html">TData</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null</div></div></div>
+                  <div class="platform-hinted " data-platform-hinted="data-platform-hinted"><div class="content sourceset-dependent-content" data-active="" data-togglable=":hooks/commonMain"><div class="symbol monospace"><span class="token keyword">open </span><span class="token keyword">val </span><a href="on-success.html">onSuccess</a><span class="token operator">: </span><a href="../-plugin-on-success/index.html">PluginOnSuccess</a><span class="token operator">&lt;</span><a href="index.html">TParams</a><span class="token punctuation">, </span><a href="index.html">TData</a><span class="token operator">&gt;</span><span class="token operator">?</span><span class="token operator"> = </span>null</div></div></div>
                 </div>
               </div>
             </div>
