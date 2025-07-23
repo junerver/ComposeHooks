@@ -19,7 +19,8 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.format
 import kotlinx.datetime.format.DayOfWeekNames
-import kotlinx.datetime.format.Padding
+import kotlinx.datetime.format.FormatStringsInDatetimeFormats
+import kotlinx.datetime.format.byUnicodePattern
 import xyz.junerver.compose.hooks.useNow
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.composehooks.ui.component.DividerSpacer
@@ -173,6 +174,7 @@ private fun BasicTimeExample() {
  *
  * Demonstrates how to use the format option of useNow hook to customize time display
  */
+@OptIn(FormatStringsInDatetimeFormats::class)
 @Composable
 private fun CustomFormatExample() {
     // Using useNow hook with custom Chinese date format
@@ -183,12 +185,7 @@ private fun CustomFormatExample() {
                     .toLocalDateTime()
                     .format(
                         LocalDateTime.Format {
-                            year()
-                            chars("年")
-                            monthNumber()
-                            chars("月")
-                            day(padding = Padding.ZERO)
-                            chars("日")
+                            byUnicodePattern("yyyy年MM月dd日")
                             dayOfWeek(DayOfWeekNames.CHINESE_FULL)
                         },
                     )
@@ -204,11 +201,7 @@ private fun CustomFormatExample() {
                     .toLocalDateTime()
                     .format(
                         LocalDateTime.Format {
-                            hour()
-                            chars(":")
-                            minute()
-                            chars(":")
-                            second()
+                            byUnicodePattern("HH:mm:ss")
                         },
                     )
             }

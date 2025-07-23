@@ -1,6 +1,14 @@
 package xyz.junerver.compose.hooks.useidle
 
-import android.view.*
+import android.view.ActionMode
+import android.view.KeyEvent
+import android.view.Menu
+import android.view.MenuItem
+import android.view.MotionEvent
+import android.view.SearchEvent
+import android.view.View
+import android.view.Window
+import android.view.WindowManager
 import android.view.accessibility.AccessibilityEvent
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -9,7 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import xyz.junerver.compose.hooks.utils.currentTime
+import xyz.junerver.compose.hooks.utils.currentInstant
 
 /*
   Description:
@@ -26,19 +34,19 @@ internal class InactivityWindowCallback(
     private val interval: Duration = 500.milliseconds,
     private val isTimeoutCallback: (Boolean, Instant) -> Unit,
 ) : Window.Callback {
-    private var lastActiveTime = currentTime
+    private var lastActiveTime = currentInstant
 
     init {
         scope.launch {
             while (isActive) {
-                isTimeoutCallback(currentTime - lastActiveTime > timeout, lastActiveTime)
+                isTimeoutCallback(currentInstant - lastActiveTime > timeout, lastActiveTime)
                 delay(interval)
             }
         }
     }
 
     private fun updateLastInteractionTime() {
-        lastActiveTime = currentTime
+        lastActiveTime = currentInstant
     }
 
     override fun dispatchTouchEvent(event: MotionEvent?): Boolean {

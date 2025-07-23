@@ -8,13 +8,11 @@ import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.round
-import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toLocalDateTime
-import xyz.junerver.compose.hooks.utils.currentTime
+import xyz.junerver.compose.hooks.utils.currentInstant
+import xyz.junerver.compose.hooks.utils.toLocalDateTime
 
 /*
   Description: Reactive time ago. Automatically update the time ago string when the time changes.
@@ -176,14 +174,14 @@ private val DEFAULT_UNITS = listOf(
  * @param now Current time (defaults to system current time)
  * @return Formatted time difference string
  */
-fun formatTimeAgo(from: Instant, options: FormatTimeAgoOptions = FormatTimeAgoOptions(), now: Instant = Clock.System.now()): String {
+fun formatTimeAgo(from: Instant, options: FormatTimeAgoOptions = FormatTimeAgoOptions(), now: Instant = currentInstant): String {
     val diff = now.toEpochMilliseconds() - from.toEpochMilliseconds()
     val absDiff = abs(diff)
     val isPast = diff > 0
 
     // Check if exceeds maximum unit
     if (options.max != null && absDiff > options.max!!) {
-        return options.fullDateFormatter?.invoke(from) ?: from.toLocalDateTime(TimeZone.currentSystemDefault()).toString()
+        return options.fullDateFormatter?.invoke(from) ?: from.toLocalDateTime().toString()
     }
 
     // If time difference is very small, show "just now"
@@ -268,7 +266,7 @@ private fun useTimeAgo(time: Instant, options: UseTimeAgoOptions): State<String>
         val timestampHolder = useTimestamp({ interval = updateInterval }, updateInterval > Duration.ZERO)
         timestampHolder.state
     } else {
-        useState(currentTime.toEpochMilliseconds())
+        useState(currentInstant.toEpochMilliseconds())
     }
     return useState {
         formatTimeAgo(latestTime, options, Instant.fromEpochMilliseconds(timestamp.value))

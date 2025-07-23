@@ -21,6 +21,8 @@ import kotlinx.coroutines.delay
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
+import kotlinx.datetime.format.FormatStringsInDatetimeFormats
+import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.datetime.toLocalDateTime
 import xyz.junerver.compose.hooks.useList
 import xyz.junerver.compose.hooks.useState
@@ -393,12 +395,9 @@ private data class DataPoint(val timestamp: Instant, val value: Double)
 /**
  * Format time from Instant to a readable string
  */
+@OptIn(FormatStringsInDatetimeFormats::class)
 private fun formatTime(time: Instant = now()): String = time.toLocalDateTime(TimeZone.currentSystemDefault()).format(
     LocalDateTime.Format {
-        hour()
-        chars(":")
-        minute()
-        chars(":")
-        second()
+        byUnicodePattern("HH:mm:ss")
     },
 )

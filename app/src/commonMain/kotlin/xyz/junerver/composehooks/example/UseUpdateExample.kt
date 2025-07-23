@@ -101,7 +101,6 @@ fun InlineExpansionExample() {
     val (_) = Tuple1(state)
     val forceUpdate = { state += 1 }
 
-
     Column {
         Text(
             text = "Inline Implementation",

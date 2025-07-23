@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import kotlin.math.abs
-import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -12,7 +11,9 @@ import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.number
 import kotlinx.datetime.offsetAt
-import kotlinx.datetime.toLocalDateTime
+import xyz.junerver.compose.hooks.utils.currentInstant
+import xyz.junerver.compose.hooks.utils.currentLocalDateTime
+import xyz.junerver.compose.hooks.utils.toLocalDateTime
 
 /*
   Description: Format date according to the string of tokens passed in, inspired by dayjs
@@ -25,7 +26,7 @@ import kotlinx.datetime.toLocalDateTime
 /**
  * Type alias for date-like values that can be formatted
  */
-typealias DateLike = Any?
+internal typealias DateLike = Any?
 
 /**
  * Custom function type for meridiem formatting
@@ -189,82 +190,95 @@ data class UseDateFormatOptions internal constructor(
 }
 
 /**
- * A hook for formatting dates according to a specified format string.
+ * Internal implementation function for date formatting that accepts any DateLike type.
  *
- * This hook provides a way to format dates using a pattern similar to dayjs.
- * It supports various format tokens and returns a state containing the formatted date string.
+ * This is the core implementation that handles the actual date formatting logic.
+ * It accepts a DateLike parameter (which can be Instant, LocalDateTime, String, Long, or null)
+ * and converts it to a standardized format before applying the formatting rules.
  *
- * @param date The date to format, can be a [kotlin.time.Instant], [kotlinx.datetime.LocalDateTime],
- * [Long] (timestamp in milliseconds), or [String] (parseable date string)
+ * @param date The date to format, can be:
+ *             - [kotlin.time.Instant]: UTC moment in time
+ *             - [kotlinx.datetime.LocalDateTime]: Local date and time without timezone
+ *             - [String]: ISO 8601 formatted date string (e.g., "2023-12-25T14:30:00")
+ *             - [Long]: Timestamp in milliseconds since Unix epoch
+ *             - null: Uses current system time as fallback
  * @param formatStr The format string with tokens (default: "HH:mm:ss")
- * @param optionsOf A lambda to configure formatting options
- * @return A [State] containing the formatted date string
+ * @param optionsOf Configuration options for formatting behavior
+ * @return A [State] containing the formatted date string that updates reactively
  *
- * @example
- * ```kotlin
- * // Basic usage with current time
- * val formattedDate = useDateFormat(Clock.System.now(), "YYYY-MM-DD HH:mm:ss")
- * Text(text = formattedDate.value)
+ * ## Supported Format Tokens:
  *
- * // With custom options
- * val customFormatted = useDateFormat(
- * date = Clock.System.now(),
- * formatStr = "YYYY-MM-DD hh:mm:ss A",
- * optionsOf = {
- * locale = "en-US"
- * customMeridiem = { hours, _, isLowercase, _ ->
- * if (hours > 11) {
- * if (isLowercase) "pm" else "PM"
- * } else {
- * if (isLowercase) "am" else "AM"
- * }
- * }
- * }
- * )
- * Text(text = customFormatted.value)
- * ```
+ * ### Year Tokens:
+ * - **YYYY**: 4-digit year (e.g., "2023")
+ * - **YY**: 2-digit year (e.g., "23")
+ * - **Yo**: Year with ordinal suffix (e.g., "2023rd")
  *
- * Available format tokens:
- * - Yo: Ordinal formatted year (2018th)
- * - YYYY: Four-digit year (2018)
- * - YY: Two-digit year (18)
- * - Mo: Ordinal formatted month (1st, 2nd, ..., 12th)
- * - MMMM: Full month name (January-December)
- * - MMM: Abbreviated month name (Jan-Dec)
- * - MM: Month, 2-digits (01-12)
- * - M: Month (1-12)
- * - Do: Ordinal formatted day of month (1st, 2nd, ..., 31st)
- * - DD: Day of month, 2-digits (01-31)
- * - D: Day of month (1-31)
- * - Ho: Ordinal formatted hour (0th, 1st, 2nd, ..., 23rd)
- * - HH: Hour, 2-digits (00-23)
- * - H: Hour (0-23)
- * - ho: Ordinal formatted hour, 12-hour clock (1st, 2nd, ..., 12th)
- * - hh: Hour, 12-hour clock, 2-digits (01-12)
- * - h: Hour, 12-hour clock (1-12)
- * - mo: Ordinal formatted minute (0th, 1st, ..., 59th)
- * - mm: Minute, 2-digits (00-59)
- * - m: Minute (0-59)
- * - so: Ordinal formatted second (0th, 1st, ..., 59th)
- * - ss: Second, 2-digits (00-59)
- * - s: Second (0-59)
- * - SSS: Millisecond, 3-digits (000-999)
- * - AA: Meridiem with periods (A.M./P.M.)
- * - A: Meridiem (AM/PM)
- * - aa: Meridiem lowercase with periods (a.m./p.m.)
- * - a: Meridiem lowercase (am/pm)
- * - dddd: Full name of day of week (Sunday-Saturday)
- * - ddd: Short name of day of week (Sun-Sat)
- * - dd: Min name of day of week (S-S)
- * - d: Day of week (0-6, Sunday is 0)
- * - zzzz: Long timezone with offset (GMT+01:00)
- * - zzz: Timezone with offset (GMT+1)
- * - zz: Timezone with offset (GMT+1)
- * - z: Timezone with offset (GMT+1)
+ * ### Month Tokens:
+ * - **MMMM**: Full month name (e.g., "January", "一月")
+ * - **MMM**: Abbreviated month name (e.g., "Jan", "一月")
+ * - **MM**: 2-digit month with leading zero (e.g., "01", "12")
+ * - **Mo**: Month with ordinal suffix (e.g., "1st", "12th")
+ * - **M**: Month without leading zero (e.g., "1", "12")
+ *
+ * ### Day of Month Tokens:
+ * - **DD**: 2-digit day with leading zero (e.g., "01", "31")
+ * - **Do**: Day with ordinal suffix (e.g., "1st", "31st")
+ * - **D**: Day without leading zero (e.g., "1", "31")
+ *
+ * ### Day of Week Tokens:
+ * - **dddd**: Full day name (e.g., "Sunday", "星期日")
+ * - **ddd**: Abbreviated day name (e.g., "Sun", "周日")
+ * - **dd**: Minimal day name (e.g., "Su", "周日")
+ * - **d**: Day of week as number (0-6, Sunday is 0)
+ *
+ * ### Hour Tokens (24-hour format):
+ * - **HH**: 2-digit hour with leading zero (e.g., "00", "23")
+ * - **Ho**: Hour with ordinal suffix (e.g., "0th", "23rd")
+ * - **H**: Hour without leading zero (e.g., "0", "23")
+ *
+ * ### Hour Tokens (12-hour format):
+ * - **hh**: 2-digit hour with leading zero (e.g., "01", "12")
+ * - **ho**: Hour with ordinal suffix (e.g., "1st", "12th")
+ * - **h**: Hour without leading zero (e.g., "1", "12")
+ *
+ * ### Minute Tokens:
+ * - **mm**: 2-digit minute with leading zero (e.g., "00", "59")
+ * - **mo**: Minute with ordinal suffix (e.g., "0th", "59th")
+ * - **m**: Minute without leading zero (e.g., "0", "59")
+ *
+ * ### Second Tokens:
+ * - **ss**: 2-digit second with leading zero (e.g., "00", "59")
+ * - **so**: Second with ordinal suffix (e.g., "0th", "59th")
+ * - **s**: Second without leading zero (e.g., "0", "59")
+ *
+ * ### Millisecond Tokens:
+ * - **SSS**: 3-digit millisecond with leading zeros (e.g., "000", "999")
+ *
+ * ### Meridiem Tokens (AM/PM):
+ * - **AA**: Uppercase meridiem with periods (e.g., "A.M.", "P.M.")
+ * - **A**: Uppercase meridiem (e.g., "AM", "PM")
+ * - **aa**: Lowercase meridiem with periods (e.g., "a.m.", "p.m.")
+ * - **a**: Lowercase meridiem (e.g., "am", "pm")
+ *
+ * ### Timezone Tokens:
+ * - **zzzz**: Long timezone with offset (e.g., "GMT+08:00")
+ * - **zzz**: Timezone with offset (e.g., "GMT+8")
+ * - **zz**: Timezone with offset (e.g., "GMT+8")
+ * - **z**: Timezone with offset (e.g., "GMT+8")
+ *
+ * ### Literal Text:
+ * - **[text]**: Literal text that won't be formatted (e.g., "[at] HH:mm" → "at 14:30")
+ *
+ * ## Format Examples:
+ * - "YYYY-MM-DD HH:mm:ss" → "2023-12-25 14:30:00"
+ * - "dddd, MMMM Do, YYYY" → "Monday, December 25th, 2023"
+ * - "h:mm A" → "2:30 PM"
+ * - "[Today is] dddd" → "Today is Monday"
+ * - "YYYY年MM月DD日 HH:mm:ss" → "2023年12月25日 14:30:00"
  */
 @Composable
-fun useDateFormat(
-    date: DateLike = Clock.System.now(),
+private fun useDateFormatImpl(
+    date: DateLike,
     formatStr: String = "HH:mm:ss",
     optionsOf: UseDateFormatOptions.() -> Unit = {},
 ): State<String> {
@@ -283,18 +297,18 @@ fun useDateFormat(
  */
 internal fun normalizeDate(date: DateLike): LocalDateTime = when (date) {
     is LocalDateTime -> date
-    is Instant -> date.toLocalDateTime(TimeZone.currentSystemDefault())
-    is Long -> Instant.fromEpochMilliseconds(date).toLocalDateTime(TimeZone.currentSystemDefault())
+    is Instant -> date.toLocalDateTime()
+    is Long -> date.toLocalDateTime()
     is String -> {
         try {
             LocalDateTime.parse(date)
         } catch (_: Exception) {
-            Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+            currentLocalDateTime
         }
     }
 
-    null -> Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
-    else -> Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+    null -> currentLocalDateTime
+    else -> currentLocalDateTime
 }
 
 /**
@@ -513,7 +527,7 @@ private fun getOrdinal(number: Int): String {
  */
 private fun getTimezoneString(timeZone: TimeZone, longFormat: Boolean): String {
     // Get the current time point, as timezone offset may vary due to daylight saving time
-    val now = Clock.System.now()
+    val now = currentInstant
     // Get the UTC offset for the specified timezone at the current time point
     val offset: UtcOffset = timeZone.offsetAt(now)
 
@@ -533,3 +547,92 @@ private fun getTimezoneString(timeZone: TimeZone, longFormat: Boolean): String {
         "GMT$sign$absHours" // e.g., "GMT+8" or "GMT+9"
     }
 }
+
+/**
+ * A hook for formatting dates using Instant objects.
+ *
+ * This overload accepts kotlinx.datetime.Instant objects, which represent a specific moment in time
+ * in UTC. The Instant will be converted to LocalDateTime using the system's default timezone
+ * before formatting.
+ *
+ * @param date The Instant object to format. Defaults to current system time.
+ *             Instant represents a moment in time in UTC timezone.
+ * @param formatStr The format string with tokens (default: "HH:mm:ss")
+ *                  Supports all standard format tokens like YYYY, MM, DD, HH, mm, ss, etc.
+ * @param optionsOf Configuration options for formatting behavior
+ * @return A [State] containing the formatted date string that updates reactively
+ *
+ * @see useDateFormatImpl for detailed format token documentation
+ */
+@Composable
+fun useDateFormat(
+    date: Instant = currentInstant,
+    formatStr: String = "HH:mm:ss",
+    optionsOf: UseDateFormatOptions.() -> Unit = {},
+): State<String> = useDateFormatImpl(date, formatStr, optionsOf)
+
+/**
+ * A hook for formatting dates using LocalDateTime objects.
+ *
+ * This overload accepts kotlinx.datetime.LocalDateTime objects, which represent a date and time
+ * without timezone information. The LocalDateTime is used directly for formatting without
+ * any timezone conversion.
+ *
+ * @param date The LocalDateTime object to format.
+ *             LocalDateTime represents a date and time in local timezone without UTC offset info.
+ *             Format: YYYY-MM-DDTHH:mm:ss (e.g., "2023-12-25T14:30:00")
+ * @param formatStr The format string with tokens (default: "HH:mm:ss")
+ *                  Supports all standard format tokens like YYYY, MM, DD, HH, mm, ss, etc.
+ * @param optionsOf Configuration options for formatting behavior
+ * @return A [State] containing the formatted date string that updates reactively
+ *
+ * @see useDateFormatImpl for detailed format token documentation
+ */
+@Composable
+fun useDateFormat(date: LocalDateTime, formatStr: String = "HH:mm:ss", optionsOf: UseDateFormatOptions.() -> Unit = {}): State<String> =
+    useDateFormatImpl(date, formatStr, optionsOf)
+
+/**
+ * A hook for formatting dates using String representations.
+ *
+ * This overload accepts date strings that can be parsed into LocalDateTime objects.
+ * If the string cannot be parsed, the current system time will be used as fallback.
+ *
+ * @param date The date string to format.
+ *             Supported formats:
+ *             - ISO 8601 format: "2023-12-25T14:30:00" or "2023-12-25T14:30:00.123"
+ *             - Date only: "2023-12-25" (time defaults to 00:00:00)
+ *             - If parsing fails, current system time is used as fallback
+ * @param formatStr The format string with tokens (default: "HH:mm:ss")
+ *                  Supports all standard format tokens like YYYY, MM, DD, HH, mm, ss, etc.
+ * @param optionsOf Configuration options for formatting behavior
+ * @return A [State] containing the formatted date string that updates reactively
+ *
+ * @see useDateFormatImpl for detailed format token documentation
+ */
+@Composable
+fun useDateFormat(date: String, formatStr: String = "HH:mm:ss", optionsOf: UseDateFormatOptions.() -> Unit = {}): State<String> =
+    useDateFormatImpl(date, formatStr, optionsOf)
+
+/**
+ * A hook for formatting dates using Long timestamp values.
+ *
+ * This overload accepts Long values representing timestamps in milliseconds since
+ * the Unix epoch (January 1, 1970, 00:00:00 UTC). The timestamp will be converted
+ * to LocalDateTime using the system's default timezone before formatting.
+ *
+ * @param date The timestamp in milliseconds since Unix epoch to format.
+ *             Examples:
+ *             - 1703512200000L represents "2023-12-25T14:30:00" in UTC
+ *             - System.currentTimeMillis() for current time
+ *             - Date.getTime() from Java Date objects
+ * @param formatStr The format string with tokens (default: "HH:mm:ss")
+ *                  Supports all standard format tokens like YYYY, MM, DD, HH, mm, ss, etc.
+ * @param optionsOf Configuration options for formatting behavior
+ * @return A [State] containing the formatted date string that updates reactively
+ *
+ * @see useDateFormatImpl for detailed format token documentation
+ */
+@Composable
+fun useDateFormat(date: Long, formatStr: String = "HH:mm:ss", optionsOf: UseDateFormatOptions.() -> Unit = {}): State<String> =
+    useDateFormatImpl(date, formatStr, optionsOf)

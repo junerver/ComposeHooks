@@ -35,7 +35,7 @@ import xyz.junerver.compose.hooks.userequest.utils.subscribe
 import xyz.junerver.compose.hooks.userequest.utils.trigger
 import xyz.junerver.compose.hooks.utils.CacheManager
 import xyz.junerver.compose.hooks.utils.asBoolean
-import xyz.junerver.compose.hooks.utils.currentTime
+import xyz.junerver.compose.hooks.utils.currentInstant
 import xyz.junerver.compose.hooks.utils.isNotNull
 
 /*
@@ -65,7 +65,7 @@ private class CachePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
                         val cacheData = getCache(cacheKey, it)
                         // 正在请求，啥也不做
                         if (!cacheData.asBoolean()) return@onBefore null
-                        if (staleTime == (-1).seconds || currentTime - cacheData.time <= staleTime) {
+                        if (staleTime == (-1).seconds || currentInstant - cacheData.time <= staleTime) {
                             OnBeforeReturn<TParams, TData>(
                                 loading = false,
                                 data = cacheData.data,
@@ -164,7 +164,7 @@ private class CachePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
             data = cacheData.data
             @Suppress("UNCHECKED_CAST")
             params = cacheData.params as TParams
-            if (staleTime == (-1).seconds || currentTime - cacheData.time <= staleTime) {
+            if (staleTime == (-1).seconds || currentInstant - cacheData.time <= staleTime) {
                 loading = false
             }
         }

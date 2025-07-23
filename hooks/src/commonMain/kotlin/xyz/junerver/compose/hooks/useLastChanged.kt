@@ -3,7 +3,7 @@ package xyz.junerver.compose.hooks
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import kotlin.time.Instant
-import xyz.junerver.compose.hooks.utils.currentTime
+import xyz.junerver.compose.hooks.utils.currentInstant
 
 /*
   Description: Records the [Instant] of the last change
@@ -14,9 +14,9 @@ import xyz.junerver.compose.hooks.utils.currentTime
 */
 @Composable
 fun useLastChanged(source: Any?): State<Instant> {
-    val (lastChanged, setLastChanged) = useGetState<Instant>(currentTime)
+    val (lastChanged, setLastChanged) = useGetState<Instant>(currentInstant)
     useEffect(source) {
-        setLastChanged(currentTime)
+        setLastChanged(currentInstant)
     }
     return lastChanged
 }

@@ -9,6 +9,12 @@ import kotlin.contracts.contract
 import kotlin.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Instant
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.format
+import kotlinx.datetime.format.FormatStringsInDatetimeFormats
+import kotlinx.datetime.format.byUnicodePattern
+import kotlinx.datetime.toLocalDateTime
 import xyz.junerver.compose.hooks.Ref
 import xyz.junerver.compose.hooks.observeAsState
 import xyz.junerver.compose.hooks.useEffect
@@ -29,8 +35,45 @@ import xyz.junerver.compose.hooks.useEffect
  * Gets the current system time as an [Instant].
  * This is a convenience property that wraps [Clock.System.now].
  */
-internal val currentTime: Instant
+internal val currentInstant: Instant
     get() = Clock.System.now()
+
+/**
+ * Gets the current local date and time using the system's default timezone.
+ * This property provides a convenient way to access the current moment as a [LocalDateTime].
+ *
+ * @return Current [LocalDateTime] in the system's default timezone
+ */
+internal val currentLocalDateTime: LocalDateTime
+    get() = currentInstant.toLocalDateTime()
+
+/**
+ * Converts an [Instant] to a [LocalDateTime] in the specified timezone.
+ * This is an extension function that provides a convenient way to convert
+ * an [Instant] to [LocalDateTime] with timezone support.
+ *
+ * @param timeZone The timezone to use for conversion (defaults to system timezone)
+ * @return A [LocalDateTime] representation of this [Instant] in the specified timezone
+ */
+internal fun Instant.toLocalDateTime(timeZone: TimeZone = TimeZone.currentSystemDefault()) = toLocalDateTime(timeZone)
+
+/**
+ * Converts a timestamp to a LocalDateTime in the specified timezone.
+ *
+ * @param timeZone The timezone to use for conversion (defaults to system timezone)
+ * @return A LocalDateTime representation of the timestamp
+ */
+internal fun Long.toLocalDateTime(timeZone: TimeZone = TimeZone.currentSystemDefault()) =
+    Instant.fromEpochMilliseconds(this).toLocalDateTime(timeZone)
+
+/**
+ * Formats a [LocalDateTime] using the specified pattern string.
+ *
+ * @param formatPattern The pattern string to use for formatting
+ * @return The formatted string
+ */
+@OptIn(FormatStringsInDatetimeFormats::class)
+internal fun LocalDateTime.format(formatPattern: String): String = this.format(LocalDateTime.Format { byUnicodePattern(formatPattern) })
 
 /**
  * Unwraps state objects for use in effect dependencies.

@@ -13,7 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import xyz.junerver.compose.hooks.utils.currentTime
+import xyz.junerver.compose.hooks.utils.currentInstant
 
 /*
   Description:
@@ -78,7 +78,7 @@ internal class Throttle<TParams>(
     private fun trailingEdge() {
         if (options.trailing) {
             lastArgs?.let { fn(it) }
-            latestInvokedTime = currentTime
+            latestInvokedTime = currentInstant
         }
         timeoutJob = null
     }
@@ -91,7 +91,7 @@ internal class Throttle<TParams>(
 
     fun invoke(p1: TParams) {
         val (wait, leading, trailing) = options
-        val now = currentTime
+        val now = currentInstant
         lastArgs = p1
 
         if (latestInvokedTime == Instant.DISTANT_PAST && !leading) {

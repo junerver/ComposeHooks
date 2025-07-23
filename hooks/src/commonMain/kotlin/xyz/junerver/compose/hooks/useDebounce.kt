@@ -13,7 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import xyz.junerver.compose.hooks.utils.currentTime
+import xyz.junerver.compose.hooks.utils.currentInstant
 
 /*
   Description: Debounce hooks for Compose
@@ -76,7 +76,7 @@ internal class Debounce<TParams>(
     // The actual function execution
     private fun executeFn(params: TParams?) {
         params?.let { fn(it) }
-        latestInvokedTime = currentTime
+        latestInvokedTime = currentInstant
     }
 
     private fun resetDebounceState() {
@@ -88,7 +88,7 @@ internal class Debounce<TParams>(
         val (wait, leading, trailing, maxWait) = options
         lastArgs = p1 // Save the latest parameters on each call
 
-        val currentTimeStamp = currentTime
+        val currentTimeStamp = currentInstant
         val waitTime = currentTimeStamp - latestInvokedTime
 
         val isMaxWaitExceeded = maxWait > Duration.ZERO && waitTime >= maxWait
@@ -106,7 +106,7 @@ internal class Debounce<TParams>(
                 delay(wait)
                 // Ensure that if there are no new calls at the end of the delay, execute trailing
                 // And check latestCalledTime to ensure it wasn't called again during the delay
-                if (currentTime - latestCalledTime >= wait && trailing) {
+                if (currentInstant - latestCalledTime >= wait && trailing) {
                     executeFn(lastArgs) // Execute trailing
                 }
                 resetDebounceState()
@@ -117,7 +117,7 @@ internal class Debounce<TParams>(
                 delay(wait)
                 // Check if maximum wait time is exceeded or wait time has passed
                 // And ensure that no new calls occurred at the end of the delay
-                if ((currentTime - latestCalledTime >= wait || isMaxWaitExceeded) && trailing) {
+                if ((currentInstant - latestCalledTime >= wait || isMaxWaitExceeded) && trailing) {
                     executeFn(lastArgs)
                 }
                 resetDebounceState()

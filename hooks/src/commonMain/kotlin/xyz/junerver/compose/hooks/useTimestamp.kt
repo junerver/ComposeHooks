@@ -6,7 +6,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
-import xyz.junerver.compose.hooks.utils.currentTime
+import xyz.junerver.compose.hooks.utils.currentInstant
 
 /*
   Description:
@@ -161,13 +161,13 @@ data class TimestampRefHolder(
 @Composable
 private fun useTimestamp(options: UseTimestampOptions, autoResume: Boolean = true): TimestampHolder {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
-    val timestamp = useState(default = currentTime)
+    val timestamp = useState(default = currentInstant)
     val (resume, pause, isActive) = useInterval(
         optionsOf = {
             period = interval
         },
     ) {
-        timestamp.value = currentTime + offset
+        timestamp.value = currentInstant + offset
         callback?.invoke(timestamp.value.toEpochMilliseconds())
     }
     useMount {
@@ -187,13 +187,13 @@ private fun useTimestamp(options: UseTimestampOptions, autoResume: Boolean = tru
 @Composable
 private fun useTimestampRef(options: UseTimestampOptions, autoResume: Boolean = true): TimestampRefHolder {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
-    val timestampRef = useRef(default = currentTime.toEpochMilliseconds())
+    val timestampRef = useRef(default = currentInstant.toEpochMilliseconds())
     val (resume, pause, isActive) = useInterval(
         optionsOf = {
             period = interval
         },
     ) {
-        timestampRef.current = (currentTime + offset).toEpochMilliseconds()
+        timestampRef.current = (currentInstant + offset).toEpochMilliseconds()
         callback?.invoke(timestampRef.current)
     }
     useMount {

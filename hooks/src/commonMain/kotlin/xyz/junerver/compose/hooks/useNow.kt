@@ -3,16 +3,13 @@ package xyz.junerver.compose.hooks
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlin.time.Instant
 import kotlinx.datetime.LocalDateTime
-import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
-import kotlinx.datetime.format.Padding
-import kotlinx.datetime.format.char
-import kotlinx.datetime.toLocalDateTime
+import kotlinx.datetime.format.FormatStringsInDatetimeFormats
+import kotlinx.datetime.format.byUnicodePattern
+import xyz.junerver.compose.hooks.utils.toLocalDateTime
 
 /*
   Description:
@@ -20,6 +17,10 @@ import kotlinx.datetime.toLocalDateTime
   Date: 2024/3/14-11:41
   Email: junerver@gmail.com
   Version: v1.0
+
+  Update: 2025/7/23-9:25 by Junerver
+  Version: v1.1
+  Description: [UseNowOptions] add [formatPattern] to support custom formatting
 */
 
 /**
@@ -27,12 +28,19 @@ import kotlinx.datetime.toLocalDateTime
  *
  * @constructor Create empty UseNow options
  * @property interval The interval at which the time should be updated
- * @property format Optional custom formatter function for the timestamp
+ * @property format Optional custom formatter function for the timestamp. When provided, this function
+ *                  takes precedence over formatPattern and will be used for formatting.
+ * @property formatPattern The pattern for formatting the timestamp. This is used only when
+ *                        format function is null. It supports a limited set of Unicode date format patterns
+ *                        as defined in the kotlinx-datetime library. For supported patterns, see
+ *                        [byUnicodePattern](https://kotlinlang.org/api/kotlinx-datetime/kotlinx-datetime/kotlinx.datetime.format/by-unicode-pattern.html)
+ * @note Priority: format function > formatPattern. If format function is provided, formatPattern will be ignored.
  */
 @Stable
 data class UseNowOptions internal constructor(
     var interval: Duration = 1.seconds,
     var format: ((Long) -> String)? = null,
+    var formatPattern: String = "yyyy-MM-dd HH:mm:ss",
 ) {
     companion object : Options<UseNowOptions>(::UseNowOptions)
 }
@@ -62,11 +70,7 @@ data class UseNowOptions internal constructor(
  *         // Custom formatting logic
  *         timestamp.toLocalDateTime().format(
  *             LocalDateTime.Format {
- *                 hour()
- *                 char(':')
- *                 minute()
- *                 char(':')
- *                 second()
+ *                 byUnicodePattern("HH:mm:ss")
  *             }
  *         )
  *     }
@@ -78,36 +82,18 @@ data class UseNowOptions internal constructor(
 fun useNow(optionsOf: UseNowOptions.() -> Unit = {}) = useNow(useDynamicOptions(optionsOf))
 
 /**
- * Converts a timestamp to a LocalDateTime in the specified timezone.
- *
- * @param timeZone The timezone to use for conversion (defaults to system timezone)
- * @return A LocalDateTime representation of the timestamp
- */
-internal fun Long.toLocalDateTime(timeZone: TimeZone = TimeZone.currentSystemDefault()) =
-    Instant.fromEpochMilliseconds(this).toLocalDateTime(timeZone)
-
-/**
  * Internal implementation of the useNow hook.
  *
  * @param options The time display options
  * @return A [State] containing the formatted time string
  */
+@OptIn(FormatStringsInDatetimeFormats::class)
 @Composable
 private fun useNow(options: UseNowOptions): State<String> {
-    val (interval, format) = with(options) { tuple(interval, format) }
-    val sdfRef = remember {
+    val (interval, format, formatPattern) = with(options) { tuple(interval, format, formatPattern) }
+    val sdfRef by useCreation {
         LocalDateTime.Format {
-            year()
-            char('-')
-            monthNumber()
-            char('-')
-            day(padding = Padding.ZERO)
-            char(' ')
-            hour()
-            char(':')
-            minute()
-            char(':')
-            second()
+            byUnicodePattern(formatPattern)
         }
     }
     val (time) = useTimestamp(

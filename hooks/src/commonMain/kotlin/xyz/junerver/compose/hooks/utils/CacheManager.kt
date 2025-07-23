@@ -36,7 +36,7 @@ internal object CacheManager : CoroutineScope {
         launch {
             delay(1.seconds)
             while (isActive) {
-                cache.entries.removeAll { it.value.second <= currentTime }
+                cache.entries.removeAll { it.value.second <= currentInstant }
                 delay(30.seconds)
             }
         }
@@ -65,7 +65,7 @@ internal object CacheManager : CoroutineScope {
 
     @Suppress("UNCHECKED_CAST")
     fun <T> getCache(key: String): CachedData<T>? = cache[key.cacheKey]?.takeIf {
-        currentTime < it.second
+        currentInstant < it.second
     }?.first as? CachedData<T> ?: run {
         cache.remove(key.cacheKey)
         null

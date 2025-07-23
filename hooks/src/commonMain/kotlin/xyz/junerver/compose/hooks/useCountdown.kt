@@ -9,7 +9,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import xyz.junerver.compose.hooks.utils.asBoolean
-import xyz.junerver.compose.hooks.utils.currentTime
+import xyz.junerver.compose.hooks.utils.currentInstant
 
 /*
   Description: A hook for manage countdown.
@@ -53,7 +53,7 @@ private fun useCountdown(options: UseCountdownOptions): CountdownHolder {
     val targetDateState = useLatestState(targetDate)
     val target by useState {
         if (leftTimeState.value.asBoolean()) {
-            currentTime + leftTimeState.value!!
+            currentInstant + leftTimeState.value!!
         } else {
             targetDateState.value
         }
@@ -126,7 +126,7 @@ fun useCountdown(optionsOf: UseCountdownOptions.() -> Unit): CountdownHolder = u
 @Stable
 private fun calcLeft(target: Instant?): Duration {
     if (target == null) return Duration.ZERO
-    val left = target - currentTime
+    val left = target - currentInstant
     return if (left < Duration.ZERO) Duration.ZERO else left
 }
 

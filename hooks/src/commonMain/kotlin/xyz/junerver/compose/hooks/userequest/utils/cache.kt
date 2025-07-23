@@ -3,7 +3,7 @@ package xyz.junerver.compose.hooks.userequest.utils
 import kotlin.time.Instant
 import xyz.junerver.compose.hooks.cacheKey
 import xyz.junerver.compose.hooks.utils.CacheManager
-import xyz.junerver.compose.hooks.utils.currentTime
+import xyz.junerver.compose.hooks.utils.currentInstant
 
 /*
   Description:
@@ -16,7 +16,7 @@ data class CachedData<TData>(
     val data: TData,
     val params: Any? = null,
 ) {
-    val time: Instant = currentTime
+    val time: Instant = currentInstant
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
