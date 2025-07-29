@@ -226,3 +226,10 @@ operator fun <T> SetValueFn<SetterEither<T>>.invoke(rightValue: (T) -> T) = this
  * 退化函数调用，将`SetValueFn<SetterEither<T>>`转换为`SetValueFn<T>`，方便使用
  */
 fun <T> SetValueFn<SetterEither<T>>.left(): SetValueFn<T> = { leftValue -> this(leftValue.left()) }
+
+typealias Getter<T> = () -> T
+
+fun <T> toValue(getter: Getter<T>) = getter()
+fun <T> toValue(state: State<T>) = state.value
+fun <T> toValue(value: T) = value
+fun <T> toValue(ref: Ref<T>) = ref.current
