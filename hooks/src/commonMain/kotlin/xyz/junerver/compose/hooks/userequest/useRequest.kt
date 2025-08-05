@@ -38,63 +38,81 @@ typealias ComposablePluginGenFn<TParams, TData> = @Composable (UseRequestOptions
 */
 
 /**
- * Description: 一个用来管理网络状态的Hook，它可以非常方便的接入到传统的 retrofit 网络请求模式中。
- * 你几乎不需要做任何额外工作，就可以简单高效的在 Compose 中使用网络请求，并将请求数据作为状态，直接驱动UI。
+ * A hook for managing network request state that can be easily integrated with traditional Retrofit network request patterns.
+ * You need almost no additional work to use network requests simply and efficiently in Compose,
+ * and use request data as state to directly drive the UI.
  *
- * [SuspendNormalFunction]
- * 是所有函数的抽象，我们最终通过函数拿到的手动执行函数也是[SuspendNormalFunction]类型的，
- * 调用时要传递的是[arrayOf]的参数。
+ * [SuspendNormalFunction] is an abstraction of all functions. The manual execution function we finally get through the function
+ * is also of type [SuspendNormalFunction], and the parameters passed when calling are [arrayOf].
  *
- * 我还额外提供了两个方便的转换函数
- * [asNoopFn]、[asSuspendNoopFn]，这两个函数可以把任意的Kotlin函数转换成[useRequest]需要的函数。
- * 需要注意区分，如果是挂起函数就需要调用[asSuspendNoopFn]，否则就使用
- * [asNoopFn]，通过这个函数我们可以简化普通函数到[SuspendNormalFunction]的包装过程。
+ * Two convenient conversion functions [asNoopFn] and [asSuspendNoopFn] are also provided,
+ * which can convert any Kotlin function to the function required by [useRequest].
+ * Note the distinction: if it is a suspend function, you need to call [asSuspendNoopFn], otherwise use [asNoopFn].
+ * Through this function, we can simplify the wrapping process from ordinary functions to [SuspendNormalFunction].
  *
- * 示例代码：
+ * Example usage:
  *
  * ```kotlin
- * @Parcelize
- * data class Resp<T : Parcelable?>(
- *     val message: String,
- *     val status: Int,
- *     val data: T?
- * ) : Parcelable
+ * // Auto request with default parameters
+ * val (userInfo, loading, error) = useRequest(
+ *     requestFn = { NetApi.userInfo(it) },
+ *     optionsOf = {
+ *         defaultParams = "junerver" // Auto requests must set default parameters
+ *     }
+ * )
  *
- * @Parcelize
- * data class LoginSucc(
- *     val expire: String,
- *     val token: String
- * ) : Parcelable
+ * // Manual request
+ * val (repoInfo, loading, error, request) = useRequest(
+ *     requestFn = { params: Tuple2<String, String> ->
+ *         NetApi.repoInfo(params.first, params.second)
+ *     },
+ *     optionsOf = {
+ *         manual = true
+ *         defaultParams = tuple("junerver", "ComposeHooks")
+ *     }
+ * )
  *
- * interface WebService {
- *     //登录
- *     @Headers("Content-Type:application/json;charset=UTF-8")
- *     @POST("api/cas/login/restful")
- *     suspend fun login(@Body body: RequestBody): Resp<LoginSucc>
- * }
- *
- * // 自定义一个传递Retrofit接口实例的扩展函数，省去调用 `asSuspendNoopFn` 每次都要传递实例的步骤
- * fun <T : Any> KFunction<T?>.asRequestFn()
- *      = this.asSuspendNoopFn(NetFetchManager.INSTANCE)
- *
- * // 现在你可以放心的使用状态了，通过解构赋值拿到的 data 可以直接应用在 Compose UI 中
- * val (data, loading, err, run) = useRequest(
- *      WebService::login.asRequestFn(),
- *      optionsOf {defaultParams = arrayOf(bodyreq)}
- *   )
+ * // Using asSuspendNoopFn for direct function reference
+ * val (userInfo, loading, error) = useRequest(
+ *     requestFn = NetApi::userInfo.asSuspendNoopFn(),
+ *     optionsOf = {
+ *         defaultParams = tuple("junerver")
+ *     }
+ * )
  * ```
  *
- * 是的，它可以简单到只有一行代码，通过[UseRequestOptions]选项配置，你可以设置：手动请求、Ready、错误重试、
- * 生命周期回调、轮询、防抖、节流、依赖刷新等待功能。
+ * Through [UseRequestOptions] configuration, you can set: manual request, ready state, error retry,
+ * lifecycle callbacks, polling, debounce, throttle, dependency refresh and other functions.
  *
- * Tips: 强烈建议开启Android Studio中类型镶嵌提示，位于：Editor - Inlay Hints - Types -
- * Kotlin，它可以 更高效的提示我们解构赋值后拿到的相关状态、函数的类型。
+ * Tips: It is strongly recommended to enable type inlay hints in Android Studio, located at:
+ * Editor - Inlay Hints - Types - Kotlin, which can more efficiently prompt us about the types of
+ * related states and functions obtained after destructuring assignment.
  *
- * @param requestFn 经过抽象后的请求函数：suspend (TParams) ->
- *    TData，如果你不喜欢使用[asSuspendNoopFn]，也可以使用匿名 [suspend]闭包。
- * @param options
- *    请求的配置项，参考[RequestOptions]，以及[ahooks-useRequest](https://ahooks.gitee.io/zh-CN/hooks/use-request/index).
- * @param plugins 自定义的插件，这是一个数组，请通过arrayOf传入
+ * @param requestFn The abstracted request function: suspend (TParams) -> TData.
+ *   If you don't like using [asSuspendNoopFn], you can also use anonymous [suspend] closures.
+ * @param optionsOf Configuration factory function for request options, see [UseRequestOptions]
+ * @param plugins Custom plugins array, pass through arrayOf
+ * @return [RequestHolder] containing data state, loading state, error state, and control functions
+ */
+@Composable
+fun <TParams, TData : Any> useRequest(
+    requestFn: SuspendNormalFunction<TParams, TData>,
+    optionsOf: UseRequestOptions<TParams, TData>.() -> Unit = {},
+    plugins: Array<ComposablePluginGenFn<TParams, TData>> = emptyArray(),
+): RequestHolder<TParams, TData> = useRequestPrivate(
+    requestFn,
+    useDynamicOptions(optionsOf),
+    plugins,
+)
+
+/**
+ * Internal implementation of useRequest hook with full plugin support.
+ * This function handles the core logic of request management including plugin initialization,
+ * state management, and request execution.
+ *
+ * @param requestFn The abstracted request function: suspend (TParams) -> TData
+ * @param options Request configuration options, see [UseRequestOptions]
+ * @param plugins Custom plugins array, pass through arrayOf
  */
 @Composable
 private fun <TParams, TData : Any> useRequestPrivate(
@@ -146,20 +164,15 @@ private fun <TParams, TData : Any> useRequestPrivate(
 }
 
 /**
- * 性能优化版本，[optionsOf] 是一个普通的内联函数，他会在每次组件重组时调用，这回带来一些性能上的损耗，我们可以简单呢的通过 [remember]，进行优化。
- * 在未来版本将会把原始的直接传递对象这类api转变为私有，只允许通过闭包方式使用。
+ * Internal implementation function that creates and configures the Fetch instance with plugins.
+ * This function handles the low-level details of state management, plugin initialization,
+ * and coroutine scope management for the request lifecycle.
+ *
+ * @param requestFn The request function to be executed
+ * @param options Configuration options for the request behavior
+ * @param plugins Array of plugins to be applied to the request
+ * @return Configured Fetch instance ready for use
  */
-@Composable
-fun <TParams, TData : Any> useRequest(
-    requestFn: SuspendNormalFunction<TParams, TData>,
-    optionsOf: UseRequestOptions<TParams, TData>.() -> Unit = {},
-    plugins: Array<ComposablePluginGenFn<TParams, TData>> = emptyArray(),
-): RequestHolder<TParams, TData> = useRequestPrivate(
-    requestFn,
-    useDynamicOptions(optionsOf),
-    plugins,
-)
-
 @Composable
 private fun <TParams, TData : Any> useRequestPluginsImpl(
     requestFn: SuspendNormalFunction<TParams, TData>,
@@ -196,6 +209,21 @@ private fun <TParams, TData : Any> useRequestPluginsImpl(
     return fetch
 }
 
+/**
+ * Holder class that encapsulates all the state and control functions returned by useRequest hook.
+ * This class provides a structured way to access request data, loading state, error state,
+ * and various control functions for managing the request lifecycle.
+ *
+ * @param TParams The type of parameters passed to the request function
+ * @param TData The type of data returned by the request function
+ * @property data State containing the response data, null if no data has been loaded yet
+ * @property isLoading State indicating whether a request is currently in progress
+ * @property error State containing any error that occurred during the request, null if no error
+ * @property request Function to manually trigger a request with optional parameters
+ * @property mutate Function to manually update the data state without making a request
+ * @property refresh Function to refresh the request using the last used parameters
+ * @property cancel Function to cancel any ongoing request
+ */
 @Stable
 data class RequestHolder<TParams, TData>(
     val data: State<TData?>,
