@@ -6,6 +6,7 @@ import androidx.compose.runtime.Stable
 import kotlin.reflect.KProperty
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
+import xyz.junerver.compose.hooks.None
 import xyz.junerver.compose.hooks.UseDebounceOptions
 import xyz.junerver.compose.hooks.UseThrottleOptions
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
@@ -251,5 +252,16 @@ private class ThrottleOptionsDelegate(
     ) {
         this.configure = function
         useRequestOptions.throttleOptions = UseThrottleOptions.optionOf(function)
+    }
+}
+
+/**
+ * A shortcut configuration function for option lambda functions without parameters.
+ * This function is used to specify that the option lambda function has no parameters by setting defaultParams to None.
+ */
+inline fun <TData : Any> noneParams(noinline optionsOf: UseRequestOptions<None, TData>.() -> Unit): UseRequestOptions<None, TData>.() -> Unit {
+    return {
+        optionsOf()
+        defaultParams = None
     }
 }
