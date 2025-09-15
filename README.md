@@ -13,6 +13,7 @@ English | [简体中文](https://github.com/junerver/ComposeHooks/blob/master/RE
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/junerver/ComposeHooks.svg)](http://isitmaintained.com/project/junerver/ComposeHooks "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/junerver/ComposeHooks.svg)](http://isitmaintained.com/project/junerver/ComposeHooks "Percentage of issues still open")
 [![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/junerver/ComposeHooks)
+[![klibs.io](https://img.shields.io/badge/KLIBS_IO-blueviolet?logo=kotlin&logoColor=white)](https://klibs.io/project/junerver/ComposeHooks)
 
 ## Star History
 
