@@ -11,7 +11,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.Tuple2
-import xyz.junerver.compose.hooks.cacheKey
+import xyz.junerver.compose.hooks.internal.cacheKey
 import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 

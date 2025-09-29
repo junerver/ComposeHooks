@@ -9,7 +9,7 @@ import kotlin.reflect.KClass
 import xyz.junerver.compose.hooks.Ref
 import xyz.junerver.compose.hooks._useState
 import xyz.junerver.compose.hooks.createContext
-import xyz.junerver.compose.hooks.genFormFieldKey
+import xyz.junerver.compose.hooks.internal.genFormFieldKey
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect

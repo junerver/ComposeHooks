@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks._useState
-import xyz.junerver.compose.hooks.genFormFieldKey
+import xyz.junerver.compose.hooks.internal.genFormFieldKey
 import xyz.junerver.compose.hooks.useContext
 import xyz.junerver.compose.hooks.useEventSubscribe
 

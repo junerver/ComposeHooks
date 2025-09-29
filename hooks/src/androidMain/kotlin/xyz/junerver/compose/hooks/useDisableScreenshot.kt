@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks
 
 import android.view.WindowManager
 import androidx.compose.runtime.Composable
+import xyz.junerver.compose.hooks.internal.KEY_PREFIX
 
 /*
   Description: Disable screenshots for privacy page

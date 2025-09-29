@@ -1,4 +1,4 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.internal
 
 import xyz.junerver.compose.hooks.useform.FormInstance
 

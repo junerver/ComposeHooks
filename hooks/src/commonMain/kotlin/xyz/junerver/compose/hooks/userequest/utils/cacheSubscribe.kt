@@ -1,6 +1,6 @@
 package xyz.junerver.compose.hooks.userequest.utils
 
-import xyz.junerver.compose.hooks.cacheKey
+import xyz.junerver.compose.hooks.internal.cacheKey
 import xyz.junerver.compose.hooks.utils.HooksEventManager
 
 /*

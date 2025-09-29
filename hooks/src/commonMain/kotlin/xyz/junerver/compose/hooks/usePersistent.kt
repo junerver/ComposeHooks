@@ -5,6 +5,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import kotlin.reflect.KProperty
+import xyz.junerver.compose.hooks.internal.persistentKey
 import xyz.junerver.compose.hooks.utils.CacheManager
 import xyz.junerver.compose.hooks.utils.HooksEventManager
 
