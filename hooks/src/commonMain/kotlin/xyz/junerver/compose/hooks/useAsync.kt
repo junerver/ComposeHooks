@@ -97,12 +97,15 @@ fun useCancelableAsync(): CancelableAsyncHolder {
 
     val asyncRun = { fn: SuspendAsyncFn ->
         job?.cancel()
-        scope.launch {
+        job = scope.launch {
             setIsActive(true)
-            fn()
-            setIsActive(false)
-        }.also { job = it }
-        Unit
+            try {
+                fn()
+            } finally {
+                setIsActive(false)
+                job = null
+            }
+        }
     }
     val cancel = {
         job?.cancel()

@@ -122,55 +122,65 @@ fun <S : Any, E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>
     val (currentState, setState) = useGetState(machineGraph.current.initialState)
     val (undoState, setUndoState, resetUndoState, undo, _, canUndo, _) = useUndo(machineGraph.current.initialState)
 
-    // Function to check if a transition is possible for the given event
+    val (runAction, cancelAction, _) = useCancelableAsync()
+    val transitionVersionRef = useRef(0L)
+
     val canTransition = { event: E ->
         machineGraph.current.transitions.containsKey(currentState.value to event)
     }
 
-    // Get async runner from hook
-    val asyncRun = useAsync()
-
-    // Function to execute a state transition with the given event
-    val transition = { event: E ->
+    val transition = transition@{ event: E ->
         val current = currentState.value
         val nextState = machineGraph.current.transitions[current to event]
         val suspendAction = machineGraph.current.suspendActions[current to event]
 
-        // Execute suspend action if defined for this transition
-        if (suspendAction != null) {
-            asyncRun {
-                val result = suspendAction(contextState.value, event)
-                setContextState(result)
-            }
+        if (nextState == null && suspendAction == null) {
+            return@transition
         }
 
-        // Update state if transition is defined
+        cancelAction()
+        transitionVersionRef.current += 1
+        val transitionVersion = transitionVersionRef.current
+        val contextBefore = contextState.value
+
         if (nextState != null) {
             setState(nextState)
             setUndoState(nextState)
         }
+
+        if (suspendAction != null) {
+            runAction {
+                val newContext = suspendAction(contextBefore, event)
+                if (transitionVersionRef.current == transitionVersion) {
+                    setContextState(newContext)
+                }
+            }
+        }
     }
 
-    // Function to reset state machine to initial state
     val reset = {
-        setState(machineGraph.current.initialState)
-        resetUndoState(machineGraph.current.initialState)
+        cancelAction()
+        transitionVersionRef.current += 1
+        val graph = machineGraph.current
+        setState(graph.initialState)
+        resetUndoState(graph.initialState)
+        setContextState(graph.context)
     }
 
-    // Function to go back to previous state
-    val goBack = {
+    val goBack = goBack@{
+        if (!canUndo.value) return@goBack
+        cancelAction()
+        transitionVersionRef.current += 1
         undo()
         setState(undoState.value.present)
     }
 
-    // Function to get available events for current state
     val getAvailableEvents = {
         machineGraph.current.transitions.keys
             .filter { it.first == currentState.value }
             .map { it.second }
     }
 
-    // Create state for history tracking
     val history = useState {
         undoState.value.past.add(undoState.value.present)
     }
