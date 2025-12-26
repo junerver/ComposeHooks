@@ -24,6 +24,7 @@ enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 rootProject.name = "ComposeHooks"
 include(":app")
 include(":hooks")
+include(":ai")
 
 plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"

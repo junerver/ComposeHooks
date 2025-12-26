@@ -81,6 +81,7 @@ kotlin {
             implementation(libs.navigation.compose)
 
             implementation(projects.hooks)
+            implementation(projects.ai)
             implementation(libs.kotlinx.collections.immutable)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.ktor.client.core)
