@@ -150,6 +150,48 @@ Note: All `use` functions also have the signature of `remember`. If you prefer C
 
 > Functions marked with `*` can only be used on Android
 
+### AI Module
+
+A separate AI module providing hooks for AI chat completions with OpenAI-compatible APIs.
+
+**Add AI module dependency:**
+```kotlin
+implementation("xyz.junerver.compose:hooks2-ai:<latest_release>")
+```
+
+| hook name | description |
+| --------- | ----------- |
+| [useChat](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseChatExample.kt) | A hook for managing chat conversations with OpenAI-compatible APIs, supporting streaming responses with typewriter effect. |
+
+**Features:**
+- Streaming responses (SSE) with real-time typewriter effect
+- Message state management
+- Loading and error states
+- Control functions (send, stop, reload)
+- Configurable options (temperature, maxTokens, timeout, etc.)
+- Lifecycle callbacks (onFinish, onError, onStream)
+
+**Example:**
+```kotlin
+val (messages, isLoading, error, sendMessage, _, _, reload, stop) = useChat {
+    baseUrl = "https://api.openai.com/v1"
+    apiKey = "your-api-key"
+    model = "gpt-3.5-turbo"
+    systemPrompt = "You are a helpful assistant."
+    onFinish = { message, usage, reason ->
+        println("Completed: ${message.content}")
+    }
+}
+
+// Send a message
+sendMessage("Hello!")
+
+// Display messages with streaming effect
+messages.value.forEach { message ->
+    Text("${message.role}: ${message.content}")
+}
+```
+
 ## Add to dependencies
 
 **KMP project**

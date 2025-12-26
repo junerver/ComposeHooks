@@ -157,6 +157,48 @@ implementation("xyz.junerver.compose:hooks2:<latest_release>")
 
 > 注意，标记 `*` 的函数，只可以在 Android 中使用
 
+### AI 模块
+
+独立的 AI 模块，提供与 OpenAI 兼容 API 进行 AI 聊天的 Hook。
+
+**添加 AI 模块依赖：**
+```kotlin
+implementation("xyz.junerver.compose:hooks2-ai:<latest_release>")
+```
+
+| Hook 名称 | 描述 |
+| --------- | ---- |
+| [useChat](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseChatExample.kt) | 用于管理与 OpenAI 兼容 API 聊天对话的 Hook，支持流式响应的打字机效果。 |
+
+**功能特性：**
+- 流式响应 (SSE)，实时打字机效果
+- 消息状态管理
+- 加载和错误状态
+- 控制函数（发送、停止、重新加载）
+- 可配置选项（temperature、maxTokens、timeout 等）
+- 生命周期回调（onFinish、onError、onStream）
+
+**示例：**
+```kotlin
+val (messages, isLoading, error, sendMessage, _, _, reload, stop) = useChat {
+    baseUrl = "https://api.openai.com/v1"
+    apiKey = "your-api-key"
+    model = "gpt-3.5-turbo"
+    systemPrompt = "You are a helpful assistant."
+    onFinish = { message, usage, reason ->
+        println("完成: ${message.content}")
+    }
+}
+
+// 发送消息
+sendMessage("你好！")
+
+// 显示消息（带流式效果）
+messages.value.forEach { message ->
+    Text("${message.role}: ${message.content}")
+}
+```
+
 ## 添加依赖
 
 **KMP项目**
