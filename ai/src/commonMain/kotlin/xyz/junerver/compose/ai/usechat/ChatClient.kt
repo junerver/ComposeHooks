@@ -10,6 +10,7 @@ import io.ktor.client.plugins.logging.SIMPLE
 import io.ktor.client.plugins.timeout
 import io.ktor.client.request.header
 import io.ktor.client.request.post
+import io.ktor.client.request.preparePost
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.HttpResponse
 import io.ktor.client.statement.bodyAsChannel
@@ -91,7 +92,7 @@ internal class ChatClient(private val options: ChatOptions) {
                 maxTokens = options.maxTokens,
             )
 
-            val response: HttpResponse = httpClient.post(options.buildEndpoint()) {
+            httpClient.preparePost(options.buildEndpoint()) {
                 // SSE streams need longer/no timeout
                 timeout {
                     requestTimeoutMillis = Long.MAX_VALUE
@@ -106,64 +107,64 @@ internal class ChatClient(private val options: ChatOptions) {
                     header(key, value)
                 }
                 setBody(requestBody)
-            }
+            }.execute { response ->
+                options.onResponse?.invoke(response)
 
-            options.onResponse?.invoke(response)
-
-            if (!response.status.isSuccess()) {
-                val errorBody = response.bodyAsChannel().readUTF8Line() ?: "Unknown error"
-                try {
-                    val errorResponse = json.decodeFromString<OpenAIErrorResponse>(errorBody)
-                    emit(
-                        StreamEvent.Error(
-                            OpenAIException(
-                                errorMessage = errorResponse.error.message,
-                                errorType = errorResponse.error.type,
-                                errorCode = errorResponse.error.code,
-                            )
-                        )
-                    )
-                } catch (e: Exception) {
-                    emit(StreamEvent.Error(Exception("HTTP ${response.status.value}: $errorBody")))
-                }
-                return@flow
-            }
-
-            val channel = response.bodyAsChannel()
-            while (!channel.isClosedForRead) {
-                val line = channel.readUTF8Line() ?: continue
-
-                if (line.isBlank()) continue
-
-                if (!line.startsWith("data: ")) continue
-
-                val data = line.removePrefix("data: ").trim()
-
-                if (data == "[DONE]") {
-                    emit(StreamEvent.Done)
-                    break
-                }
-
-                try {
-                    val chunk = json.decodeFromString<ChatCompletionChunk>(data)
-                    val choice = chunk.choices?.firstOrNull()
-                    val delta = choice?.delta
-                    val content = delta?.content ?: ""
-                    val role = delta?.role
-                    val finishReason = choice?.finishReason
-
-                    if (content.isNotEmpty() || role != null || finishReason != null) {
+                if (!response.status.isSuccess()) {
+                    val errorBody = response.bodyAsChannel().readUTF8Line() ?: "Unknown error"
+                    try {
+                        val errorResponse = json.decodeFromString<OpenAIErrorResponse>(errorBody)
                         emit(
-                            StreamEvent.Delta(
-                                content = content,
-                                role = role,
-                                finishReason = finishReason,
-                                usage = chunk.usage,
+                            StreamEvent.Error(
+                                OpenAIException(
+                                    errorMessage = errorResponse.error.message,
+                                    errorType = errorResponse.error.type,
+                                    errorCode = errorResponse.error.code,
+                                )
                             )
                         )
+                    } catch (e: Exception) {
+                        emit(StreamEvent.Error(Exception("HTTP ${response.status.value}: $errorBody")))
                     }
-                } catch (e: Exception) {
-                    // Skip malformed JSON chunks
+                    return@execute
+                }
+
+                val channel = response.bodyAsChannel()
+                while (!channel.isClosedForRead) {
+                    val line = channel.readUTF8Line() ?: continue
+
+                    if (line.isBlank()) continue
+
+                    if (!line.startsWith("data: ")) continue
+
+                    val data = line.removePrefix("data: ").trim()
+
+                    if (data == "[DONE]") {
+                        emit(StreamEvent.Done)
+                        break
+                    }
+
+                    try {
+                        val chunk = json.decodeFromString<ChatCompletionChunk>(data)
+                        val choice = chunk.choices?.firstOrNull()
+                        val delta = choice?.delta
+                        val content = delta?.content ?: ""
+                        val role = delta?.role
+                        val finishReason = choice?.finishReason
+
+                        if (content.isNotEmpty() || role != null || finishReason != null) {
+                            emit(
+                                StreamEvent.Delta(
+                                    content = content,
+                                    role = role,
+                                    finishReason = finishReason,
+                                    usage = chunk.usage,
+                                )
+                            )
+                        }
+                    } catch (e: Exception) {
+                        // Skip malformed JSON chunks
+                    }
                 }
             }
         } catch (e: Exception) {

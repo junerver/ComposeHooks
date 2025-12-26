@@ -9,8 +9,8 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.withContext
 import xyz.junerver.compose.hooks.MutableRef
 import xyz.junerver.compose.hooks._useGetState
 import xyz.junerver.compose.hooks.useCancelableAsync
@@ -180,16 +180,18 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                         lastUsage = event.usage
                                     }
 
-                                    // Update assistant message with accumulated content
+                                    // Update assistant message with accumulated content on Main thread
                                     val updatedMessage = currentAssistantMessageRef.current?.copy(
                                         content = accumulatedContent
                                     )
                                     if (updatedMessage != null) {
                                         currentAssistantMessageRef.current = updatedMessage
-                                        val msgs = getMessages().toMutableList()
-                                        if (msgs.isNotEmpty()) {
-                                            msgs[msgs.lastIndex] = updatedMessage
-                                            setMessages(msgs.toImmutableList())
+                                        withContext(Dispatchers.Main) {
+                                            val msgs = getMessages().toMutableList()
+                                            if (msgs.isNotEmpty()) {
+                                                msgs[msgs.lastIndex] = updatedMessage
+                                                setMessages(msgs.toImmutableList())
+                                            }
                                         }
                                     }
                                 }
@@ -206,18 +208,23 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                 }
 
                                 is StreamEvent.Error -> {
-                                    setError(event.error)
+                                    withContext(Dispatchers.Main) {
+                                        setError(event.error)
+                                    }
                                     optionsRef.current.onError?.invoke(event.error)
                                 }
                             }
                         }
-                        ?.flowOn(Dispatchers.Main)
                         ?.collect()
                 } catch (e: Exception) {
-                    setError(e)
+                    withContext(Dispatchers.Main) {
+                        setError(e)
+                    }
                     optionsRef.current.onError?.invoke(e)
                 } finally {
-                    setIsLoading(false)
+                    withContext(Dispatchers.Main) {
+                        setIsLoading(false)
+                    }
                     currentAssistantMessageRef.current = null
                 }
             }
