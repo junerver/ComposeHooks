@@ -36,6 +36,7 @@ import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.ai.usechat.Message
 import xyz.junerver.compose.ai.usechat.Role
 import xyz.junerver.compose.ai.usechat.useChat
+import xyz.junerver.compose.hooks.useState
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -49,9 +50,9 @@ import xyz.junerver.composehooks.ui.component.TButton
 @Composable
 fun UseChatExample() {
     // Configure your API settings here
-    var apiKey by remember { mutableStateOf("") }
-    var baseUrl by remember { mutableStateOf("https://api.openai.com/v1") }
-    var model by remember { mutableStateOf("gpt-3.5-turbo") }
+    var apiKey by useState("")
+    var baseUrl by useState("https://api.openai.com/v1")
+    var model by useState("gpt-5-nano")
 
     val (messages, isLoading, error, sendMessage, _, _, reload, stop) = useChat {
         this.baseUrl = baseUrl
@@ -82,7 +83,7 @@ fun UseChatExample() {
             // Configuration Section
             Text(
                 text = "useChat Example",
-                style = MaterialTheme.typography.headlineSmall
+                style = MaterialTheme.typography.headlineSmall,
             )
             Spacer(modifier = Modifier.height(8.dp))
 
@@ -92,7 +93,7 @@ fun UseChatExample() {
                 onValueChange = { apiKey = it },
                 label = { Text("API Key") },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
             )
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -102,7 +103,7 @@ fun UseChatExample() {
                     onValueChange = { baseUrl = it },
                     label = { Text("Base URL") },
                     modifier = Modifier.weight(1f),
-                    singleLine = true
+                    singleLine = true,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 OutlinedTextField(
@@ -110,7 +111,7 @@ fun UseChatExample() {
                     onValueChange = { model = it },
                     label = { Text("Model") },
                     modifier = Modifier.weight(0.5f),
-                    singleLine = true
+                    singleLine = true,
                 )
             }
 
@@ -120,14 +121,14 @@ fun UseChatExample() {
             error.value?.let { err ->
                 Card(
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.errorContainer
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
                     ),
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(
                         text = "Error: ${err.message}",
                         color = MaterialTheme.colorScheme.onErrorContainer,
-                        modifier = Modifier.padding(8.dp)
+                        modifier = Modifier.padding(8.dp),
                     )
                 }
                 Spacer(modifier = Modifier.height(8.dp))
@@ -139,7 +140,7 @@ fun UseChatExample() {
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 items(messages.value.filter { it.role != Role.System }) { message ->
                     MessageBubble(message = message)
@@ -150,16 +151,16 @@ fun UseChatExample() {
                     item {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.Start
+                            horizontalArrangement = Arrangement.Start,
                         ) {
                             CircularProgressIndicator(
                                 modifier = Modifier.padding(8.dp),
-                                strokeWidth = 2.dp
+                                strokeWidth = 2.dp,
                             )
                             Text(
                                 text = "Thinking...",
                                 modifier = Modifier.padding(8.dp),
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
@@ -171,7 +172,7 @@ fun UseChatExample() {
             // Input Section
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 OutlinedTextField(
                     value = inputText,
@@ -186,14 +187,14 @@ fun UseChatExample() {
                                 sendMessage(inputText)
                                 inputText = ""
                             }
-                        }
-                    )
+                        },
+                    ),
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Column {
                     TButton(
                         text = if (isLoading.value) "Stop" else "Send",
-                        enabled = apiKey.isNotBlank() && (isLoading.value || inputText.isNotBlank())
+                        enabled = apiKey.isNotBlank() && (isLoading.value || inputText.isNotBlank()),
                     ) {
                         if (isLoading.value) {
                             stop()
@@ -204,7 +205,7 @@ fun UseChatExample() {
                     }
                     TButton(
                         text = "Reload",
-                        enabled = !isLoading.value && messages.value.any { it.role == Role.Assistant }
+                        enabled = !isLoading.value && messages.value.any { it.role == Role.Assistant },
                     ) {
                         reload()
                     }
@@ -230,7 +231,7 @@ private fun MessageBubble(message: Message) {
 
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
+        horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start,
     ) {
         Card(
             colors = CardDefaults.cardColors(containerColor = backgroundColor),
@@ -238,20 +239,20 @@ private fun MessageBubble(message: Message) {
                 topStart = 16.dp,
                 topEnd = 16.dp,
                 bottomStart = if (isUser) 16.dp else 4.dp,
-                bottomEnd = if (isUser) 4.dp else 16.dp
+                bottomEnd = if (isUser) 4.dp else 16.dp,
             ),
-            modifier = Modifier.widthIn(max = 280.dp)
+            modifier = Modifier.widthIn(max = 280.dp),
         ) {
             Column(modifier = Modifier.padding(12.dp)) {
                 Text(
                     text = if (isUser) "You" else "Assistant",
                     style = MaterialTheme.typography.labelSmall,
-                    color = textColor.copy(alpha = 0.7f)
+                    color = textColor.copy(alpha = 0.7f),
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = message.content.ifEmpty { "..." },
-                    color = textColor
+                    color = textColor,
                 )
             }
         }
