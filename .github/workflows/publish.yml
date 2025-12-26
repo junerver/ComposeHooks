@@ -43,4 +43,6 @@ jobs:
                   key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle.kts') }}
 
             - name: Publish to MavenCentral
-              run: ./gradlew :hooks:publishAllPublicationsToMavenCentralRepository
+              run: |
+                  ./gradlew :hooks:publishAllPublicationsToMavenCentralRepository
+                  ./gradlew :ai:publishAllPublicationsToMavenCentralRepository
