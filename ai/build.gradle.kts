@@ -2,12 +2,12 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.mavenPublish)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.maven.publish)
 }
 
 kotlin {

@@ -5,11 +5,11 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.androidLibrary)
-    alias(libs.plugins.mavenPublish)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.maven.publish)
 //    alias(libs.plugins.dokka)
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.compose.compiler)
 }
 
@@ -51,7 +51,7 @@ kotlin {
             //api(compose.material)
             //api(compose.components.resources)
             //api(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.runtime.compose)
+            implementation(libs.compose.lifecycle.runtime.compose)
 
             implementation(project.dependencies.platform(libs.kotlin.bom))
             api(libs.kotlin.stdlib)

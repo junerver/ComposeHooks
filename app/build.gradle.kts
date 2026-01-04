@@ -3,12 +3,12 @@ import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidApplication)
-    alias(libs.plugins.jetbrainsCompose)
+    alias(libs.plugins.kotlin.multiplatform)
+    alias(libs.plugins.android.application)
+    alias(libs.plugins.jetbrains.compose)
     alias(libs.plugins.compose.compiler)
-    alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.composeHotReload)
+    alias(libs.plugins.kotlin.serialization)
+    alias(libs.plugins.compose.hot.reload)
 }
 
 kotlin {
@@ -75,10 +75,10 @@ kotlin {
             implementation(compose.components.uiToolingPreview)
             implementation(libs.material.icons.core)
             implementation(libs.material.icons.extended)
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.runtime.compose)
+            implementation(libs.compose.lifecycle.viewmodel)
+            implementation(libs.compose.lifecycle.runtime.compose)
 
-            implementation(libs.navigation.compose)
+            implementation(libs.compose.navigation.compose)
 
             implementation(projects.hooks)
             implementation(projects.ai)

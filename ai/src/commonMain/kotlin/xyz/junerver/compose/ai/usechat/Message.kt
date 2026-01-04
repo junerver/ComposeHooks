@@ -1,6 +1,8 @@
 package xyz.junerver.compose.ai.usechat
 
 import androidx.compose.runtime.Immutable
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -11,6 +13,9 @@ import kotlinx.serialization.Serializable
   Email: junerver@gmail.com
   Version: v2.0
 */
+
+@OptIn(ExperimentalTime::class)
+internal fun currentTimeMillis() = Clock.System.now().toEpochMilliseconds()
 
 /**
  * Represents the role of a message sender in a chat conversation.
@@ -55,12 +60,12 @@ data class Message(
     val id: String = generateId(),
     val role: Role,
     val content: String,
-    val createdAt: Long = System.currentTimeMillis(),
+    val createdAt: Long = currentTimeMillis(),
 ) {
     companion object {
         private var counter = 0L
 
-        private fun generateId(): String = "msg_${System.currentTimeMillis()}_${counter++}"
+        private fun generateId(): String = "msg_${currentTimeMillis()}_${counter++}"
 
         fun user(content: String, id: String = generateId()) = Message(id = id, role = Role.User, content = content)
 
