@@ -11,7 +11,7 @@ import xyz.junerver.compose.hooks.Options
   Author: Junerver
   Date: 2024
   Email: junerver@gmail.com
-  Version: v1.0
+  Version: v2.0
 */
 
 /**
@@ -25,9 +25,8 @@ typealias OnStreamCallback = (delta: String) -> Unit
 /**
  * Configuration options for the useChat hook.
  *
- * @property baseUrl The base URL of the OpenAI-compatible API endpoint
- * @property apiKey The API key for authentication
- * @property model The model to use for chat completions
+ * @property provider The chat provider to use (includes apiKey, baseUrl, model)
+ * @property model Override the provider's default model (null = use provider default)
  * @property systemPrompt Optional system prompt to prepend to conversations
  * @property initialMessages Initial messages to populate the chat
  * @property temperature Sampling temperature (0-2), higher values make output more random
@@ -42,9 +41,8 @@ typealias OnStreamCallback = (delta: String) -> Unit
  */
 @Stable
 data class ChatOptions internal constructor(
-    var baseUrl: String = "https://api.openai.com/v1",
-    var apiKey: String = "",
-    var model: String = "gpt-3.5-turbo",
+    var provider: ChatProvider = Providers.OpenAI(apiKey = ""),
+    var model: String? = null,
     var systemPrompt: String? = null,
     var initialMessages: List<Message> = emptyList(),
     var temperature: Float? = null,
@@ -61,10 +59,33 @@ data class ChatOptions internal constructor(
     companion object : Options<ChatOptions>(::ChatOptions)
 
     /**
+     * The effective model (override or provider default).
+     */
+    val effectiveModel: String
+        get() = model ?: provider.defaultModel
+
+    /**
      * Builds the full API endpoint URL for chat completions.
      */
     internal fun buildEndpoint(): String {
-        val base = baseUrl.trimEnd('/')
-        return "$base/chat/completions"
+        val base = provider.baseUrl.trimEnd('/')
+        return "$base${provider.chatEndpoint}"
     }
+
+    /**
+     * Builds authentication headers using the provider.
+     */
+    internal fun buildAuthHeaders(): Map<String, String> = provider.buildAuthHeaders()
+
+    /**
+     * Builds the request body using the provider.
+     */
+    internal fun buildRequestBody(messages: List<Message>, stream: Boolean): String = provider.buildRequestBody(
+        messages = messages,
+        model = effectiveModel,
+        stream = stream,
+        temperature = temperature,
+        maxTokens = maxTokens,
+        systemPrompt = systemPrompt,
+    )
 }

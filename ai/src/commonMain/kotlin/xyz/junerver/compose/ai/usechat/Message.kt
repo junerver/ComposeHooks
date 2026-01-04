@@ -9,7 +9,7 @@ import kotlinx.serialization.Serializable
   Author: Junerver
   Date: 2024
   Email: junerver@gmail.com
-  Version: v1.0
+  Version: v2.0
 */
 
 /**
@@ -63,7 +63,9 @@ data class Message(
         private fun generateId(): String = "msg_${System.currentTimeMillis()}_${counter++}"
 
         fun user(content: String, id: String = generateId()) = Message(id = id, role = Role.User, content = content)
+
         fun assistant(content: String, id: String = generateId()) = Message(id = id, role = Role.Assistant, content = content)
+
         fun system(content: String, id: String = generateId()) = Message(id = id, role = Role.System, content = content)
     }
 }

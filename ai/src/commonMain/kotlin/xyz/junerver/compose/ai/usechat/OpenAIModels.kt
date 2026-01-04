@@ -8,7 +8,7 @@ import kotlinx.serialization.Serializable
   Author: Junerver
   Date: 2024
   Email: junerver@gmail.com
-  Version: v1.0
+  Version: v2.0
 */
 
 // region Request Models

@@ -27,17 +27,17 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
 
 /*
-  Description: Ktor-based HTTP client for OpenAI chat completions
+  Description: Ktor-based HTTP client for multi-provider chat completions
   Author: Junerver
   Date: 2024
   Email: junerver@gmail.com
-  Version: v1.0
+  Version: v2.0
 */
 
 /**
  * Represents a streaming event from the chat API.
  */
-internal sealed class StreamEvent {
+sealed class StreamEvent {
     data class Delta(
         val content: String,
         val role: String? = null,
@@ -51,10 +51,11 @@ internal sealed class StreamEvent {
 }
 
 /**
- * HTTP client for interacting with OpenAI-compatible chat APIs.
+ * HTTP client for interacting with chat APIs.
+ *
+ * Supports multiple providers through the [ChatProvider] abstraction.
  */
 internal class ChatClient(private val options: ChatOptions) {
-
     private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
@@ -84,13 +85,7 @@ internal class ChatClient(private val options: ChatOptions) {
      */
     suspend fun streamChat(messages: List<Message>): Flow<StreamEvent> = flow {
         try {
-            val requestBody = ChatCompletionRequest(
-                model = options.model,
-                messages = messages.toRequestMessages(),
-                stream = true,
-                temperature = options.temperature,
-                maxTokens = options.maxTokens,
-            )
+            val requestBody = options.buildRequestBody(messages, stream = true)
 
             httpClient.preparePost(options.buildEndpoint()) {
                 // SSE streams need longer/no timeout
@@ -99,7 +94,10 @@ internal class ChatClient(private val options: ChatOptions) {
                     socketTimeoutMillis = Long.MAX_VALUE
                 }
                 contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
-                header(HttpHeaders.Authorization, "Bearer ${options.apiKey}")
+                // Use provider-specific auth headers
+                options.buildAuthHeaders().forEach { (key, value) ->
+                    header(key, value)
+                }
                 header(HttpHeaders.Accept, "text/event-stream")
                 header(HttpHeaders.CacheControl, "no-cache")
                 header(HttpHeaders.Connection, "keep-alive")
@@ -120,8 +118,8 @@ internal class ChatClient(private val options: ChatOptions) {
                                     errorMessage = errorResponse.error.message,
                                     errorType = errorResponse.error.type,
                                     errorCode = errorResponse.error.code,
-                                )
-                            )
+                                ),
+                            ),
                         )
                     } catch (e: Exception) {
                         emit(StreamEvent.Error(Exception("HTTP ${response.status.value}: $errorBody")))
@@ -133,37 +131,11 @@ internal class ChatClient(private val options: ChatOptions) {
                 while (!channel.isClosedForRead) {
                     val line = channel.readUTF8Line() ?: continue
 
-                    if (line.isBlank()) continue
-
-                    if (!line.startsWith("data: ")) continue
-
-                    val data = line.removePrefix("data: ").trim()
-
-                    if (data == "[DONE]") {
-                        emit(StreamEvent.Done)
-                        break
-                    }
-
-                    try {
-                        val chunk = json.decodeFromString<ChatCompletionChunk>(data)
-                        val choice = chunk.choices?.firstOrNull()
-                        val delta = choice?.delta
-                        val content = delta?.content ?: ""
-                        val role = delta?.role
-                        val finishReason = choice?.finishReason
-
-                        if (content.isNotEmpty() || role != null || finishReason != null) {
-                            emit(
-                                StreamEvent.Delta(
-                                    content = content,
-                                    role = role,
-                                    finishReason = finishReason,
-                                    usage = chunk.usage,
-                                )
-                            )
-                        }
-                    } catch (e: Exception) {
-                        // Skip malformed JSON chunks
+                    // Use provider-specific stream parsing
+                    val event = options.provider.parseStreamLine(line)
+                    if (event != null) {
+                        emit(event)
+                        if (event is StreamEvent.Done) break
                     }
                 }
             }
@@ -179,17 +151,14 @@ internal class ChatClient(private val options: ChatOptions) {
      * @return The complete assistant message
      */
     suspend fun chat(messages: List<Message>): Message {
-        val requestBody = ChatCompletionRequest(
-            model = options.model,
-            messages = messages.toRequestMessages(),
-            stream = false,
-            temperature = options.temperature,
-            maxTokens = options.maxTokens,
-        )
+        val requestBody = options.buildRequestBody(messages, stream = false)
 
         val response: HttpResponse = httpClient.post(options.buildEndpoint()) {
             contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
-            header(HttpHeaders.Authorization, "Bearer ${options.apiKey}")
+            // Use provider-specific auth headers
+            options.buildAuthHeaders().forEach { (key, value) ->
+                header(key, value)
+            }
             options.headers.forEach { (key, value) ->
                 header(key, value)
             }
@@ -215,11 +184,9 @@ internal class ChatClient(private val options: ChatOptions) {
         }
 
         val responseBody = response.bodyAsChannel().readUTF8Line() ?: throw Exception("Empty response")
-        val completionResponse = json.decodeFromString<ChatCompletionResponse>(responseBody)
-        val choice = completionResponse.choices.firstOrNull()
-            ?: throw Exception("No choices in response")
-
-        return Message.assistant(content = choice.message.content ?: "")
+        // Use provider-specific response parsing
+        val result = options.provider.parseResponse(responseBody)
+        return result.message
     }
 
     /**

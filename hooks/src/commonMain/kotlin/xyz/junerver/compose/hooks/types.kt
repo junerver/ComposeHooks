@@ -230,6 +230,9 @@ fun <T> SetValueFn<SetterEither<T>>.left(): SetValueFn<T> = { leftValue -> this(
 typealias Getter<T> = () -> T
 
 fun <T> toValue(getter: Getter<T>) = getter()
+
 fun <T> toValue(state: State<T>) = state.value
+
 fun <T> toValue(value: T) = value
+
 fun <T> toValue(ref: Ref<T>) = ref.current

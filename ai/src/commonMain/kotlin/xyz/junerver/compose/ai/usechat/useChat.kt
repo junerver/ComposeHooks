@@ -20,11 +20,11 @@ import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUnmount
 
 /*
-  Description: useChat hook for OpenAI-compatible chat completions
+  Description: useChat hook for multi-provider chat completions
   Author: Junerver
   Date: 2024
   Email: junerver@gmail.com
-  Version: v1.0
+  Version: v2.0
 
   Inspired by Vercel AI SDK useChat hook.
   See: https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat
@@ -68,9 +68,10 @@ data class ChatHolder(
 )
 
 /**
- * A Composable hook for managing chat conversations with OpenAI-compatible APIs.
+ * A Composable hook for managing chat conversations with multiple AI providers.
  *
  * This hook provides a complete solution for building chat interfaces with:
+ * - Multi-provider support (OpenAI, DeepSeek, Anthropic, etc.)
  * - Streaming responses support
  * - Message state management
  * - Loading and error states
@@ -79,9 +80,8 @@ data class ChatHolder(
  * Example usage:
  * ```kotlin
  * val (messages, isLoading, error, sendMessage, _, _, reload, stop) = useChat {
- *     baseUrl = "https://api.openai.com/v1"
- *     apiKey = "your-api-key"
- *     model = "gpt-3.5-turbo"
+ *     provider = Providers.DeepSeek(apiKey = "your-api-key")
+ *     model = "deepseek-chat" // optional, uses provider default if null
  *     systemPrompt = "You are a helpful assistant."
  *     onFinish = { message, usage, reason ->
  *         println("Finished: ${message.content}")
@@ -126,7 +126,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
     val (asyncRun, cancelAsync, _) = useCancelableAsync()
 
     // Initialize client
-    useEffect(options.baseUrl, options.apiKey, options.model, options.timeout) {
+    useEffect(options.provider, options.model, options.timeout) {
         clientRef.current?.close()
         clientRef.current = ChatClient(optionsRef.current)
     }
@@ -182,7 +182,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
 
                                     // Update assistant message with accumulated content on Main thread
                                     val updatedMessage = currentAssistantMessageRef.current?.copy(
-                                        content = accumulatedContent
+                                        content = accumulatedContent,
                                     )
                                     if (updatedMessage != null) {
                                         currentAssistantMessageRef.current = updatedMessage
@@ -202,7 +202,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                         optionsRef.current.onFinish?.invoke(
                                             finalMessage,
                                             lastUsage,
-                                            lastFinishReason
+                                            lastFinishReason,
                                         )
                                     }
                                 }
