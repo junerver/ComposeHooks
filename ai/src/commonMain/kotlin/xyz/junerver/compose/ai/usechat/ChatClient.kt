@@ -29,7 +29,7 @@ import kotlinx.serialization.json.Json
 /*
   Description: Ktor-based HTTP client for multi-provider chat completions
   Author: Junerver
-  Date: 2024
+  Date: 2026/01/05-11:06
   Email: junerver@gmail.com
   Version: v2.0
 */
@@ -60,6 +60,7 @@ internal class ChatClient(private val options: ChatOptions) {
         ignoreUnknownKeys = true
         isLenient = true
         encodeDefaults = true
+        explicitNulls = false
     }
 
     private val httpClient = HttpClient {
@@ -83,7 +84,7 @@ internal class ChatClient(private val options: ChatOptions) {
      * @param messages The list of messages to send
      * @return A Flow emitting StreamEvent objects
      */
-    suspend fun streamChat(messages: List<Message>): Flow<StreamEvent> = flow {
+    suspend fun streamChat(messages: List<ChatMessage>): Flow<StreamEvent> = flow {
         try {
             val requestBody = options.buildRequestBody(messages, stream = true)
 
@@ -150,7 +151,7 @@ internal class ChatClient(private val options: ChatOptions) {
      * @param messages The list of messages to send
      * @return The complete assistant message
      */
-    suspend fun chat(messages: List<Message>): Message {
+    suspend fun chat(messages: List<ChatMessage>): AssistantMessage {
         val requestBody = options.buildRequestBody(messages, stream = false)
 
         val response: HttpResponse = httpClient.post(options.buildEndpoint()) {

@@ -5,7 +5,7 @@ import kotlinx.serialization.json.Json
 /*
   Description: Chat provider abstraction for multi-vendor support
   Author: Junerver
-  Date: 2024
+  Date: 2026/01/05-11:06
   Email: junerver@gmail.com
   Version: v2.0
 */
@@ -56,7 +56,7 @@ interface ChatProvider {
      * @return Serialized JSON request body
      */
     fun buildRequestBody(
-        messages: List<Message>,
+        messages: List<ChatMessage>,
         model: String,
         stream: Boolean,
         temperature: Float?,
@@ -85,7 +85,7 @@ interface ChatProvider {
  * Result of parsing a chat response.
  */
 data class ChatResponseResult(
-    val message: Message,
+    val message: AssistantMessage,
     val usage: ChatUsage? = null,
     val finishReason: FinishReason? = null,
 )
@@ -112,6 +112,7 @@ sealed class Providers : ChatProvider {
             ignoreUnknownKeys = true
             isLenient = true
             encodeDefaults = true
+            explicitNulls = false
         }
     }
 
@@ -135,7 +136,7 @@ sealed class Providers : ChatProvider {
         }
 
         override fun buildRequestBody(
-            messages: List<Message>,
+            messages: List<ChatMessage>,
             model: String,
             stream: Boolean,
             temperature: Float?,
@@ -143,7 +144,7 @@ sealed class Providers : ChatProvider {
             systemPrompt: String?,
         ): String {
             val allMessages = buildList {
-                systemPrompt?.let { add(Message.system(it)) }
+                systemPrompt?.let { add(systemMessage(it)) }
                 addAll(messages)
             }
             val request = ChatCompletionRequest(
@@ -191,7 +192,7 @@ sealed class Providers : ChatProvider {
             val choice = response.choices.firstOrNull()
                 ?: throw Exception("No choices in response")
             return ChatResponseResult(
-                message = Message.assistant(content = choice.message.content ?: ""),
+                message = assistantMessage(text = choice.message.content ?: ""),
                 usage = response.usage,
                 finishReason = choice.finishReason?.let { FinishReason.fromString(it) },
             )
@@ -320,7 +321,7 @@ sealed class Providers : ChatProvider {
         )
 
         override fun buildRequestBody(
-            messages: List<Message>,
+            messages: List<ChatMessage>,
             model: String,
             stream: Boolean,
             temperature: Float?,
@@ -328,10 +329,10 @@ sealed class Providers : ChatProvider {
             systemPrompt: String?,
         ): String {
             // Anthropic: filter out system messages, they go in separate field
-            val userMessages = messages.filter { it.role != Role.System }
+            // Use toAnthropicMessages() for multimodal support
             val request = AnthropicRequest(
                 model = model,
-                messages = userMessages.map { AnthropicMessage(it.role.value, it.content) },
+                messages = messages.toAnthropicMessages(),
                 stream = stream,
                 system = systemPrompt,
                 temperature = temperature,
@@ -402,7 +403,7 @@ sealed class Providers : ChatProvider {
             val response = json.decodeFromString<AnthropicResponse>(body)
             val content = response.content.firstOrNull()?.text ?: ""
             return ChatResponseResult(
-                message = Message.assistant(content = content),
+                message = assistantMessage(text = content),
                 usage = ChatUsage(
                     promptTokens = response.usage.inputTokens,
                     completionTokens = response.usage.outputTokens,

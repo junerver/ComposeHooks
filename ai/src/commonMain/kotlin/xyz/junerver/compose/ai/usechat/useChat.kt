@@ -20,11 +20,11 @@ import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUnmount
 
 /*
-  Description: useChat hook for multi-provider chat completions
+  Description: useChat hook for multi-provider chat completions (multimodal support)
   Author: Junerver
-  Date: 2024
+  Date: 2026/01/05-11:06
   Email: junerver@gmail.com
-  Version: v2.0
+  Version: v3.0
 
   Inspired by Vercel AI SDK useChat hook.
   See: https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat
@@ -33,9 +33,9 @@ import xyz.junerver.compose.hooks.useUnmount
 /**
  * Function type definitions for chat operations.
  */
-typealias SendMessageFn = (content: String) -> Unit
-typealias SetMessagesFn = (messages: List<Message>) -> Unit
-typealias AppendMessageFn = (message: Message) -> Unit
+typealias SendMessageFn = (content: List<UserContentPart>) -> Unit
+typealias SetMessagesFn = (messages: List<ChatMessage>) -> Unit
+typealias AppendMessageFn = (message: ChatMessage) -> Unit
 typealias ReloadFn = () -> Unit
 typealias StopFn = () -> Unit
 
@@ -49,7 +49,7 @@ typealias StopFn = () -> Unit
  * @property messages The current list of messages in the conversation
  * @property isLoading Whether a request is currently in progress
  * @property error The most recent error, if any
- * @property sendMessage Function to send a new user message and trigger AI response
+ * @property sendMessage Function to send a new user message with multimodal content
  * @property setMessages Function to directly set the messages list
  * @property append Function to append a single message without triggering AI response
  * @property reload Function to regenerate the last AI response
@@ -57,7 +57,7 @@ typealias StopFn = () -> Unit
  */
 @Stable
 data class ChatHolder(
-    val messages: State<ImmutableList<Message>>,
+    val messages: State<ImmutableList<ChatMessage>>,
     val isLoading: State<Boolean>,
     val error: State<Throwable?>,
     val sendMessage: SendMessageFn,
@@ -68,10 +68,59 @@ data class ChatHolder(
 )
 
 /**
+ * Extension function to send a text-only message.
+ */
+fun ChatHolder.sendText(text: String) {
+    sendMessage(listOf(TextPart(text)))
+}
+
+/**
+ * Extension function to send a message with text and image.
+ */
+fun ChatHolder.sendWithImage(text: String, imageBase64: String, mimeType: String = "image/jpeg") {
+    sendMessage(
+        listOf(
+            TextPart(text),
+            ImagePart.fromBase64(imageBase64, mimeType),
+        ),
+    )
+}
+
+/**
+ * Extension function to send a message with text and image URL.
+ */
+fun ChatHolder.sendWithImageUrl(text: String, imageUrl: String) {
+    sendMessage(
+        listOf(
+            TextPart(text),
+            ImagePart.fromUrl(imageUrl),
+        ),
+    )
+}
+
+/**
+ * Extension function to send a message with text and file.
+ */
+fun ChatHolder.sendWithFile(
+    text: String,
+    fileBase64: String,
+    mimeType: String,
+    fileName: String? = null,
+) {
+    sendMessage(
+        listOf(
+            TextPart(text),
+            FilePart(fileBase64, mimeType, fileName),
+        ),
+    )
+}
+
+/**
  * A Composable hook for managing chat conversations with multiple AI providers.
  *
  * This hook provides a complete solution for building chat interfaces with:
  * - Multi-provider support (OpenAI, DeepSeek, Anthropic, etc.)
+ * - Multimodal support (text, images, files)
  * - Streaming responses support
  * - Message state management
  * - Loading and error states
@@ -84,16 +133,21 @@ data class ChatHolder(
  *     model = "deepseek-chat" // optional, uses provider default if null
  *     systemPrompt = "You are a helpful assistant."
  *     onFinish = { message, usage, reason ->
- *         println("Finished: ${message.content}")
+ *         println("Finished: ${message.textContent}")
  *     }
  * }
  *
- * // Send a message
- * sendMessage("Hello, how are you?")
+ * // Send a text message
+ * sendMessage(listOf(ContentPart.Text("Hello, how are you?")))
+ * // Or use extension function
+ * chatHolder.sendText("Hello, how are you?")
+ *
+ * // Send a message with image
+ * chatHolder.sendWithImage("What's in this image?", imageBase64)
  *
  * // Display messages
  * messages.value.forEach { message ->
- *     Text("${message.role}: ${message.content}")
+ *     Text("${message.role}: ${message.textContent}")
  * }
  * ```
  *
@@ -105,22 +159,19 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
     val options = remember { ChatOptions.optionOf(optionsOf) }.apply(optionsOf)
     val optionsRef = useLatestRef(options)
 
-    // Initialize messages with system prompt and initial messages
-    val initialMessages = remember(options.systemPrompt, options.initialMessages) {
-        buildList {
-            options.systemPrompt?.let { add(Message.system(it)) }
-            addAll(options.initialMessages)
-        }.toImmutableList()
+    // Initialize messages with initial messages only (system prompt is handled internally)
+    val initialMessages = remember(options.initialMessages) {
+        options.initialMessages.toImmutableList()
     }
 
     // State management using hooks module
-    val (messagesState, setMessagesInternal, getMessages) = _useGetState<ImmutableList<Message>>(initialMessages)
+    val (messagesState, setMessagesInternal, getMessages) = _useGetState<ImmutableList<ChatMessage>>(initialMessages)
     val (isLoadingState, setIsLoadingInternal, _) = _useGetState(false)
     val (errorState, setErrorInternal, _) = _useGetState<Throwable?>(null)
 
     // Refs for mutable state that shouldn't trigger recomposition
     val clientRef: MutableRef<ChatClient?> = useRef(null)
-    val currentAssistantMessageRef: MutableRef<Message?> = useRef(null)
+    val currentAssistantMessageRef: MutableRef<AssistantMessage?> = useRef(null)
 
     // Cancelable async for streaming
     val (asyncRun, cancelAsync, _) = useCancelableAsync()
@@ -137,27 +188,27 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
     }
 
     // Helper functions to simplify state updates
-    val setMessages: (ImmutableList<Message>) -> Unit = { msgs -> setMessagesInternal(msgs.left()) }
+    val setMessages: (ImmutableList<ChatMessage>) -> Unit = { msgs -> setMessagesInternal(msgs.left()) }
     val setIsLoading: (Boolean) -> Unit = { loading -> setIsLoadingInternal(loading.left()) }
     val setError: (Throwable?) -> Unit = { error -> setErrorInternal(error.left()) }
 
-    // Send message function
+    // Send message function (multimodal)
     val sendMessage: SendMessageFn = remember {
-        { content: String ->
-            if (content.isBlank()) return@remember
+        { content: List<UserContentPart> ->
+            if (content.isEmpty()) return@remember
 
-            val userMessage = Message.user(content)
+            val userMsg = userMessage(content)
             val currentMessages = getMessages().toMutableList()
-            currentMessages.add(userMessage)
+            currentMessages.add(userMsg)
             setMessages(currentMessages.toImmutableList())
 
             setError(null)
             setIsLoading(true)
 
             // Create placeholder for assistant message
-            val assistantMessage = Message.assistant("")
-            currentAssistantMessageRef.current = assistantMessage
-            currentMessages.add(assistantMessage)
+            val assistantMsg = assistantMessage("")
+            currentAssistantMessageRef.current = assistantMsg
+            currentMessages.add(assistantMsg)
             setMessages(currentMessages.toImmutableList())
 
             asyncRun {
@@ -182,7 +233,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
 
                                     // Update assistant message with accumulated content on Main thread
                                     val updatedMessage = currentAssistantMessageRef.current?.copy(
-                                        content = accumulatedContent,
+                                        content = listOf(TextPart(accumulatedContent)),
                                     )
                                     if (updatedMessage != null) {
                                         currentAssistantMessageRef.current = updatedMessage
@@ -233,14 +284,14 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
 
     // Set messages function
     val setMessagesFn: SetMessagesFn = remember {
-        { messages: List<Message> ->
+        { messages: List<ChatMessage> ->
             setMessages(messages.toImmutableList())
         }
     }
 
     // Append message function
     val appendMessage: AppendMessageFn = remember {
-        { message: Message ->
+        { message: ChatMessage ->
             val current = getMessages().toMutableList()
             current.add(message)
             setMessages(current.toImmutableList())
@@ -252,14 +303,14 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
         {
             val currentMessages = getMessages().toMutableList()
             // Remove the last assistant message if exists
-            if (currentMessages.isNotEmpty() && currentMessages.last().role == Role.Assistant) {
+            if (currentMessages.isNotEmpty() && currentMessages.last() is AssistantMessage) {
                 currentMessages.removeAt(currentMessages.lastIndex)
             }
             // Find the last user message
-            val lastUserMessage = currentMessages.lastOrNull { it.role == Role.User }
+            val lastUserMessage = currentMessages.lastOrNull { it is UserMessage } as? UserMessage
             if (lastUserMessage != null) {
                 // Remove it and resend
-                currentMessages.removeAt(currentMessages.indexOfLast { it.role == Role.User })
+                currentMessages.removeAt(currentMessages.indexOfLast { it is UserMessage })
                 setMessages(currentMessages.toImmutableList())
                 sendMessage(lastUserMessage.content)
             }

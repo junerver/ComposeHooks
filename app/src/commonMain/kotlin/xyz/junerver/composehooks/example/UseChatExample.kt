@@ -54,9 +54,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
-import xyz.junerver.compose.ai.usechat.Message
+import xyz.junerver.compose.ai.usechat.AssistantMessage
+import xyz.junerver.compose.ai.usechat.ChatMessage
 import xyz.junerver.compose.ai.usechat.Providers
-import xyz.junerver.compose.ai.usechat.Role
+import xyz.junerver.compose.ai.usechat.TextPart
+import xyz.junerver.compose.ai.usechat.UserMessage
 import xyz.junerver.compose.ai.usechat.useChat
 import xyz.junerver.compose.hooks.useState
 
@@ -113,7 +115,7 @@ fun UseChatExample() {
         this.model = model.ifBlank { null }
         systemPrompt = "You are a helpful assistant. Keep responses concise and well-formatted."
         onFinish = { message, usage, _ ->
-            println("Completed: ${message.content.take(50)}...")
+            println("Completed: ${message.textContent.take(50)}...")
             usage?.let { println("Tokens: ${it.totalTokens}") }
         }
     }
@@ -237,7 +239,7 @@ fun UseChatExample() {
                 }
 
                 items(
-                    items = messages.value.filter { it.role != Role.System },
+                    items = messages.value,
                     key = { it.id },
                 ) { message ->
                     ChatMessageBubble(message = message)
@@ -271,7 +273,7 @@ fun UseChatExample() {
                 onValueChange = { inputText = it },
                 onSend = {
                     if (inputText.isNotBlank() && apiKey.isNotBlank()) {
-                        sendMessage(inputText)
+                        sendMessage(listOf(TextPart(inputText)))
                         inputText = ""
                     }
                 },
@@ -279,7 +281,7 @@ fun UseChatExample() {
                 onReload = reload,
                 isLoading = isLoading.value,
                 canSend = apiKey.isNotBlank() && inputText.isNotBlank(),
-                canReload = !isLoading.value && messages.value.any { it.role == Role.Assistant },
+                canReload = !isLoading.value && messages.value.any { it is AssistantMessage },
             )
         }
     }
@@ -337,8 +339,8 @@ private fun ProviderSelector(selectedType: ProviderType, onTypeChange: (Provider
 }
 
 @Composable
-private fun ChatMessageBubble(message: Message) {
-    val isUser = message.role == Role.User
+private fun ChatMessageBubble(message: ChatMessage) {
+    val isUser = message is UserMessage
 
     Row(
         modifier = Modifier
@@ -382,7 +384,7 @@ private fun ChatMessageBubble(message: Message) {
             ),
         ) {
             Text(
-                text = message.content.ifEmpty { "..." },
+                text = message.textContent.ifEmpty { "..." },
                 modifier = Modifier.padding(12.dp),
                 color = if (isUser) {
                     MaterialTheme.colorScheme.onPrimaryContainer

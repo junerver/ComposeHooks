@@ -9,7 +9,7 @@ import xyz.junerver.compose.hooks.Options
 /*
   Description: Configuration options for useChat hook
   Author: Junerver
-  Date: 2024
+  Date: 2026/01/05-11:06
   Email: junerver@gmail.com
   Version: v2.0
 */
@@ -18,7 +18,7 @@ import xyz.junerver.compose.hooks.Options
  * Callback type definitions for chat events
  */
 typealias OnResponseCallback = (response: HttpResponse) -> Unit
-typealias OnFinishCallback = (message: Message, usage: ChatUsage?, finishReason: FinishReason?) -> Unit
+typealias OnFinishCallback = (message: ChatMessage, usage: ChatUsage?, finishReason: FinishReason?) -> Unit
 typealias OnErrorCallback = (error: Throwable) -> Unit
 typealias OnStreamCallback = (delta: String) -> Unit
 
@@ -44,7 +44,7 @@ data class ChatOptions internal constructor(
     var provider: ChatProvider = Providers.OpenAI(apiKey = ""),
     var model: String? = null,
     var systemPrompt: String? = null,
-    var initialMessages: List<Message> = emptyList(),
+    var initialMessages: List<ChatMessage> = emptyList(),
     var temperature: Float? = null,
     var maxTokens: Int? = null,
     var timeout: Duration = 60.seconds,
@@ -80,7 +80,7 @@ data class ChatOptions internal constructor(
     /**
      * Builds the request body using the provider.
      */
-    internal fun buildRequestBody(messages: List<Message>, stream: Boolean): String = provider.buildRequestBody(
+    internal fun buildRequestBody(messages: List<ChatMessage>, stream: Boolean): String = provider.buildRequestBody(
         messages = messages,
         model = effectiveModel,
         stream = stream,
