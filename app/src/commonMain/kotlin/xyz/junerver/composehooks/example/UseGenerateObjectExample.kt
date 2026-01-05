@@ -1,0 +1,575 @@
+package xyz.junerver.composehooks.example
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.unit.dp
+import kotlinx.serialization.Serializable
+import xyz.junerver.compose.ai.usechat.Providers
+import xyz.junerver.compose.ai.usegenerateobject.useGenerateObject
+import xyz.junerver.compose.hooks.useState
+
+/*
+  Description: useGenerateObject Example - Recipe Generator
+  Author: Junerver
+  Date: 2026/01/05
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
+/**
+ * Recipe data class for structured output
+ */
+@Serializable
+data class Recipe(
+    val name: String,
+    val description: String,
+    val ingredients: List<Ingredient>,
+    val steps: List<String>,
+    val cookingTime: String,
+    val difficulty: String,
+    val servings: Int,
+)
+
+@Serializable
+data class Ingredient(
+    val name: String,
+    val amount: String,
+)
+
+/**
+ * JSON Schema for Recipe
+ */
+private val recipeSchema =
+    """
+{
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "菜谱名称"
+    },
+    "description": {
+      "type": "string",
+      "description": "菜品简介"
+    },
+    "ingredients": {
+      "type": "array",
+      "description": "食材列表",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "description": "食材名称" },
+          "amount": { "type": "string", "description": "用量" }
+        },
+        "required": ["name", "amount"]
+      }
+    },
+    "steps": {
+      "type": "array",
+      "description": "烹饪步骤",
+      "items": { "type": "string" }
+    },
+    "cookingTime": {
+      "type": "string",
+      "description": "烹饪时间"
+    },
+    "difficulty": {
+      "type": "string",
+      "description": "难度等级",
+      "enum": ["简单", "中等", "困难"]
+    },
+    "servings": {
+      "type": "integer",
+      "description": "份量（人数）"
+    }
+  },
+  "required": ["name", "description", "ingredients", "steps", "cookingTime", "difficulty", "servings"]
+}
+    """.trimIndent()
+
+/** Available provider types for selection */
+private enum class ObjectProviderType(val displayName: String) {
+    DeepSeek("DeepSeek"),
+    OpenAI("OpenAI"),
+    Moonshot("Moonshot"),
+    Zhipu("Zhipu"),
+    Qwen("Qwen"),
+}
+
+@Composable
+fun UseGenerateObjectExample() {
+    // Provider configuration
+    var selectedType by useState(ObjectProviderType.DeepSeek)
+    var apiKey by useState("")
+
+    // Create provider instance
+    val provider = remember(selectedType, apiKey) {
+        when (selectedType) {
+            ObjectProviderType.DeepSeek -> Providers.DeepSeek(apiKey = apiKey)
+            ObjectProviderType.OpenAI -> Providers.OpenAI(apiKey = apiKey)
+            ObjectProviderType.Moonshot -> Providers.Moonshot(apiKey = apiKey)
+            ObjectProviderType.Zhipu -> Providers.Zhipu(apiKey = apiKey)
+            ObjectProviderType.Qwen -> Providers.Qwen(apiKey = apiKey)
+        }
+    }
+
+    // Use the hook
+    val (recipe, rawJson, isLoading, error, submit, stop) = useGenerateObject<Recipe>(
+        schemaString = recipeSchema,
+    ) {
+        this.provider = provider
+        systemPrompt = "你是一位专业的中餐厨师，擅长创作各种美味的菜谱。请根据用户的描述生成详细的菜谱。"
+        onFinish = { recipe, usage ->
+            println("Generated recipe: ${recipe.name}")
+            usage?.let { println("Tokens used: ${it.totalTokens}") }
+        }
+        onError = { e ->
+            println("Error: ${e.message}")
+        }
+    }
+
+    var inputText by remember { mutableStateOf("") }
+
+    Surface(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            // Header
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+            ) {
+                Text(
+                    text = "useGenerateObject 示例",
+                    style = MaterialTheme.typography.headlineMedium,
+                )
+                Text(
+                    text = "AI 菜谱生成器 - 结构化输出",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+
+                // Provider selector
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    ObjectProviderSelector(
+                        selectedType = selectedType,
+                        onTypeChange = { selectedType = it },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // API Key input
+                OutlinedTextField(
+                    value = apiKey,
+                    onValueChange = { apiKey = it },
+                    label = { Text("API Key") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    placeholder = { Text("输入你的 ${selectedType.displayName} API Key") },
+                )
+            }
+
+            // Error display
+            AnimatedVisibility(
+                visible = error.value != null,
+                enter = slideInVertically() + fadeIn(),
+                exit = fadeOut(),
+            ) {
+                error.value?.let { err ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.errorContainer,
+                        ),
+                    ) {
+                        Text(
+                            text = "错误: ${err.message}",
+                            modifier = Modifier.padding(12.dp),
+                            color = MaterialTheme.colorScheme.onErrorContainer,
+                            style = MaterialTheme.typography.bodySmall,
+                        )
+                    }
+                }
+            }
+
+            // Recipe display
+            Column(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth()
+                    .verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp),
+            ) {
+                if (recipe.value != null) {
+                    RecipeCard(recipe = recipe.value!!)
+                } else if (isLoading.value) {
+                    LoadingIndicator()
+                } else {
+                    EmptyState()
+                }
+            }
+
+            // Input area
+            InputArea(
+                value = inputText,
+                onValueChange = { inputText = it },
+                onSend = {
+                    if (inputText.isNotBlank() && apiKey.isNotBlank()) {
+                        submit(inputText)
+                        inputText = ""
+                    }
+                },
+                onStop = stop,
+                isLoading = isLoading.value,
+                canSend = apiKey.isNotBlank() && inputText.isNotBlank(),
+            )
+        }
+    }
+}
+
+@Composable
+private fun ObjectProviderSelector(
+    selectedType: ObjectProviderType,
+    onTypeChange: (ObjectProviderType) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(modifier = modifier) {
+        OutlinedTextField(
+            value = selectedType.displayName,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Provider") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = true },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                )
+            },
+            singleLine = true,
+        )
+
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clickable { expanded = true },
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            ObjectProviderType.entries.forEach { type ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = type.displayName,
+                            fontWeight = if (type == selectedType) FontWeight.Bold else FontWeight.Normal,
+                        )
+                    },
+                    onClick = {
+                        onTypeChange(type)
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun RecipeCard(recipe: Recipe) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .animateContentSize(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+        ) {
+            // Header
+            Text(
+                text = recipe.name,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = recipe.description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            // Meta info
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                MetaChip(label = "⏱️ ${recipe.cookingTime}")
+                MetaChip(label = "📊 ${recipe.difficulty}")
+                MetaChip(label = "👥 ${recipe.servings}人份")
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+
+            // Ingredients
+            Text(
+                text = "🥬 食材",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            recipe.ingredients.forEach { ingredient ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 2.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Text(
+                        text = "• ${ingredient.name}",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    Text(
+                        text = ingredient.amount,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
+
+            // Steps
+            Text(
+                text = "👨‍🍳 烹饪步骤",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            recipe.steps.forEachIndexed { index, step ->
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 4.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.primaryContainer),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Text(
+                            text = "${index + 1}",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = step,
+                        style = MaterialTheme.typography.bodyMedium,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun MetaChip(label: String) {
+    Surface(
+        shape = RoundedCornerShape(16.dp),
+        color = MaterialTheme.colorScheme.secondaryContainer,
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
+    }
+}
+
+@Composable
+private fun LoadingIndicator() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        CircularProgressIndicator(
+            modifier = Modifier.size(48.dp),
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "正在生成菜谱...",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun EmptyState() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = "🍳",
+            style = MaterialTheme.typography.displayLarge,
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "描述你想要的菜品",
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "例如：\"一道简单的家常川菜\" 或 \"适合夏天的清淡汤品\"",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.outline,
+        )
+    }
+}
+
+@Composable
+private fun InputArea(
+    value: String,
+    onValueChange: (String) -> Unit,
+    onSend: () -> Unit,
+    onStop: () -> Unit,
+    isLoading: Boolean,
+    canSend: Boolean,
+) {
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shadowElevation = 4.dp,
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            OutlinedTextField(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier.weight(1f),
+                placeholder = { Text("描述你想要的菜品...") },
+                enabled = !isLoading,
+                singleLine = false,
+                maxLines = 3,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                keyboardActions = KeyboardActions(onSend = { if (canSend) onSend() }),
+                shape = RoundedCornerShape(24.dp),
+            )
+
+            IconButton(
+                onClick = { if (isLoading) onStop() else onSend() },
+                enabled = isLoading || canSend,
+                modifier = Modifier
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(
+                        if (isLoading || canSend) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.surfaceVariant
+                        },
+                    ),
+            ) {
+                if (isLoading) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(20.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onPrimary,
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.Send,
+                        contentDescription = "生成",
+                        tint = if (canSend) {
+                            MaterialTheme.colorScheme.onPrimary
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                        modifier = Modifier.size(20.dp),
+                    )
+                }
+            }
+        }
+    }
+}
