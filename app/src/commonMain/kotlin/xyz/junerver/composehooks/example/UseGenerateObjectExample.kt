@@ -50,6 +50,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import kotlinx.schema.Description
+import kotlinx.schema.Schema
 import kotlinx.serialization.Serializable
 import xyz.junerver.compose.ai.usechat.Providers
 import xyz.junerver.compose.ai.usegenerateobject.useGenerateObject
@@ -67,72 +69,37 @@ import xyz.junerver.compose.hooks.useState
  * Recipe data class for structured output
  */
 @Serializable
+@Schema
 data class Recipe(
+    @Description("菜谱名称")
     val name: String,
+    @Description("菜品简介")
     val description: String,
+    @Description("食材列表")
     val ingredients: List<Ingredient>,
+    @Description("烹饪步骤")
     val steps: List<String>,
+    @Description("烹饪时间")
     val cookingTime: String,
+    @Description("难度等级")
     val difficulty: String,
+    @Description("份量（人数）")
     val servings: Int,
 )
 
 @Serializable
+@Schema
 data class Ingredient(
+    @Description("食材名称")
     val name: String,
+    @Description("用量")
     val amount: String,
 )
 
 /**
  * JSON Schema for Recipe
  */
-private val recipeSchema =
-    """
-{
-  "type": "object",
-  "properties": {
-    "name": {
-      "type": "string",
-      "description": "菜谱名称"
-    },
-    "description": {
-      "type": "string",
-      "description": "菜品简介"
-    },
-    "ingredients": {
-      "type": "array",
-      "description": "食材列表",
-      "items": {
-        "type": "object",
-        "properties": {
-          "name": { "type": "string", "description": "食材名称" },
-          "amount": { "type": "string", "description": "用量" }
-        },
-        "required": ["name", "amount"]
-      }
-    },
-    "steps": {
-      "type": "array",
-      "description": "烹饪步骤",
-      "items": { "type": "string" }
-    },
-    "cookingTime": {
-      "type": "string",
-      "description": "烹饪时间"
-    },
-    "difficulty": {
-      "type": "string",
-      "description": "难度等级",
-      "enum": ["简单", "中等", "困难"]
-    },
-    "servings": {
-      "type": "integer",
-      "description": "份量（人数）"
-    }
-  },
-  "required": ["name", "description", "ingredients", "steps", "cookingTime", "difficulty", "servings"]
-}
-    """.trimIndent()
+private val recipeSchema = Recipe::class.jsonSchemaString
 
 /** Available provider types for selection */
 private enum class ObjectProviderType(val displayName: String) {

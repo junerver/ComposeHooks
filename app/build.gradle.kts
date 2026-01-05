@@ -9,9 +9,14 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.hot.reload)
+    alias(libs.plugins.ksp)
 }
 
 kotlin {
+
+    compilerOptions {
+        freeCompilerArgs.add("-Xannotation-default-target=param-property")
+    }
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {
@@ -21,16 +26,6 @@ kotlin {
 
     jvm("desktop")
 
-    listOf(
-        iosX64(),
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
-            baseName = "ComposeApp"
-            isStatic = true
-        }
-    }
     applyDefaultHierarchyTemplate()
     sourceSets {
         all {
@@ -66,26 +61,32 @@ kotlin {
 
         iosMain.get().dependsOn(commonIosAndroid)
 
-        commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
-            implementation(libs.material.icons.core)
-            implementation(libs.material.icons.extended)
-            implementation(libs.compose.lifecycle.viewmodel)
-            implementation(libs.compose.lifecycle.runtime.compose)
+        commonMain {
+            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
+            dependencies {
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material3)
+                implementation(compose.ui)
+                implementation(compose.components.resources)
+                implementation(compose.components.uiToolingPreview)
+                implementation(libs.material.icons.core)
+                implementation(libs.material.icons.extended)
+                implementation(libs.compose.lifecycle.viewmodel)
+                implementation(libs.compose.lifecycle.runtime.compose)
 
-            implementation(libs.compose.navigation.compose)
+                implementation(libs.compose.navigation.compose)
 
-            implementation(projects.hooks)
-            implementation(projects.ai)
-            implementation(libs.kotlinx.collections.immutable)
-            implementation(libs.kotlinx.serialization.json)
-            implementation(libs.ktor.client.core)
-            implementation(libs.bundles.ktor)
+                implementation(projects.hooks)
+                implementation(projects.ai)
+                implementation(libs.kotlinx.collections.immutable)
+                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.ktor.client.core)
+                implementation(libs.bundles.ktor)
+
+                implementation(libs.kotlinx.serialization.json)
+                implementation(libs.kotlinx.schema.annotations)
+            }
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -95,7 +96,7 @@ kotlin {
 
 android {
     namespace = "xyz.junerver.composehooks"
-    compileSdk = 34
+    compileSdk = 36
 
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     sourceSets["main"].res.srcDirs("src/androidMain/res")
@@ -123,7 +124,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -151,3 +152,19 @@ compose.desktop {
     }
 }
 
+tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompilationTask<*>>().configureEach {
+    if (name != "kspCommonMainKotlinMetadata") {
+        dependsOn("kspCommonMainKotlinMetadata")
+    }
+}
+
+// Configure KSP arguments
+ksp {
+    arg("kotlinx.schema.withSchemaObject", "true")
+    arg("kotlinx.schema.rootPackage", "xyz.junerver.composehooks")
+}
+
+// Add KSP processor for common target
+dependencies {
+    add("kspCommonMainMetadata", "org.jetbrains.kotlinx:kotlinx-schema-ksp:0.0.2")
+}

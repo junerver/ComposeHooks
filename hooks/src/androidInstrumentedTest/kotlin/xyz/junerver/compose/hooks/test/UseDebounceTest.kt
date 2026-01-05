@@ -1,8 +1,8 @@
 package xyz.junerver.compose.hooks.test
 
 import androidx.compose.foundation.layout.Column
-import androidx.compose.material.Button
-import androidx.compose.material.Text
+import androidx.compose.material3.Button
+import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.isDisplayed
@@ -11,6 +11,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import org.junit.Rule
 import org.junit.Test
+import xyz.junerver.compose.hooks.None
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useDebounceFn
 import xyz.junerver.compose.hooks.useState
@@ -31,7 +32,7 @@ class UseDebounceTest {
     fun testDebounceFn() {
         composeTestRule.setContent {
             var state by useState(default = 0)
-            val debounceAdd = useDebounceFn(fn = {
+            val debounceAdd = useDebounceFn<None>(fn = {
                 state += 1
             })
             Column {
