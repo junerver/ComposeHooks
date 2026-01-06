@@ -159,32 +159,34 @@ implementation("xyz.junerver.compose:hooks2:<latest_release>")
 
 ### AI 模块
 
-独立的 AI 模块，提供与 OpenAI 兼容 API 进行 AI 聊天的 Hook。
+独立的 AI 模块，提供与 OpenAI 兼容 API 进行 AI 聊天和结构化数据生成的 Hook。
 
 **添加 AI 模块依赖：**
 ```kotlin
-implementation("xyz.junerver.compose:hooks2-ai:<latest_release>")
+implementation("xyz.junerver.compose:hai:<latest_release>")
 ```
 
 | Hook 名称 | 描述 |
 | --------- | ---- |
 | [useChat](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseChatExample.kt) | 用于管理与 OpenAI 兼容 API 聊天对话的 Hook，支持流式响应的打字机效果。 |
+| [useGenerateObject](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseGenerateObjectExample.kt) | 用于从 AI 响应生成结构化数据对象的 Hook，支持多模态输入（文本 + 图片）。 |
 
 **功能特性：**
 - 流式响应 (SSE)，实时打字机效果
+- 多模态输入支持（文本、图片、文件）
+- 类型安全的结构化数据生成
 - 消息状态管理
 - 加载和错误状态
 - 控制函数（发送、停止、重新加载）
 - 可配置选项（temperature、maxTokens、timeout 等）
 - 生命周期回调（onFinish、onError、onStream）
 
-**示例：**
+**示例 - 聊天对话：**
 ```kotlin
 val (messages, isLoading, error, sendMessage, _, _, reload, stop) = useChat {
-    baseUrl = "https://api.openai.com/v1"
-    apiKey = "your-api-key"
+    provider = Providers.OpenAI(apiKey = "your-api-key")
     model = "gpt-3.5-turbo"
-    systemPrompt = "You are a helpful assistant."
+    systemPrompt = "你是一个乐于助人的助手。"
     onFinish = { message, usage, reason ->
         println("完成: ${message.content}")
     }
@@ -196,6 +198,28 @@ sendMessage("你好！")
 // 显示消息（带流式效果）
 messages.value.forEach { message ->
     Text("${message.role}: ${message.content}")
+}
+```
+
+**示例 - 生成结构化数据：**
+```kotlin
+@Serializable
+data class Recipe(val name: String, val ingredients: List<String>)
+
+val (recipe, rawJson, isLoading, error, submit, stop) = useGenerateObject<Recipe>(
+    schemaString = Recipe::class.jsonSchemaString,
+) {
+    provider = Providers.OpenAI(apiKey = "your-api-key")
+    systemPrompt = "你是一位专业的厨师。"
+}
+
+// 生成结构化数据
+submit("生成一道意大利面的食谱")
+
+// 使用结果
+recipe.value?.let { r ->
+    Text("食谱: ${r.name}")
+    r.ingredients.forEach { Text("- $it") }
 }
 ```
 

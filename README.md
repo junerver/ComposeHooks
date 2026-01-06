@@ -152,30 +152,32 @@ Note: All `use` functions also have the signature of `remember`. If you prefer C
 
 ### AI Module
 
-A separate AI module providing hooks for AI chat completions with OpenAI-compatible APIs.
+A separate AI module providing hooks for AI chat completions and structured data generation with OpenAI-compatible APIs.
 
 **Add AI module dependency:**
 ```kotlin
-implementation("xyz.junerver.compose:hooks2-ai:<latest_release>")
+implementation("xyz.junerver.compose:ai:<latest_release>")
 ```
 
 | hook name | description |
 | --------- | ----------- |
 | [useChat](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseChatExample.kt) | A hook for managing chat conversations with OpenAI-compatible APIs, supporting streaming responses with typewriter effect. |
+| [useGenerateObject](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseGenerateObjectExample.kt) | A hook for generating structured data objects from AI responses, supporting multimodal input (text + images). |
 
 **Features:**
 - Streaming responses (SSE) with real-time typewriter effect
+- Multimodal input support (text, images, files)
+- Structured data generation with type safety
 - Message state management
 - Loading and error states
 - Control functions (send, stop, reload)
 - Configurable options (temperature, maxTokens, timeout, etc.)
 - Lifecycle callbacks (onFinish, onError, onStream)
 
-**Example:**
+**Example - Chat:**
 ```kotlin
 val (messages, isLoading, error, sendMessage, _, _, reload, stop) = useChat {
-    baseUrl = "https://api.openai.com/v1"
-    apiKey = "your-api-key"
+    provider = Providers.OpenAI(apiKey = "your-api-key")
     model = "gpt-3.5-turbo"
     systemPrompt = "You are a helpful assistant."
     onFinish = { message, usage, reason ->
@@ -189,6 +191,28 @@ sendMessage("Hello!")
 // Display messages with streaming effect
 messages.value.forEach { message ->
     Text("${message.role}: ${message.content}")
+}
+```
+
+**Example - Generate Object:**
+```kotlin
+@Serializable
+data class Recipe(val name: String, val ingredients: List<String>)
+
+val (recipe, rawJson, isLoading, error, submit, stop) = useGenerateObject<Recipe>(
+    schemaString = Recipe::class.jsonSchemaString,
+) {
+    provider = Providers.OpenAI(apiKey = "your-api-key")
+    systemPrompt = "You are a professional chef."
+}
+
+// Generate structured data
+submit("Generate a pasta recipe")
+
+// Use the result
+recipe.value?.let { r ->
+    Text("Recipe: ${r.name}")
+    r.ingredients.forEach { Text("- $it") }
 }
 ```
 
