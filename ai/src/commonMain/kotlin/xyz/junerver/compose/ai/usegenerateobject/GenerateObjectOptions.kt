@@ -1,12 +1,13 @@
 package xyz.junerver.compose.ai.usegenerateobject
 
 import androidx.compose.runtime.Stable
-import io.ktor.client.statement.HttpResponse
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
+import xyz.junerver.compose.ai.AIOptionsDefaults
+import xyz.junerver.compose.ai.BaseAIOptions
+import xyz.junerver.compose.ai.OnErrorCallback
+import xyz.junerver.compose.ai.OnResponseCallback
 import xyz.junerver.compose.ai.usechat.ChatProvider
 import xyz.junerver.compose.ai.usechat.ChatUsage
-import xyz.junerver.compose.ai.usechat.Providers
 
 /*
   Description: Configuration options for useGenerateObject hook
@@ -17,11 +18,9 @@ import xyz.junerver.compose.ai.usechat.Providers
 */
 
 /**
- * Callback type definitions for generate object events
+ * Callback type definition for generate object completion event.
  */
 typealias OnObjectFinishCallback<T> = (obj: T, usage: ChatUsage?) -> Unit
-typealias OnObjectErrorCallback = (error: Throwable) -> Unit
-typealias OnObjectResponseCallback = (response: HttpResponse) -> Unit
 
 /**
  * Configuration options for the useGenerateObject hook.
@@ -39,25 +38,19 @@ typealias OnObjectResponseCallback = (response: HttpResponse) -> Unit
  */
 @Stable
 data class GenerateObjectOptions<T> internal constructor(
-    var provider: ChatProvider = Providers.OpenAI(apiKey = ""),
-    var model: String? = null,
-    var systemPrompt: String? = null,
-    var temperature: Float? = null,
-    var maxTokens: Int? = null,
-    var timeout: Duration = 60.seconds,
-    var headers: Map<String, String> = emptyMap(),
+    override var provider: ChatProvider = AIOptionsDefaults.DEFAULT_PROVIDER,
+    override var model: String? = null,
+    override var systemPrompt: String? = null,
+    override var temperature: Float? = null,
+    override var maxTokens: Int? = null,
+    override var timeout: Duration = AIOptionsDefaults.DEFAULT_TIMEOUT,
+    override var headers: Map<String, String> = AIOptionsDefaults.DEFAULT_HEADERS,
     // Callbacks
-    var onResponse: OnObjectResponseCallback? = null,
+    override var onResponse: OnResponseCallback? = null,
     var onFinish: OnObjectFinishCallback<T>? = null,
-    var onError: OnObjectErrorCallback? = null,
-) {
+    override var onError: OnErrorCallback? = null,
+) : BaseAIOptions {
     companion object {
         fun <T> optionOf(block: GenerateObjectOptions<T>.() -> Unit): GenerateObjectOptions<T> = GenerateObjectOptions<T>().apply(block)
     }
-
-    /**
-     * The effective model (override or provider default).
-     */
-    val effectiveModel: String
-        get() = model ?: provider.defaultModel
 }

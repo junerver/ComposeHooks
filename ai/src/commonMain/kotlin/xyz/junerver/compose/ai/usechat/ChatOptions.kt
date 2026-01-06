@@ -1,9 +1,11 @@
 package xyz.junerver.compose.ai.usechat
 
 import androidx.compose.runtime.Stable
-import io.ktor.client.statement.HttpResponse
 import kotlin.time.Duration
-import kotlin.time.Duration.Companion.seconds
+import xyz.junerver.compose.ai.AIOptionsDefaults
+import xyz.junerver.compose.ai.BaseAIOptions
+import xyz.junerver.compose.ai.OnErrorCallback
+import xyz.junerver.compose.ai.OnResponseCallback
 import xyz.junerver.compose.hooks.Options
 
 /*
@@ -15,11 +17,9 @@ import xyz.junerver.compose.hooks.Options
 */
 
 /**
- * Callback type definitions for chat events
+ * Callback type definitions for chat-specific events
  */
-typealias OnResponseCallback = (response: HttpResponse) -> Unit
 typealias OnFinishCallback = (message: ChatMessage, usage: ChatUsage?, finishReason: FinishReason?) -> Unit
-typealias OnErrorCallback = (error: Throwable) -> Unit
 typealias OnStreamCallback = (delta: String) -> Unit
 
 /**
@@ -41,28 +41,22 @@ typealias OnStreamCallback = (delta: String) -> Unit
  */
 @Stable
 data class ChatOptions internal constructor(
-    var provider: ChatProvider = Providers.OpenAI(apiKey = ""),
-    var model: String? = null,
-    var systemPrompt: String? = null,
+    override var provider: ChatProvider = AIOptionsDefaults.DEFAULT_PROVIDER,
+    override var model: String? = null,
+    override var systemPrompt: String? = null,
     var initialMessages: List<ChatMessage> = emptyList(),
-    var temperature: Float? = null,
-    var maxTokens: Int? = null,
-    var timeout: Duration = 60.seconds,
+    override var temperature: Float? = null,
+    override var maxTokens: Int? = null,
+    override var timeout: Duration = AIOptionsDefaults.DEFAULT_TIMEOUT,
     var stream: Boolean = true,
-    var headers: Map<String, String> = emptyMap(),
+    override var headers: Map<String, String> = AIOptionsDefaults.DEFAULT_HEADERS,
     // Callbacks
-    var onResponse: OnResponseCallback? = null,
+    override var onResponse: OnResponseCallback? = null,
     var onFinish: OnFinishCallback? = null,
-    var onError: OnErrorCallback? = null,
+    override var onError: OnErrorCallback? = null,
     var onStream: OnStreamCallback? = null,
-) {
+) : BaseAIOptions {
     companion object : Options<ChatOptions>(::ChatOptions)
-
-    /**
-     * The effective model (override or provider default).
-     */
-    val effectiveModel: String
-        get() = model ?: provider.defaultModel
 
     /**
      * Builds the full API endpoint URL for chat completions.

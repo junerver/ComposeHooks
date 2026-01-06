@@ -12,16 +12,18 @@ import kotlin.io.encoding.ExperimentalEncodingApi
 private class DesktopFilePickerLauncher(
     private val onFilePicked: (PickedFile) -> Unit,
 ) : FilePickerLauncher {
-
     @OptIn(ExperimentalEncodingApi::class)
     override fun launch() {
         val dialog = FileDialog(null as Frame?, "Select Image", FileDialog.LOAD).apply {
             isMultipleMode = false
             setFilenameFilter { _, name ->
                 name.lowercase().let {
-                    it.endsWith(".jpg") || it.endsWith(".jpeg") ||
-                        it.endsWith(".png") || it.endsWith(".gif") ||
-                        it.endsWith(".webp") || it.endsWith(".bmp")
+                    it.endsWith(".jpg") ||
+                        it.endsWith(".jpeg") ||
+                        it.endsWith(".png") ||
+                        it.endsWith(".gif") ||
+                        it.endsWith(".webp") ||
+                        it.endsWith(".bmp")
                 }
             }
         }
@@ -49,10 +51,6 @@ private class DesktopFilePickerLauncher(
 }
 
 @Composable
-actual fun rememberFilePickerLauncher(
-    onFilePicked: (PickedFile) -> Unit,
-): FilePickerLauncher {
-    return remember(onFilePicked) {
-        DesktopFilePickerLauncher(onFilePicked)
-    }
+actual fun rememberFilePickerLauncher(onFilePicked: (PickedFile) -> Unit): FilePickerLauncher = remember(onFilePicked) {
+    DesktopFilePickerLauncher(onFilePicked)
 }
