@@ -6,6 +6,7 @@ import xyz.junerver.compose.ai.AIOptionsDefaults
 import xyz.junerver.compose.ai.BaseAIOptions
 import xyz.junerver.compose.ai.OnErrorCallback
 import xyz.junerver.compose.ai.OnResponseCallback
+import xyz.junerver.compose.ai.http.HttpEngine
 import xyz.junerver.compose.ai.usechat.ChatProvider
 import xyz.junerver.compose.ai.usechat.ChatUsage
 
@@ -32,6 +33,7 @@ typealias OnObjectFinishCallback<T> = (obj: T, usage: ChatUsage?) -> Unit
  * @property maxTokens Maximum number of tokens to generate
  * @property timeout Request timeout duration
  * @property headers Additional HTTP headers to send with requests
+ * @property httpEngine Custom HTTP engine (null = use global default)
  * @property onResponse Callback when receiving an HTTP response
  * @property onFinish Callback when object generation is complete
  * @property onError Callback when an error occurs
@@ -45,6 +47,7 @@ data class GenerateObjectOptions<T> internal constructor(
     override var maxTokens: Int? = null,
     override var timeout: Duration = AIOptionsDefaults.DEFAULT_TIMEOUT,
     override var headers: Map<String, String> = AIOptionsDefaults.DEFAULT_HEADERS,
+    override var httpEngine: HttpEngine? = null,
     // Callbacks
     override var onResponse: OnResponseCallback? = null,
     var onFinish: OnObjectFinishCallback<T>? = null,

@@ -3,6 +3,7 @@ package xyz.junerver.compose.ai
 import io.ktor.client.statement.HttpResponse
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import xyz.junerver.compose.ai.http.HttpEngine
 import xyz.junerver.compose.ai.usechat.ChatProvider
 import xyz.junerver.compose.ai.usechat.Providers
 
@@ -35,6 +36,7 @@ typealias OnErrorCallback = (error: Throwable) -> Unit
  * @property maxTokens Maximum number of tokens to generate
  * @property timeout Request timeout duration
  * @property headers Additional HTTP headers to send with requests
+ * @property httpEngine Custom HTTP engine (null = use global default)
  * @property onResponse Callback when receiving an HTTP response
  * @property onError Callback when an error occurs
  */
@@ -46,6 +48,7 @@ interface BaseAIOptions {
     var maxTokens: Int?
     var timeout: Duration
     var headers: Map<String, String>
+    var httpEngine: HttpEngine?
     var onResponse: OnResponseCallback?
     var onError: OnErrorCallback?
 

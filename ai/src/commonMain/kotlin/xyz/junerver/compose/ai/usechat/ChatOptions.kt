@@ -6,6 +6,7 @@ import xyz.junerver.compose.ai.AIOptionsDefaults
 import xyz.junerver.compose.ai.BaseAIOptions
 import xyz.junerver.compose.ai.OnErrorCallback
 import xyz.junerver.compose.ai.OnResponseCallback
+import xyz.junerver.compose.ai.http.HttpEngine
 import xyz.junerver.compose.hooks.Options
 
 /*
@@ -34,6 +35,7 @@ typealias OnStreamCallback = (delta: String) -> Unit
  * @property timeout Request timeout duration
  * @property stream Whether to use streaming responses (default: true)
  * @property headers Additional HTTP headers to send with requests
+ * @property httpEngine Custom HTTP engine (null = use global default)
  * @property onResponse Callback when receiving an HTTP response
  * @property onFinish Callback when a message generation is complete
  * @property onError Callback when an error occurs
@@ -50,6 +52,7 @@ data class ChatOptions internal constructor(
     override var timeout: Duration = AIOptionsDefaults.DEFAULT_TIMEOUT,
     var stream: Boolean = true,
     override var headers: Map<String, String> = AIOptionsDefaults.DEFAULT_HEADERS,
+    override var httpEngine: HttpEngine? = null,
     // Callbacks
     override var onResponse: OnResponseCallback? = null,
     var onFinish: OnFinishCallback? = null,

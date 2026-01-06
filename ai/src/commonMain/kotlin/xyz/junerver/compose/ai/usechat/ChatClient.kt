@@ -1,37 +1,19 @@
 package xyz.junerver.compose.ai.usechat
 
-import io.ktor.client.HttpClient
-import io.ktor.client.plugins.HttpTimeout
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.logging.LogLevel
-import io.ktor.client.plugins.logging.Logger
-import io.ktor.client.plugins.logging.Logging
-import io.ktor.client.plugins.logging.SIMPLE
-import io.ktor.client.plugins.timeout
-import io.ktor.client.request.header
-import io.ktor.client.request.post
-import io.ktor.client.request.preparePost
-import io.ktor.client.request.setBody
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsChannel
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.contentType
-import io.ktor.http.isSuccess
-import io.ktor.http.withCharset
-import io.ktor.serialization.kotlinx.json.json
-import io.ktor.utils.io.charsets.Charsets
-import io.ktor.utils.io.readUTF8Line
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.serialization.json.Json
+import xyz.junerver.compose.ai.http.HttpEngine
+import xyz.junerver.compose.ai.http.HttpEngineConfig
+import xyz.junerver.compose.ai.http.HttpRequest
+import xyz.junerver.compose.ai.http.SseEvent
 
 /*
-  Description: Ktor-based HTTP client for multi-provider chat completions
+  Description: HTTP client for multi-provider chat completions
   Author: Junerver
   Date: 2026/01/05-11:06
   Email: junerver@gmail.com
-  Version: v2.0
+  Version: v3.0
 */
 
 /**
@@ -54,6 +36,7 @@ sealed class StreamEvent {
  * HTTP client for interacting with chat APIs.
  *
  * Supports multiple providers through the [ChatProvider] abstraction.
+ * Uses [HttpEngine] for network requests, allowing custom implementations.
  */
 internal class ChatClient(private val options: ChatOptions) {
     private val json = Json {
@@ -63,20 +46,8 @@ internal class ChatClient(private val options: ChatOptions) {
         explicitNulls = false
     }
 
-    private val httpClient = HttpClient {
-        install(ContentNegotiation) {
-            json(json)
-        }
-        install(HttpTimeout) {
-            requestTimeoutMillis = options.timeout.inWholeMilliseconds
-            connectTimeoutMillis = options.timeout.inWholeMilliseconds
-            socketTimeoutMillis = options.timeout.inWholeMilliseconds
-        }
-        install(Logging) {
-            logger = Logger.SIMPLE
-            level = LogLevel.ALL
-        }
-    }
+    private val engine: HttpEngine = options.httpEngine
+        ?: HttpEngineConfig.defaultEngineFactory()
 
     /**
      * Sends a chat completion request and returns a flow of streaming events.
@@ -85,32 +56,28 @@ internal class ChatClient(private val options: ChatOptions) {
      * @return A Flow emitting StreamEvent objects
      */
     suspend fun streamChat(messages: List<ChatMessage>): Flow<StreamEvent> = flow {
-        try {
-            val requestBody = options.buildRequestBody(messages, stream = true)
+        val requestBody = options.buildRequestBody(messages, stream = true)
+        val headers = options.buildAuthHeaders() + options.headers
 
-            httpClient.preparePost(options.buildEndpoint()) {
-                // SSE streams need longer/no timeout
-                timeout {
-                    requestTimeoutMillis = Long.MAX_VALUE
-                    socketTimeoutMillis = Long.MAX_VALUE
-                }
-                contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
-                // Use provider-specific auth headers
-                options.buildAuthHeaders().forEach { (key, value) ->
-                    header(key, value)
-                }
-                header(HttpHeaders.Accept, "text/event-stream")
-                header(HttpHeaders.CacheControl, "no-cache")
-                header(HttpHeaders.Connection, "keep-alive")
-                options.headers.forEach { (key, value) ->
-                    header(key, value)
-                }
-                setBody(requestBody)
-            }.execute { response ->
-                options.onResponse?.invoke(response)
+        val request = HttpRequest(
+            url = options.buildEndpoint(),
+            headers = headers,
+            body = requestBody,
+            timeout = options.timeout.inWholeMilliseconds,
+        )
 
-                if (!response.status.isSuccess()) {
-                    val errorBody = response.bodyAsChannel().readUTF8Line() ?: "Unknown error"
+        engine.executeStream(request).collect { event ->
+            when (event) {
+                is SseEvent.Data -> {
+                    val streamEvent = options.provider.parseStreamLine(event.line)
+                    if (streamEvent != null) {
+                        emit(streamEvent)
+                        if (streamEvent is StreamEvent.Done) return@collect
+                    }
+                }
+                is SseEvent.Complete -> emit(StreamEvent.Done)
+                is SseEvent.Error -> {
+                    val errorBody = event.error.message ?: "Unknown error"
                     try {
                         val errorResponse = json.decodeFromString<OpenAIErrorResponse>(errorBody)
                         emit(
@@ -123,25 +90,10 @@ internal class ChatClient(private val options: ChatOptions) {
                             ),
                         )
                     } catch (e: Exception) {
-                        emit(StreamEvent.Error(Exception("HTTP ${response.status.value}: $errorBody")))
-                    }
-                    return@execute
-                }
-
-                val channel = response.bodyAsChannel()
-                while (!channel.isClosedForRead) {
-                    val line = channel.readUTF8Line() ?: continue
-
-                    // Use provider-specific stream parsing
-                    val event = options.provider.parseStreamLine(line)
-                    if (event != null) {
-                        emit(event)
-                        if (event is StreamEvent.Done) break
+                        emit(StreamEvent.Error(event.error))
                     }
                 }
             }
-        } catch (e: Exception) {
-            emit(StreamEvent.Error(e))
         }
     }
 
@@ -153,25 +105,20 @@ internal class ChatClient(private val options: ChatOptions) {
      */
     suspend fun chat(messages: List<ChatMessage>): AssistantMessage {
         val requestBody = options.buildRequestBody(messages, stream = false)
+        val headers = options.buildAuthHeaders() + options.headers
 
-        val response: HttpResponse = httpClient.post(options.buildEndpoint()) {
-            contentType(ContentType.Application.Json.withCharset(Charsets.UTF_8))
-            // Use provider-specific auth headers
-            options.buildAuthHeaders().forEach { (key, value) ->
-                header(key, value)
-            }
-            options.headers.forEach { (key, value) ->
-                header(key, value)
-            }
-            setBody(requestBody)
-        }
+        val request = HttpRequest(
+            url = options.buildEndpoint(),
+            headers = headers,
+            body = requestBody,
+            timeout = options.timeout.inWholeMilliseconds,
+        )
 
-        options.onResponse?.invoke(response)
+        val result = engine.execute(request)
 
-        if (!response.status.isSuccess()) {
-            val errorBody = response.bodyAsChannel().readUTF8Line() ?: "Unknown error"
+        if (result.statusCode !in 200..299) {
             try {
-                val errorResponse = json.decodeFromString<OpenAIErrorResponse>(errorBody)
+                val errorResponse = json.decodeFromString<OpenAIErrorResponse>(result.body)
                 throw OpenAIException(
                     errorMessage = errorResponse.error.message,
                     errorType = errorResponse.error.type,
@@ -180,20 +127,22 @@ internal class ChatClient(private val options: ChatOptions) {
             } catch (e: OpenAIException) {
                 throw e
             } catch (e: Exception) {
-                throw Exception("HTTP ${response.status.value}: $errorBody")
+                throw Exception("HTTP ${result.statusCode}: ${result.body}")
             }
         }
 
-        val responseBody = response.bodyAsChannel().readUTF8Line() ?: throw Exception("Empty response")
+        val responseBody = result.body
+        if (responseBody.isEmpty()) throw Exception("Empty response")
+
         // Use provider-specific response parsing
-        val result = options.provider.parseResponse(responseBody)
-        return result.message
+        val parseResult = options.provider.parseResponse(responseBody)
+        return parseResult.message
     }
 
     /**
-     * Closes the HTTP client.
+     * Closes the HTTP engine.
      */
     fun close() {
-        httpClient.close()
+        engine.close()
     }
 }
