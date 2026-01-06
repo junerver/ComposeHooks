@@ -29,6 +29,8 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Card
@@ -55,6 +57,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.ai.usechat.AssistantMessage
 import xyz.junerver.compose.ai.usechat.ChatMessage
+import xyz.junerver.compose.ai.usechat.ImagePart
 import xyz.junerver.compose.ai.usechat.Providers
 import xyz.junerver.compose.ai.usechat.TextPart
 import xyz.junerver.compose.ai.usechat.UserMessage
@@ -63,6 +66,8 @@ import xyz.junerver.compose.hooks.getValue
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useState
+import xyz.junerver.composehooks.utils.PickedFile
+import xyz.junerver.composehooks.utils.rememberFilePickerLauncher
 
 /*
   Description: Modern Chat UI Example with Multi-Provider Support
@@ -123,6 +128,10 @@ fun UseChatExample() {
     }
 
     var inputText by useState("")
+    var pickedFile by remember { mutableStateOf<PickedFile?>(null) }
+    val filePickerLauncher = rememberFilePickerLauncher { file ->
+        pickedFile = file
+    }
     val listState = rememberLazyListState()
 
     // Auto-scroll to bottom
@@ -273,10 +282,20 @@ fun UseChatExample() {
             ChatInputArea(
                 value = inputText,
                 onValueChange = { inputText = it },
+                pickedFile = pickedFile,
+                onFileClear = { pickedFile = null },
+                onAddFile = { filePickerLauncher.launch() },
                 onSend = {
                     if (inputText.isNotBlank() && apiKey.isNotBlank()) {
-                        sendMessage(listOf(TextPart(inputText)))
+                        val content = buildList {
+                            add(TextPart(inputText))
+                            pickedFile?.let { file ->
+                                add(ImagePart.fromBase64(file.base64Content, file.mimeType))
+                            }
+                        }
+                        sendMessage(content)
                         inputText = ""
+                        pickedFile = null
                     }
                 },
                 onStop = stop,
@@ -422,6 +441,9 @@ private fun ChatMessageBubble(message: ChatMessage) {
 private fun ChatInputArea(
     value: String,
     onValueChange: (String) -> Unit,
+    pickedFile: PickedFile?,
+    onFileClear: () -> Unit,
+    onAddFile: () -> Unit,
     onSend: () -> Unit,
     onStop: () -> Unit,
     onReload: () -> Unit,
@@ -433,77 +455,132 @@ private fun ChatInputArea(
         modifier = Modifier.fillMaxWidth(),
         shadowElevation = 4.dp,
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            // Reload button
-            if (canReload) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // File preview
+            if (pickedFile != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = pickedFile.name,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.weight(1f),
+                    )
+                    IconButton(
+                        onClick = onFileClear,
+                        modifier = Modifier.size(24.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "Remove file",
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        )
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                // Add file button
                 IconButton(
-                    onClick = onReload,
+                    onClick = onAddFile,
+                    enabled = !isLoading,
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
                         .background(MaterialTheme.colorScheme.surfaceVariant),
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Refresh,
-                        contentDescription = "Reload",
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "Add file",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp),
                     )
                 }
-            }
 
-            // Input field
-            OutlinedTextField(
-                value = value,
-                onValueChange = onValueChange,
-                modifier = Modifier.weight(1f),
-                placeholder = { Text("Type a message...") },
-                enabled = !isLoading,
-                singleLine = false,
-                maxLines = 4,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActions(onSend = { if (canSend) onSend() }),
-                shape = RoundedCornerShape(24.dp),
-            )
+                // Reload button
+                if (canReload) {
+                    IconButton(
+                        onClick = onReload,
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(MaterialTheme.colorScheme.surfaceVariant),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Refresh,
+                            contentDescription = "Reload",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
+                }
 
-            // Send/Stop button
-            IconButton(
-                onClick = { if (isLoading) onStop() else onSend() },
-                enabled = isLoading || canSend,
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(
-                        if (isLoading || canSend) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.surfaceVariant
-                        },
-                    ),
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                    )
-                } else {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.Send,
-                        contentDescription = "Send",
-                        tint = if (canSend) {
-                            MaterialTheme.colorScheme.onPrimary
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
-                        modifier = Modifier.size(20.dp),
-                    )
+                // Input field
+                OutlinedTextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    modifier = Modifier.weight(1f),
+                    placeholder = { Text("Type a message...") },
+                    enabled = !isLoading,
+                    singleLine = false,
+                    maxLines = 4,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                    keyboardActions = KeyboardActions(onSend = { if (canSend) onSend() }),
+                    shape = RoundedCornerShape(24.dp),
+                )
+
+                // Send/Stop button
+                IconButton(
+                    onClick = { if (isLoading) onStop() else onSend() },
+                    enabled = isLoading || canSend,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (isLoading || canSend) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            },
+                        ),
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Send,
+                            contentDescription = "Send",
+                            tint = if (canSend) {
+                                MaterialTheme.colorScheme.onPrimary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
                 }
             }
         }

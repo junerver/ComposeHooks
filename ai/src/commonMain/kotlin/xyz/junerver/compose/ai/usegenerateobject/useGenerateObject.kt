@@ -8,7 +8,10 @@ import androidx.compose.runtime.remember
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
-import xyz.junerver.compose.ai.usechat.sendText
+import xyz.junerver.compose.ai.usechat.FilePart
+import xyz.junerver.compose.ai.usechat.ImagePart
+import xyz.junerver.compose.ai.usechat.TextPart
+import xyz.junerver.compose.ai.usechat.UserContentPart
 import xyz.junerver.compose.ai.usechat.useChat
 import xyz.junerver.compose.hooks._useState
 import xyz.junerver.compose.hooks.useLatestRef
@@ -27,7 +30,7 @@ import xyz.junerver.compose.hooks.useLatestRef
 /**
  * Function type definitions for generate object operations.
  */
-typealias SubmitPromptFn = (prompt: String) -> Unit
+typealias SubmitFn = (content: List<UserContentPart>) -> Unit
 typealias StopGenerateFn = () -> Unit
 
 /**
@@ -37,7 +40,7 @@ typealias StopGenerateFn = () -> Unit
  * @property rawJson The raw JSON response from the model
  * @property isLoading Whether a request is currently in progress
  * @property error The most recent error, if any
- * @property submit Function to submit a prompt and generate an object
+ * @property submit Function to submit content and generate an object (supports multimodal)
  * @property stop Function to cancel the current generation
  */
 @Stable
@@ -46,9 +49,57 @@ data class GenerateObjectHolder<T>(
     val rawJson: State<String>,
     val isLoading: State<Boolean>,
     val error: State<Throwable?>,
-    val submit: SubmitPromptFn,
+    val submit: SubmitFn,
     val stop: StopGenerateFn,
 )
+
+/**
+ * Extension function to submit a text-only prompt.
+ */
+fun <T> GenerateObjectHolder<T>.submitText(text: String) {
+    submit(listOf(TextPart(text)))
+}
+
+/**
+ * Extension function to submit with text and image.
+ */
+fun <T> GenerateObjectHolder<T>.submitWithImage(text: String, imageBase64: String, mimeType: String = "image/jpeg") {
+    submit(
+        listOf(
+            TextPart(text),
+            ImagePart.fromBase64(imageBase64, mimeType),
+        ),
+    )
+}
+
+/**
+ * Extension function to submit with text and image URL.
+ */
+fun <T> GenerateObjectHolder<T>.submitWithImageUrl(text: String, imageUrl: String) {
+    submit(
+        listOf(
+            TextPart(text),
+            ImagePart.fromUrl(imageUrl),
+        ),
+    )
+}
+
+/**
+ * Extension function to submit with text and file.
+ */
+fun <T> GenerateObjectHolder<T>.submitWithFile(
+    text: String,
+    fileBase64: String,
+    mimeType: String,
+    fileName: String? = null,
+) {
+    submit(
+        listOf(
+            TextPart(text),
+            FilePart(fileBase64, mimeType, fileName),
+        ),
+    )
+}
 
 /**
  * Default JSON configuration for parsing responses.
@@ -233,13 +284,13 @@ fun <T : Any> useGenerateObject(
         }
     }
 
-    // Submit function - sends text and clears previous state
-    val submit: SubmitPromptFn = remember(chatHolder) {
-        { prompt: String ->
+    // Submit function - sends content and clears previous state
+    val submit: SubmitFn = remember(chatHolder) {
+        { content: List<UserContentPart> ->
             parsedObject.value = null
             parseError.value = null
             chatHolder.setMessages(emptyList())
-            chatHolder.sendText(prompt)
+            chatHolder.sendMessage(content)
         }
     }
 

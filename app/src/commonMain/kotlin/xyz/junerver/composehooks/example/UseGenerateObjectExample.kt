@@ -26,6 +26,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Send
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -54,11 +56,15 @@ import kotlinx.schema.Description
 import kotlinx.schema.Schema
 import kotlinx.serialization.Serializable
 import xyz.junerver.compose.ai.usechat.Providers
+import xyz.junerver.compose.ai.usegenerateobject.submitText
+import xyz.junerver.compose.ai.usegenerateobject.submitWithImage
 import xyz.junerver.compose.ai.usegenerateobject.useGenerateObject
 import xyz.junerver.compose.hooks.getValue
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useState
+import xyz.junerver.composehooks.utils.PickedFile
+import xyz.junerver.composehooks.utils.rememberFilePickerLauncher
 
 /*
   Description: useGenerateObject Example - Recipe Generator
@@ -145,7 +151,7 @@ fun UseGenerateObjectExample() {
     }
 
     // Use the hook
-    val (recipe, rawJson, isLoading, error, submit, stop) = useGenerateObject<Recipe>(
+    val holder = useGenerateObject<Recipe>(
         schemaString = recipeSchema,
     ) {
         this.provider = provider
@@ -159,8 +165,13 @@ fun UseGenerateObjectExample() {
             println("Error: ${e.message}")
         }
     }
+    val (recipe, _, isLoading, error) = holder
 
     var inputText by remember { mutableStateOf("") }
+    var pickedFile: PickedFile? by remember { mutableStateOf(null) }
+    val filePickerLauncher = rememberFilePickerLauncher { file ->
+        pickedFile = file
+    }
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Column(modifier = Modifier.fillMaxSize()) {
@@ -261,13 +272,19 @@ fun UseGenerateObjectExample() {
             InputArea(
                 value = inputText,
                 onValueChange = { inputText = it },
+                pickedFile = pickedFile,
+                onFileClear = { pickedFile = null },
+                onAddFile = { filePickerLauncher.launch() },
                 onSend = {
                     if (inputText.isNotBlank() && apiKey.isNotBlank()) {
-                        submit(inputText)
+                        pickedFile?.let { file ->
+                            holder.submitWithImage(inputText, file.base64Content, file.mimeType)
+                        } ?: holder.submitText(inputText)
                         inputText = ""
+                        pickedFile = null
                     }
                 },
-                onStop = stop,
+                onStop = holder.stop,
                 isLoading = isLoading.value,
                 canSend = apiKey.isNotBlank() && inputText.isNotBlank(),
             )
@@ -501,6 +518,9 @@ private fun EmptyState() {
 private fun InputArea(
     value: String,
     onValueChange: (String) -> Unit,
+    pickedFile: PickedFile?,
+    onFileClear: () -> Unit,
+    onAddFile: () -> Unit,
     onSend: () -> Unit,
     onStop: () -> Unit,
     isLoading: Boolean,
@@ -510,57 +530,112 @@ private fun InputArea(
         modifier = Modifier.fillMaxWidth(),
         shadowElevation = 4.dp,
     ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-        ) {
-            OutlinedTextField(
-                value = value,
-                onValueChange = onValueChange,
-                modifier = Modifier.weight(1f),
-                placeholder = { Text("描述你想要的菜品...") },
-                enabled = !isLoading,
-                singleLine = false,
-                maxLines = 3,
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                keyboardActions = KeyboardActions(onSend = { if (canSend) onSend() }),
-                shape = RoundedCornerShape(24.dp),
-            )
-
-            IconButton(
-                onClick = { if (isLoading) onStop() else onSend() },
-                enabled = isLoading || canSend,
-                modifier = Modifier
-                    .size(48.dp)
-                    .clip(CircleShape)
-                    .background(
-                        if (isLoading || canSend) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            MaterialTheme.colorScheme.surfaceVariant
-                        },
-                    ),
-            ) {
-                if (isLoading) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(20.dp),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimary,
-                    )
-                } else {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            // File preview
+            if (pickedFile != null) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .background(MaterialTheme.colorScheme.secondaryContainer)
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.Send,
-                        contentDescription = "生成",
-                        tint = if (canSend) {
-                            MaterialTheme.colorScheme.onPrimary
-                        } else {
-                            MaterialTheme.colorScheme.onSurfaceVariant
-                        },
+                        imageVector = Icons.Default.Add,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = pickedFile.name,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                        modifier = Modifier.weight(1f),
+                    )
+                    IconButton(
+                        onClick = onFileClear,
+                        modifier = Modifier.size(24.dp),
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Close,
+                            contentDescription = "移除图片",
+                            modifier = Modifier.size(16.dp),
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                        )
+                    }
+                }
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                // Add file button
+                IconButton(
+                    onClick = onAddFile,
+                    enabled = !isLoading,
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Add,
+                        contentDescription = "添加图片",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(20.dp),
                     )
+                }
+
+                OutlinedTextField(
+                    value = value,
+                    onValueChange = onValueChange,
+                    modifier = Modifier.weight(1f),
+                    placeholder = { Text("描述你想要的菜品...") },
+                    enabled = !isLoading,
+                    singleLine = false,
+                    maxLines = 3,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                    keyboardActions = KeyboardActions(onSend = { if (canSend) onSend() }),
+                    shape = RoundedCornerShape(24.dp),
+                )
+
+                IconButton(
+                    onClick = { if (isLoading) onStop() else onSend() },
+                    enabled = isLoading || canSend,
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(
+                            if (isLoading || canSend) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            },
+                        ),
+                ) {
+                    if (isLoading) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(20.dp),
+                            strokeWidth = 2.dp,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.Send,
+                            contentDescription = "生成",
+                            tint = if (canSend) {
+                                MaterialTheme.colorScheme.onPrimary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                            modifier = Modifier.size(20.dp),
+                        )
+                    }
                 }
             }
         }
