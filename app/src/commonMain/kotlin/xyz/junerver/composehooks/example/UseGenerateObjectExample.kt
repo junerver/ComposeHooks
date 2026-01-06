@@ -151,7 +151,7 @@ fun UseGenerateObjectExample() {
 
     // Use the hook
     val (recipe, _, isLoading, error, submit, stop) = useGenerateObject<Recipe>(
-        schemaString = recipeSchema,
+        schema = recipeSchema,
     ) {
         this.provider = provider
         this.model = model.ifBlank { null }

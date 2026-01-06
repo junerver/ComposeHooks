@@ -109,11 +109,11 @@ private val defaultJson = Json {
 /**
  * Builds the system prompt with JSON schema injection.
  */
-private fun buildSchemaSystemPrompt(userSystemPrompt: String?, schemaString: String): String {
+private fun buildSchemaSystemPrompt(userSystemPrompt: String?, schema: String): String {
     val basePrompt = userSystemPrompt?.let { "$it\n\n" } ?: ""
     return """
         |${basePrompt}You must respond in JSON format, strictly following this JSON Schema:
-        |$schemaString
+        |$schema
         |
         |Output only valid JSON, do not include any other text, markdown code blocks, or explanations.
         """.trimMargin()
@@ -170,7 +170,7 @@ private fun cleanJsonResponse(raw: String): String = raw
  * @Composable
  * fun RecipeGenerator() {
  *     val (recipe, rawJson, isLoading, error, submit, stop) = useGenerateObject<Recipe>(
- *         schemaString = recipeSchema
+ *         schema = recipeSchema
  *     ) {
  *         provider = Providers.DeepSeek(apiKey = "your-api-key")
  *         systemPrompt = "You are a professional chef."
@@ -188,16 +188,16 @@ private fun cleanJsonResponse(raw: String): String = raw
  * ```
  *
  * @param T The target data class type, must be @Serializable
- * @param schemaString The JSON Schema string describing the expected output structure
+ * @param schema The JSON Schema string describing the expected output structure
  * @param optionsOf Configuration factory function for options
  * @return GenerateObjectHolder containing object state and control functions
  */
 @Composable
 inline fun <reified T : Any> useGenerateObject(
-    schemaString: String,
+    schema: String,
     noinline optionsOf: GenerateObjectOptions<T>.() -> Unit = {},
 ): GenerateObjectHolder<T> = useGenerateObject(
-    schemaString = schemaString,
+    schema = schema,
     serializer = serializer<T>(),
     optionsOf = optionsOf,
 )
@@ -209,14 +209,14 @@ inline fun <reified T : Any> useGenerateObject(
  * cannot be used.
  *
  * @param T The target data class type
- * @param schemaString The JSON Schema string describing the expected output structure
+ * @param schema The JSON Schema string describing the expected output structure
  * @param serializer The KSerializer for type T
  * @param optionsOf Configuration factory function for options
  * @return GenerateObjectHolder containing object state and control functions
  */
 @Composable
 fun <T : Any> useGenerateObject(
-    schemaString: String,
+    schema: String,
     serializer: KSerializer<T>,
     optionsOf: GenerateObjectOptions<T>.() -> Unit = {},
 ): GenerateObjectHolder<T> {
@@ -229,8 +229,8 @@ fun <T : Any> useGenerateObject(
     val parseError = _useState<Throwable?>(null)
 
     // Build schema-injected system prompt
-    val schemaSystemPrompt = remember(schemaString, options.systemPrompt) {
-        buildSchemaSystemPrompt(options.systemPrompt, schemaString)
+    val schemaSystemPrompt = remember(schema, options.systemPrompt) {
+        buildSchemaSystemPrompt(options.systemPrompt, schema)
     }
 
     // Use useChat internally
@@ -307,6 +307,6 @@ fun <T : Any> useGenerateObject(
  */
 @Composable
 inline fun <reified T : Any> rememberGenerateObject(
-    schemaString: String,
+    schema: String,
     noinline optionsOf: GenerateObjectOptions<T>.() -> Unit = {},
-): GenerateObjectHolder<T> = useGenerateObject(schemaString, optionsOf)
+): GenerateObjectHolder<T> = useGenerateObject(schema, optionsOf)

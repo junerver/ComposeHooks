@@ -200,7 +200,7 @@ messages.value.forEach { message ->
 data class Recipe(val name: String, val ingredients: List<String>)
 
 val (recipe, rawJson, isLoading, error, submit, stop) = useGenerateObject<Recipe>(
-    schemaString = Recipe::class.jsonSchemaString,
+    schema = Recipe::class.jsonSchemaString,
 ) {
     provider = Providers.OpenAI(apiKey = "your-api-key")
     systemPrompt = "You are a professional chef."
