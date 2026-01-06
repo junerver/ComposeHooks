@@ -120,16 +120,6 @@ private fun buildSchemaSystemPrompt(userSystemPrompt: String?, schema: String): 
 }
 
 /**
- * Cleans up potential markdown code blocks from JSON response.
- */
-private fun cleanJsonResponse(raw: String): String = raw
-    .trim()
-    .removePrefix("```json")
-    .removePrefix("```")
-    .removeSuffix("```")
-    .trim()
-
-/**
  * A Composable hook for generating structured objects from AI responses.
  *
  * This hook builds on top of [useChat] to provide structured output generation with:
@@ -248,7 +238,7 @@ fun <T : Any> useGenerateObject(
             // Parse JSON to object
             val rawJson = message.textContent
             try {
-                val cleanJson = cleanJsonResponse(rawJson)
+                val cleanJson = healJson(rawJson, optionsRef.current.enableJsonHealing)
                 val obj = defaultJson.decodeFromString(serializerRef.current, cleanJson)
                 parsedObject.value = obj
                 parseError.value = null
