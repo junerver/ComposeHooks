@@ -43,7 +43,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -60,6 +59,9 @@ import xyz.junerver.compose.ai.usechat.Providers
 import xyz.junerver.compose.ai.usechat.TextPart
 import xyz.junerver.compose.ai.usechat.UserMessage
 import xyz.junerver.compose.ai.usechat.useChat
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.useCreation
+import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useState
 
 /*
@@ -91,7 +93,7 @@ fun UseChatExample() {
     var model by useState("")
 
     // Create provider instance based on selection
-    val provider = remember(selectedType, apiKey) {
+    val provider by useCreation(selectedType, apiKey) {
         when (selectedType) {
             ProviderType.OpenAI -> Providers.OpenAI(apiKey = apiKey)
             ProviderType.DeepSeek -> Providers.DeepSeek(apiKey = apiKey)
@@ -106,7 +108,7 @@ fun UseChatExample() {
     }
 
     // Reset model when provider changes
-    LaunchedEffect(selectedType) {
+    useEffect(selectedType) {
         model = ""
     }
 
@@ -120,11 +122,11 @@ fun UseChatExample() {
         }
     }
 
-    var inputText by remember { mutableStateOf("") }
+    var inputText by useState("")
     val listState = rememberLazyListState()
 
     // Auto-scroll to bottom
-    LaunchedEffect(messages.value.size) {
+    useEffect(messages.value.size) {
         if (messages.value.isNotEmpty()) {
             listState.animateScrollToItem(messages.value.size - 1)
         }

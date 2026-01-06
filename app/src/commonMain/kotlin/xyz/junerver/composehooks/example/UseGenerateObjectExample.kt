@@ -55,6 +55,9 @@ import kotlinx.schema.Schema
 import kotlinx.serialization.Serializable
 import xyz.junerver.compose.ai.usechat.Providers
 import xyz.junerver.compose.ai.usegenerateobject.useGenerateObject
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.useCreation
+import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useState
 
 /*
@@ -103,11 +106,15 @@ private val recipeSchema = Recipe::class.jsonSchemaString
 
 /** Available provider types for selection */
 private enum class ObjectProviderType(val displayName: String) {
-    DeepSeek("DeepSeek"),
     OpenAI("OpenAI"),
+    DeepSeek("DeepSeek"),
     Moonshot("Moonshot"),
     Zhipu("Zhipu"),
     Qwen("Qwen"),
+    Groq("Groq"),
+    Together("Together"),
+    MiMo("MiMo"),
+    Anthropic("Anthropic"),
 }
 
 @Composable
@@ -115,16 +122,26 @@ fun UseGenerateObjectExample() {
     // Provider configuration
     var selectedType by useState(ObjectProviderType.DeepSeek)
     var apiKey by useState("")
+    var model by useState("")
 
     // Create provider instance
-    val provider = remember(selectedType, apiKey) {
+    val provider by useCreation(selectedType, apiKey) {
         when (selectedType) {
-            ObjectProviderType.DeepSeek -> Providers.DeepSeek(apiKey = apiKey)
             ObjectProviderType.OpenAI -> Providers.OpenAI(apiKey = apiKey)
+            ObjectProviderType.DeepSeek -> Providers.DeepSeek(apiKey = apiKey)
             ObjectProviderType.Moonshot -> Providers.Moonshot(apiKey = apiKey)
             ObjectProviderType.Zhipu -> Providers.Zhipu(apiKey = apiKey)
             ObjectProviderType.Qwen -> Providers.Qwen(apiKey = apiKey)
+            ObjectProviderType.Groq -> Providers.Groq(apiKey = apiKey)
+            ObjectProviderType.Together -> Providers.Together(apiKey = apiKey)
+            ObjectProviderType.MiMo -> Providers.MiMo(apiKey = apiKey)
+            ObjectProviderType.Anthropic -> Providers.Anthropic(apiKey = apiKey)
         }
+    }
+
+    // Reset model when provider changes
+    useEffect(selectedType) {
+        model = ""
     }
 
     // Use the hook
@@ -132,6 +149,7 @@ fun UseGenerateObjectExample() {
         schemaString = recipeSchema,
     ) {
         this.provider = provider
+        this.model = model.ifBlank { null }
         systemPrompt = "你是一位专业的中餐厨师，擅长创作各种美味的菜谱。请根据用户的描述生成详细的菜谱。"
         onFinish = { recipe, usage ->
             println("Generated recipe: ${recipe.name}")
@@ -173,6 +191,14 @@ fun UseGenerateObjectExample() {
                         selectedType = selectedType,
                         onTypeChange = { selectedType = it },
                         modifier = Modifier.weight(1f),
+                    )
+                    OutlinedTextField(
+                        value = model,
+                        onValueChange = { model = it },
+                        label = { Text("Model") },
+                        placeholder = { Text(provider.defaultModel) },
+                        modifier = Modifier.weight(1f),
+                        singleLine = true,
                     )
                 }
 
