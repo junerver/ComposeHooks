@@ -46,9 +46,7 @@ private fun getFileName(context: Context, uri: Uri): String {
 }
 
 @Composable
-actual fun rememberFilePickerLauncher(
-    onFilePicked: (PickedFile) -> Unit,
-): FilePickerLauncher {
+actual fun rememberFilePickerLauncher(onFilePicked: (PickedFile) -> Unit): FilePickerLauncher {
     val context = LocalContext.current
 
     val launcher = rememberLauncherForActivityResult(

@@ -55,9 +55,8 @@ import androidx.compose.ui.unit.dp
 import kotlinx.schema.Description
 import kotlinx.schema.Schema
 import kotlinx.serialization.Serializable
+import xyz.junerver.compose.ai.invoke
 import xyz.junerver.compose.ai.usechat.Providers
-import xyz.junerver.compose.ai.usegenerateobject.submitText
-import xyz.junerver.compose.ai.usegenerateobject.submitWithImage
 import xyz.junerver.compose.ai.usegenerateobject.useGenerateObject
 import xyz.junerver.compose.hooks.getValue
 import xyz.junerver.compose.hooks.useCreation
@@ -151,21 +150,20 @@ fun UseGenerateObjectExample() {
     }
 
     // Use the hook
-    val holder = useGenerateObject<Recipe>(
+    val (recipe, _, isLoading, error, submit, stop) = useGenerateObject<Recipe>(
         schemaString = recipeSchema,
     ) {
         this.provider = provider
         this.model = model.ifBlank { null }
         systemPrompt = "你是一位专业的中餐厨师，擅长创作各种美味的菜谱。请根据用户的描述生成详细的菜谱。"
-        onFinish = { recipe, usage ->
-            println("Generated recipe: ${recipe.name}")
+        onFinish = { r, usage ->
+            println("Generated recipe: ${r.name}")
             usage?.let { println("Tokens used: ${it.totalTokens}") }
         }
         onError = { e ->
             println("Error: ${e.message}")
         }
     }
-    val (recipe, _, isLoading, error) = holder
 
     var inputText by remember { mutableStateOf("") }
     var pickedFile: PickedFile? by remember { mutableStateOf(null) }
@@ -278,13 +276,13 @@ fun UseGenerateObjectExample() {
                 onSend = {
                     if (inputText.isNotBlank() && apiKey.isNotBlank()) {
                         pickedFile?.let { file ->
-                            holder.submitWithImage(inputText, file.base64Content, file.mimeType)
-                        } ?: holder.submitText(inputText)
+                            submit(inputText, file.base64Content, file.mimeType)
+                        } ?: submit(inputText)
                         inputText = ""
                         pickedFile = null
                     }
                 },
-                onStop = holder.stop,
+                onStop = stop,
                 isLoading = isLoading.value,
                 canSend = apiKey.isNotBlank() && inputText.isNotBlank(),
             )

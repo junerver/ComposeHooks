@@ -55,11 +55,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import xyz.junerver.compose.ai.invoke
 import xyz.junerver.compose.ai.usechat.AssistantMessage
 import xyz.junerver.compose.ai.usechat.ChatMessage
-import xyz.junerver.compose.ai.usechat.ImagePart
 import xyz.junerver.compose.ai.usechat.Providers
-import xyz.junerver.compose.ai.usechat.TextPart
 import xyz.junerver.compose.ai.usechat.UserMessage
 import xyz.junerver.compose.ai.usechat.useChat
 import xyz.junerver.compose.hooks.getValue
@@ -287,13 +286,9 @@ fun UseChatExample() {
                 onAddFile = { filePickerLauncher.launch() },
                 onSend = {
                     if (inputText.isNotBlank() && apiKey.isNotBlank()) {
-                        val content = buildList {
-                            add(TextPart(inputText))
-                            pickedFile?.let { file ->
-                                add(ImagePart.fromBase64(file.base64Content, file.mimeType))
-                            }
-                        }
-                        sendMessage(content)
+                        pickedFile?.let { file ->
+                            sendMessage(inputText, file.base64Content, file.mimeType)
+                        } ?: sendMessage(inputText)
                         inputText = ""
                         pickedFile = null
                     }

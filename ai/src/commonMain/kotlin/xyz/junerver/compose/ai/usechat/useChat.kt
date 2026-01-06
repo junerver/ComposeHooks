@@ -11,6 +11,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
+import xyz.junerver.compose.ai.AppendMessageFn
+import xyz.junerver.compose.ai.ReloadFn
+import xyz.junerver.compose.ai.SendMessageFn
+import xyz.junerver.compose.ai.SetMessagesFn
+import xyz.junerver.compose.ai.StopFn
 import xyz.junerver.compose.hooks.MutableRef
 import xyz.junerver.compose.hooks._useGetState
 import xyz.junerver.compose.hooks.useCancelableAsync
@@ -29,15 +34,6 @@ import xyz.junerver.compose.hooks.useUnmount
   Inspired by Vercel AI SDK useChat hook.
   See: https://ai-sdk.dev/docs/reference/ai-sdk-ui/use-chat
 */
-
-/**
- * Function type definitions for chat operations.
- */
-typealias SendMessageFn = (content: List<UserContentPart>) -> Unit
-typealias SetMessagesFn = (messages: List<ChatMessage>) -> Unit
-typealias AppendMessageFn = (message: ChatMessage) -> Unit
-typealias ReloadFn = () -> Unit
-typealias StopFn = () -> Unit
 
 /**
  * Holder class for useChat hook return values.

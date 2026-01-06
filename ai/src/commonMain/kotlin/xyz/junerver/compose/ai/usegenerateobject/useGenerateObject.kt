@@ -8,6 +8,8 @@ import androidx.compose.runtime.remember
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
+import xyz.junerver.compose.ai.StopFn
+import xyz.junerver.compose.ai.SubmitFn
 import xyz.junerver.compose.ai.usechat.FilePart
 import xyz.junerver.compose.ai.usechat.ImagePart
 import xyz.junerver.compose.ai.usechat.TextPart
@@ -28,12 +30,6 @@ import xyz.junerver.compose.hooks.useLatestRef
 */
 
 /**
- * Function type definitions for generate object operations.
- */
-typealias SubmitFn = (content: List<UserContentPart>) -> Unit
-typealias StopGenerateFn = () -> Unit
-
-/**
  * Holder class for useGenerateObject hook return values.
  *
  * @property object_ The generated object (null while loading or on error)
@@ -50,7 +46,7 @@ data class GenerateObjectHolder<T>(
     val isLoading: State<Boolean>,
     val error: State<Throwable?>,
     val submit: SubmitFn,
-    val stop: StopGenerateFn,
+    val stop: StopFn,
 )
 
 /**

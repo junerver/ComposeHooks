@@ -24,6 +24,4 @@ interface FilePickerLauncher {
  * @param onFilePicked Callback when a file is picked, provides the file as base64
  */
 @Composable
-expect fun rememberFilePickerLauncher(
-    onFilePicked: (PickedFile) -> Unit,
-): FilePickerLauncher
+expect fun rememberFilePickerLauncher(onFilePicked: (PickedFile) -> Unit): FilePickerLauncher
