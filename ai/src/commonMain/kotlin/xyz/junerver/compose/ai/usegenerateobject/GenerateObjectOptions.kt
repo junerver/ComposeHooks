@@ -34,6 +34,8 @@ typealias OnObjectFinishCallback<T> = (obj: T, usage: ChatUsage?) -> Unit
  * @property timeout Request timeout duration
  * @property headers Additional HTTP headers to send with requests
  * @property httpEngine Custom HTTP engine (null = use global default)
+ * @property stream Whether to use streaming responses (default true)
+ * @property enableIncrementalParsing Whether to parse partial JSON during streaming (default true)
  * @property enableJsonHealing Enable JSON repair mechanism (default true)
  * @property onResponse Callback when receiving an HTTP response
  * @property onFinish Callback when object generation is complete
@@ -49,6 +51,8 @@ data class GenerateObjectOptions<T> internal constructor(
     override var timeout: Duration = AIOptionsDefaults.DEFAULT_TIMEOUT,
     override var headers: Map<String, String> = AIOptionsDefaults.DEFAULT_HEADERS,
     override var httpEngine: HttpEngine? = null,
+    var stream: Boolean = true,
+    var enableIncrementalParsing: Boolean = true,
     /**
      * Enable JSON repair mechanism, default is true.
      *

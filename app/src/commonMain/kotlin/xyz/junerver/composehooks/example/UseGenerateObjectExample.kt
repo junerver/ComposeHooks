@@ -40,6 +40,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,6 +50,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
@@ -80,28 +82,28 @@ import xyz.junerver.composehooks.utils.rememberFilePickerLauncher
 @Schema
 data class Recipe(
     @Description("菜谱名称")
-    val name: String,
+    val name: String = "",
     @Description("菜品简介")
-    val description: String,
+    val description: String = "",
     @Description("食材列表")
-    val ingredients: List<Ingredient>,
+    val ingredients: List<Ingredient> = emptyList(),
     @Description("烹饪步骤")
-    val steps: List<String>,
+    val steps: List<String> = emptyList(),
     @Description("烹饪时间")
-    val cookingTime: String,
+    val cookingTime: String = "",
     @Description("难度等级")
-    val difficulty: String,
+    val difficulty: String = "",
     @Description("份量（人数）")
-    val servings: Int,
+    val servings: Int = 0,
 )
 
 @Serializable
 @Schema
 data class Ingredient(
     @Description("食材名称")
-    val name: String,
+    val name: String = "",
     @Description("用量")
-    val amount: String,
+    val amount: String = "",
 )
 
 /**
@@ -128,6 +130,8 @@ fun UseGenerateObjectExample() {
     var selectedType by useState(ObjectProviderType.DeepSeek)
     var apiKey by useState("")
     var model by useState("")
+    var streamEnabled by useState(true)
+    var incrementalEnabled by useState(true)
 
     // Create provider instance
     val provider by useCreation(selectedType, apiKey) {
@@ -150,11 +154,13 @@ fun UseGenerateObjectExample() {
     }
 
     // Use the hook
-    val (recipe, _, isLoading, error, submit, stop) = useGenerateObject<Recipe>(
+    val (recipe, rawJson, isLoading, error, submit, stop) = useGenerateObject<Recipe>(
         schema = recipeSchema,
     ) {
         this.provider = provider
         this.model = model.ifBlank { null }
+        stream = streamEnabled
+        enableIncrementalParsing = incrementalEnabled
         systemPrompt = "你是一位专业的中餐厨师，擅长创作各种美味的菜谱。请根据用户的描述生成详细的菜谱。"
         onFinish = { r, usage ->
             println("Generated recipe: ${r.name}")
@@ -222,6 +228,46 @@ fun UseGenerateObjectExample() {
                     singleLine = true,
                     placeholder = { Text("输入你的 ${selectedType.displayName} API Key") },
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Text(
+                        text = "生成模式:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        text = "阻塞",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Switch(
+                        checked = streamEnabled,
+                        enabled = !isLoading.value,
+                        onCheckedChange = { streamEnabled = it },
+                    )
+                    Text(
+                        text = "流式",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = "增量解析:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Switch(
+                        checked = incrementalEnabled,
+                        enabled = streamEnabled && !isLoading.value,
+                        onCheckedChange = { incrementalEnabled = it },
+                    )
+                }
             }
 
             // Error display
@@ -257,13 +303,23 @@ fun UseGenerateObjectExample() {
                     .verticalScroll(rememberScrollState())
                     .padding(horizontal = 16.dp),
             ) {
-                if (recipe.value != null) {
-                    RecipeCard(recipe = recipe.value!!)
+                val recipeValue = recipe.value
+                if (recipeValue != null) {
+                    if (isLoading.value && streamEnabled && incrementalEnabled) {
+                        IncrementalHint()
+                    }
+                    RecipeCard(recipe = recipeValue)
                 } else if (isLoading.value) {
                     LoadingIndicator()
                 } else {
                     EmptyState()
                 }
+
+                RawJsonCard(
+                    rawJson = rawJson.value,
+                    isLoading = isLoading.value,
+                    streamEnabled = streamEnabled,
+                )
             }
 
             // Input area
@@ -358,13 +414,13 @@ private fun RecipeCard(recipe: Recipe) {
         ) {
             // Header
             Text(
-                text = recipe.name,
+                text = recipe.name.ifBlank { "（生成中...）" },
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = recipe.description,
+                text = recipe.description.ifBlank { "（等待模型输出描述）" },
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -376,9 +432,9 @@ private fun RecipeCard(recipe: Recipe) {
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
             ) {
-                MetaChip(label = "⏱️ ${recipe.cookingTime}")
-                MetaChip(label = "📊 ${recipe.difficulty}")
-                MetaChip(label = "👥 ${recipe.servings}人份")
+                MetaChip(label = "⏱️ ${recipe.cookingTime.ifBlank { "未知" }}")
+                MetaChip(label = "📊 ${recipe.difficulty.ifBlank { "未知" }}")
+                MetaChip(label = "👥 ${recipe.servings.takeIf { it > 0 } ?: 0}人份")
             }
 
             HorizontalDivider(modifier = Modifier.padding(vertical = 12.dp))
@@ -390,22 +446,30 @@ private fun RecipeCard(recipe: Recipe) {
                 fontWeight = FontWeight.SemiBold,
             )
             Spacer(modifier = Modifier.height(8.dp))
-            recipe.ingredients.forEach { ingredient ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 2.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                ) {
-                    Text(
-                        text = "• ${ingredient.name}",
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                    Text(
-                        text = ingredient.amount,
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.primary,
-                    )
+            if (recipe.ingredients.isEmpty()) {
+                Text(
+                    text = "（等待模型输出食材列表）",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                recipe.ingredients.forEach { ingredient ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 2.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(
+                            text = "• ${ingredient.name}",
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
+                        Text(
+                            text = ingredient.amount,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
                 }
             }
 
@@ -418,33 +482,99 @@ private fun RecipeCard(recipe: Recipe) {
                 fontWeight = FontWeight.SemiBold,
             )
             Spacer(modifier = Modifier.height(8.dp))
-            recipe.steps.forEachIndexed { index, step ->
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp),
-                ) {
-                    Box(
+            if (recipe.steps.isEmpty()) {
+                Text(
+                    text = "（等待模型输出步骤）",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                recipe.steps.forEachIndexed { index, step ->
+                    Row(
                         modifier = Modifier
-                            .size(24.dp)
-                            .clip(CircleShape)
-                            .background(MaterialTheme.colorScheme.primaryContainer),
-                        contentAlignment = Alignment.Center,
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp),
                     ) {
+                        Box(
+                            modifier = Modifier
+                                .size(24.dp)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.primaryContainer),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = "${index + 1}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "${index + 1}",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                            fontWeight = FontWeight.Bold,
+                            text = step,
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.weight(1f),
                         )
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(
-                        text = step,
-                        style = MaterialTheme.typography.bodyMedium,
-                        modifier = Modifier.weight(1f),
-                    )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun IncrementalHint() {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(top = 8.dp)
+            .animateContentSize(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+        ),
+    ) {
+        Text(
+            text = "增量解析中：当 JSON 临时可解析时，会提前更新菜谱预览（可能包含默认值）。",
+            modifier = Modifier.padding(12.dp),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
+    }
+}
+
+@Composable
+private fun RawJsonCard(rawJson: String, isLoading: Boolean, streamEnabled: Boolean) {
+    if (rawJson.isBlank() && !isLoading) return
+
+    val preview = if (rawJson.length > 4000) rawJson.takeLast(4000) else rawJson
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 8.dp)
+            .animateContentSize(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        ),
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = if (streamEnabled) "Raw JSON（流式输出）" else "Raw JSON（阻塞输出）",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = preview.ifBlank { "（等待模型输出...）" },
+                style = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            if (rawJson.length > 4000) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = "（仅展示最后 4000 字符）",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
     }

@@ -169,7 +169,7 @@ implementation("xyz.junerver.compose:hai:<latest_release>")
 | Hook 名称 | 描述 |
 | --------- | ---- |
 | [useChat](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseChatExample.kt) | 用于管理与 OpenAI 兼容 API 和 Anthropic Messages API 聊天对话的 Hook，支持流式响应的打字机效果。 |
-| [useGenerateObject](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseGenerateObjectExample.kt) | 用于从 AI 响应生成结构化数据对象的 Hook，支持多模态输入（文本 + 图片）。 |
+| [useGenerateObject](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseGenerateObjectExample.kt) | 用于从 AI 响应生成结构化数据对象的 Hook，支持流式与增量更新对象。 |
 
 **功能特性：**
 - 流式响应 (SSE)，实时打字机效果

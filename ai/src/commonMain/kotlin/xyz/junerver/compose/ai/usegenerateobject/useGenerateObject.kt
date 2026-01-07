@@ -16,6 +16,7 @@ import xyz.junerver.compose.ai.usechat.TextPart
 import xyz.junerver.compose.ai.usechat.UserContentPart
 import xyz.junerver.compose.ai.usechat.useChat
 import xyz.junerver.compose.hooks._useState
+import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useLatestRef
 
 /*
@@ -232,6 +233,8 @@ fun <T : Any> useGenerateObject(
         maxTokens = optionsRef.current.maxTokens
         timeout = optionsRef.current.timeout
         headers = optionsRef.current.headers
+        httpEngine = optionsRef.current.httpEngine
+        stream = optionsRef.current.stream
         onResponse = optionsRef.current.onResponse
 
         onFinish = { message, usage, _ ->
@@ -260,6 +263,22 @@ fun <T : Any> useGenerateObject(
     val rawJsonState = remember {
         derivedStateOf {
             chatHolder.messages.value.lastOrNull()?.textContent ?: ""
+        }
+    }
+
+    useEffect(rawJsonState.value, chatHolder.isLoading.value) {
+        val rawJson = rawJsonState.value
+        if (rawJson.isBlank()) return@useEffect
+        if (!chatHolder.isLoading.value) return@useEffect
+        if (!optionsRef.current.stream) return@useEffect
+        if (!optionsRef.current.enableIncrementalParsing) return@useEffect
+
+        try {
+            val cleanJson = healJson(rawJson, optionsRef.current.enableJsonHealing)
+            val obj = defaultJson.decodeFromString(serializerRef.current, cleanJson)
+            parsedObject.value = obj
+        } catch (_: Exception) {
+            // Ignore incremental parse failures during streaming
         }
     }
 
