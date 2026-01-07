@@ -6,6 +6,7 @@ import xyz.junerver.composehooks.example.HomeScreen
 import xyz.junerver.composehooks.example.RequestExampleList
 import xyz.junerver.composehooks.example.UseAsyncExample
 import xyz.junerver.composehooks.example.UseAutoResetExample
+import xyz.junerver.composehooks.example.UseAgentExample
 import xyz.junerver.composehooks.example.UseBooleanExample
 import xyz.junerver.composehooks.example.UseChatExample
 import xyz.junerver.composehooks.example.UseClipboardExample
@@ -84,6 +85,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useRequest" to { RequestExampleList() },
     "useAsync" to { UseAsyncExample() },
     "useAutoReset" to { UseAutoResetExample() },
+    "useAgent" to { UseAgentExample() },
     "useBoolean" to { UseBooleanExample() },
     "useChat" to { UseChatExample() },
     "useClipboard" to { UseClipboardExample() },

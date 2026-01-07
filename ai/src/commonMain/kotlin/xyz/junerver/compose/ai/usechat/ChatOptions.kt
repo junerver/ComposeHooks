@@ -7,6 +7,8 @@ import xyz.junerver.compose.ai.BaseAIOptions
 import xyz.junerver.compose.ai.OnErrorCallback
 import xyz.junerver.compose.ai.OnResponseCallback
 import xyz.junerver.compose.ai.http.HttpEngine
+import xyz.junerver.compose.ai.useagent.Tool
+import xyz.junerver.compose.ai.useagent.ToolChoice
 import xyz.junerver.compose.hooks.Options
 
 /*
@@ -36,6 +38,8 @@ typealias OnStreamCallback = (delta: String) -> Unit
  * @property stream Whether to use streaming responses (default: true)
  * @property headers Additional HTTP headers to send with requests
  * @property httpEngine Custom HTTP engine (null = use global default)
+ * @property tools List of tools available for the model to call
+ * @property toolChoice How the model should choose tools (Auto, None, Required, Specific)
  * @property onResponse Callback when receiving an HTTP response
  * @property onFinish Callback when a message generation is complete
  * @property onError Callback when an error occurs
@@ -53,6 +57,9 @@ data class ChatOptions internal constructor(
     var stream: Boolean = true,
     override var headers: Map<String, String> = AIOptionsDefaults.DEFAULT_HEADERS,
     override var httpEngine: HttpEngine? = null,
+    // Tool calling
+    var tools: List<Tool<*>> = emptyList(),
+    var toolChoice: ToolChoice = ToolChoice.Auto,
     // Callbacks
     override var onResponse: OnResponseCallback? = null,
     var onFinish: OnFinishCallback? = null,
@@ -84,5 +91,7 @@ data class ChatOptions internal constructor(
         temperature = temperature,
         maxTokens = maxTokens,
         systemPrompt = systemPrompt,
+        tools = tools,
+        toolChoice = toolChoice,
     )
 }

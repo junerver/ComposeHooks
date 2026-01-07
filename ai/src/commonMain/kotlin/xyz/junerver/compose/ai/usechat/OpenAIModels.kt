@@ -8,6 +8,7 @@ import kotlinx.serialization.descriptors.buildClassSerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
 import kotlinx.serialization.json.JsonEncoder
+import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
@@ -34,6 +35,9 @@ internal data class ChatCompletionRequest(
     val temperature: Float? = null,
     @SerialName("max_tokens")
     val maxTokens: Int? = null,
+    val tools: List<OpenAITool>? = null,
+    @SerialName("tool_choice")
+    val toolChoice: JsonElement? = null,
 )
 
 /**
@@ -58,6 +62,25 @@ internal data class OpenAIToolCall(
     val id: String,
     val type: String = "function",
     val function: OpenAIFunctionCall,
+)
+
+/**
+ * Tool definition in OpenAI format.
+ */
+@Serializable
+internal data class OpenAITool(
+    val type: String = "function",
+    val function: OpenAIFunctionDefinition,
+)
+
+/**
+ * Function definition in OpenAI format.
+ */
+@Serializable
+internal data class OpenAIFunctionDefinition(
+    val name: String,
+    val description: String,
+    val parameters: kotlinx.serialization.json.JsonObject,
 )
 
 /**

@@ -2,8 +2,12 @@ package xyz.junerver.compose.ai.usechat
 
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.put
+import xyz.junerver.compose.ai.useagent.Tool
+import xyz.junerver.compose.ai.useagent.ToolChoice
 
 /*
   Description: Chat provider abstraction for multi-vendor support
@@ -65,6 +69,8 @@ interface ChatProvider {
         temperature: Float?,
         maxTokens: Int?,
         systemPrompt: String?,
+        tools: List<Tool<*>> = emptyList(),
+        toolChoice: ToolChoice = ToolChoice.Auto,
     ): String
 
     /**
@@ -145,17 +151,52 @@ sealed class Providers : ChatProvider {
             temperature: Float?,
             maxTokens: Int?,
             systemPrompt: String?,
+            tools: List<Tool<*>>,
+            toolChoice: ToolChoice,
         ): String {
             val allMessages = buildList {
                 systemPrompt?.let { add(systemMessage(it)) }
                 addAll(messages)
             }
+
+            // Convert tools to OpenAI format
+            val openAITools = if (tools.isNotEmpty()) {
+                tools.map { tool ->
+                    OpenAITool(
+                        type = "function",
+                        function = OpenAIFunctionDefinition(
+                            name = tool.name,
+                            description = tool.description,
+                            parameters = tool.parameters,
+                        ),
+                    )
+                }
+            } else null
+
+            // Convert toolChoice to OpenAI format
+            val openAIToolChoice = when (toolChoice) {
+                is ToolChoice.Auto -> JsonPrimitive("auto")
+                is ToolChoice.None -> JsonPrimitive("none")
+                is ToolChoice.Required -> JsonPrimitive("required")
+                is ToolChoice.Specific -> buildJsonObject {
+                    put("type", "function")
+                    put(
+                        "function",
+                        buildJsonObject {
+                            put("name", toolChoice.name)
+                        },
+                    )
+                }
+            }.takeIf { tools.isNotEmpty() }
+
             val request = ChatCompletionRequest(
                 model = model,
                 messages = allMessages.toRequestMessages(),
                 stream = stream,
                 temperature = temperature,
                 maxTokens = maxTokens,
+                tools = openAITools,
+                toolChoice = openAIToolChoice,
             )
             return json.encodeToString(ChatCompletionRequest.serializer(), request)
         }
@@ -174,16 +215,36 @@ sealed class Providers : ChatProvider {
                 val content = delta?.content ?: ""
                 val role = delta?.role
                 val finishReason = choice?.finishReason
+                val toolCalls = delta?.toolCalls.orEmpty()
 
-                if (content.isNotEmpty() || role != null || finishReason != null) {
-                    StreamEvent.Delta(
-                        content = content,
-                        role = role,
-                        finishReason = finishReason,
-                        usage = chunk.usage,
-                    )
-                } else {
-                    null
+                val events = buildList {
+                    if (content.isNotEmpty() || role != null || finishReason != null || chunk.usage != null) {
+                        add(
+                            StreamEvent.Delta(
+                                content = content,
+                                role = role,
+                                finishReason = finishReason,
+                                usage = chunk.usage,
+                            ),
+                        )
+                    }
+
+                    toolCalls.forEach { tc ->
+                        add(
+                            StreamEvent.ToolCallDelta(
+                                index = tc.index,
+                                toolCallId = tc.id,
+                                toolName = tc.function?.name,
+                                argumentsDelta = tc.function?.arguments,
+                            ),
+                        )
+                    }
+                }
+
+                when (events.size) {
+                    0 -> null
+                    1 -> events[0]
+                    else -> StreamEvent.Multi(events)
                 }
             } catch (e: Exception) {
                 null // Skip malformed JSON
@@ -356,9 +417,29 @@ sealed class Providers : ChatProvider {
             temperature: Float?,
             maxTokens: Int?,
             systemPrompt: String?,
+            tools: List<Tool<*>>,
+            toolChoice: ToolChoice,
         ): String {
             // Anthropic: filter out system messages, they go in separate field
             // Use toAnthropicMessages() for multimodal support
+            val anthropicTools = tools.map { tool ->
+                AnthropicTool(
+                    name = tool.name,
+                    description = tool.description,
+                    inputSchema = tool.parameters,
+                )
+            }.takeIf { it.isNotEmpty() && toolChoice !is ToolChoice.None }
+
+            val anthropicToolChoice = when (toolChoice) {
+                is ToolChoice.Auto -> buildJsonObject { put("type", "auto") }
+                is ToolChoice.Required -> buildJsonObject { put("type", "any") }
+                is ToolChoice.Specific -> buildJsonObject {
+                    put("type", "tool")
+                    put("name", toolChoice.name)
+                }
+                is ToolChoice.None -> null
+            }.takeIf { anthropicTools != null }
+
             val request = AnthropicRequest(
                 model = model,
                 messages = messages.toAnthropicMessages(),
@@ -366,6 +447,8 @@ sealed class Providers : ChatProvider {
                 system = systemPrompt,
                 temperature = temperature,
                 maxTokens = maxTokens ?: 4096, // Anthropic requires max_tokens
+                tools = anthropicTools,
+                toolChoice = anthropicToolChoice,
             )
             return json.encodeToString(AnthropicRequest.serializer(), request)
         }
@@ -394,12 +477,42 @@ sealed class Providers : ChatProvider {
             return try {
                 val event = json.decodeFromString<AnthropicStreamEvent>(data)
                 when (event.type) {
-                    "content_block_delta" -> {
-                        val text = event.delta?.text ?: ""
-                        if (text.isNotEmpty()) {
-                            StreamEvent.Delta(content = text)
+                    "content_block_start" -> {
+                        val block = event.contentBlock
+                        if (block?.type == "tool_use") {
+                            StreamEvent.ToolCallDelta(
+                                index = event.index ?: 0,
+                                toolCallId = block.id,
+                                toolName = block.name,
+                                argumentsDelta = block.input?.takeIf { it.isNotEmpty() }?.toString(),
+                            )
                         } else {
                             null
+                        }
+                    }
+                    "content_block_delta" -> {
+                        val delta = event.delta
+                        val text = delta?.text
+                        val thinking = delta?.thinking
+                        val partialJson = delta?.partialJson
+
+                        val events = buildList {
+                            text?.takeIf { it.isNotEmpty() }?.let { add(StreamEvent.Delta(content = it)) }
+                            thinking?.takeIf { it.isNotEmpty() }?.let { add(StreamEvent.ReasoningDelta(text = it)) }
+                            partialJson?.takeIf { it.isNotEmpty() }?.let {
+                                add(
+                                    StreamEvent.ToolCallDelta(
+                                        index = event.index ?: 0,
+                                        argumentsDelta = it,
+                                    ),
+                                )
+                            }
+                        }
+
+                        when (events.size) {
+                            0 -> null
+                            1 -> events[0]
+                            else -> StreamEvent.Multi(events)
                         }
                     }
                     "message_delta" -> {
@@ -508,7 +621,27 @@ sealed class Providers : ChatProvider {
             temperature: Float?,
             maxTokens: Int?,
             systemPrompt: String?,
+            tools: List<Tool<*>>,
+            toolChoice: ToolChoice,
         ): String {
+            val anthropicTools = tools.map { tool ->
+                AnthropicTool(
+                    name = tool.name,
+                    description = tool.description,
+                    inputSchema = tool.parameters,
+                )
+            }.takeIf { it.isNotEmpty() && toolChoice !is ToolChoice.None }
+
+            val anthropicToolChoice = when (toolChoice) {
+                is ToolChoice.Auto -> buildJsonObject { put("type", "auto") }
+                is ToolChoice.Required -> buildJsonObject { put("type", "any") }
+                is ToolChoice.Specific -> buildJsonObject {
+                    put("type", "tool")
+                    put("name", toolChoice.name)
+                }
+                is ToolChoice.None -> null
+            }.takeIf { anthropicTools != null }
+
             val request = AnthropicRequest(
                 model = model,
                 messages = messages.toAnthropicMessages(),
@@ -516,6 +649,8 @@ sealed class Providers : ChatProvider {
                 system = systemPrompt,
                 temperature = temperature,
                 maxTokens = maxTokens ?: 4096,
+                tools = anthropicTools,
+                toolChoice = anthropicToolChoice,
             )
             return json.encodeToString(AnthropicRequest.serializer(), request)
         }

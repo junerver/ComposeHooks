@@ -162,6 +162,7 @@ implementation("xyz.junerver.compose:ai:<latest_release>")
 | hook name | description |
 | --------- | ----------- |
 | [useChat](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseChatExample.kt) | A hook for managing chat conversations with OpenAI-compatible APIs and Anthropic Messages API, supporting streaming responses with typewriter effect. |
+| [useAgent](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseAgentExample.kt) | A hook for multi-step tool calling (agent loop) built on top of useChat. |
 | [useGenerateObject](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseGenerateObjectExample.kt) | A hook for generating structured data objects from AI responses, supports streaming and incremental object updates. |
 
 **Features:**

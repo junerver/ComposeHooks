@@ -11,6 +11,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonObject
 import xyz.junerver.compose.ai.AppendMessageFn
 import xyz.junerver.compose.ai.ReloadFn
 import xyz.junerver.compose.ai.SendMessageFn
@@ -212,8 +215,53 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
 
             asyncRun {
                 var accumulatedContent = ""
+                var accumulatedReasoning = ""
                 var lastUsage: ChatUsage? = null
                 var lastFinishReason: FinishReason? = null
+
+                data class ToolCallBuilder(
+                    var toolCallId: String? = null,
+                    var toolName: String? = null,
+                    val args: StringBuilder = StringBuilder(),
+                )
+
+                val toolCallBuilders = linkedMapOf<Int, ToolCallBuilder>()
+
+                fun currentContentParts(): List<AssistantContentPart> {
+                    val parts = mutableListOf<AssistantContentPart>()
+
+                    if (accumulatedContent.isNotEmpty() || (toolCallBuilders.isEmpty() && accumulatedReasoning.isEmpty())) {
+                        parts += TextPart(accumulatedContent)
+                    } else {
+                        parts += TextPart("")
+                    }
+
+                    if (accumulatedReasoning.isNotEmpty()) {
+                        parts += ReasoningPart(accumulatedReasoning)
+                    }
+
+                    toolCallBuilders.entries.sortedBy { it.key }.forEach { (index, builder) ->
+                        val toolCallId = builder.toolCallId ?: "toolcall_$index"
+                        val toolName = builder.toolName ?: "tool"
+                        val argsJson: JsonObject = try {
+                            val raw = builder.args.toString()
+                            if (raw.isBlank()) {
+                                buildJsonObject { }
+                            } else {
+                                Providers.json.parseToJsonElement(raw).jsonObject
+                            }
+                        } catch (_: Exception) {
+                            buildJsonObject { }
+                        }
+                        parts += ToolCallPart(
+                            toolCallId = toolCallId,
+                            toolName = toolName,
+                            args = argsJson,
+                        )
+                    }
+
+                    return parts
+                }
 
                 try {
                     val streamEnabled = optionsRef.current.stream
@@ -224,7 +272,9 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                 when (event) {
                                     is StreamEvent.Delta -> {
                                         accumulatedContent += event.content
-                                        optionsRef.current.onStream?.invoke(event.content)
+                                        if (event.content.isNotEmpty()) {
+                                            optionsRef.current.onStream?.invoke(event.content)
+                                        }
 
                                         if (event.finishReason != null) {
                                             lastFinishReason = FinishReason.fromString(event.finishReason)
@@ -234,7 +284,52 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                         }
 
                                         val updatedMessage = currentAssistantMessageRef.current?.copy(
-                                            content = listOf(TextPart(accumulatedContent)),
+                                            content = currentContentParts(),
+                                            model = optionsRef.current.effectiveModel,
+                                            usage = lastUsage,
+                                            finishReason = lastFinishReason,
+                                        )
+                                        if (updatedMessage != null) {
+                                            currentAssistantMessageRef.current = updatedMessage
+                                            withContext(Dispatchers.Main) {
+                                                val msgs = getMessages().toMutableList()
+                                                if (msgs.isNotEmpty()) {
+                                                    msgs[msgs.lastIndex] = updatedMessage
+                                                    setMessages(msgs.toImmutableList())
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    is StreamEvent.ReasoningDelta -> {
+                                        accumulatedReasoning += event.text
+
+                                        val updatedMessage = currentAssistantMessageRef.current?.copy(
+                                            content = currentContentParts(),
+                                            model = optionsRef.current.effectiveModel,
+                                            usage = lastUsage,
+                                            finishReason = lastFinishReason,
+                                        )
+                                        if (updatedMessage != null) {
+                                            currentAssistantMessageRef.current = updatedMessage
+                                            withContext(Dispatchers.Main) {
+                                                val msgs = getMessages().toMutableList()
+                                                if (msgs.isNotEmpty()) {
+                                                    msgs[msgs.lastIndex] = updatedMessage
+                                                    setMessages(msgs.toImmutableList())
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                    is StreamEvent.ToolCallDelta -> {
+                                        val builder = toolCallBuilders.getOrPut(event.index) { ToolCallBuilder() }
+                                        if (!event.toolCallId.isNullOrBlank()) builder.toolCallId = event.toolCallId
+                                        if (!event.toolName.isNullOrBlank()) builder.toolName = event.toolName
+                                        if (!event.argumentsDelta.isNullOrEmpty()) builder.args.append(event.argumentsDelta)
+
+                                        val updatedMessage = currentAssistantMessageRef.current?.copy(
+                                            content = currentContentParts(),
                                             model = optionsRef.current.effectiveModel,
                                             usage = lastUsage,
                                             finishReason = lastFinishReason,
@@ -268,6 +363,8 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                         }
                                         optionsRef.current.onError?.invoke(event.error)
                                     }
+
+                                    is StreamEvent.Multi -> Unit
                                 }
                             }
                             ?.collect()

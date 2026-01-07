@@ -14,6 +14,8 @@ import xyz.junerver.compose.ai.usechat.ChatUsage
 import xyz.junerver.compose.ai.usechat.FinishReason
 import xyz.junerver.compose.ai.usechat.StreamEvent
 import xyz.junerver.compose.ai.usechat.assistantMessage
+import xyz.junerver.compose.ai.useagent.Tool
+import xyz.junerver.compose.ai.useagent.ToolChoice
 
 /**
  * Lightweight provider used in tests to avoid dealing with vendor specific formats.
@@ -45,6 +47,8 @@ internal class FakeChatProvider(
         temperature: Float?,
         maxTokens: Int?,
         systemPrompt: String?,
+        tools: List<Tool<*>>,
+        toolChoice: ToolChoice,
     ): String {
         lastRequestMessages = messages
         lastStreamFlag = stream
@@ -54,6 +58,8 @@ internal class FakeChatProvider(
             temperature?.let { append("|temp=").append(it) }
             maxTokens?.let { append("|max=").append(it) }
             systemPrompt?.let { append("|system=").append(it) }
+            if (tools.isNotEmpty()) append("|tools=").append(tools.size)
+            append("|toolChoice=").append(toolChoice::class.simpleName)
         }
     }
 

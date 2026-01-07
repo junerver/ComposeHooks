@@ -38,6 +38,20 @@ internal data class AnthropicRequest(
     val stream: Boolean = true,
     val system: String? = null,
     val temperature: Float? = null,
+    val tools: List<AnthropicTool>? = null,
+    @SerialName("tool_choice")
+    val toolChoice: JsonObject? = null,
+)
+
+/**
+ * Tool definition in Anthropic messages API format.
+ */
+@Serializable
+internal data class AnthropicTool(
+    val name: String,
+    val description: String,
+    @SerialName("input_schema")
+    val inputSchema: JsonObject,
 )
 
 /**

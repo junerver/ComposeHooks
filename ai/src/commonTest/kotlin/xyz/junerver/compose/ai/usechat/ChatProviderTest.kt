@@ -6,7 +6,16 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.put
+import kotlinx.serialization.Serializable
+import xyz.junerver.compose.ai.useagent.ToolChoice
+import xyz.junerver.compose.ai.useagent.tool
+import xyz.junerver.compose.ai.useagent.toolText
 
 /**
  * Tests for ChatProvider implementations.
@@ -82,6 +91,32 @@ class ChatProviderTest {
         val result = provider.parseStreamLine(line)
         assertTrue(result is StreamEvent.Delta)
         assertEquals("stop", (result as StreamEvent.Delta).finishReason)
+    }
+
+    @Test
+    fun testOpenAIParseStreamLineWithToolCallDelta() {
+        val provider = Providers.OpenAI(apiKey = "test")
+        val line =
+            """data: {"id":"chatcmpl-123","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"tool_calls":[{"index":0,"id":"call_1","type":"function","function":{"name":"get_weather","arguments":"{\"city\":\"Pa\""}}]}}]}"""
+        val result = provider.parseStreamLine(line)
+        assertTrue(result is StreamEvent.ToolCallDelta)
+        val delta = result as StreamEvent.ToolCallDelta
+        assertEquals(0, delta.index)
+        assertEquals("call_1", delta.toolCallId)
+        assertEquals("get_weather", delta.toolName)
+        assertTrue(delta.argumentsDelta?.contains("\"city\"") == true)
+    }
+
+    @Test
+    fun testOpenAIParseStreamLineWithContentAndToolCallsReturnsMulti() {
+        val provider = Providers.OpenAI(apiKey = "test")
+        val line =
+            """data: {"id":"chatcmpl-123","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"Hi","tool_calls":[{"index":0,"id":"call_1","type":"function","function":{"name":"get_weather","arguments":"{\"city\":\"Paris\"}"}}]}}]}"""
+        val result = provider.parseStreamLine(line)
+        assertTrue(result is StreamEvent.Multi)
+        val multi = result as StreamEvent.Multi
+        assertTrue(multi.events.any { it is StreamEvent.Delta && (it as StreamEvent.Delta).content == "Hi" })
+        assertTrue(multi.events.any { it is StreamEvent.ToolCallDelta && (it as StreamEvent.ToolCallDelta).toolCallId == "call_1" })
     }
 
     @Test
@@ -185,6 +220,51 @@ class ChatProviderTest {
         assertTrue(body.contains("You are helpful"))
     }
 
+    @Test
+    fun testOpenAIBuildRequestBodyWithToolsAndSpecificToolChoice() {
+        val provider = Providers.OpenAI(apiKey = "test")
+        val messages = listOf(userMessage("Hello"))
+        val tool = toolText<WeatherParams>(
+            name = "get_weather",
+            description = "Get the current weather for a city",
+            parameters = buildJsonObject {
+                put("type", JsonPrimitive("object"))
+                put(
+                    "properties",
+                    buildJsonObject {
+                        put(
+                            "city",
+                            buildJsonObject {
+                                put("type", JsonPrimitive("string"))
+                            },
+                        )
+                    },
+                )
+            },
+        ) { _ ->
+            "ok"
+        }
+
+        val body = provider.buildRequestBody(
+            messages = messages,
+            model = "gpt-4",
+            stream = false,
+            temperature = null,
+            maxTokens = null,
+            systemPrompt = null,
+            tools = listOf(tool),
+            toolChoice = ToolChoice.Specific(name = "get_weather"),
+        )
+
+        val parsed = json.parseToJsonElement(body).jsonObject
+        assertNotNull(parsed["tools"])
+        val toolChoice = parsed["tool_choice"]
+        assertNotNull(toolChoice)
+        assertTrue(toolChoice is JsonObject)
+        assertEquals("function", toolChoice.jsonObject["type"]?.jsonPrimitive?.content)
+        assertEquals("get_weather", toolChoice.jsonObject["function"]?.jsonObject?.get("name")?.jsonPrimitive?.content)
+    }
+
     // endregion
 
     // region Anthropic Provider Tests
@@ -230,6 +310,41 @@ class ChatProviderTest {
         assertNotNull(delta.usage)
         assertEquals(10, delta.usage?.promptTokens)
         assertEquals(20, delta.usage?.completionTokens)
+    }
+
+    @Test
+    fun testAnthropicParseStreamLineToolUseStart() {
+        val provider = Providers.Anthropic(apiKey = "test")
+        val line =
+            """data: {"type":"content_block_start","index":0,"content_block":{"type":"tool_use","id":"toolu_1","name":"search"}}"""
+        val result = provider.parseStreamLine(line)
+        assertTrue(result is StreamEvent.ToolCallDelta)
+        val delta = result as StreamEvent.ToolCallDelta
+        assertEquals(0, delta.index)
+        assertEquals("toolu_1", delta.toolCallId)
+        assertEquals("search", delta.toolName)
+    }
+
+    @Test
+    fun testAnthropicParseStreamLineToolUsePartialJsonDelta() {
+        val provider = Providers.Anthropic(apiKey = "test")
+        val line =
+            """data: {"type":"content_block_delta","index":0,"delta":{"type":"input_json_delta","partial_json":"{\"query\":\"k\""}}"""
+        val result = provider.parseStreamLine(line)
+        assertTrue(result is StreamEvent.ToolCallDelta)
+        val delta = result as StreamEvent.ToolCallDelta
+        assertEquals(0, delta.index)
+        assertTrue(delta.argumentsDelta?.contains("\"query\"") == true)
+    }
+
+    @Test
+    fun testAnthropicParseStreamLineThinkingDelta() {
+        val provider = Providers.Anthropic(apiKey = "test")
+        val line =
+            """data: {"type":"content_block_delta","index":0,"delta":{"type":"thinking_delta","thinking":"Let me think"}}"""
+        val result = provider.parseStreamLine(line)
+        assertTrue(result is StreamEvent.ReasoningDelta)
+        assertEquals("Let me think", (result as StreamEvent.ReasoningDelta).text)
     }
 
     @Test
@@ -378,3 +493,6 @@ class ChatProviderTest {
 
     // endregion
 }
+
+@Serializable
+private data class WeatherParams(val city: String)

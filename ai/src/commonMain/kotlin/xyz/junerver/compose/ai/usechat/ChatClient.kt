@@ -27,6 +27,21 @@ sealed class StreamEvent {
         val usage: ChatUsage? = null,
     ) : StreamEvent()
 
+    data class ToolCallDelta(
+        val index: Int,
+        val toolCallId: String? = null,
+        val toolName: String? = null,
+        val argumentsDelta: String? = null,
+    ) : StreamEvent()
+
+    data class ReasoningDelta(
+        val text: String,
+    ) : StreamEvent()
+
+    data class Multi(
+        val events: List<StreamEvent>,
+    ) : StreamEvent()
+
     data object Done : StreamEvent()
 
     data class Error(val error: Throwable) : StreamEvent()
@@ -71,8 +86,18 @@ internal class ChatClient(private val options: ChatOptions) {
                 is SseEvent.Data -> {
                     val streamEvent = options.provider.parseStreamLine(event.line)
                     if (streamEvent != null) {
-                        emit(streamEvent)
-                        if (streamEvent is StreamEvent.Done) return@collect
+                        when (streamEvent) {
+                            is StreamEvent.Multi -> {
+                                streamEvent.events.forEach { ev ->
+                                    emit(ev)
+                                    if (ev is StreamEvent.Done) return@collect
+                                }
+                            }
+                            else -> {
+                                emit(streamEvent)
+                                if (streamEvent is StreamEvent.Done) return@collect
+                            }
+                        }
                     }
                 }
                 is SseEvent.Complete -> emit(StreamEvent.Done)
