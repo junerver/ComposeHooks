@@ -43,6 +43,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -95,6 +96,7 @@ fun UseChatExample() {
     var selectedType by useState(ProviderType.DeepSeek)
     var apiKey by useState("")
     var model by useState("")
+    var streamEnabled by useState(true)
 
     // Create provider instance based on selection
     val provider by useCreation(selectedType, apiKey) {
@@ -119,6 +121,7 @@ fun UseChatExample() {
     val (messages, isLoading, error, sendMessage, _, _, reload, stop) = useChat {
         this.provider = provider
         this.model = model.ifBlank { null }
+        stream = streamEnabled
         systemPrompt = "You are a helpful assistant. Keep responses concise and well-formatted."
         onFinish = { message, usage, _ ->
             println("Completed: ${message.textContent.take(50)}...")
@@ -186,6 +189,36 @@ fun UseChatExample() {
                     singleLine = true,
                     placeholder = { Text("Enter your ${selectedType.displayName} API key") },
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Text(
+                        text = "Output mode:",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
+                    Text(
+                        text = "Blocking",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Switch(
+                        checked = streamEnabled,
+                        enabled = !isLoading.value,
+                        onCheckedChange = { streamEnabled = it },
+                    )
+                    Text(
+                        text = "Streaming",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
 
             // Error display

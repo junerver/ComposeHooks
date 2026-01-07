@@ -78,6 +78,35 @@ class ChatClientTest {
     }
 
     @Test
+    fun streamChatWrapsEngineErrorsIntoAnthropicException() = runTest {
+        val provider = FakeChatProvider()
+        val engine = FakeHttpEngine().apply {
+            enqueueStream(
+                SseEvent.Error(
+                    Exception(
+                        """
+                        {"type":"error","error":{"type":"authentication_error","message":"Invalid API key"}}
+                        """.trimIndent(),
+                    ),
+                ),
+            )
+        }
+        val client = ChatClient(
+            ChatOptions.optionOf {
+                this.provider = provider
+                httpEngine = engine
+            },
+        )
+
+        val events: List<StreamEvent> = client.streamChat(noMessages).toList(mutableListOf())
+        val errorEvent = events.singleOrNull() as? StreamEvent.Error ?: fail("Expected error event")
+        val exception = errorEvent.error
+        assertIs<AnthropicException>(exception)
+        assertEquals("Invalid API key", exception.message)
+        assertEquals("authentication_error", exception.errorType)
+    }
+
+    @Test
     fun chatReturnsAssistantMessageFromProvider() = runTest {
         val provider = FakeChatProvider()
         val engine = FakeHttpEngine().apply {
@@ -97,7 +126,7 @@ class ChatClientTest {
         )
 
         val result = client.chat(noMessages)
-        assertEquals("Completed", result.textContent)
+        assertEquals("Completed", result.message.textContent)
     }
 
     @Test
@@ -134,6 +163,41 @@ class ChatClientTest {
             assertEquals("Too many requests", e.message)
             assertEquals("rate_limit_error", e.errorType)
             assertEquals("rate_limit", e.errorCode)
+        }
+    }
+
+    @Test
+    fun chatThrowsAnthropicExceptionForNonSuccessStatus() = runTest {
+        val engine = FakeHttpEngine().apply {
+            enqueueResponse(
+                HttpResult(
+                    statusCode = 401,
+                    body = """
+                        {
+                            "type": "error",
+                            "error": {
+                                "type": "authentication_error",
+                                "message": "Invalid API key"
+                            }
+                        }
+                    """.trimIndent(),
+                ),
+            )
+        }
+        val client = ChatClient(
+            ChatOptions.optionOf {
+                provider = Providers.Anthropic(apiKey = "test")
+                httpEngine = engine
+                stream = false
+            },
+        )
+
+        try {
+            client.chat(noMessages)
+            fail("Expected AnthropicException")
+        } catch (e: AnthropicException) {
+            assertEquals("Invalid API key", e.message)
+            assertEquals("authentication_error", e.errorType)
         }
     }
 }

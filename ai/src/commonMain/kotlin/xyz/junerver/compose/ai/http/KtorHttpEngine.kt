@@ -94,7 +94,7 @@ class KtorHttpEngine(
                 request.body?.let { setBody(it) }
             }.execute { response ->
                 if (!response.status.isSuccess()) {
-                    val errorBody = response.bodyAsChannel().readUTF8Line() ?: "Unknown error"
+                    val errorBody = response.bodyAsText()
                     emit(SseEvent.Error(Exception("HTTP ${response.status.value}: $errorBody")))
                     return@execute
                 }

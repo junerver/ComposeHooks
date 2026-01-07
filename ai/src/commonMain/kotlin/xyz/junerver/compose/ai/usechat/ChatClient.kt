@@ -77,21 +77,9 @@ internal class ChatClient(private val options: ChatOptions) {
                 }
                 is SseEvent.Complete -> emit(StreamEvent.Done)
                 is SseEvent.Error -> {
-                    val errorBody = event.error.message ?: "Unknown error"
-                    try {
-                        val errorResponse = json.decodeFromString<OpenAIErrorResponse>(errorBody)
-                        emit(
-                            StreamEvent.Error(
-                                OpenAIException(
-                                    errorMessage = errorResponse.error.message,
-                                    errorType = errorResponse.error.type,
-                                    errorCode = errorResponse.error.code,
-                                ),
-                            ),
-                        )
-                    } catch (e: Exception) {
-                        emit(StreamEvent.Error(event.error))
-                    }
+                    val parsed = parseAnyProviderError(event.error.message)
+                        ?: event.error
+                    emit(StreamEvent.Error(parsed))
                 }
             }
         }
@@ -103,7 +91,7 @@ internal class ChatClient(private val options: ChatOptions) {
      * @param messages The list of messages to send
      * @return The complete assistant message
      */
-    suspend fun chat(messages: List<ChatMessage>): AssistantMessage {
+    suspend fun chat(messages: List<ChatMessage>): ChatResponseResult {
         val requestBody = options.buildRequestBody(messages, stream = false)
         val headers = options.buildAuthHeaders() + options.headers
 
@@ -117,26 +105,15 @@ internal class ChatClient(private val options: ChatOptions) {
         val result = engine.execute(request)
 
         if (result.statusCode !in 200..299) {
-            try {
-                val errorResponse = json.decodeFromString<OpenAIErrorResponse>(result.body)
-                throw OpenAIException(
-                    errorMessage = errorResponse.error.message,
-                    errorType = errorResponse.error.type,
-                    errorCode = errorResponse.error.code,
-                )
-            } catch (e: OpenAIException) {
-                throw e
-            } catch (e: Exception) {
-                throw Exception("HTTP ${result.statusCode}: ${result.body}")
-            }
+            throw parseAnyProviderError(result.body, statusCode = result.statusCode)
+                ?: Exception("HTTP ${result.statusCode}: ${result.body}")
         }
 
         val responseBody = result.body
         if (responseBody.isEmpty()) throw Exception("Empty response")
 
         // Use provider-specific response parsing
-        val parseResult = options.provider.parseResponse(responseBody)
-        return parseResult.message
+        return options.provider.parseResponse(responseBody)
     }
 
     /**
@@ -144,5 +121,46 @@ internal class ChatClient(private val options: ChatOptions) {
      */
     fun close() {
         engine.close()
+    }
+
+    private fun parseAnyProviderError(raw: String?, statusCode: Int? = null): Throwable? {
+        val candidate = extractJsonCandidate(raw ?: return null) ?: raw
+
+        parseAnthropicError(candidate)?.let { return it }
+        parseOpenAIError(candidate)?.let { return it }
+
+        return if (statusCode != null) {
+            Exception("HTTP $statusCode: $candidate")
+        } else {
+            null
+        }
+    }
+
+    private fun parseOpenAIError(candidate: String): OpenAIException? = try {
+        val errorResponse = json.decodeFromString<OpenAIErrorResponse>(candidate)
+        OpenAIException(
+            errorMessage = errorResponse.error.message,
+            errorType = errorResponse.error.type,
+            errorCode = errorResponse.error.code,
+        )
+    } catch (e: Exception) {
+        null
+    }
+
+    private fun parseAnthropicError(candidate: String): AnthropicException? = try {
+        val errorResponse = json.decodeFromString<AnthropicErrorResponse>(candidate)
+        AnthropicException(
+            errorMessage = errorResponse.error.message,
+            errorType = errorResponse.error.type,
+        )
+    } catch (e: Exception) {
+        null
+    }
+
+    private fun extractJsonCandidate(text: String): String? {
+        val start = text.indexOf('{')
+        val end = text.lastIndexOf('}')
+        if (start < 0 || end <= start) return null
+        return text.substring(start, end + 1).trim()
     }
 }

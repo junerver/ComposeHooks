@@ -6,6 +6,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonPrimitive
 
 /**
  * Tests for ChatProvider implementations.
@@ -123,6 +124,46 @@ class ChatProviderTest {
     }
 
     @Test
+    fun testOpenAIParseResponseWithToolCalls() {
+        val provider = Providers.OpenAI(apiKey = "test")
+        val responseBody = """
+            {
+                "id": "chatcmpl-123",
+                "object": "chat.completion",
+                "created": 1677652288,
+                "model": "gpt-4",
+                "choices": [{
+                    "index": 0,
+                    "message": {
+                        "role": "assistant",
+                        "content": null,
+                        "tool_calls": [{
+                            "id": "call_1",
+                            "type": "function",
+                            "function": {
+                                "name": "get_weather",
+                                "arguments": "{\"city\":\"Paris\"}"
+                            }
+                        }]
+                    },
+                    "finish_reason": "tool_calls"
+                }],
+                "usage": {
+                    "prompt_tokens": 10,
+                    "completion_tokens": 8,
+                    "total_tokens": 18
+                }
+            }
+        """.trimIndent()
+        val result = provider.parseResponse(responseBody)
+        assertTrue(result.message.hasToolCalls)
+        assertEquals(1, result.message.toolCalls.size)
+        assertEquals("get_weather", result.message.toolCalls[0].toolName)
+        assertEquals("Paris", result.message.toolCalls[0].args["city"]?.jsonPrimitive?.content)
+        assertEquals(FinishReason.ToolCalls, result.finishReason)
+    }
+
+    @Test
     fun testOpenAIBuildRequestBody() {
         val provider = Providers.OpenAI(apiKey = "test")
         val messages = listOf(userMessage("Hello"))
@@ -215,6 +256,32 @@ class ChatProviderTest {
     }
 
     @Test
+    fun testAnthropicParseResponseWithMultipleBlocks() {
+        val provider = Providers.Anthropic(apiKey = "test")
+        val responseBody = """
+            {
+                "id": "msg_123",
+                "type": "message",
+                "role": "assistant",
+                "content": [
+                    {"type": "thinking", "thinking": "Let me think..."},
+                    {"type": "text", "text": "Answer "},
+                    {"type": "text", "text": "42"},
+                    {"type": "tool_use", "id": "toolu_1", "name": "search", "input": {"query": "kotlin"}}
+                ],
+                "model": "claude-3-opus",
+                "stop_reason": "end_turn",
+                "usage": {"input_tokens": 10, "output_tokens": 20}
+            }
+        """.trimIndent()
+        val result = provider.parseResponse(responseBody)
+        assertEquals("Answer 42", result.message.textContent)
+        assertEquals("Let me think...", result.message.reasoningContent)
+        assertTrue(result.message.hasToolCalls)
+        assertEquals("search", result.message.toolCalls[0].toolName)
+    }
+
+    @Test
     fun testAnthropicBuildRequestBody() {
         val provider = Providers.Anthropic(apiKey = "test")
         val messages = listOf(userMessage("Hello"))
@@ -292,6 +359,21 @@ class ChatProviderTest {
         assertEquals("http://localhost:11434/v1", provider.baseUrl)
         assertEquals("llama3", provider.defaultModel)
         assertTrue(provider.buildAuthHeaders().isEmpty())
+    }
+
+    @Test
+    fun testAnthropicCompatibleCustomAuthHeaders() {
+        val provider = Providers.AnthropicCompatible(
+            baseUrl = "https://proxy.example.com",
+            defaultModel = "claude-3-opus",
+            apiKey = "test-token",
+            apiKeyHeader = "Authorization",
+            apiKeyPrefix = "Bearer",
+            anthropicVersion = null,
+        )
+        val headers = provider.buildAuthHeaders()
+        assertEquals("Bearer test-token", headers["Authorization"])
+        assertNull(headers["anthropic-version"])
     }
 
     // endregion

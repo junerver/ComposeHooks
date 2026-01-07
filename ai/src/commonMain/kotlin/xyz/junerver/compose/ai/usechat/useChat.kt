@@ -202,7 +202,10 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
             setIsLoading(true)
 
             // Create placeholder for assistant message
-            val assistantMsg = assistantMessage("")
+            val assistantMsg = assistantMessage(
+                text = "",
+                model = optionsRef.current.effectiveModel,
+            )
             currentAssistantMessageRef.current = assistantMsg
             currentMessages.add(assistantMsg)
             setMessages(currentMessages.toImmutableList())
@@ -213,56 +216,80 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                 var lastFinishReason: FinishReason? = null
 
                 try {
-                    clientRef.current?.streamChat(currentMessages.dropLast(1))
-                        ?.onEach { event ->
-                            when (event) {
-                                is StreamEvent.Delta -> {
-                                    accumulatedContent += event.content
-                                    optionsRef.current.onStream?.invoke(event.content)
+                    val streamEnabled = optionsRef.current.stream
 
-                                    if (event.finishReason != null) {
-                                        lastFinishReason = FinishReason.fromString(event.finishReason)
-                                    }
-                                    if (event.usage != null) {
-                                        lastUsage = event.usage
-                                    }
+                    if (streamEnabled) {
+                        clientRef.current?.streamChat(currentMessages.dropLast(1))
+                            ?.onEach { event ->
+                                when (event) {
+                                    is StreamEvent.Delta -> {
+                                        accumulatedContent += event.content
+                                        optionsRef.current.onStream?.invoke(event.content)
 
-                                    // Update assistant message with accumulated content on Main thread
-                                    val updatedMessage = currentAssistantMessageRef.current?.copy(
-                                        content = listOf(TextPart(accumulatedContent)),
-                                    )
-                                    if (updatedMessage != null) {
-                                        currentAssistantMessageRef.current = updatedMessage
-                                        withContext(Dispatchers.Main) {
-                                            val msgs = getMessages().toMutableList()
-                                            if (msgs.isNotEmpty()) {
-                                                msgs[msgs.lastIndex] = updatedMessage
-                                                setMessages(msgs.toImmutableList())
+                                        if (event.finishReason != null) {
+                                            lastFinishReason = FinishReason.fromString(event.finishReason)
+                                        }
+                                        if (event.usage != null) {
+                                            lastUsage = event.usage
+                                        }
+
+                                        val updatedMessage = currentAssistantMessageRef.current?.copy(
+                                            content = listOf(TextPart(accumulatedContent)),
+                                            model = optionsRef.current.effectiveModel,
+                                            usage = lastUsage,
+                                            finishReason = lastFinishReason,
+                                        )
+                                        if (updatedMessage != null) {
+                                            currentAssistantMessageRef.current = updatedMessage
+                                            withContext(Dispatchers.Main) {
+                                                val msgs = getMessages().toMutableList()
+                                                if (msgs.isNotEmpty()) {
+                                                    msgs[msgs.lastIndex] = updatedMessage
+                                                    setMessages(msgs.toImmutableList())
+                                                }
                                             }
                                         }
                                     }
-                                }
 
-                                is StreamEvent.Done -> {
-                                    val finalMessage = currentAssistantMessageRef.current
-                                    if (finalMessage != null) {
-                                        optionsRef.current.onFinish?.invoke(
-                                            finalMessage,
-                                            lastUsage,
-                                            lastFinishReason,
-                                        )
+                                    is StreamEvent.Done -> {
+                                        val finalMessage = currentAssistantMessageRef.current
+                                        if (finalMessage != null) {
+                                            optionsRef.current.onFinish?.invoke(
+                                                finalMessage,
+                                                lastUsage,
+                                                lastFinishReason,
+                                            )
+                                        }
                                     }
-                                }
 
-                                is StreamEvent.Error -> {
-                                    withContext(Dispatchers.Main) {
-                                        setError(event.error)
+                                    is StreamEvent.Error -> {
+                                        withContext(Dispatchers.Main) {
+                                            setError(event.error)
+                                        }
+                                        optionsRef.current.onError?.invoke(event.error)
                                     }
-                                    optionsRef.current.onError?.invoke(event.error)
                                 }
                             }
+                            ?.collect()
+                    } else {
+                        val result = clientRef.current?.chat(currentMessages.dropLast(1))
+                            ?: throw IllegalStateException("ChatClient not initialized")
+                        val finalMessage = result.message
+                        currentAssistantMessageRef.current = finalMessage
+
+                        withContext(Dispatchers.Main) {
+                            val msgs = getMessages().toMutableList()
+                            if (msgs.isNotEmpty()) {
+                                msgs[msgs.lastIndex] = finalMessage
+                                setMessages(msgs.toImmutableList())
+                            }
                         }
-                        ?.collect()
+                        optionsRef.current.onFinish?.invoke(
+                            finalMessage,
+                            result.usage,
+                            result.finishReason,
+                        )
+                    }
                 } catch (e: Exception) {
                     withContext(Dispatchers.Main) {
                         setError(e)

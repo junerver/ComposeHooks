@@ -334,6 +334,14 @@ internal data class AnthropicError(
     val message: String,
 )
 
+/**
+ * Exception representing an Anthropic API error.
+ */
+class AnthropicException(
+    val errorMessage: String,
+    val errorType: String,
+) : Exception(errorMessage)
+
 // endregion
 
 // region Internal Helpers

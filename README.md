@@ -152,7 +152,7 @@ Note: All `use` functions also have the signature of `remember`. If you prefer C
 
 ### AI Module
 
-A separate AI module providing hooks for AI chat completions and structured data generation with OpenAI-compatible APIs.
+A separate AI module providing hooks for AI chat completions and structured data generation with OpenAI-compatible APIs and Anthropic Messages API.
 
 **Add AI module dependency:**
 ```kotlin
@@ -161,11 +161,12 @@ implementation("xyz.junerver.compose:ai:<latest_release>")
 
 | hook name | description |
 | --------- | ----------- |
-| [useChat](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseChatExample.kt) | A hook for managing chat conversations with OpenAI-compatible APIs, supporting streaming responses with typewriter effect. |
+| [useChat](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseChatExample.kt) | A hook for managing chat conversations with OpenAI-compatible APIs and Anthropic Messages API, supporting streaming responses with typewriter effect. |
 | [useGenerateObject](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseGenerateObjectExample.kt) | A hook for generating structured data objects from AI responses, supporting multimodal input (text + images). |
 
 **Features:**
 - Streaming responses (SSE) with real-time typewriter effect
+- Non-streaming mode support (`stream = false`)
 - Multimodal input support (text, images, files)
 - Structured data generation with type safety
 - Message state management

@@ -159,7 +159,7 @@ implementation("xyz.junerver.compose:hooks2:<latest_release>")
 
 ### AI 模块
 
-独立的 AI 模块，提供与 OpenAI 兼容 API 进行 AI 聊天和结构化数据生成的 Hook。
+独立的 AI 模块，提供与 OpenAI 兼容 API 和 Anthropic Messages API 进行 AI 聊天与结构化数据生成的 Hook。
 
 **添加 AI 模块依赖：**
 ```kotlin
@@ -168,11 +168,12 @@ implementation("xyz.junerver.compose:hai:<latest_release>")
 
 | Hook 名称 | 描述 |
 | --------- | ---- |
-| [useChat](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseChatExample.kt) | 用于管理与 OpenAI 兼容 API 聊天对话的 Hook，支持流式响应的打字机效果。 |
+| [useChat](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseChatExample.kt) | 用于管理与 OpenAI 兼容 API 和 Anthropic Messages API 聊天对话的 Hook，支持流式响应的打字机效果。 |
 | [useGenerateObject](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseGenerateObjectExample.kt) | 用于从 AI 响应生成结构化数据对象的 Hook，支持多模态输入（文本 + 图片）。 |
 
 **功能特性：**
 - 流式响应 (SSE)，实时打字机效果
+- 支持非流式模式（`stream = false`）
 - 多模态输入支持（文本、图片、文件）
 - 类型安全的结构化数据生成
 - 消息状态管理

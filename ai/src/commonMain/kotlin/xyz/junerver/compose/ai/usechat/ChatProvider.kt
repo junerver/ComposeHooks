@@ -1,6 +1,9 @@
 package xyz.junerver.compose.ai.usechat
 
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonObject
 
 /*
   Description: Chat provider abstraction for multi-vendor support
@@ -191,10 +194,36 @@ sealed class Providers : ChatProvider {
             val response = json.decodeFromString<ChatCompletionResponse>(body)
             val choice = response.choices.firstOrNull()
                 ?: throw Exception("No choices in response")
+            val finishReason = choice.finishReason?.let { FinishReason.fromString(it) }
+
+            val contentParts = buildList<AssistantContentPart> {
+                choice.message.content?.takeIf { it.isNotEmpty() }?.let { add(TextPart(it)) }
+
+                choice.message.toolCalls.orEmpty().forEach { tc ->
+                    val args: JsonObject = try {
+                        json.parseToJsonElement(tc.function.arguments).jsonObject
+                    } catch (e: Exception) {
+                        buildJsonObject { }
+                    }
+                    add(
+                        ToolCallPart(
+                            toolCallId = tc.id,
+                            toolName = tc.function.name,
+                            args = args,
+                        ),
+                    )
+                }
+            }.ifEmpty { listOf(TextPart("")) }
+
             return ChatResponseResult(
-                message = assistantMessage(text = choice.message.content ?: ""),
+                message = assistantMessage(
+                    content = contentParts,
+                    model = response.model,
+                    usage = response.usage,
+                    finishReason = finishReason,
+                ),
                 usage = response.usage,
-                finishReason = choice.finishReason?.let { FinishReason.fromString(it) },
+                finishReason = finishReason,
             )
         }
     }
@@ -401,17 +430,107 @@ sealed class Providers : ChatProvider {
 
         override fun parseResponse(body: String): ChatResponseResult {
             val response = json.decodeFromString<AnthropicResponse>(body)
-            val content = response.content.firstOrNull()?.text ?: ""
+            val usage = ChatUsage(
+                promptTokens = response.usage.inputTokens,
+                completionTokens = response.usage.outputTokens,
+                totalTokens = response.usage.inputTokens + response.usage.outputTokens,
+            )
+            val finishReason = response.stopReason?.let { FinishReason.fromString(it) }
+
+            val parts = buildList<AssistantContentPart> {
+                response.content.forEach { block ->
+                    when (block.type) {
+                        "text" -> block.text?.takeIf { it.isNotEmpty() }?.let { add(TextPart(it)) }
+                        "thinking" -> block.thinking?.takeIf { it.isNotEmpty() }?.let { add(ReasoningPart(it)) }
+                        "tool_use" -> {
+                            val id = block.id
+                            val name = block.name
+                            val input = block.input
+                            if (id != null && name != null && input != null) {
+                                add(
+                                    ToolCallPart(
+                                        toolCallId = id,
+                                        toolName = name,
+                                        args = input,
+                                    ),
+                                )
+                            }
+                        }
+                    }
+                }
+            }.ifEmpty { listOf(TextPart("")) }
+
             return ChatResponseResult(
-                message = assistantMessage(text = content),
-                usage = ChatUsage(
-                    promptTokens = response.usage.inputTokens,
-                    completionTokens = response.usage.outputTokens,
-                    totalTokens = response.usage.inputTokens + response.usage.outputTokens,
+                message = assistantMessage(
+                    content = parts,
+                    model = response.model,
+                    usage = usage,
+                    finishReason = finishReason,
                 ),
-                finishReason = response.stopReason?.let { FinishReason.fromString(it) },
+                usage = usage,
+                finishReason = finishReason,
             )
         }
+    }
+
+    /**
+     * Anthropic-compatible Messages API provider.
+     *
+     * Use this for vendors that implement Anthropic `/v1/messages` but with custom:
+     * - `baseUrl`
+     * - auth header name/prefix (e.g. `Authorization: Bearer ...`)
+     * - optional `anthropic-version` requirement
+     */
+    data class AnthropicCompatible(
+        override val baseUrl: String,
+        override val defaultModel: String,
+        override val apiKey: String = "",
+        override val name: String = "AnthropicCompatible",
+        val apiKeyHeader: String = "x-api-key",
+        val apiKeyPrefix: String? = null,
+        val anthropicVersion: String? = "2023-06-01",
+        override val chatEndpoint: String = "/v1/messages",
+    ) : Providers() {
+        override fun buildAuthHeaders(): Map<String, String> = buildMap {
+            if (apiKey.isNotBlank()) {
+                val value = apiKeyPrefix?.let { "$it $apiKey" } ?: apiKey
+                put(apiKeyHeader, value)
+            }
+            if (!anthropicVersion.isNullOrBlank()) {
+                put("anthropic-version", anthropicVersion)
+            }
+        }
+
+        override fun buildRequestBody(
+            messages: List<ChatMessage>,
+            model: String,
+            stream: Boolean,
+            temperature: Float?,
+            maxTokens: Int?,
+            systemPrompt: String?,
+        ): String {
+            val request = AnthropicRequest(
+                model = model,
+                messages = messages.toAnthropicMessages(),
+                stream = stream,
+                system = systemPrompt,
+                temperature = temperature,
+                maxTokens = maxTokens ?: 4096,
+            )
+            return json.encodeToString(AnthropicRequest.serializer(), request)
+        }
+
+        override fun parseStreamLine(line: String): StreamEvent? = Anthropic(
+            apiKey = apiKey,
+            baseUrl = baseUrl,
+            defaultModel = defaultModel,
+        ).parseStreamLine(line)
+
+        override fun parseResponse(body: String): ChatResponseResult = Anthropic(
+            apiKey = apiKey,
+            baseUrl = baseUrl,
+            defaultModel = defaultModel,
+        ).parseResponse(body)
     }
 
     // endregion
