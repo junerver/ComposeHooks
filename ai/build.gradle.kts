@@ -1,3 +1,6 @@
+@file:OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+
+import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
@@ -90,6 +93,8 @@ kotlin {
         commonTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
+            implementation(compose.uiTest)
+            implementation(libs.ktor.client.mock)
         }
     }
 }
