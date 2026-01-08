@@ -6,8 +6,8 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,10 +41,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import kotlin.time.Clock
+import kotlinx.schema.Schema
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.put
 import xyz.junerver.compose.ai.invoke
 import xyz.junerver.compose.ai.useagent.ToolChoice
 import xyz.junerver.compose.ai.useagent.tool
@@ -80,13 +80,16 @@ private enum class AgentProviderType(val displayName: String) {
 }
 
 @Serializable
-private data class GetTimeParams(val timezone: String? = null)
+@Schema
+data class GetTimeParams(val timezone: String? = null)
 
 @Serializable
-private data class AddParams(val a: Int, val b: Int)
+@Schema
+data class AddParams(val a: Int, val b: Int)
 
 @Serializable
-private data class EchoParams(val text: String)
+@Schema
+data class EchoParams(val text: String)
 
 @Composable
 fun UseAgentExample() {
@@ -116,15 +119,7 @@ fun UseAgentExample() {
         tool<GetTimeParams>(
             name = "get_time",
             description = "Get current time. Optionally provide a timezone string.",
-            parameters =
-                """
-                {
-                  "type": "object",
-                  "properties": {
-                    "timezone": { "type": "string", "description": "Timezone name, optional" }
-                  }
-                }
-                """.trimIndent(),
+            parameters = GetTimeParams::class.jsonSchemaString,
         ) { params ->
             buildJsonObject {
                 put("timezone", JsonPrimitive(params.timezone ?: "local"))
@@ -138,17 +133,7 @@ fun UseAgentExample() {
         tool<AddParams>(
             name = "add",
             description = "Add two integers and return the sum.",
-            parameters =
-                """
-                {
-                  "type": "object",
-                  "properties": {
-                    "a": { "type": "integer" },
-                    "b": { "type": "integer" }
-                  },
-                  "required": ["a", "b"]
-                }
-                """.trimIndent(),
+            parameters = AddParams::class.jsonSchemaString,
         ) { params ->
             JsonPrimitive(params.a + params.b)
         }
@@ -158,16 +143,7 @@ fun UseAgentExample() {
         tool<EchoParams>(
             name = "echo",
             description = "Echo back text.",
-            parameters =
-                """
-                {
-                  "type": "object",
-                  "properties": {
-                    "text": { "type": "string" }
-                  },
-                  "required": ["text"]
-                }
-                """.trimIndent(),
+            parameters = EchoParams::class.jsonSchemaString,
         ) { params ->
             JsonPrimitive(params.text)
         }

@@ -1,5 +1,6 @@
 package xyz.junerver.compose.ai.usechat
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -117,6 +118,7 @@ internal sealed class OpenAIContentPart {
 internal object ChatMessageContentSerializer : KSerializer<ChatMessageContent?> {
     override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ChatMessageContent")
 
+    @OptIn(ExperimentalSerializationApi::class)
     override fun serialize(encoder: Encoder, value: ChatMessageContent?) {
         val jsonEncoder = encoder as JsonEncoder
         when (value) {
