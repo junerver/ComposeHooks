@@ -70,6 +70,7 @@ internal class Throttle<TParams>(
     var fn: VoidFunction<TParams>,
     private val scope: CoroutineScope,
     private val options: UseThrottleOptions = UseThrottleOptions(),
+    private val now: () -> Instant = { currentInstant },
 ) {
     private var timeoutJob: Job? = null
     private var lastArgs: TParams? = null
@@ -78,7 +79,7 @@ internal class Throttle<TParams>(
     private fun trailingEdge() {
         if (options.trailing) {
             lastArgs?.let { fn(it) }
-            latestInvokedTime = currentInstant
+            latestInvokedTime = now()
         }
         timeoutJob = null
     }
@@ -91,19 +92,19 @@ internal class Throttle<TParams>(
 
     fun invoke(p1: TParams) {
         val (wait, leading, trailing) = options
-        val now = currentInstant
+        val nowInstant = now()
         lastArgs = p1
 
         if (latestInvokedTime == Instant.DISTANT_PAST && !leading) {
-            latestInvokedTime = now
+            latestInvokedTime = nowInstant
         }
 
-        val remaining = wait - (now - latestInvokedTime)
+        val remaining = wait - (nowInstant - latestInvokedTime)
 
         if (remaining <= Duration.ZERO || remaining > wait) {
             timeoutJob?.cancel()
             timeoutJob = null
-            latestInvokedTime = now
+            latestInvokedTime = nowInstant
             if (leading) {
                 fn(p1)
             } else if (trailing) {

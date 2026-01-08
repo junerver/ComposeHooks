@@ -58,6 +58,7 @@ internal class Debounce<TParams>(
     var fn: VoidFunction<TParams>,
     private val scope: CoroutineScope,
     private val options: UseDebounceOptions = UseDebounceOptions(),
+    private val now: () -> Instant = { currentInstant },
 ) {
     private var timeoutJob: Job? = null // Job for tracking delayed tasks
     private var latestInvokedTime = Instant.DISTANT_PAST
@@ -76,7 +77,7 @@ internal class Debounce<TParams>(
     // The actual function execution
     private fun executeFn(params: TParams?) {
         params?.let { fn(it) }
-        latestInvokedTime = currentInstant
+        latestInvokedTime = now()
     }
 
     private fun resetDebounceState() {
@@ -88,7 +89,10 @@ internal class Debounce<TParams>(
         val (wait, leading, trailing, maxWait) = options
         lastArgs = p1 // Save the latest parameters on each call
 
-        val currentTimeStamp = currentInstant
+        val currentTimeStamp = now()
+        if (latestInvokedTime == Instant.DISTANT_PAST) {
+            latestInvokedTime = currentTimeStamp
+        }
         val waitTime = currentTimeStamp - latestInvokedTime
 
         val isMaxWaitExceeded = maxWait > Duration.ZERO && waitTime >= maxWait
@@ -101,14 +105,8 @@ internal class Debounce<TParams>(
         if (shouldInvokeImmediately) {
             executeFn(p1)
             isAwaitingNextDebounce = false // After leading triggers, no more triggers in the current debounce cycle
-            // If trailing is also set, set up a new delayed task to handle trailing behavior
             timeoutJob = scope.launch {
                 delay(wait)
-                // Ensure that if there are no new calls at the end of the delay, execute trailing
-                // And check latestCalledTime to ensure it wasn't called again during the delay
-                if (currentInstant - latestCalledTime >= wait && trailing) {
-                    executeFn(lastArgs) // Execute trailing
-                }
                 resetDebounceState()
             }
         } else {
@@ -117,7 +115,7 @@ internal class Debounce<TParams>(
                 delay(wait)
                 // Check if maximum wait time is exceeded or wait time has passed
                 // And ensure that no new calls occurred at the end of the delay
-                if ((currentInstant - latestCalledTime >= wait || isMaxWaitExceeded) && trailing) {
+                if ((now() - latestCalledTime >= wait || isMaxWaitExceeded) && trailing) {
                     executeFn(lastArgs)
                 }
                 resetDebounceState()
@@ -128,6 +126,10 @@ internal class Debounce<TParams>(
                 cancelTimeout()
                 executeFn(lastArgs)
                 isAwaitingNextDebounce = false // do not allow next leading after execution
+                timeoutJob = scope.launch {
+                    delay(wait)
+                    resetDebounceState()
+                }
             }
         }
     }
