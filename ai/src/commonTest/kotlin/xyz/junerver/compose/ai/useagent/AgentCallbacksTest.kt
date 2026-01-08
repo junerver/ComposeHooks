@@ -2,7 +2,6 @@ package xyz.junerver.compose.ai.useagent
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
@@ -16,14 +15,18 @@ import xyz.junerver.compose.ai.http.HttpResult
 import xyz.junerver.compose.ai.test.FakeHttpEngine
 import xyz.junerver.compose.ai.usechat.ChatClient
 import xyz.junerver.compose.ai.usechat.ChatOptions
-import xyz.junerver.compose.ai.usechat.ToolMessage
+import xyz.junerver.compose.ai.usechat.ChatResponseResult
+import xyz.junerver.compose.ai.usechat.ChatUsage
+import xyz.junerver.compose.ai.usechat.FinishReason
 import xyz.junerver.compose.ai.usechat.Providers
+import xyz.junerver.compose.ai.usechat.ToolCallPart
+import xyz.junerver.compose.ai.usechat.ToolMessage
 import xyz.junerver.compose.ai.usechat.userMessage
 
-class AgentLoopTest {
+class AgentCallbacksTest {
 
     @Test
-    fun agentLoopExecutesToolAndContinuesConversation() = runTest {
+    fun callbacks_onToolCall_invokedForEachTool() = runTest {
         val engine = FakeHttpEngine().apply {
             enqueueResponse(
                 HttpResult(
@@ -44,8 +47,15 @@ class AgentLoopTest {
                                 "id": "call_1",
                                 "type": "function",
                                 "function": {
-                                  "name": "get_weather",
-                                  "arguments": "{\"city\":\"Paris\"}"
+                                  "name": "tool1",
+                                  "arguments": "{\"value\":\"a\"}"
+                                }
+                              }, {
+                                "id": "call_2",
+                                "type": "function",
+                                "function": {
+                                  "name": "tool2",
+                                  "arguments": "{\"value\":\"b\"}"
                                 }
                               }]
                             },
@@ -70,7 +80,7 @@ class AgentLoopTest {
                             "index": 0,
                             "message": {
                               "role": "assistant",
-                              "content": "It is sunny in Paris."
+                              "content": "Done."
                             },
                             "finish_reason": "stop"
                           }],
@@ -81,16 +91,19 @@ class AgentLoopTest {
             )
         }
 
-        val weatherTool = tool<WeatherParams>(
-            name = "get_weather",
-            description = "Get weather for a city",
+        @Serializable
+        data class ToolParams(val value: String)
+
+        val tool1 = tool<ToolParams>(
+            name = "tool1",
+            description = "Tool 1",
             parameters = buildJsonObject {
                 put("type", JsonPrimitive("object"))
                 put(
                     "properties",
                     buildJsonObject {
                         put(
-                            "city",
+                            "value",
                             buildJsonObject {
                                 put("type", JsonPrimitive("string"))
                             },
@@ -100,263 +113,66 @@ class AgentLoopTest {
             },
         ) { params ->
             buildJsonObject {
-                put("city", JsonPrimitive(params.city))
-                put("forecast", JsonPrimitive("sunny"))
+                put("result", JsonPrimitive(params.value))
+            }
+        }
+
+        val tool2 = tool<ToolParams>(
+            name = "tool2",
+            description = "Tool 2",
+            parameters = buildJsonObject {
+                put("type", JsonPrimitive("object"))
+                put(
+                    "properties",
+                    buildJsonObject {
+                        put(
+                            "value",
+                            buildJsonObject {
+                                put("type", JsonPrimitive("string"))
+                            },
+                        )
+                    },
+                )
+            },
+        ) { params ->
+            buildJsonObject {
+                put("result", JsonPrimitive(params.value))
             }
         }
 
         val options = ChatOptions.optionOf {
             provider = Providers.OpenAI(apiKey = "test")
             httpEngine = engine
-            tools = listOf(weatherTool)
+            tools = listOf(tool1, tool2)
             toolChoice = ToolChoice.Auto
         }
         val client = ChatClient(options)
 
-        val toolMessages = mutableListOf<ToolMessage>()
+        val toolCalls = mutableListOf<ToolCallPart>()
 
         runAgentLoop(
             client = client,
-            messages = mutableListOf(userMessage("Hello")),
-            tools = listOf(weatherTool),
-            maxSteps = 3,
-            parallelToolCalls = false,
-            stream = false,
-            model = "gpt-4",
-            onAssistant = { },
-            onToolMessage = { toolMessages += it },
-        )
-
-        assertEquals(1, toolMessages.size)
-        val firstTool = toolMessages.first()
-        val firstResult = firstTool.content.firstOrNull()
-        assertNotNull(firstResult)
-        val resultJson = firstResult.result.jsonObject
-        assertEquals("Paris", resultJson["city"]?.jsonPrimitive?.content)
-        assertEquals("sunny", resultJson["forecast"]?.jsonPrimitive?.content)
-
-        assertTrue(engine.recordedRequests.size >= 2)
-    }
-
-    @Test
-    fun agentLoop_maxStepsExceeded_throwsIllegalStateException() = runTest {
-        val engine = FakeHttpEngine().apply {
-            // 模拟 AI 持续返回工具调用，超过 maxSteps 限制
-            repeat(10) {
-                enqueueResponse(
-                    HttpResult(
-                        statusCode = 200,
-                        body =
-                            """
-                            {
-                              "id": "chatcmpl-$it",
-                              "object": "chat.completion",
-                              "created": 0,
-                              "model": "gpt-4",
-                              "choices": [{
-                                "index": 0,
-                                "message": {
-                                  "role": "assistant",
-                                  "content": null,
-                                  "tool_calls": [{
-                                    "id": "call_$it",
-                                    "type": "function",
-                                    "function": {
-                                      "name": "get_weather",
-                                      "arguments": "{\"city\":\"Paris\"}"
-                                    }
-                                  }]
-                                },
-                                "finish_reason": "tool_calls"
-                              }],
-                              "usage": { "prompt_tokens": 10, "completion_tokens": 3, "total_tokens": 13 }
-                            }
-                            """.trimIndent(),
-                    ),
-                )
-            }
-        }
-
-        val weatherTool = tool<WeatherParams>(
-            name = "get_weather",
-            description = "Get weather for a city",
-            parameters = buildJsonObject {
-                put("type", JsonPrimitive("object"))
-                put(
-                    "properties",
-                    buildJsonObject {
-                        put(
-                            "city",
-                            buildJsonObject {
-                                put("type", JsonPrimitive("string"))
-                            },
-                        )
-                    },
-                )
-            },
-        ) { params ->
-            buildJsonObject {
-                put("city", JsonPrimitive(params.city))
-                put("forecast", JsonPrimitive("sunny"))
-            }
-        }
-
-        val options = ChatOptions.optionOf {
-            provider = Providers.OpenAI(apiKey = "test")
-            httpEngine = engine
-            tools = listOf(weatherTool)
-            toolChoice = ToolChoice.Auto
-        }
-        val client = ChatClient(options)
-
-        val exception = kotlin.test.assertFailsWith<IllegalStateException> {
-            runAgentLoop(
-                client = client,
-                messages = mutableListOf(userMessage("Hello")),
-                tools = listOf(weatherTool),
-                maxSteps = 3,
-                parallelToolCalls = false,
-                stream = false,
-                model = "gpt-4",
-                onAssistant = { },
-                onToolMessage = { },
-            )
-        }
-
-        assertTrue(exception.message!!.contains("maxSteps"))
-        assertTrue(exception.message!!.contains("3"))
-    }
-
-    @Test
-    fun agentLoop_noToolCalls_exitsImmediately() = runTest {
-        val engine = FakeHttpEngine().apply {
-            enqueueResponse(
-                HttpResult(
-                    statusCode = 200,
-                    body =
-                        """
-                        {
-                          "id": "chatcmpl-1",
-                          "object": "chat.completion",
-                          "created": 0,
-                          "model": "gpt-4",
-                          "choices": [{
-                            "index": 0,
-                            "message": {
-                              "role": "assistant",
-                              "content": "Hello! How can I help you?"
-                            },
-                            "finish_reason": "stop"
-                          }],
-                          "usage": { "prompt_tokens": 10, "completion_tokens": 7, "total_tokens": 17 }
-                        }
-                        """.trimIndent(),
-                ),
-            )
-        }
-
-        val weatherTool = tool<WeatherParams>(
-            name = "get_weather",
-            description = "Get weather for a city",
-            parameters = buildJsonObject {
-                put("type", JsonPrimitive("object"))
-                put(
-                    "properties",
-                    buildJsonObject {
-                        put(
-                            "city",
-                            buildJsonObject {
-                                put("type", JsonPrimitive("string"))
-                            },
-                        )
-                    },
-                )
-            },
-        ) { params ->
-            buildJsonObject {
-                put("city", JsonPrimitive(params.city))
-                put("forecast", JsonPrimitive("sunny"))
-            }
-        }
-
-        val options = ChatOptions.optionOf {
-            provider = Providers.OpenAI(apiKey = "test")
-            httpEngine = engine
-            tools = listOf(weatherTool)
-            toolChoice = ToolChoice.Auto
-        }
-        val client = ChatClient(options)
-
-        var toolMessageCount = 0
-
-        runAgentLoop(
-            client = client,
-            messages = mutableListOf(userMessage("Hello")),
-            tools = listOf(weatherTool),
+            messages = mutableListOf(userMessage("test")),
+            tools = listOf(tool1, tool2),
             maxSteps = 5,
             parallelToolCalls = false,
             stream = false,
             model = "gpt-4",
-            onAssistant = { },
-            onToolMessage = { toolMessageCount++ },
-        )
-
-        assertEquals(0, toolMessageCount)
-        assertEquals(1, engine.recordedRequests.size)
-    }
-
-    @Test
-    fun agentLoop_emptyToolsList_continuesWithoutError() = runTest {
-        val engine = FakeHttpEngine().apply {
-            enqueueResponse(
-                HttpResult(
-                    statusCode = 200,
-                    body =
-                        """
-                        {
-                          "id": "chatcmpl-1",
-                          "object": "chat.completion",
-                          "created": 0,
-                          "model": "gpt-4",
-                          "choices": [{
-                            "index": 0,
-                            "message": {
-                              "role": "assistant",
-                              "content": "Hello! How can I help you?"
-                            },
-                            "finish_reason": "stop"
-                          }],
-                          "usage": { "prompt_tokens": 10, "completion_tokens": 7, "total_tokens": 17 }
-                        }
-                        """.trimIndent(),
-                ),
-            )
-        }
-
-        val options = ChatOptions.optionOf {
-            provider = Providers.OpenAI(apiKey = "test")
-            httpEngine = engine
-            tools = emptyList()
-        }
-        val client = ChatClient(options)
-
-        runAgentLoop(
-            client = client,
-            messages = mutableListOf(userMessage("Hello")),
-            tools = emptyList(),
-            maxSteps = 5,
-            parallelToolCalls = false,
-            stream = false,
-            model = "gpt-4",
-            onAssistant = { },
+            onAssistant = { response ->
+                toolCalls.addAll(response.message.toolCalls)
+            },
             onToolMessage = { },
         )
 
-        assertEquals(1, engine.recordedRequests.size)
+        assertEquals(2, toolCalls.size)
+        assertEquals("call_1", toolCalls[0].toolCallId)
+        assertEquals("tool1", toolCalls[0].toolName)
+        assertEquals("call_2", toolCalls[1].toolCallId)
+        assertEquals("tool2", toolCalls[1].toolName)
     }
 
     @Test
-    fun agentLoop_toolNotFound_returnsErrorMessage() = runTest {
+    fun callbacks_onToolCall_receivesCorrectArguments() = runTest {
         val engine = FakeHttpEngine().apply {
             enqueueResponse(
                 HttpResult(
@@ -377,7 +193,111 @@ class AgentLoopTest {
                                 "id": "call_1",
                                 "type": "function",
                                 "function": {
-                                  "name": "nonexistent_tool",
+                                  "name": "test_tool",
+                                  "arguments": "{\"city\":\"Paris\",\"units\":\"celsius\"}"
+                                }
+                              }]
+                            },
+                            "finish_reason": "tool_calls"
+                          }],
+                          "usage": { "prompt_tokens": 10, "completion_tokens": 3, "total_tokens": 13 }
+                        }
+                        """.trimIndent(),
+                ),
+            )
+            enqueueResponse(
+                HttpResult(
+                    statusCode = 200,
+                    body =
+                        """
+                        {
+                          "id": "chatcmpl-2",
+                          "object": "chat.completion",
+                          "created": 0,
+                          "model": "gpt-4",
+                          "choices": [{
+                            "index": 0,
+                            "message": {
+                              "role": "assistant",
+                              "content": "Done."
+                            },
+                            "finish_reason": "stop"
+                          }],
+                          "usage": { "prompt_tokens": 20, "completion_tokens": 7, "total_tokens": 27 }
+                        }
+                        """.trimIndent(),
+                ),
+            )
+        }
+
+        @Serializable
+        data class WeatherParams(val city: String, val units: String)
+
+        val testTool = tool<WeatherParams>(
+            name = "test_tool",
+            description = "Test tool",
+            parameters = buildJsonObject { },
+        ) { params ->
+            buildJsonObject {
+                put("city", JsonPrimitive(params.city))
+                put("units", JsonPrimitive(params.units))
+            }
+        }
+
+        val options = ChatOptions.optionOf {
+            provider = Providers.OpenAI(apiKey = "test")
+            httpEngine = engine
+            tools = listOf(testTool)
+            toolChoice = ToolChoice.Auto
+        }
+        val client = ChatClient(options)
+
+        var capturedToolCall: ToolCallPart? = null
+
+        runAgentLoop(
+            client = client,
+            messages = mutableListOf(userMessage("test")),
+            tools = listOf(testTool),
+            maxSteps = 5,
+            parallelToolCalls = false,
+            stream = false,
+            model = "gpt-4",
+            onAssistant = { response ->
+                if (capturedToolCall == null && response.message.toolCalls.isNotEmpty()) {
+                    capturedToolCall = response.message.toolCalls.firstOrNull()
+                }
+            },
+            onToolMessage = { },
+        )
+
+        assertNotNull(capturedToolCall)
+        assertEquals("Paris", capturedToolCall!!.args.jsonObject["city"]?.jsonPrimitive?.content)
+        assertEquals("celsius", capturedToolCall!!.args.jsonObject["units"]?.jsonPrimitive?.content)
+    }
+
+    @Test
+    fun callbacks_onToolResult_invokedAfterExecution() = runTest {
+        val engine = FakeHttpEngine().apply {
+            enqueueResponse(
+                HttpResult(
+                    statusCode = 200,
+                    body =
+                        """
+                        {
+                          "id": "chatcmpl-1",
+                          "object": "chat.completion",
+                          "created": 0,
+                          "model": "gpt-4",
+                          "choices": [{
+                            "index": 0,
+                            "message": {
+                              "role": "assistant",
+                              "content": null,
+                              "tool_calls": [{
+                                "id": "call_1",
+                                "type": "function",
+                                "function": {
+                                  "name": "test_tool",
                                   "arguments": "{}"
                                 }
                               }]
@@ -403,7 +323,7 @@ class AgentLoopTest {
                             "index": 0,
                             "message": {
                               "role": "assistant",
-                              "content": "I apologize for the error."
+                              "content": "Done."
                             },
                             "finish_reason": "stop"
                           }],
@@ -414,34 +334,20 @@ class AgentLoopTest {
             )
         }
 
-        val weatherTool = tool<WeatherParams>(
-            name = "get_weather",
-            description = "Get weather for a city",
-            parameters = buildJsonObject {
-                put("type", JsonPrimitive("object"))
-                put(
-                    "properties",
-                    buildJsonObject {
-                        put(
-                            "city",
-                            buildJsonObject {
-                                put("type", JsonPrimitive("string"))
-                            },
-                        )
-                    },
-                )
-            },
-        ) { params ->
+        val testTool = tool<Unit>(
+            name = "test_tool",
+            description = "Test tool",
+            parameters = buildJsonObject { },
+        ) {
             buildJsonObject {
-                put("city", JsonPrimitive(params.city))
-                put("forecast", JsonPrimitive("sunny"))
+                put("success", JsonPrimitive(true))
             }
         }
 
         val options = ChatOptions.optionOf {
             provider = Providers.OpenAI(apiKey = "test")
             httpEngine = engine
-            tools = listOf(weatherTool)
+            tools = listOf(testTool)
             toolChoice = ToolChoice.Auto
         }
         val client = ChatClient(options)
@@ -450,8 +356,8 @@ class AgentLoopTest {
 
         runAgentLoop(
             client = client,
-            messages = mutableListOf(userMessage("Hello")),
-            tools = listOf(weatherTool),
+            messages = mutableListOf(userMessage("test")),
+            tools = listOf(testTool),
             maxSteps = 5,
             parallelToolCalls = false,
             stream = false,
@@ -461,16 +367,13 @@ class AgentLoopTest {
         )
 
         assertEquals(1, toolMessages.size)
-        val errorMessage = toolMessages.first()
-        val firstResult = errorMessage.content.firstOrNull()
-        assertNotNull(firstResult)
-        assertTrue(firstResult.isError)
-        assertTrue(firstResult.result.jsonPrimitive.content.contains("Tool not found"))
-        assertTrue(firstResult.result.jsonPrimitive.content.contains("nonexistent_tool"))
+        val result = toolMessages.first().content.first()
+        assertEquals(false, result.isError)
+        assertEquals(true, result.result.jsonObject["success"]?.jsonPrimitive?.content?.toBoolean())
     }
 
     @Test
-    fun agentLoop_toolExecutionThrows_returnsErrorMessage() = runTest {
+    fun callbacks_onToolResult_receivesErrorFlag() = runTest {
         val engine = FakeHttpEngine().apply {
             enqueueResponse(
                 HttpResult(
@@ -517,7 +420,7 @@ class AgentLoopTest {
                             "index": 0,
                             "message": {
                               "role": "assistant",
-                              "content": "I'll handle the error."
+                              "content": "Error handled."
                             },
                             "finish_reason": "stop"
                           }],
@@ -530,10 +433,10 @@ class AgentLoopTest {
 
         val failingTool = tool<Unit>(
             name = "failing_tool",
-            description = "A tool that always fails",
+            description = "Failing tool",
             parameters = buildJsonObject { },
         ) {
-            throw RuntimeException("Tool execution failed")
+            throw RuntimeException("Tool failed")
         }
 
         val options = ChatOptions.optionOf {
@@ -548,7 +451,7 @@ class AgentLoopTest {
 
         runAgentLoop(
             client = client,
-            messages = mutableListOf(userMessage("Hello")),
+            messages = mutableListOf(userMessage("test")),
             tools = listOf(failingTool),
             maxSteps = 5,
             parallelToolCalls = false,
@@ -559,15 +462,13 @@ class AgentLoopTest {
         )
 
         assertEquals(1, toolMessages.size)
-        val errorMessage = toolMessages.first()
-        val firstResult = errorMessage.content.firstOrNull()
-        assertNotNull(firstResult)
-        assertTrue(firstResult.isError)
-        assertTrue(firstResult.result.jsonPrimitive.content.contains("Tool execution failed"))
+        val result = toolMessages.first().content.first()
+        assertTrue(result.isError)
+        assertTrue(result.result.jsonPrimitive.content.contains("Tool failed"))
     }
 
     @Test
-    fun agentLoop_toolExecutionThrows_continuesLoop() = runTest {
+    fun callbacks_onFinish_invokedWhenNoToolCalls() = runTest {
         val engine = FakeHttpEngine().apply {
             enqueueResponse(
                 HttpResult(
@@ -583,84 +484,59 @@ class AgentLoopTest {
                             "index": 0,
                             "message": {
                               "role": "assistant",
-                              "content": null,
-                              "tool_calls": [{
-                                "id": "call_1",
-                                "type": "function",
-                                "function": {
-                                  "name": "failing_tool",
-                                  "arguments": "{}"
-                                }
-                              }]
-                            },
-                            "finish_reason": "tool_calls"
-                          }],
-                          "usage": { "prompt_tokens": 10, "completion_tokens": 3, "total_tokens": 13 }
-                        }
-                        """.trimIndent(),
-                ),
-            )
-            enqueueResponse(
-                HttpResult(
-                    statusCode = 200,
-                    body =
-                        """
-                        {
-                          "id": "chatcmpl-2",
-                          "object": "chat.completion",
-                          "created": 0,
-                          "model": "gpt-4",
-                          "choices": [{
-                            "index": 0,
-                            "message": {
-                              "role": "assistant",
-                              "content": "Error handled, continuing."
+                              "content": "Hello! How can I help you?"
                             },
                             "finish_reason": "stop"
                           }],
-                          "usage": { "prompt_tokens": 20, "completion_tokens": 7, "total_tokens": 27 }
+                          "usage": { "prompt_tokens": 10, "completion_tokens": 7, "total_tokens": 17 }
                         }
                         """.trimIndent(),
                 ),
             )
         }
 
-        val failingTool = tool<Unit>(
-            name = "failing_tool",
-            description = "A tool that always fails",
+        val testTool = tool<Unit>(
+            name = "test_tool",
+            description = "Test tool",
             parameters = buildJsonObject { },
         ) {
-            throw RuntimeException("Expected error")
+            buildJsonObject { }
         }
 
         val options = ChatOptions.optionOf {
             provider = Providers.OpenAI(apiKey = "test")
             httpEngine = engine
-            tools = listOf(failingTool)
+            tools = listOf(testTool)
             toolChoice = ToolChoice.Auto
         }
         val client = ChatClient(options)
 
+        var finishCalled = false
         var assistantCallCount = 0
 
         runAgentLoop(
             client = client,
-            messages = mutableListOf(userMessage("Hello")),
-            tools = listOf(failingTool),
+            messages = mutableListOf(userMessage("test")),
+            tools = listOf(testTool),
             maxSteps = 5,
             parallelToolCalls = false,
             stream = false,
             model = "gpt-4",
-            onAssistant = { assistantCallCount++ },
+            onAssistant = { response ->
+                assistantCallCount++
+                if (response.message.toolCalls.isEmpty()) {
+                    finishCalled = true
+                }
+            },
             onToolMessage = { },
         )
 
-        assertEquals(2, assistantCallCount)
-        assertEquals(2, engine.recordedRequests.size)
+        assertEquals(1, assistantCallCount)
+        assertTrue(finishCalled)
     }
 
     @Test
-    fun agentLoop_parallelToolCalls_executesSimultaneously() = runTest {
+    fun callbacks_onFinish_notInvokedWhenToolCallsPresent() = runTest {
         val engine = FakeHttpEngine().apply {
             enqueueResponse(
                 HttpResult(
@@ -681,15 +557,8 @@ class AgentLoopTest {
                                 "id": "call_1",
                                 "type": "function",
                                 "function": {
-                                  "name": "slow_tool",
-                                  "arguments": "{\"id\":\"1\"}"
-                                }
-                              }, {
-                                "id": "call_2",
-                                "type": "function",
-                                "function": {
-                                  "name": "slow_tool",
-                                  "arguments": "{\"id\":\"2\"}"
+                                  "name": "test_tool",
+                                  "arguments": "{}"
                                 }
                               }]
                             },
@@ -725,63 +594,120 @@ class AgentLoopTest {
             )
         }
 
-        @Serializable
-        data class SlowToolParams(val id: String)
-
-        val slowTool = tool<SlowToolParams>(
-            name = "slow_tool",
-            description = "A slow tool",
-            parameters = buildJsonObject {
-                put("type", JsonPrimitive("object"))
-                put(
-                    "properties",
-                    buildJsonObject {
-                        put(
-                            "id",
-                            buildJsonObject {
-                                put("type", JsonPrimitive("string"))
-                            },
-                        )
-                    },
-                )
-            },
-        ) { params ->
-            kotlinx.coroutines.delay(100)
-            buildJsonObject {
-                put("id", JsonPrimitive(params.id))
-                put("result", JsonPrimitive("ok"))
-            }
+        val testTool = tool<Unit>(
+            name = "test_tool",
+            description = "Test tool",
+            parameters = buildJsonObject { },
+        ) {
+            buildJsonObject { }
         }
 
         val options = ChatOptions.optionOf {
             provider = Providers.OpenAI(apiKey = "test")
             httpEngine = engine
-            tools = listOf(slowTool)
+            tools = listOf(testTool)
             toolChoice = ToolChoice.Auto
         }
         val client = ChatClient(options)
 
-        val toolMessages = mutableListOf<ToolMessage>()
+        var finishCalledWithToolCalls = false
+        var finishCalledWithoutToolCalls = false
 
         runAgentLoop(
             client = client,
-            messages = mutableListOf(userMessage("Hello")),
-            tools = listOf(slowTool),
+            messages = mutableListOf(userMessage("test")),
+            tools = listOf(testTool),
             maxSteps = 5,
-            parallelToolCalls = true,
+            parallelToolCalls = false,
             stream = false,
             model = "gpt-4",
-            onAssistant = { },
-            onToolMessage = { toolMessages += it },
+            onAssistant = { response ->
+                if (response.message.toolCalls.isNotEmpty()) {
+                    finishCalledWithToolCalls = true
+                } else {
+                    finishCalledWithoutToolCalls = true
+                }
+            },
+            onToolMessage = { },
         )
 
-        assertEquals(2, toolMessages.size)
-        val results = toolMessages.map { it.content.first().result.jsonObject["id"]?.jsonPrimitive?.content }
-        assertTrue(results.containsAll(listOf("1", "2")))
+        assertTrue(finishCalledWithToolCalls)
+        assertTrue(finishCalledWithoutToolCalls)
     }
 
     @Test
-    fun agentLoop_sequentialToolCalls_executesInOrder() = runTest {
+    fun callbacks_onFinish_receivesUsageAndFinishReason() = runTest {
+        val engine = FakeHttpEngine().apply {
+            enqueueResponse(
+                HttpResult(
+                    statusCode = 200,
+                    body =
+                        """
+                        {
+                          "id": "chatcmpl-1",
+                          "object": "chat.completion",
+                          "created": 0,
+                          "model": "gpt-4",
+                          "choices": [{
+                            "index": 0,
+                            "message": {
+                              "role": "assistant",
+                              "content": "Hello!"
+                            },
+                            "finish_reason": "stop"
+                          }],
+                          "usage": { "prompt_tokens": 10, "completion_tokens": 7, "total_tokens": 17 }
+                        }
+                        """.trimIndent(),
+                ),
+            )
+        }
+
+        val testTool = tool<Unit>(
+            name = "test_tool",
+            description = "Test tool",
+            parameters = buildJsonObject { },
+        ) {
+            buildJsonObject { }
+        }
+
+        val options = ChatOptions.optionOf {
+            provider = Providers.OpenAI(apiKey = "test")
+            httpEngine = engine
+            tools = listOf(testTool)
+            toolChoice = ToolChoice.Auto
+        }
+        val client = ChatClient(options)
+
+        var capturedUsage: ChatUsage? = null
+        var capturedFinishReason: FinishReason? = null
+
+        runAgentLoop(
+            client = client,
+            messages = mutableListOf(userMessage("test")),
+            tools = listOf(testTool),
+            maxSteps = 5,
+            parallelToolCalls = false,
+            stream = false,
+            model = "gpt-4",
+            onAssistant = { response ->
+                if (response.message.toolCalls.isEmpty()) {
+                    capturedUsage = response.usage
+                    capturedFinishReason = response.finishReason
+                }
+            },
+            onToolMessage = { },
+        )
+
+        assertNotNull(capturedUsage)
+        assertEquals(10, capturedUsage!!.promptTokens)
+        assertEquals(7, capturedUsage!!.completionTokens)
+        assertEquals(17, capturedUsage!!.totalTokens)
+        assertEquals(FinishReason.Stop, capturedFinishReason)
+    }
+
+    @Test
+    fun callbacks_executionOrder_isCorrect() = runTest {
         val engine = FakeHttpEngine().apply {
             enqueueResponse(
                 HttpResult(
@@ -802,15 +728,8 @@ class AgentLoopTest {
                                 "id": "call_1",
                                 "type": "function",
                                 "function": {
-                                  "name": "ordered_tool",
-                                  "arguments": "{\"order\":1}"
-                                }
-                              }, {
-                                "id": "call_2",
-                                "type": "function",
-                                "function": {
-                                  "name": "ordered_tool",
-                                  "arguments": "{\"order\":2}"
+                                  "name": "test_tool",
+                                  "arguments": "{}"
                                 }
                               }]
                             },
@@ -846,58 +765,47 @@ class AgentLoopTest {
             )
         }
 
-        @Serializable
-        data class OrderedToolParams(val order: Int)
-
-        val executionOrder = mutableListOf<Int>()
-
-        val orderedTool = tool<OrderedToolParams>(
-            name = "ordered_tool",
-            description = "A tool that records execution order",
-            parameters = buildJsonObject {
-                put("type", JsonPrimitive("object"))
-                put(
-                    "properties",
-                    buildJsonObject {
-                        put(
-                            "order",
-                            buildJsonObject {
-                                put("type", JsonPrimitive("integer"))
-                            },
-                        )
-                    },
-                )
-            },
-        ) { params ->
-            executionOrder.add(params.order)
-            buildJsonObject {
-                put("order", JsonPrimitive(params.order))
-            }
+        val testTool = tool<Unit>(
+            name = "test_tool",
+            description = "Test tool",
+            parameters = buildJsonObject { },
+        ) {
+            buildJsonObject { }
         }
 
         val options = ChatOptions.optionOf {
             provider = Providers.OpenAI(apiKey = "test")
             httpEngine = engine
-            tools = listOf(orderedTool)
+            tools = listOf(testTool)
             toolChoice = ToolChoice.Auto
         }
         val client = ChatClient(options)
 
+        val executionOrder = mutableListOf<String>()
+
         runAgentLoop(
             client = client,
-            messages = mutableListOf(userMessage("Hello")),
-            tools = listOf(orderedTool),
+            messages = mutableListOf(userMessage("test")),
+            tools = listOf(testTool),
             maxSteps = 5,
             parallelToolCalls = false,
             stream = false,
             model = "gpt-4",
-            onAssistant = { },
-            onToolMessage = { },
+            onAssistant = { response ->
+                if (response.message.toolCalls.isNotEmpty()) {
+                    executionOrder.add("onAssistant_with_tools")
+                } else {
+                    executionOrder.add("onAssistant_finish")
+                }
+            },
+            onToolMessage = {
+                executionOrder.add("onToolMessage")
+            },
         )
 
-        assertEquals(listOf(1, 2), executionOrder)
+        assertEquals(
+            listOf("onAssistant_with_tools", "onToolMessage", "onAssistant_finish"),
+            executionOrder,
+        )
     }
 }
-
-@Serializable
-private data class WeatherParams(val city: String)
