@@ -120,8 +120,10 @@ private fun <TParams, TData : Any> useRequestPrivate(
     options: UseRequestOptions<TParams, TData>,
     plugins: Array<ComposablePluginGenFn<TParams, TData>> = emptyArray(),
 ): RequestHolder<TParams, TData> {
+    var pluginsRef by useRef<Array<ComposablePluginGenFn<TParams, TData>>>(emptyArray())
     var customPluginsRef by useRef<Array<Plugin<TParams, TData>>>(emptyArray())
-    if (customPluginsRef.size != plugins.size) {
+    if (!pluginsRef.contentEquals(plugins)) {
+        pluginsRef = plugins.copyOf()
         customPluginsRef = plugins.map {
             it(options)
         }.toTypedArray()
@@ -192,14 +194,22 @@ private fun <TParams, TData : Any> useRequestPluginsImpl(
             this.errorState = errorState
             this.setError = setError
             this.requestFn = requestFn
-
-            this.fetchState = plugins.mapNotNull {
-                it.onInit?.invoke(options)
-            }.cover() ?: FetchState()
-            this.pluginImpls = plugins.map { it.invoke(this, options) }.toTypedArray()
         }
     }.apply {
         this.scope = rememberCoroutineScope()
+    }
+
+    fetch.requestFn = requestFn
+
+    var pluginsRef by useRef<Array<Plugin<TParams, TData>>>(emptyArray())
+    if (!pluginsRef.contentEquals(plugins)) {
+        pluginsRef = plugins.copyOf()
+        fetch.run = fetch::_run
+        fetch.runAsync = fetch::_runAsync
+        fetch.fetchState = plugins.mapNotNull {
+            it.onInit?.invoke(options)
+        }.cover() ?: FetchState()
+        fetch.pluginImpls = plugins.map { it.invoke(fetch, options) }.toTypedArray()
     }
 
     useUnmount {

@@ -118,6 +118,17 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
         } else {
             latestParams = params
         }
+        if (latestParams == null) {
+            val error = IllegalStateException("useRequest: params is null and defaultParams is null")
+            setState(
+                Keys.loading to false,
+                Keys.params to null,
+                Keys.error to error,
+            )
+            options.onError.invoke(error, null)
+            options.onFinally.invoke(null, null, error)
+            return@coroutineScope
+        }
         count += 1
         val currentCount = count
         // 这里等同于runPluginHandler
