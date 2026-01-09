@@ -45,7 +45,7 @@ class UseDateFormatTest {
     @Test
     fun testDayOfWeekFormats() {
         assertEquals("1", formatDate(testDate, "d", options)) // Monday is 1 (Sunday is 0)
-        assertEquals("M", formatDate(testDate, "dd", options)) // "Monday" -> "M"
+        assertEquals("Mo", formatDate(testDate, "dd", options)) // "Monday" -> "Mo"
         assertEquals("Mon", formatDate(testDate, "ddd", options))
         assertEquals("Monday", formatDate(testDate, "dddd", options))
     }
@@ -305,9 +305,9 @@ class UseDateFormatTest {
         // Test Day of week names
         assertEquals("星期一", formatDate(testDate, "dddd", chineseOptions))
         assertEquals("周一", formatDate(testDate, "ddd", chineseOptions))
-        assertEquals("周一", formatDate(testDate, "dd", chineseOptions)) // "周一" -> "周" (first char)
+        assertEquals("周一", formatDate(testDate, "dd", chineseOptions)) // "周一"（最小形式）
         assertEquals("Monday", formatDate(testDate, "dddd", englishOptions))
         assertEquals("Mon", formatDate(testDate, "ddd", englishOptions))
-        assertEquals("M", formatDate(testDate, "dd", englishOptions)) // "Monday" -> "M" (first char)
+        assertEquals("Mo", formatDate(testDate, "dd", englishOptions)) // "Monday" -> "Mo" (first char)
     }
 }
