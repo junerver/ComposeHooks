@@ -63,7 +63,7 @@ typealias SuspendAction<CTX, E> = suspend CoroutineScope.(prevContext: CTX?, eve
  * @example
  * ```kotlin
  * enum class State { IDLE, LOADING, SUCCESS, ERROR }
- * enum class Event { START, SUCCESS, ERROR, RETRY }
+ * enum class Event { START, SUCCESS, ERROR, RETRY, LOG }
  *
  * // Create a state machine with Int context
  * val machineGraph = createMachine<State, Event, Int> {
@@ -79,6 +79,10 @@ typealias SuspendAction<CTX, E> = suspend CoroutineScope.(prevContext: CTX?, eve
  *                 // Update context based on event
  *                 ctx + 1
  *             }
+ *         }
+ *         on(Event.LOG) {
+ *             // Action-only event, keep state as-is
+ *             action { ctx, e -> ctx + 1 }
  *         }
  *     }
  *
@@ -126,7 +130,8 @@ fun <S : Any, E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>
     val transitionVersionRef = useRef(0L)
 
     val canTransition = { event: E ->
-        machineGraph.current.transitions.containsKey(currentState.value to event)
+        val key = currentState.value to event
+        machineGraph.current.transitions.containsKey(key) || machineGraph.current.suspendActions.containsKey(key)
     }
 
     val transition = transition@{ event: E ->
@@ -176,9 +181,14 @@ fun <S : Any, E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>
     }
 
     val getAvailableEvents = {
-        machineGraph.current.transitions.keys
-            .filter { it.first == currentState.value }
+        val state = currentState.value
+        val transitionEvents = machineGraph.current.transitions.keys.asSequence()
+            .filter { it.first == state }
             .map { it.second }
+        val actionEvents = machineGraph.current.suspendActions.keys.asSequence()
+            .filter { it.first == state }
+            .map { it.second }
+        (transitionEvents + actionEvents).distinct().toList()
     }
 
     val history = useState {
@@ -220,6 +230,10 @@ fun <S : Any, E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>
  *         on(MyEvent.START) {
  *             target(MyState.PROCESSING)
  *             action { ctx, event -> updatedContext } // Optional action
+ *         }
+ *         on(Event.LOG) {
+ *             // Action-only event, keep state as-is
+ *             action { ctx, e -> ctx + 1 }
  *         }
  *     }
  *

@@ -53,6 +53,7 @@ enum class LoadingEvent {
     SUCCESS, // Loading success
     ERROR, // Loading failed
     RETRY, // Retry
+    LOG, // Action-only: update context
 }
 
 @Composable
@@ -71,6 +72,14 @@ fun UseStateMachineExample() {
                     println("current state is: $ctx")
                     println("current event is: $e")
                     2
+                }
+            }
+            on(LoadingEvent.LOG) {
+                // Action-only event: keep state as-is, only update context
+                action { ctx, e ->
+                    println("current context is: $ctx")
+                    println("current event is: $e")
+                    (ctx ?: 0) + 1
                 }
             }
         }
@@ -130,6 +139,9 @@ fun UseStateMachineExample() {
             // Current state display card
             StateDisplayCard(currentState.value)
 
+            // Current context display
+            ContextDisplayCard(context.value)
+
             // State history records
             HistoryCard(history.value)
 
@@ -184,6 +196,31 @@ private fun StateDisplayCard(currentState: LoadingState) {
                     fontWeight = FontWeight.Bold,
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun ContextDisplayCard(context: Int?) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+        ) {
+            Text(
+                text = "Current context",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = context?.toString() ?: "null",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+            )
         }
     }
 }
@@ -266,6 +303,14 @@ private fun ControlButtonsSection(
                     modifier = Modifier.weight(1f),
                 ) {
                     transition(LoadingEvent.START)
+                }
+
+                TButton(
+                    text = "Log (ctx+1)",
+                    enabled = canTransition(LoadingEvent.LOG),
+                    modifier = Modifier.weight(1f),
+                ) {
+                    transition(LoadingEvent.LOG)
                 }
 
                 TButton(
