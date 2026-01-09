@@ -96,10 +96,13 @@ fun <S, A> useReducer(
         }
     }
 
-    val enhancedDispatchAsync: DispatchAsync<A> = remember(asyncRun, enhancedDispatch) {
+    val enhancedDispatchRef = useLatestRef(enhancedDispatch)
+
+    val enhancedDispatchAsync: DispatchAsync<A> = remember(asyncRun, enhancedDispatchRef) {
         { block ->
             asyncRun {
-                enhancedDispatch(block(enhancedDispatch))
+                val currentDispatch = enhancedDispatchRef.current
+                currentDispatch(block(currentDispatch))
             }
         }
     }

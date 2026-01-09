@@ -9,6 +9,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import xyz.junerver.compose.hooks.Dispatch
 import xyz.junerver.compose.hooks.Middleware
 import xyz.junerver.compose.hooks.Reducer
@@ -214,4 +217,102 @@ class UseReducerTest {
         }
         onNodeWithText(expected).assertExists()
     }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dispatchAsync_uses_latest_reducer_after_change() = runComposeUiTest {
+        val reducerAddOne: Reducer<Int, CounterAction> = { state, action ->
+            when (action) {
+                CounterAction.Inc -> state + 1
+                is CounterAction.Add -> state + action.delta
+            }
+        }
+
+        val reducerAddTen: Reducer<Int, CounterAction> = { state, action ->
+            when (action) {
+                CounterAction.Inc -> state + 10
+                is CounterAction.Add -> state + action.delta
+            }
+        }
+
+        setContent {
+            var phase by useState(default = 0)
+            val reducer = if (phase == 0) reducerAddOne else reducerAddTen
+            val (state, _, dispatchAsync) = useReducer(reducer, 0)
+
+            SideEffect {
+                when (phase) {
+                    0 -> {
+                        // 启动异步 dispatch，在异步执行期间 reducer 会变化
+                        dispatchAsync {
+                            withContext(Dispatchers.Default) { delay(120) } // 等待期间 phase 会变成 1
+                            CounterAction.Inc
+                        }
+                        phase = 1 // 立即切换 reducer
+                    }
+                }
+            }
+
+            Text("count=${state.value} phase=$phase")
+        }
+
+        val expected = "count=10 phase=1" // 应使用最新的 reducerAddTen
+        for (i in 0 until 30) {
+            waitForIdle()
+            if (runCatching { onNodeWithText(expected).assertExists() }.isSuccess) return@runComposeUiTest
+            Thread.sleep(20)
+        }
+        onNodeWithText(expected).assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dispatchAsync_uses_latest_middleware_after_change() = runComposeUiTest {
+        val order = mutableListOf<String>()
+
+        val m1: Middleware<Int, CounterAction> = { next: Dispatch<CounterAction>, _: Int ->
+            { action ->
+                order += "m1"
+                next(action)
+            }
+        }
+
+        val m2: Middleware<Int, CounterAction> = { next: Dispatch<CounterAction>, _: Int ->
+            { action ->
+                order += "m2"
+                next(action)
+            }
+        }
+
+        setContent {
+            var phase by useState(default = 0)
+            val middlewares = if (phase == 0) arrayOf(m1) else arrayOf(m2)
+            val (state, _, dispatchAsync) = useReducer(counterReducer, 0, middlewares)
+
+            SideEffect {
+                when (phase) {
+                    0 -> {
+                        // 启动异步 dispatch，在异步执行期间 middleware 会变化
+                        dispatchAsync {
+                            withContext(Dispatchers.Default) { delay(120) } // 等待期间 phase 会变成 1
+                            CounterAction.Inc
+                        }
+                        phase = 1 // 立即切换 middleware
+                    }
+                }
+            }
+
+            Text("count=${state.value} phase=$phase")
+        }
+
+        val expected = "count=1 phase=1"
+        for (i in 0 until 30) {
+            waitForIdle()
+            if (runCatching { onNodeWithText(expected).assertExists() }.isSuccess) break
+            Thread.sleep(20)
+        }
+        onNodeWithText(expected).assertExists()
+        assertEquals(listOf("m2"), order) // 应使用最新的 m2
+    }
 }
+
