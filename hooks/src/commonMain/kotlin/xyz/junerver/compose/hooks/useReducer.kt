@@ -63,27 +63,50 @@ import androidx.compose.runtime.remember
  * ```
  */
 @Composable
-fun <S, A> useReducer(reducer: Reducer<S, A>, initialState: S, middlewares: Array<Middleware<S, A>> = emptyArray()): ReducerHolder<S, A> {
+fun <S, A> useReducer(
+    reducer: Reducer<S, A>,
+    initialState: S,
+    middlewares: Array<Middleware<S, A>> = emptyArray(),
+): ReducerHolder<S, A> {
     val asyncRun = useAsync()
     val state = _useState(initialState)
-    val dispatch = { action: A -> state.value = reducer(state.value, action) }
-    val enhancedDispatch: Dispatch<A> = if (middlewares.isNotEmpty()) {
+
+    val reducerRef = useLatestRef(reducer)
+    val middlewaresRef = useLatestRef(middlewares)
+
+    val baseDispatch: Dispatch<A> = remember(state, reducerRef) {
         { action ->
-            var nextDispatch: Dispatch<A> = dispatch
-            for (middleware in middlewares) {
-                nextDispatch = middleware(nextDispatch, state.value)
+            state.value = reducerRef.current(state.value, action)
+        }
+    }
+
+    val enhancedDispatch: Dispatch<A> = remember(state, baseDispatch, middlewaresRef) {
+        { action ->
+            val currentMiddlewares = middlewaresRef.current
+            var nextDispatch: Dispatch<A> = baseDispatch
+
+            if (currentMiddlewares.isNotEmpty()) {
+                for (index in currentMiddlewares.size - 1 downTo 0) {
+                    val middleware = currentMiddlewares[index]
+                    nextDispatch = middleware(nextDispatch, state.value)
+                }
             }
+
             nextDispatch(action)
         }
-    } else {
-        dispatch
     }
-    val enhancedDispatchAsync: DispatchAsync<A> = { block ->
-        asyncRun {
-            enhancedDispatch(block(enhancedDispatch))
+
+    val enhancedDispatchAsync: DispatchAsync<A> = remember(asyncRun, enhancedDispatch) {
+        { block ->
+            asyncRun {
+                enhancedDispatch(block(enhancedDispatch))
+            }
         }
     }
-    return remember { ReducerHolder(state, enhancedDispatch, enhancedDispatchAsync) }
+
+    return remember {
+        ReducerHolder(state, enhancedDispatch, enhancedDispatchAsync)
+    }
 }
 
 /**
