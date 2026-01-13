@@ -13,7 +13,6 @@ import kotlin.test.assertTrue
 */
 
 class LoadBalanceStrategyTest {
-
     @Test
     fun testRoundRobinStrategy() {
         val strategy = LoadBalanceStrategy.RoundRobin

@@ -14,7 +14,6 @@ import kotlin.test.assertTrue
 */
 
 class RetryConfigTest {
-
     @Test
     fun testDefaultConfig() {
         val config = RetryConfig.default()

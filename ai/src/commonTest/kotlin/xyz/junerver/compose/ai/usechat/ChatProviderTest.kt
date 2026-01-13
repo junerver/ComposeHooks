@@ -68,7 +68,9 @@ class ChatProviderTest {
     @Test
     fun testOpenAIParseStreamLineWithContent() {
         val provider = Providers.OpenAI(apiKey = "test")
-        val line = """data: {"id":"chatcmpl-123","object":"chat.completion.chunk","choices":[{"index":0,"delta":{"content":"Hello"},"finish_reason":null}]}"""
+        val line = """data: {"id":"chatcmpl-123","object":"chat.completion.chunk","choices":[
+            {"index":0,"delta":{"content":"Hello"},"finish_reason":null}
+        ]}"""
         val result = provider.parseStreamLine(line)
         assertTrue(result is StreamEvent.Delta)
         assertEquals("Hello", (result as StreamEvent.Delta).content)

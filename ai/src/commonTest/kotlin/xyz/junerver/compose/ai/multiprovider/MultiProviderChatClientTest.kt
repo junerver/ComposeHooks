@@ -3,7 +3,6 @@ package xyz.junerver.compose.ai.multiprovider
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.test.fail
 import kotlinx.coroutines.test.runTest
 import xyz.junerver.compose.ai.test.FakeChatProvider
 import xyz.junerver.compose.ai.usechat.ChatMessage
@@ -20,7 +19,6 @@ import xyz.junerver.compose.ai.usechat.ChatOptions
 private val noMessages: List<ChatMessage> = listOf()
 
 class MultiProviderChatClientTest {
-
     @Test
     fun testClientCreation() = runTest {
         val provider1 = FakeChatProvider(name = "Provider1")

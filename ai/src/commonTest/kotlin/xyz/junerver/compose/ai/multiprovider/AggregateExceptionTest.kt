@@ -15,7 +15,6 @@ import kotlin.test.assertTrue
 */
 
 class AggregateExceptionTest {
-
     @Test
     fun testEmptyErrors() {
         val exception = AggregateException(emptyMap())

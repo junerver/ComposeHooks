@@ -15,7 +15,6 @@ import xyz.junerver.compose.ai.usechat.ChatOptions
 */
 
 class ModelsProviderIntegrationTest {
-
     @Test
     fun testModelsContextValueCreation() {
         val providers = listOf(

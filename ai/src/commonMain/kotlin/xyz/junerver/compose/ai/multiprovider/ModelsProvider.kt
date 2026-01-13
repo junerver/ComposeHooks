@@ -1,4 +1,4 @@
-@file:Suppress("FunctionNaming") // Composable functions should start with uppercase
+@file:Suppress("FunctionNaming", "ktlint:standard:function-naming") // Composable functions should start with uppercase
 
 package xyz.junerver.compose.ai.multiprovider
 

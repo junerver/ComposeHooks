@@ -53,7 +53,11 @@ sealed class StreamEvent {
  * Supports multiple providers through the [ChatProvider] abstraction.
  * Uses [HttpEngine] for network requests, allowing custom implementations.
  */
-internal class ChatClient(private val options: ChatOptions) {
+internal class ChatClient(
+    private val options: ChatOptions,
+    private val engine: HttpEngine = options.httpEngine ?: HttpEngineConfig.defaultEngineFactory(),
+    private val shouldCloseEngine: Boolean = true,
+) {
     private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
@@ -61,14 +65,8 @@ internal class ChatClient(private val options: ChatOptions) {
         explicitNulls = false
     }
 
-    private val engine: HttpEngine = options.httpEngine
-        ?: HttpEngineConfig.defaultEngineFactory()
-
     /**
      * Sends a chat completion request and returns a flow of streaming events.
-     *
-     * @param messages The list of messages to send
-     * @return A Flow emitting StreamEvent objects
      */
     suspend fun streamChat(messages: List<ChatMessage>): Flow<StreamEvent> = flow {
         val requestBody = options.buildRequestBody(messages, stream = true)
@@ -93,6 +91,7 @@ internal class ChatClient(private val options: ChatOptions) {
                                     if (ev is StreamEvent.Done) return@collect
                                 }
                             }
+
                             else -> {
                                 emit(streamEvent)
                                 if (streamEvent is StreamEvent.Done) return@collect
@@ -100,7 +99,9 @@ internal class ChatClient(private val options: ChatOptions) {
                         }
                     }
                 }
+
                 is SseEvent.Complete -> emit(StreamEvent.Done)
+
                 is SseEvent.Error -> {
                     val parsed = parseAnyProviderError(event.error.message)
                         ?: event.error
@@ -112,9 +113,6 @@ internal class ChatClient(private val options: ChatOptions) {
 
     /**
      * Sends a non-streaming chat completion request.
-     *
-     * @param messages The list of messages to send
-     * @return The complete assistant message
      */
     suspend fun chat(messages: List<ChatMessage>): ChatResponseResult {
         val requestBody = options.buildRequestBody(messages, stream = false)
@@ -137,7 +135,6 @@ internal class ChatClient(private val options: ChatOptions) {
         val responseBody = result.body
         if (responseBody.isEmpty()) throw Exception("Empty response")
 
-        // Use provider-specific response parsing
         return options.provider.parseResponse(responseBody)
     }
 
@@ -145,7 +142,9 @@ internal class ChatClient(private val options: ChatOptions) {
      * Closes the HTTP engine.
      */
     fun close() {
-        engine.close()
+        if (shouldCloseEngine) {
+            engine.close()
+        }
     }
 
     private fun parseAnyProviderError(raw: String?, statusCode: Int? = null): Throwable? {
@@ -168,7 +167,7 @@ internal class ChatClient(private val options: ChatOptions) {
             errorType = errorResponse.error.type,
             errorCode = errorResponse.error.code,
         )
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         null
     }
 
@@ -178,7 +177,7 @@ internal class ChatClient(private val options: ChatOptions) {
             errorMessage = errorResponse.error.message,
             errorType = errorResponse.error.type,
         )
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         null
     }
 

@@ -6,6 +6,8 @@ import kotlin.time.ExperimentalTime
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import xyz.junerver.compose.ai.http.HttpEngine
+import xyz.junerver.compose.ai.http.HttpEngineConfig
 import xyz.junerver.compose.ai.usechat.AnthropicException
 import xyz.junerver.compose.ai.usechat.ChatClient
 import xyz.junerver.compose.ai.usechat.ChatMessage
@@ -46,6 +48,8 @@ internal class MultiProviderChatClient(
 ) {
     private var providerIndex = 0
     private val metricsMap = mutableMapOf<String, ProviderMetrics>()
+    private val engine: HttpEngine = baseOptions.httpEngine ?: HttpEngineConfig.defaultEngineFactory()
+    private val shouldCloseEngine: Boolean = baseOptions.httpEngine == null
 
     init {
         // Initialize metrics for all providers
@@ -171,7 +175,7 @@ internal class MultiProviderChatClient(
 
             val startTime = Clock.System.now().toEpochMilliseconds()
             try {
-                val client = ChatClient(baseOptions.copy(provider = provider))
+                val client = ChatClient(options = baseOptions.copy(provider = provider), engine = engine, shouldCloseEngine = false)
                 val result = client.chat(messages)
                 val responseTime = Clock.System.now().toEpochMilliseconds() - startTime
 
@@ -230,7 +234,7 @@ internal class MultiProviderChatClient(
             var shouldStopRetrying = false
 
             try {
-                val client = ChatClient(baseOptions.copy(provider = provider))
+                val client = ChatClient(options = baseOptions.copy(provider = provider), engine = engine, shouldCloseEngine = false)
                 client.streamChat(messages).collect { event ->
                     when (event) {
                         is StreamEvent.Error -> {
@@ -305,6 +309,8 @@ internal class MultiProviderChatClient(
      * Closes all resources.
      */
     fun close() {
-        // Nothing to close currently, but keep for future use
+        if (shouldCloseEngine) {
+            engine.close()
+        }
     }
 }

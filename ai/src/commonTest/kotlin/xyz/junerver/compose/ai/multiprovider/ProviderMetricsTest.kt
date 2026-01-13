@@ -13,7 +13,6 @@ import kotlin.test.assertTrue
 */
 
 class ProviderMetricsTest {
-
     @Test
     fun testInitialState() {
         val metrics = ProviderMetrics("TestProvider")
