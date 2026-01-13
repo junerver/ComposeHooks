@@ -63,6 +63,9 @@ kotlin {
             // Serialization
             implementation(libs.kotlinx.serialization.json)
 
+            // DateTime (for multi-provider metrics)
+            implementation(libs.kotlinx.datetime)
+
             // Ktor Client
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiat)
