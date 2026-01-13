@@ -4,14 +4,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class JsonHealingTest {
-
     @Test
     fun testExtractJsonFromMarkdown() {
-        val input = """
+        val input =
+            """
             ```json
             {"name": "John"}
             ```
-        """.trimIndent()
+            """.trimIndent()
         val result = healJson(input)
         assertEquals("""{"name":"John"}""", result)
     }
@@ -83,7 +83,8 @@ multi-line comment */ "age": 30}"""
 
     @Test
     fun testComplexScenario() {
-        val input = """
+        val input =
+            """
             ```json
             {
                 'name': 'John', // user name
@@ -92,7 +93,7 @@ multi-line comment */ "age": 30}"""
                 'address': {
                     'city': 'NYC'
             ```
-        """.trimIndent()
+            """.trimIndent()
         val result = healJson(input)
         assertEquals("""{"name":'John',"age":30,"items":[1,2,3],"address":{"city":'NYC'}}""", result)
     }

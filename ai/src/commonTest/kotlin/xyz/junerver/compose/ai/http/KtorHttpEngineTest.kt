@@ -15,7 +15,6 @@ import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 
 class KtorHttpEngineTest {
-
     @Test
     fun executeStreamEmitsDataLinesAndComplete() = runTest {
         val mockEngine = MockEngine {

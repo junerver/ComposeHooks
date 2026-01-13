@@ -70,7 +70,10 @@ inline fun <reified T> tool(
     parameters: String,
     noinline execute: suspend (T) -> JsonElement,
 ): Tool<T> {
-    val json = Json { ignoreUnknownKeys = true; isLenient = true }
+    val json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+    }
     val schema = json.parseToJsonElement(parameters) as JsonObject
     return Tool(
         name = name,
@@ -149,7 +152,11 @@ sealed interface ToolChoice {
  * Internal helper to execute a tool with raw JSON arguments.
  */
 internal suspend fun <T> Tool<T>.executeWithJson(args: JsonObject): JsonElement {
-    val json = Json { ignoreUnknownKeys = true; isLenient = true; coerceInputValues = true }
+    val json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        coerceInputValues = true
+    }
     val params = json.decodeFromJsonElement(serializer, args)
     return execute(params)
 }

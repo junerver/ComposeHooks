@@ -11,7 +11,6 @@ import kotlin.time.Duration.Companion.seconds
  * TDD approach: Test endpoint building and configuration logic.
  */
 class ChatOptionsTest {
-
     // region Endpoint Building Tests
 
     @Test

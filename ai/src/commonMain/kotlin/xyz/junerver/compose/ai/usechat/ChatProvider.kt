@@ -171,7 +171,9 @@ sealed class Providers : ChatProvider {
                         ),
                     )
                 }
-            } else null
+            } else {
+                null
+            }
 
             // Convert toolChoice to OpenAI format
             val openAIToolChoice = when (toolChoice) {

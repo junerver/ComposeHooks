@@ -15,7 +15,6 @@ import kotlinx.serialization.json.buildJsonObject
  * TDD approach: Test serialization/deserialization logic.
  */
 class OpenAIModelsTest {
-
     private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
@@ -141,7 +140,8 @@ class OpenAIModelsTest {
 
     @Test
     fun testChatCompletionResponseDeserialization() {
-        val responseJson = """
+        val responseJson =
+            """
             {
                 "id": "chatcmpl-123",
                 "object": "chat.completion",
@@ -161,7 +161,7 @@ class OpenAIModelsTest {
                     "total_tokens": 18
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         val response = json.decodeFromString<ChatCompletionResponse>(responseJson)
         assertEquals("chatcmpl-123", response.id)
         assertEquals("gpt-4", response.model)
@@ -176,7 +176,8 @@ class OpenAIModelsTest {
 
     @Test
     fun testChatCompletionResponseWithToolCalls() {
-        val responseJson = """
+        val responseJson =
+            """
             {
                 "id": "chatcmpl-456",
                 "object": "chat.completion",
@@ -199,7 +200,7 @@ class OpenAIModelsTest {
                     "finish_reason": "tool_calls"
                 }]
             }
-        """.trimIndent()
+            """.trimIndent()
         val response = json.decodeFromString<ChatCompletionResponse>(responseJson)
         assertNull(response.choices[0].message.content)
         assertNotNull(response.choices[0].message.toolCalls)
@@ -215,7 +216,8 @@ class OpenAIModelsTest {
 
     @Test
     fun testChatCompletionChunkDeserialization() {
-        val chunkJson = """
+        val chunkJson =
+            """
             {
                 "id": "chatcmpl-123",
                 "object": "chat.completion.chunk",
@@ -229,7 +231,7 @@ class OpenAIModelsTest {
                     "finish_reason": null
                 }]
             }
-        """.trimIndent()
+            """.trimIndent()
         val chunk = json.decodeFromString<ChatCompletionChunk>(chunkJson)
         assertEquals("chatcmpl-123", chunk.id)
         assertEquals(1, chunk.choices?.size)
@@ -239,7 +241,8 @@ class OpenAIModelsTest {
 
     @Test
     fun testChatCompletionChunkWithRole() {
-        val chunkJson = """
+        val chunkJson =
+            """
             {
                 "id": "chatcmpl-123",
                 "choices": [{
@@ -249,14 +252,15 @@ class OpenAIModelsTest {
                     }
                 }]
             }
-        """.trimIndent()
+            """.trimIndent()
         val chunk = json.decodeFromString<ChatCompletionChunk>(chunkJson)
         assertEquals("assistant", chunk.choices?.first()?.delta?.role)
     }
 
     @Test
     fun testChatCompletionChunkWithFinishReason() {
-        val chunkJson = """
+        val chunkJson =
+            """
             {
                 "id": "chatcmpl-123",
                 "choices": [{
@@ -264,14 +268,15 @@ class OpenAIModelsTest {
                     "finish_reason": "stop"
                 }]
             }
-        """.trimIndent()
+            """.trimIndent()
         val chunk = json.decodeFromString<ChatCompletionChunk>(chunkJson)
         assertEquals("stop", chunk.choices?.first()?.finishReason)
     }
 
     @Test
     fun testChatCompletionChunkWithUsage() {
-        val chunkJson = """
+        val chunkJson =
+            """
             {
                 "id": "chatcmpl-123",
                 "choices": [],
@@ -281,7 +286,7 @@ class OpenAIModelsTest {
                     "total_tokens": 30
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         val chunk = json.decodeFromString<ChatCompletionChunk>(chunkJson)
         assertNotNull(chunk.usage)
         assertEquals(10, chunk.usage?.promptTokens)
@@ -295,7 +300,8 @@ class OpenAIModelsTest {
 
     @Test
     fun testOpenAIErrorResponseDeserialization() {
-        val errorJson = """
+        val errorJson =
+            """
             {
                 "error": {
                     "message": "Invalid API key",
@@ -304,7 +310,7 @@ class OpenAIModelsTest {
                     "code": "invalid_api_key"
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         val errorResponse = json.decodeFromString<OpenAIErrorResponse>(errorJson)
         assertEquals("Invalid API key", errorResponse.error.message)
         assertEquals("invalid_request_error", errorResponse.error.type)

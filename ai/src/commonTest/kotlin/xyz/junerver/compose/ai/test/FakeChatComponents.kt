@@ -6,7 +6,8 @@ import xyz.junerver.compose.ai.http.HttpEngine
 import xyz.junerver.compose.ai.http.HttpRequest
 import xyz.junerver.compose.ai.http.HttpResult
 import xyz.junerver.compose.ai.http.SseEvent
-import xyz.junerver.compose.ai.usechat.AssistantMessage
+import xyz.junerver.compose.ai.useagent.Tool
+import xyz.junerver.compose.ai.useagent.ToolChoice
 import xyz.junerver.compose.ai.usechat.ChatMessage
 import xyz.junerver.compose.ai.usechat.ChatProvider
 import xyz.junerver.compose.ai.usechat.ChatResponseResult
@@ -14,8 +15,6 @@ import xyz.junerver.compose.ai.usechat.ChatUsage
 import xyz.junerver.compose.ai.usechat.FinishReason
 import xyz.junerver.compose.ai.usechat.StreamEvent
 import xyz.junerver.compose.ai.usechat.assistantMessage
-import xyz.junerver.compose.ai.useagent.Tool
-import xyz.junerver.compose.ai.useagent.ToolChoice
 
 /**
  * Lightweight provider used in tests to avoid dealing with vendor specific formats.
@@ -32,7 +31,6 @@ internal class FakeChatProvider(
     override val apiKey: String = "test-api-key",
     override val defaultModel: String = "fake-model",
 ) : ChatProvider {
-
     var lastRequestMessages: List<ChatMessage>? = null
     var lastStreamFlag: Boolean? = null
     var providedUsage: ChatUsage? = null

@@ -10,7 +10,6 @@ import kotlin.test.assertTrue
  * TDD approach: Test data class behavior and defaults.
  */
 class HttpModelsTest {
-
     // region HttpRequest Tests
 
     @Test

@@ -14,12 +14,12 @@ import xyz.junerver.compose.ai.usechat.ChatMessage
 import xyz.junerver.compose.ai.usechat.ChatResponseResult
 import xyz.junerver.compose.ai.usechat.Providers
 import xyz.junerver.compose.ai.usechat.ReasoningPart
+import xyz.junerver.compose.ai.usechat.StreamEvent
 import xyz.junerver.compose.ai.usechat.TextPart
 import xyz.junerver.compose.ai.usechat.ToolCallPart
 import xyz.junerver.compose.ai.usechat.ToolMessage
 import xyz.junerver.compose.ai.usechat.assistantMessage
 import xyz.junerver.compose.ai.usechat.toolMessage
-import xyz.junerver.compose.ai.usechat.StreamEvent
 
 /*
   Description: Agent loop for tool calling + multi-turn chat
@@ -45,7 +45,7 @@ internal suspend fun runAgentLoop(
     onAssistant: suspend (ChatResponseResult) -> Unit,
     onAssistantPartial: suspend (AssistantMessage) -> Unit = { },
     onToolMessage: suspend (ToolMessage) -> Unit,
-): Unit {
+) {
     require(maxSteps > 0) { "maxSteps must be > 0" }
 
     var steps = 0
@@ -185,21 +185,18 @@ private suspend fun streamChatToResult(
     )
 }
 
-private suspend fun executeToolCalls(
-    toolCalls: List<ToolCallPart>,
-    tools: List<Tool<*>>,
-    parallel: Boolean,
-): List<ToolMessage> = if (parallel && toolCalls.size > 1) {
-    coroutineScope {
-        toolCalls.map { call ->
-            async {
-                executeSingleToolCall(call, tools)
-            }
-        }.awaitAll()
+private suspend fun executeToolCalls(toolCalls: List<ToolCallPart>, tools: List<Tool<*>>, parallel: Boolean): List<ToolMessage> =
+    if (parallel && toolCalls.size > 1) {
+        coroutineScope {
+            toolCalls.map { call ->
+                async {
+                    executeSingleToolCall(call, tools)
+                }
+            }.awaitAll()
+        }
+    } else {
+        toolCalls.map { call -> executeSingleToolCall(call, tools) }
     }
-} else {
-    toolCalls.map { call -> executeSingleToolCall(call, tools) }
-}
 
 private suspend fun executeSingleToolCall(call: ToolCallPart, tools: List<Tool<*>>): ToolMessage {
     val match = tools.firstOrNull { it.name == call.toolName }

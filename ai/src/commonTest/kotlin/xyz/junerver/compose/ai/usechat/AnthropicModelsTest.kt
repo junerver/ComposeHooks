@@ -3,7 +3,6 @@ package xyz.junerver.compose.ai.usechat
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
@@ -15,7 +14,6 @@ import kotlinx.serialization.json.buildJsonObject
  * TDD approach: Test serialization/deserialization logic.
  */
 class AnthropicModelsTest {
-
     private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
@@ -151,7 +149,8 @@ class AnthropicModelsTest {
 
     @Test
     fun testAnthropicResponseDeserialization() {
-        val responseJson = """
+        val responseJson =
+            """
             {
                 "id": "msg_123",
                 "type": "message",
@@ -161,7 +160,7 @@ class AnthropicModelsTest {
                 "stop_reason": "end_turn",
                 "usage": {"input_tokens": 15, "output_tokens": 5}
             }
-        """.trimIndent()
+            """.trimIndent()
         val response = json.decodeFromString<AnthropicResponse>(responseJson)
         assertEquals("msg_123", response.id)
         assertEquals("assistant", response.role)
@@ -176,7 +175,8 @@ class AnthropicModelsTest {
 
     @Test
     fun testAnthropicResponseWithToolUse() {
-        val responseJson = """
+        val responseJson =
+            """
             {
                 "id": "msg_456",
                 "type": "message",
@@ -189,7 +189,7 @@ class AnthropicModelsTest {
                 "stop_reason": "tool_use",
                 "usage": {"input_tokens": 20, "output_tokens": 10}
             }
-        """.trimIndent()
+            """.trimIndent()
         val response = json.decodeFromString<AnthropicResponse>(responseJson)
         assertEquals(2, response.content.size)
         assertEquals("text", response.content[0].type)
@@ -202,7 +202,8 @@ class AnthropicModelsTest {
 
     @Test
     fun testAnthropicResponseWithThinking() {
-        val responseJson = """
+        val responseJson =
+            """
             {
                 "id": "msg_789",
                 "type": "message",
@@ -215,7 +216,7 @@ class AnthropicModelsTest {
                 "stop_reason": "end_turn",
                 "usage": {"input_tokens": 10, "output_tokens": 15}
             }
-        """.trimIndent()
+            """.trimIndent()
         val response = json.decodeFromString<AnthropicResponse>(responseJson)
         assertEquals(2, response.content.size)
         assertEquals("thinking", response.content[0].type)
@@ -230,13 +231,14 @@ class AnthropicModelsTest {
 
     @Test
     fun testAnthropicStreamEventContentBlockDelta() {
-        val eventJson = """
+        val eventJson =
+            """
             {
                 "type": "content_block_delta",
                 "index": 0,
                 "delta": {"type": "text_delta", "text": "Hello"}
             }
-        """.trimIndent()
+            """.trimIndent()
         val event = json.decodeFromString<AnthropicStreamEvent>(eventJson)
         assertEquals("content_block_delta", event.type)
         assertEquals(0, event.index)
@@ -246,13 +248,14 @@ class AnthropicModelsTest {
 
     @Test
     fun testAnthropicStreamEventMessageDelta() {
-        val eventJson = """
+        val eventJson =
+            """
             {
                 "type": "message_delta",
                 "delta": {"stop_reason": "end_turn"},
                 "usage": {"input_tokens": 10, "output_tokens": 20}
             }
-        """.trimIndent()
+            """.trimIndent()
         val event = json.decodeFromString<AnthropicStreamEvent>(eventJson)
         assertEquals("message_delta", event.type)
         assertEquals("end_turn", event.delta?.stopReason)
@@ -263,7 +266,8 @@ class AnthropicModelsTest {
 
     @Test
     fun testAnthropicStreamEventMessageStart() {
-        val eventJson = """
+        val eventJson =
+            """
             {
                 "type": "message_start",
                 "message": {
@@ -274,7 +278,7 @@ class AnthropicModelsTest {
                     "usage": {"input_tokens": 10}
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         val event = json.decodeFromString<AnthropicStreamEvent>(eventJson)
         assertEquals("message_start", event.type)
         assertNotNull(event.message)
@@ -285,13 +289,14 @@ class AnthropicModelsTest {
 
     @Test
     fun testAnthropicStreamEventContentBlockStart() {
-        val eventJson = """
+        val eventJson =
+            """
             {
                 "type": "content_block_start",
                 "index": 0,
                 "content_block": {"type": "text", "text": ""}
             }
-        """.trimIndent()
+            """.trimIndent()
         val event = json.decodeFromString<AnthropicStreamEvent>(eventJson)
         assertEquals("content_block_start", event.type)
         assertEquals(0, event.index)
@@ -305,7 +310,8 @@ class AnthropicModelsTest {
 
     @Test
     fun testAnthropicErrorResponseDeserialization() {
-        val errorJson = """
+        val errorJson =
+            """
             {
                 "type": "error",
                 "error": {
@@ -313,7 +319,7 @@ class AnthropicModelsTest {
                     "message": "Invalid API key"
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         val errorResponse = json.decodeFromString<AnthropicErrorResponse>(errorJson)
         assertEquals("error", errorResponse.type)
         assertEquals("invalid_request_error", errorResponse.error.type)

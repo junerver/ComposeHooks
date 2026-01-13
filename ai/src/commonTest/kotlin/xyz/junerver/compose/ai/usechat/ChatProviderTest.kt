@@ -5,14 +5,14 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
-import kotlinx.serialization.Serializable
 import xyz.junerver.compose.ai.useagent.ToolChoice
 import xyz.junerver.compose.ai.useagent.tool
 import xyz.junerver.compose.ai.useagent.toolText
@@ -23,7 +23,6 @@ import xyz.junerver.compose.ai.useagent.toolText
  * TDD approach: Test parsing and building logic without network calls.
  */
 class ChatProviderTest {
-
     private val json = Json {
         ignoreUnknownKeys = true
         isLenient = true
@@ -129,7 +128,8 @@ class ChatProviderTest {
     @Test
     fun testOpenAIParseResponse() {
         val provider = Providers.OpenAI(apiKey = "test")
-        val responseBody = """
+        val responseBody =
+            """
             {
                 "id": "chatcmpl-123",
                 "object": "chat.completion",
@@ -149,7 +149,7 @@ class ChatProviderTest {
                     "total_tokens": 18
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         val result = provider.parseResponse(responseBody)
         assertEquals("Hello! How can I help you?", result.message.textContent)
         assertEquals(FinishReason.Stop, result.finishReason)
@@ -161,7 +161,8 @@ class ChatProviderTest {
     @Test
     fun testOpenAIParseResponseWithToolCalls() {
         val provider = Providers.OpenAI(apiKey = "test")
-        val responseBody = """
+        val responseBody =
+            """
             {
                 "id": "chatcmpl-123",
                 "object": "chat.completion",
@@ -189,7 +190,7 @@ class ChatProviderTest {
                     "total_tokens": 18
                 }
             }
-        """.trimIndent()
+            """.trimIndent()
         val result = provider.parseResponse(responseBody)
         assertTrue(result.message.hasToolCalls)
         assertEquals(1, result.message.toolCalls.size)
@@ -350,7 +351,8 @@ class ChatProviderTest {
     @Test
     fun testAnthropicParseResponse() {
         val provider = Providers.Anthropic(apiKey = "test")
-        val responseBody = """
+        val responseBody =
+            """
             {
                 "id": "msg_123",
                 "type": "message",
@@ -360,7 +362,7 @@ class ChatProviderTest {
                 "stop_reason": "end_turn",
                 "usage": {"input_tokens": 15, "output_tokens": 5}
             }
-        """.trimIndent()
+            """.trimIndent()
         val result = provider.parseResponse(responseBody)
         assertEquals("Hello from Claude!", result.message.textContent)
         assertEquals(FinishReason.Stop, result.finishReason)
@@ -373,7 +375,8 @@ class ChatProviderTest {
     @Test
     fun testAnthropicParseResponseWithMultipleBlocks() {
         val provider = Providers.Anthropic(apiKey = "test")
-        val responseBody = """
+        val responseBody =
+            """
             {
                 "id": "msg_123",
                 "type": "message",
@@ -388,7 +391,7 @@ class ChatProviderTest {
                 "stop_reason": "end_turn",
                 "usage": {"input_tokens": 10, "output_tokens": 20}
             }
-        """.trimIndent()
+            """.trimIndent()
         val result = provider.parseResponse(responseBody)
         assertEquals("Answer 42", result.message.textContent)
         assertEquals("Let me think...", result.message.reasoningContent)

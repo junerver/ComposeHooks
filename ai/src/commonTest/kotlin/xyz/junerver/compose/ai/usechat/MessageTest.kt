@@ -17,7 +17,6 @@ import kotlinx.serialization.json.buildJsonObject
  * TDD approach: Define expected behavior first, then verify implementation.
  */
 class MessageTest {
-
     // region UserMessage Tests
 
     @Test

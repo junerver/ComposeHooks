@@ -2,7 +2,6 @@ package xyz.junerver.compose.ai.useagent
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
@@ -16,12 +15,11 @@ import xyz.junerver.compose.ai.http.HttpResult
 import xyz.junerver.compose.ai.test.FakeHttpEngine
 import xyz.junerver.compose.ai.usechat.ChatClient
 import xyz.junerver.compose.ai.usechat.ChatOptions
-import xyz.junerver.compose.ai.usechat.ToolMessage
 import xyz.junerver.compose.ai.usechat.Providers
+import xyz.junerver.compose.ai.usechat.ToolMessage
 import xyz.junerver.compose.ai.usechat.userMessage
 
 class AgentLoopTest {
-
     @Test
     fun agentLoopExecutesToolAndContinuesConversation() = runTest {
         val engine = FakeHttpEngine().apply {

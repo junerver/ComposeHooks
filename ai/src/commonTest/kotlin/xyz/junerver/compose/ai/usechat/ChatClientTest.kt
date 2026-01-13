@@ -15,7 +15,6 @@ import xyz.junerver.compose.ai.test.FakeHttpEngine
 private val noMessages: List<ChatMessage> = listOf<ChatMessage>()
 
 class ChatClientTest {
-
     @Test
     fun streamChatEmitsParsedEvents() = runTest {
         val provider = FakeChatProvider()
@@ -136,7 +135,8 @@ class ChatClientTest {
             enqueueResponse(
                 HttpResult(
                     statusCode = 429,
-                    body = """
+                    body =
+                        """
                         {
                             "error": {
                                 "message": "Too many requests",
@@ -144,7 +144,7 @@ class ChatClientTest {
                                 "code": "rate_limit"
                             }
                         }
-                    """.trimIndent(),
+                        """.trimIndent(),
                 ),
             )
         }
@@ -172,7 +172,8 @@ class ChatClientTest {
             enqueueResponse(
                 HttpResult(
                     statusCode = 401,
-                    body = """
+                    body =
+                        """
                         {
                             "type": "error",
                             "error": {
@@ -180,7 +181,7 @@ class ChatClientTest {
                                 "message": "Invalid API key"
                             }
                         }
-                    """.trimIndent(),
+                        """.trimIndent(),
                 ),
             )
         }

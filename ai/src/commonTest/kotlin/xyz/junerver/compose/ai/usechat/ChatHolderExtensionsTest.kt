@@ -7,7 +7,6 @@ import kotlin.test.assertTrue
 import kotlinx.collections.immutable.persistentListOf
 
 class ChatHolderExtensionsTest {
-
     private fun createHolder(onSend: (List<UserContentPart>) -> Unit): ChatHolder {
         val messagesState = mutableStateOf(persistentListOf<ChatMessage>())
         val loadingState = mutableStateOf(false)

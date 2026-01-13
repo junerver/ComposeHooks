@@ -15,7 +15,6 @@ import xyz.junerver.compose.ai.http.HttpResult
 import xyz.junerver.compose.ai.test.FakeHttpEngine
 import xyz.junerver.compose.ai.usechat.ChatClient
 import xyz.junerver.compose.ai.usechat.ChatOptions
-import xyz.junerver.compose.ai.usechat.ChatResponseResult
 import xyz.junerver.compose.ai.usechat.ChatUsage
 import xyz.junerver.compose.ai.usechat.FinishReason
 import xyz.junerver.compose.ai.usechat.Providers
@@ -24,7 +23,6 @@ import xyz.junerver.compose.ai.usechat.ToolMessage
 import xyz.junerver.compose.ai.usechat.userMessage
 
 class AgentCallbacksTest {
-
     @Test
     fun callbacks_onToolCall_invokedForEachTool() = runTest {
         val engine = FakeHttpEngine().apply {

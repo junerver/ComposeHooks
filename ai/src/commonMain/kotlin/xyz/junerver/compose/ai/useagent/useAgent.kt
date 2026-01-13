@@ -5,12 +5,12 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import arrow.core.left
+import kotlin.time.Duration
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonElement
-import kotlin.time.Duration
 import xyz.junerver.compose.ai.AIOptionsDefaults
 import xyz.junerver.compose.ai.AppendMessageFn
 import xyz.junerver.compose.ai.BaseAIOptions

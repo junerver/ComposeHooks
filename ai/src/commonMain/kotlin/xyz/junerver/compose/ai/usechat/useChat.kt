@@ -14,14 +14,18 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
+import xyz.junerver.compose.ai.AIOptionsDefaults
 import xyz.junerver.compose.ai.AppendMessageFn
 import xyz.junerver.compose.ai.ReloadFn
 import xyz.junerver.compose.ai.SendMessageFn
 import xyz.junerver.compose.ai.SetMessagesFn
 import xyz.junerver.compose.ai.StopFn
+import xyz.junerver.compose.ai.multiprovider.ModelsContext
+import xyz.junerver.compose.ai.multiprovider.MultiProviderChatClient
 import xyz.junerver.compose.hooks.MutableRef
 import xyz.junerver.compose.hooks._useGetState
 import xyz.junerver.compose.hooks.useCancelableAsync
+import xyz.junerver.compose.hooks.useContext
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.useRef
@@ -158,6 +162,17 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
     val options = remember { ChatOptions.optionOf(optionsOf) }.apply(optionsOf)
     val optionsRef = useLatestRef(options)
 
+    // Check if we're in a ModelsProvider context
+    val modelsContext = useContext(ModelsContext)
+
+    // Determine if we should use multi-provider mode
+    // Use multi-provider if:
+    // 1. We're in a ModelsProvider context
+    // 2. The context has providers
+    // 3. The user didn't explicitly specify a provider (using default)
+    val useMultiProvider = modelsContext.providers.isNotEmpty() &&
+        options.provider == AIOptionsDefaults.DEFAULT_PROVIDER
+
     // Initialize messages with initial messages only (system prompt is handled internally)
     val initialMessages = remember(options.initialMessages) {
         options.initialMessages.toImmutableList()
@@ -170,20 +185,35 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
 
     // Refs for mutable state that shouldn't trigger recomposition
     val clientRef: MutableRef<ChatClient?> = useRef(null)
+    val multiProviderClientRef: MutableRef<MultiProviderChatClient?> = useRef(null)
     val currentAssistantMessageRef: MutableRef<AssistantMessage?> = useRef(null)
 
     // Cancelable async for streaming
     val (asyncRun, cancelAsync, _) = useCancelableAsync()
 
-    // Initialize client
-    useEffect(options.provider, options.model, options.timeout) {
+    // Initialize client (single or multi-provider)
+    useEffect(options.provider, options.model, options.timeout, useMultiProvider, modelsContext) {
         clientRef.current?.close()
-        clientRef.current = ChatClient(optionsRef.current)
+        multiProviderClientRef.current?.close()
+
+        if (useMultiProvider) {
+            // Use multi-provider client
+            multiProviderClientRef.current = MultiProviderChatClient(
+                providers = modelsContext.providers,
+                strategy = modelsContext.strategy,
+                retryConfig = modelsContext.retryConfig,
+                baseOptions = optionsRef.current,
+            )
+        } else {
+            // Use single-provider client
+            clientRef.current = ChatClient(optionsRef.current)
+        }
     }
 
     // Cleanup on unmount
     useUnmount {
         clientRef.current?.close()
+        multiProviderClientRef.current?.close()
     }
 
     // Helper functions to simplify state updates
@@ -267,110 +297,124 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                     val streamEnabled = optionsRef.current.stream
 
                     if (streamEnabled) {
-                        clientRef.current?.streamChat(currentMessages.dropLast(1))
-                            ?.onEach { event ->
-                                when (event) {
-                                    is StreamEvent.Delta -> {
-                                        accumulatedContent += event.content
-                                        if (event.content.isNotEmpty()) {
-                                            optionsRef.current.onStream?.invoke(event.content)
-                                        }
+                        // Use multi-provider or single-provider client
+                        val streamFlow = if (useMultiProvider) {
+                            multiProviderClientRef.current?.streamChat(currentMessages.dropLast(1))
+                                ?: throw IllegalStateException("MultiProviderChatClient not initialized")
+                        } else {
+                            clientRef.current?.streamChat(currentMessages.dropLast(1))
+                                ?: throw IllegalStateException("ChatClient not initialized")
+                        }
 
-                                        if (event.finishReason != null) {
-                                            lastFinishReason = FinishReason.fromString(event.finishReason)
-                                        }
-                                        if (event.usage != null) {
-                                            lastUsage = event.usage
-                                        }
-
-                                        val updatedMessage = currentAssistantMessageRef.current?.copy(
-                                            content = currentContentParts(),
-                                            model = optionsRef.current.effectiveModel,
-                                            usage = lastUsage,
-                                            finishReason = lastFinishReason,
-                                        )
-                                        if (updatedMessage != null) {
-                                            currentAssistantMessageRef.current = updatedMessage
-                                            withContext(Dispatchers.Main) {
-                                                val msgs = getMessages().toMutableList()
-                                                if (msgs.isNotEmpty()) {
-                                                    msgs[msgs.lastIndex] = updatedMessage
-                                                    setMessages(msgs.toImmutableList())
-                                                }
-                                            }
-                                        }
+                        streamFlow.onEach { event ->
+                            when (event) {
+                                is StreamEvent.Delta -> {
+                                    accumulatedContent += event.content
+                                    if (event.content.isNotEmpty()) {
+                                        optionsRef.current.onStream?.invoke(event.content)
                                     }
 
-                                    is StreamEvent.ReasoningDelta -> {
-                                        accumulatedReasoning += event.text
-
-                                        val updatedMessage = currentAssistantMessageRef.current?.copy(
-                                            content = currentContentParts(),
-                                            model = optionsRef.current.effectiveModel,
-                                            usage = lastUsage,
-                                            finishReason = lastFinishReason,
-                                        )
-                                        if (updatedMessage != null) {
-                                            currentAssistantMessageRef.current = updatedMessage
-                                            withContext(Dispatchers.Main) {
-                                                val msgs = getMessages().toMutableList()
-                                                if (msgs.isNotEmpty()) {
-                                                    msgs[msgs.lastIndex] = updatedMessage
-                                                    setMessages(msgs.toImmutableList())
-                                                }
-                                            }
-                                        }
+                                    if (event.finishReason != null) {
+                                        lastFinishReason = FinishReason.fromString(event.finishReason)
+                                    }
+                                    if (event.usage != null) {
+                                        lastUsage = event.usage
                                     }
 
-                                    is StreamEvent.ToolCallDelta -> {
-                                        val builder = toolCallBuilders.getOrPut(event.index) { ToolCallBuilder() }
-                                        if (!event.toolCallId.isNullOrBlank()) builder.toolCallId = event.toolCallId
-                                        if (!event.toolName.isNullOrBlank()) builder.toolName = event.toolName
-                                        if (!event.argumentsDelta.isNullOrEmpty()) builder.args.append(event.argumentsDelta)
-
-                                        val updatedMessage = currentAssistantMessageRef.current?.copy(
-                                            content = currentContentParts(),
-                                            model = optionsRef.current.effectiveModel,
-                                            usage = lastUsage,
-                                            finishReason = lastFinishReason,
-                                        )
-                                        if (updatedMessage != null) {
-                                            currentAssistantMessageRef.current = updatedMessage
-                                            withContext(Dispatchers.Main) {
-                                                val msgs = getMessages().toMutableList()
-                                                if (msgs.isNotEmpty()) {
-                                                    msgs[msgs.lastIndex] = updatedMessage
-                                                    setMessages(msgs.toImmutableList())
-                                                }
-                                            }
-                                        }
-                                    }
-
-                                    is StreamEvent.Done -> {
-                                        val finalMessage = currentAssistantMessageRef.current
-                                        if (finalMessage != null) {
-                                            optionsRef.current.onFinish?.invoke(
-                                                finalMessage,
-                                                lastUsage,
-                                                lastFinishReason,
-                                            )
-                                        }
-                                    }
-
-                                    is StreamEvent.Error -> {
+                                    val updatedMessage = currentAssistantMessageRef.current?.copy(
+                                        content = currentContentParts(),
+                                        model = optionsRef.current.effectiveModel,
+                                        usage = lastUsage,
+                                        finishReason = lastFinishReason,
+                                    )
+                                    if (updatedMessage != null) {
+                                        currentAssistantMessageRef.current = updatedMessage
                                         withContext(Dispatchers.Main) {
-                                            setError(event.error)
+                                            val msgs = getMessages().toMutableList()
+                                            if (msgs.isNotEmpty()) {
+                                                msgs[msgs.lastIndex] = updatedMessage
+                                                setMessages(msgs.toImmutableList())
+                                            }
                                         }
-                                        optionsRef.current.onError?.invoke(event.error)
                                     }
-
-                                    is StreamEvent.Multi -> Unit
                                 }
+
+                                is StreamEvent.ReasoningDelta -> {
+                                    accumulatedReasoning += event.text
+
+                                    val updatedMessage = currentAssistantMessageRef.current?.copy(
+                                        content = currentContentParts(),
+                                        model = optionsRef.current.effectiveModel,
+                                        usage = lastUsage,
+                                        finishReason = lastFinishReason,
+                                    )
+                                    if (updatedMessage != null) {
+                                        currentAssistantMessageRef.current = updatedMessage
+                                        withContext(Dispatchers.Main) {
+                                            val msgs = getMessages().toMutableList()
+                                            if (msgs.isNotEmpty()) {
+                                                msgs[msgs.lastIndex] = updatedMessage
+                                                setMessages(msgs.toImmutableList())
+                                            }
+                                        }
+                                    }
+                                }
+
+                                is StreamEvent.ToolCallDelta -> {
+                                    val builder = toolCallBuilders.getOrPut(event.index) { ToolCallBuilder() }
+                                    if (!event.toolCallId.isNullOrBlank()) builder.toolCallId = event.toolCallId
+                                    if (!event.toolName.isNullOrBlank()) builder.toolName = event.toolName
+                                    if (!event.argumentsDelta.isNullOrEmpty()) builder.args.append(event.argumentsDelta)
+
+                                    val updatedMessage = currentAssistantMessageRef.current?.copy(
+                                        content = currentContentParts(),
+                                        model = optionsRef.current.effectiveModel,
+                                        usage = lastUsage,
+                                        finishReason = lastFinishReason,
+                                    )
+                                    if (updatedMessage != null) {
+                                        currentAssistantMessageRef.current = updatedMessage
+                                        withContext(Dispatchers.Main) {
+                                            val msgs = getMessages().toMutableList()
+                                            if (msgs.isNotEmpty()) {
+                                                msgs[msgs.lastIndex] = updatedMessage
+                                                setMessages(msgs.toImmutableList())
+                                            }
+                                        }
+                                    }
+                                }
+
+                                is StreamEvent.Done -> {
+                                    val finalMessage = currentAssistantMessageRef.current
+                                    if (finalMessage != null) {
+                                        optionsRef.current.onFinish?.invoke(
+                                            finalMessage,
+                                            lastUsage,
+                                            lastFinishReason,
+                                        )
+                                    }
+                                }
+
+                                is StreamEvent.Error -> {
+                                    withContext(Dispatchers.Main) {
+                                        setError(event.error)
+                                    }
+                                    optionsRef.current.onError?.invoke(event.error)
+                                }
+
+                                is StreamEvent.Multi -> Unit
                             }
+                        }
                             ?.collect()
                     } else {
-                        val result = clientRef.current?.chat(currentMessages.dropLast(1))
-                            ?: throw IllegalStateException("ChatClient not initialized")
+                        // Use multi-provider or single-provider client
+                        val result = if (useMultiProvider) {
+                            multiProviderClientRef.current?.chat(currentMessages.dropLast(1))
+                                ?: throw IllegalStateException("MultiProviderChatClient not initialized")
+                        } else {
+                            clientRef.current?.chat(currentMessages.dropLast(1))
+                                ?: throw IllegalStateException("ChatClient not initialized")
+                        }
                         val finalMessage = result.message
                         currentAssistantMessageRef.current = finalMessage
 
