@@ -10,6 +10,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import xyz.junerver.compose.hooks.Tuple2
 import xyz.junerver.compose.hooks.internal.cacheKey
 import xyz.junerver.compose.hooks.tuple
@@ -31,12 +33,15 @@ internal object CacheManager : CoroutineScope {
         get() = Dispatchers.Default + SupervisorJob()
 
     private val cache: MutableMap<String, DataCache> = mutableMapOf()
+    private val mutex = Mutex()
 
     init {
         launch {
             delay(1.seconds)
             while (isActive) {
-                cache.entries.removeAll { it.value.second <= currentInstant }
+                mutex.withLock {
+                    cache.entries.removeAll { it.value.second <= currentInstant }
+                }
                 delay(30.seconds)
             }
         }
