@@ -123,10 +123,13 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
             setState(
                 Keys.loading to false,
                 Keys.params to null,
+                Keys.data to null,  // 清除旧数据
                 Keys.error to error,
             )
             options.onError.invoke(error, null)
+            runPluginHandler(Methods.OnError(error, null))  // 调用插件的 onError
             options.onFinally.invoke(null, null, error)
+            runPluginHandler(Methods.OnFinally(null, null, error))  // 调用插件的 onFinally
             return@coroutineScope
         }
         count += 1
@@ -157,6 +160,8 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
         // 调用选项配置的生命周期函数
         options.onBefore.invoke(latestParams)
 
+        var requestResult: TData? = null
+        var requestError: Throwable? = null
         try {
             var (serviceDeferred) = OnRequestReturn<TData>().copy(
                 (
@@ -169,30 +174,40 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
             serviceDeferred = serviceDeferred ?: async(SupervisorJob()) { requestFn(latestParams!!) }
             val result = serviceDeferred.awaitPlus()
             if (currentCount != count) return@coroutineScope
+            requestResult = result
             setState(
                 Keys.loading to false,
                 Keys.data to result,
                 Keys.error to null,
             )
-            options.onSuccess.invoke(result, latestParams)
-            runPluginHandler(Methods.OnSuccess(result, latestParams))
-            // 回调finally
-            options.onFinally.invoke(latestParams, result, null)
-            if (currentCount == count) {
-                runPluginHandler(Methods.OnFinally(latestParams, result, null))
+            try {
+                options.onSuccess.invoke(result, latestParams)
+            } catch (e: Throwable) {
+                // 捕获 onSuccess 回调异常，防止影响后续流程
             }
+            runPluginHandler(Methods.OnSuccess(result, latestParams))
         } catch (error: Throwable) {
             if (currentCount != count) return@coroutineScope
+            requestError = error
             setState(
                 Keys.loading to false,
                 Keys.error to error,
             )
-            options.onError.invoke(error, latestParams)
-            runPluginHandler(Methods.OnError(error, latestParams))
-            options.onFinally.invoke(latestParams, null, error)
-            if (currentCount == count) {
-                runPluginHandler(Methods.OnFinally(latestParams, null, error))
+            try {
+                options.onError.invoke(error, latestParams)
+            } catch (e: Throwable) {
+                // 捕获 onError 回调异常，保留原始错误
             }
+            runPluginHandler(Methods.OnError(error, latestParams))
+        } finally {
+            // onFinally 在 finally 块中执行，确保总是被调用
+            try {
+                options.onFinally.invoke(latestParams, requestResult, requestError)
+            } catch (e: Throwable) {
+                // 捕获 onFinally 回调异常
+            }
+            // 插件的 onFinally 应该总是执行，用于清理资源
+            runPluginHandler(Methods.OnFinally(latestParams, requestResult, requestError))
         }
     }
 
@@ -210,7 +225,10 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
      */
     override fun cancel() {
         this.count += 1
-        this.setState(Keys.loading to false)
+        this.setState(
+            Keys.loading to false,
+            Keys.error to null  // 清除错误状态
+        )
         cancelRequest()
         runPluginHandler(Methods.OnCancel)
     }
@@ -233,66 +251,75 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
      * 直接修改状态
      */
     override fun mutate(mutateFn: (TData?) -> TData) {
-        val targetData = mutateFn(fetchState.data)
-        runPluginHandler(Methods.OnMutate(targetData))
-        setState(Keys.data to targetData)
+        try {
+            val targetData = mutateFn(fetchState.data)
+            runPluginHandler(Methods.OnMutate(targetData))
+            setState(Keys.data to targetData)
+        } catch (e: Throwable) {
+            // 捕获 mutate 函数异常，保持状态一致性
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
     private fun runPluginHandler(method: Methods<*, *>): List<*> = pluginImpls.mapNotNull {
-        when (method) {
-            is Methods.OnBefore -> {
-                @Suppress("UNCHECKED_CAST")
-                it.onBefore?.invoke(method.params as TParams)
-            }
+        try {
+            when (method) {
+                is Methods.OnBefore -> {
+                    @Suppress("UNCHECKED_CAST")
+                    it.onBefore?.invoke(method.params as TParams)
+                }
 
-            is Methods.OnRequest -> {
-                it.onRequest?.invoke(
-                    method.requestFn as SuspendNormalFunction<TParams, TData>,
-                    method.params as TParams,
-                )
-            }
-            /**
-             * 参数1：请求的返回值，参数2：请求使用的参数
-             */
-            is Methods.OnSuccess -> {
-                @Suppress("UNCHECKED_CAST")
-                it.onSuccess?.invoke(
-                    method.result as TData,
-                    method.params as TParams,
-                )
-            }
-            /**
-             * 参数1：错误，参数2：请求使用的参数
-             */
-            is Methods.OnError -> {
-                @Suppress("UNCHECKED_CAST")
-                it.onError?.invoke(
-                    method.error,
-                    method.params as TParams,
-                )
-            }
-            /**
-             * 参数1：请求使用的参数，参数2：请求的返回值，参数3：错误
-             */
-            is Methods.OnFinally -> {
-                @Suppress("UNCHECKED_CAST")
-                it.onFinally?.invoke(
-                    method.params as TParams,
-                    method.result as TData?,
-                    method.error,
-                )
-            }
+                is Methods.OnRequest -> {
+                    it.onRequest?.invoke(
+                        method.requestFn as SuspendNormalFunction<TParams, TData>,
+                        method.params as TParams,
+                    )
+                }
+                /**
+                 * 参数1：请求的返回值，参数2：请求使用的参数
+                 */
+                is Methods.OnSuccess -> {
+                    @Suppress("UNCHECKED_CAST")
+                    it.onSuccess?.invoke(
+                        method.result as TData,
+                        method.params as TParams,
+                    )
+                }
+                /**
+                 * 参数1：错误，参数2：请求使用的参数
+                 */
+                is Methods.OnError -> {
+                    @Suppress("UNCHECKED_CAST")
+                    it.onError?.invoke(
+                        method.error,
+                        method.params as TParams,
+                    )
+                }
+                /**
+                 * 参数1：请求使用的参数，参数2：请求的返回值，参数3：错误
+                 */
+                is Methods.OnFinally -> {
+                    @Suppress("UNCHECKED_CAST")
+                    it.onFinally?.invoke(
+                        method.params as TParams,
+                        method.result as TData?,
+                        method.error,
+                    )
+                }
 
-            Methods.OnCancel -> {
-                it.onCancel?.invoke()
+                Methods.OnCancel -> {
+                    it.onCancel?.invoke()
+                }
+                /**
+                 * 参数1：要修改的目标数据
+                 */
+                is Methods.OnMutate -> {
+                    it.onMutate?.invoke(method.result as TData)
+                }
             }
-            /**
-             * 参数1：要修改的目标数据
-             */
-            is Methods.OnMutate -> {
-                it.onMutate?.invoke(method.result as TData)
-            }
+        } catch (e: Throwable) {
+            // 捕获插件异常，防止中断其他插件执行
+            null
         }
     }
 }
