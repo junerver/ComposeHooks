@@ -146,7 +146,6 @@ fun <S : Any, E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>
         cancelAction()
         transitionVersionRef.current += 1
         val transitionVersion = transitionVersionRef.current
-        val contextBefore = contextState.value
 
         if (nextState != null) {
             setState(nextState)
@@ -155,7 +154,14 @@ fun <S : Any, E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>
 
         if (suspendAction != null) {
             runAction {
+                // Check version before starting action execution
+                if (transitionVersionRef.current != transitionVersion) {
+                    return@runAction
+                }
+                // Capture context at action execution time, not at transition call time
+                val contextBefore = contextState.value
                 val newContext = suspendAction(contextBefore, event)
+                // Check version again after action completes
                 if (transitionVersionRef.current == transitionVersion) {
                     setContextState(newContext)
                 }

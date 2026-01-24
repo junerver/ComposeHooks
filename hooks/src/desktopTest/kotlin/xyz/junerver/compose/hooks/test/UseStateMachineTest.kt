@@ -384,4 +384,508 @@ class UseStateMachineTest {
         waitForIdle()
         onNodeWithText("state=Idle").assertExists()
     }
+
+    // ========== P0: Async Cancellation Tests ==========
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun cancelPreviousActionOnNewTransition() = runComposeUiTest {
+        setContent {
+            val graph = createMachine<MachineState, MachineEvent, Int> {
+                context(0)
+                initial(MachineState.Idle)
+
+                state(MachineState.Idle) {
+                    on(MachineEvent.Start) {
+                        target(MachineState.Loading)
+                        action { ctx, _ ->
+                            kotlinx.coroutines.delay(200)
+                            (ctx ?: 0) + 100
+                        }
+                    }
+                }
+                state(MachineState.Loading) {
+                    on(MachineEvent.Complete) {
+                        target(MachineState.Success)
+                        action { ctx, _ -> (ctx ?: 0) + 1 }
+                    }
+                }
+            }
+
+            val holder = useStateMachine(graph)
+            val stepRef = useRef(0)
+
+            SideEffect {
+                when (stepRef.current) {
+                    0 -> {
+                        stepRef.current = 1
+                        holder.transition(MachineEvent.Start)
+                    }
+                    1 -> {
+                        stepRef.current = 2
+                        // Immediately trigger another transition before first action completes
+                        holder.transition(MachineEvent.Complete)
+                    }
+                }
+            }
+
+            Text(text = "state=${holder.currentState.value} ctx=${holder.context.value}")
+        }
+
+        // Wait for async actions to complete
+        waitForIdle()
+        Thread.sleep(300)
+        waitForIdle()
+
+        // Context should be 1 (from Complete), not 101 (from cancelled Start action)
+        onNodeWithText("state=Success ctx=1").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun resetCancelsInFlightAction() = runComposeUiTest {
+        setContent {
+            val graph = createMachine<MachineState, MachineEvent, Int> {
+                context(100)
+                initial(MachineState.Idle)
+
+                state(MachineState.Idle) {
+                    on(MachineEvent.Start) {
+                        target(MachineState.Loading)
+                        action { ctx, _ ->
+                            kotlinx.coroutines.delay(200)
+                            (ctx ?: 0) + 50
+                        }
+                    }
+                }
+            }
+
+            val holder = useStateMachine(graph)
+            val stepRef = useRef(0)
+
+            SideEffect {
+                when (stepRef.current) {
+                    0 -> {
+                        stepRef.current = 1
+                        holder.transition(MachineEvent.Start)
+                    }
+                    1 -> {
+                        stepRef.current = 2
+                        // Reset immediately after transition
+                        holder.reset()
+                    }
+                }
+            }
+
+            Text(text = "state=${holder.currentState.value} ctx=${holder.context.value}")
+        }
+
+        waitForIdle()
+        Thread.sleep(300)
+        waitForIdle()
+
+        // Should be initial state/context, not affected by cancelled action
+        onNodeWithText("state=Idle ctx=100").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun goBackCancelsInFlightAction() = runComposeUiTest {
+        setContent {
+            val graph = createMachine<MachineState, MachineEvent, Int> {
+                context(0)
+                initial(MachineState.Idle)
+
+                state(MachineState.Idle) {
+                    on(MachineEvent.Start) { target(MachineState.Loading) }
+                }
+                state(MachineState.Loading) {
+                    on(MachineEvent.Complete) {
+                        target(MachineState.Success)
+                        action { ctx, _ ->
+                            kotlinx.coroutines.delay(200)
+                            (ctx ?: 0) + 100
+                        }
+                    }
+                }
+            }
+
+            val holder = useStateMachine(graph)
+            val stepRef = useRef(0)
+
+            SideEffect {
+                when (stepRef.current) {
+                    0 -> {
+                        stepRef.current = 1
+                        holder.transition(MachineEvent.Start)
+                    }
+                    1 -> {
+                        stepRef.current = 2
+                        holder.transition(MachineEvent.Complete)
+                    }
+                    2 -> {
+                        stepRef.current = 3
+                        // Go back immediately after transition with slow action
+                        holder.goBack()
+                    }
+                }
+            }
+
+            Text(text = "state=${holder.currentState.value} ctx=${holder.context.value}")
+        }
+
+        waitForIdle()
+        Thread.sleep(300)
+        waitForIdle()
+
+        // Should be Loading state with context=0, not affected by cancelled action
+        onNodeWithText("state=Loading ctx=0").assertExists()
+    }
+
+    // ========== P0: Concurrent Event Tests ==========
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun concurrentTransitionCallsSameFrame() = runComposeUiTest {
+        setContent {
+            val graph = createMachine<MachineState, MachineEvent, Int> {
+                context(0)
+                initial(MachineState.Idle)
+
+                state(MachineState.Idle) {
+                    on(MachineEvent.Start) { target(MachineState.Loading) }
+                }
+                state(MachineState.Loading) {
+                    on(MachineEvent.Complete) { target(MachineState.Success) }
+                }
+            }
+
+            val holder = useStateMachine(graph)
+            val firedRef = useRef(false)
+
+            SideEffect {
+                if (firedRef.current) return@SideEffect
+                firedRef.current = true
+
+                // Fire multiple transitions in same frame
+                holder.transition(MachineEvent.Start)
+                holder.transition(MachineEvent.Complete)
+            }
+
+            Text(text = "state=${holder.currentState.value}")
+        }
+
+        waitForIdle()
+
+        // State should be Success (last transition wins)
+        onNodeWithText("state=Success").assertExists()
+    }
+
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun rapidSuccessiveTransitions() = runComposeUiTest {
+        setContent {
+            val graph = createMachine<MachineState, MachineEvent, Int> {
+                context(0)
+                initial(MachineState.Idle)
+
+                state(MachineState.Idle) {
+                    on(MachineEvent.Start) { target(MachineState.Loading) }
+                }
+                state(MachineState.Loading) {
+                    on(MachineEvent.Complete) { target(MachineState.Success) }
+                    on(MachineEvent.Fail) { target(MachineState.Error) }
+                }
+                state(MachineState.Success) {
+                    on(MachineEvent.Start) { target(MachineState.Loading) }
+                }
+            }
+
+            val holder = useStateMachine(graph)
+            val stepRef = useRef(0)
+
+            SideEffect {
+                when (stepRef.current) {
+                    0 -> {
+                        stepRef.current = 1
+                        holder.transition(MachineEvent.Start)
+                        holder.transition(MachineEvent.Complete)
+                    }
+                    1 -> {
+                        stepRef.current = 2
+                        holder.transition(MachineEvent.Start)
+                    }
+                }
+            }
+
+            Text(text = "state=${holder.currentState.value}")
+        }
+
+        waitForIdle()
+        onNodeWithText("state=Loading").assertExists()
+    }
+
+    // ========== P0: Exception Handling Tests ==========
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun actionThrowsDoesNotCorruptState() = runComposeUiTest {
+        setContent {
+            val graph = createMachine<MachineState, MachineEvent, Int> {
+                context(0)
+                initial(MachineState.Idle)
+
+                state(MachineState.Idle) {
+                    on(MachineEvent.Start) {
+                        target(MachineState.Loading)
+                        action { _, _ ->
+                            throw RuntimeException("Test exception")
+                        }
+                    }
+                }
+                state(MachineState.Loading) {
+                    on(MachineEvent.Complete) { target(MachineState.Success) }
+                }
+            }
+
+            val holder = useStateMachine(graph)
+            val stepRef = useRef(0)
+
+            SideEffect {
+                when (stepRef.current) {
+                    0 -> {
+                        stepRef.current = 1
+                        holder.transition(MachineEvent.Start)
+                    }
+                    1 -> {
+                        stepRef.current = 2
+                        // State should have changed despite action failure
+                        assertEquals(MachineState.Loading, holder.currentState.value)
+                        // Context should remain unchanged
+                        assertEquals(0, holder.context.value)
+                        // State machine should still be usable
+                        holder.transition(MachineEvent.Complete)
+                    }
+                }
+            }
+
+            Text(text = "state=${holder.currentState.value} ctx=${holder.context.value}")
+        }
+
+        waitForIdle()
+        Thread.sleep(100)
+        waitForIdle()
+
+        onNodeWithText("state=Success ctx=0").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun actionCancelledDoesNotCrash() = runComposeUiTest {
+        setContent {
+            val graph = createMachine<MachineState, MachineEvent, Int> {
+                context(0)
+                initial(MachineState.Idle)
+
+                state(MachineState.Idle) {
+                    on(MachineEvent.Start) {
+                        target(MachineState.Loading)
+                        action { ctx, _ ->
+                            kotlinx.coroutines.delay(1000)
+                            (ctx ?: 0) + 1
+                        }
+                    }
+                }
+            }
+
+            val holder = useStateMachine(graph)
+            val stepRef = useRef(0)
+
+            SideEffect {
+                when (stepRef.current) {
+                    0 -> {
+                        stepRef.current = 1
+                        holder.transition(MachineEvent.Start)
+                    }
+                    1 -> {
+                        stepRef.current = 2
+                        // Cancel by resetting
+                        holder.reset()
+                    }
+                }
+            }
+
+            Text(text = "state=${holder.currentState.value}")
+        }
+
+        waitForIdle()
+        // Should not crash
+        onNodeWithText("state=Idle").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun exceptionInActionKeepsStateMachineUsable() = runComposeUiTest {
+        setContent {
+            val graph = createMachine<MachineState, MachineEvent, Int> {
+                context(0)
+                initial(MachineState.Idle)
+
+                state(MachineState.Idle) {
+                    on(MachineEvent.Start) {
+                        target(MachineState.Loading)
+                        action { _, _ -> throw IllegalStateException("Boom") }
+                    }
+                    on(MachineEvent.Log) {
+                        action { ctx, _ -> (ctx ?: 0) + 1 }
+                    }
+                }
+                state(MachineState.Loading) {
+                    on(MachineEvent.Complete) { target(MachineState.Success) }
+                }
+            }
+
+            val holder = useStateMachine(graph)
+            val stepRef = useRef(0)
+
+            SideEffect {
+                when (stepRef.current) {
+                    0 -> {
+                        stepRef.current = 1
+                        holder.transition(MachineEvent.Start)
+                    }
+                    1 -> {
+                        stepRef.current = 2
+                        // Try another transition after exception
+                        holder.transition(MachineEvent.Complete)
+                    }
+                    2 -> {
+                        stepRef.current = 3
+                        holder.reset()
+                    }
+                    3 -> {
+                        stepRef.current = 4
+                        // Try action-only event
+                        holder.transition(MachineEvent.Log)
+                    }
+                }
+            }
+
+            Text(text = "state=${holder.currentState.value} ctx=${holder.context.value}")
+        }
+
+        waitForIdle()
+        Thread.sleep(100)
+        waitForIdle()
+
+        onNodeWithText("state=Idle ctx=1").assertExists()
+    }
+
+    // ========== P0: Configuration Validation Tests ==========
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun invalidMachineMissingInitialThrows() = runComposeUiTest {
+        var exceptionMessage = ""
+
+        // Test outside of setContent since createMachine is not a composable
+        val result = runCatching {
+            val scope = xyz.junerver.compose.hooks.StateMachineGraphScope<MachineState, MachineEvent, Unit>()
+            scope.apply {
+                // Missing initial() call
+                state(MachineState.Idle) {
+                    on(MachineEvent.Start) { target(MachineState.Loading) }
+                }
+            }
+            scope.build()
+        }
+
+        exceptionMessage = if (result.isFailure) {
+            result.exceptionOrNull()?.message ?: "unknown"
+        } else {
+            "no_exception"
+        }
+
+        setContent {
+            Text(text = "result=$exceptionMessage")
+        }
+
+        waitForIdle()
+        // Should contain "initial" in error message
+        assertTrue(exceptionMessage.contains("initial", ignoreCase = true))
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun duplicateInitialCallThrows() = runComposeUiTest {
+        var exceptionMessage = ""
+
+        val result = runCatching {
+            val scope = xyz.junerver.compose.hooks.StateMachineGraphScope<MachineState, MachineEvent, Unit>()
+            scope.apply {
+                initial(MachineState.Idle)
+                initial(MachineState.Loading) // Duplicate call
+            }
+        }
+
+        exceptionMessage = if (result.isFailure) {
+            result.exceptionOrNull()?.message ?: "unknown"
+        } else {
+            "no_exception"
+        }
+
+        setContent {
+            Text(text = "result=$exceptionMessage")
+        }
+
+        waitForIdle()
+        assertTrue(exceptionMessage.contains("already set", ignoreCase = true))
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun duplicateContextCallThrows() = runComposeUiTest {
+        var exceptionMessage = ""
+
+        val result = runCatching {
+            val scope = xyz.junerver.compose.hooks.StateMachineGraphScope<MachineState, MachineEvent, Int>()
+            scope.apply {
+                initial(MachineState.Idle)
+                context(1)
+                context(2) // Duplicate call
+            }
+        }
+
+        exceptionMessage = if (result.isFailure) {
+            result.exceptionOrNull()?.message ?: "unknown"
+        } else {
+            "no_exception"
+        }
+
+        setContent {
+            Text(text = "result=$exceptionMessage")
+        }
+
+        waitForIdle()
+        assertTrue(exceptionMessage.contains("already set", ignoreCase = true))
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun emptyStateMachineIsValid(): Unit = runComposeUiTest {
+        setContent {
+            val graph = createMachine<MachineState, MachineEvent, Unit> {
+                initial(MachineState.Idle)
+                // No state definitions
+            }
+
+            val holder = useStateMachine(graph)
+
+            Text(text = "state=${holder.currentState.value}")
+        }
+
+        waitForIdle()
+        onNodeWithText("state=Idle").assertExists()
+    }
 }

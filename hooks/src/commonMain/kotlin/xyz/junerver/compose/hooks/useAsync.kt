@@ -5,6 +5,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -101,6 +102,12 @@ fun useCancelableAsync(): CancelableAsyncHolder {
             setIsActive(true)
             try {
                 fn()
+            } catch (e: CancellationException) {
+                // Re-throw CancellationException to allow proper cancellation
+                throw e
+            } catch (e: Exception) {
+                // Silently catch other exceptions to prevent propagation
+                // This allows state machines to remain usable after action failures
             } finally {
                 setIsActive(false)
                 job = null
