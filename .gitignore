@@ -41,5 +41,4 @@ google-services.json
 /.kotlin/
 /app/src/commonMain/kotlin/xyz/junerver/composehooks/secret.kt
 docs/blog/**
-/.claude/
 .ace-tool/

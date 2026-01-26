@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "mcp__filesystem__list_directory",
+      "mcp__filesystem__directory_tree",
+      "mcp__filesystem__read_text_file",
+      "mcp__sequential-thinking-offical__sequentialthinking",
+      "mcp__filesystem__read_multiple_files",
+      "Skill(frontend-design)",
+      "Bash(E:)",
+      "Bash(git)",
+      "Bash(gradlew.bat :ai:compileKotlinDesktop:*)",
+      "Bash(E:/GitHub/ComposeHooks/gradlew.bat :ai:compileKotlinDesktop --no-daemon -q)",
+      "Bash(E:/GitHub/ComposeHooks/gradlew.bat :app:compileKotlinDesktop --no-daemon -q)",
+      "Bash(E:/GitHub/ComposeHooks/gradlew.bat formatKotlin --no-daemon -q)",
+      "Bash(E:/GitHub/ComposeHooks/gradlew.bat:*)",
+      "mcp__filesystem__edit_file",
+      "Bash(git commit:*)",
+      "Skill(commit)",
+      "Bash(powershell:*)",
+      "Bash(git add:*)",
+      "Bash(git tag:*)",
+      "Bash(gh release list:*)",
+      "Bash(gh release view:*)",
+      "Bash(git fetch:*)",
+      "Bash(gh release create:*)",
+      "WebFetch(domain:openrouter.ai)",
+      "WebFetch(domain:github.com)",
+      "WebSearch",
+      "Bash(cat -n ai/src/commonMain/kotlin/xyz/junerver/compose/ai/usegenerateobject/useGenerateObject.kt)",
+      "Bash(gradlew.bat formatKotlin --no-daemon -q)",
+      "Bash(./gradlew.bat formatKotlin --no-daemon -q)",
+      "Bash(./gradlew.bat :ai:compileKotlinDesktop --no-daemon -q)",
+      "Bash(cat -n ai/src/commonMain/kotlin/xyz/junerver/compose/ai/usegenerateobject/JsonHealing.kt)"
+    ]
+  }
+}
