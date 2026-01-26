@@ -33,6 +33,26 @@ import xyz.junerver.compose.hooks.useMap
 internal val FormContext by lazy { createContext(FormInstance()) }
 
 /**
+ * Data class representing the complete state of a form field.
+ * Provides more detailed state information than the basic Triple.
+ *
+ * @param T The type of the form field value
+ * @property value The mutable state holding the field's current value
+ * @property isValid Whether the field passes all validation rules
+ * @property errors List of validation error messages
+ * @property isTouched Whether the user has interacted with this field
+ * @property isDirty Whether the field value differs from its initial value
+ */
+@Stable
+data class FormItemState<T>(
+    val value: MutableState<T?>,
+    val isValid: Boolean,
+    val errors: List<String>,
+    val isTouched: Boolean,
+    val isDirty: Boolean,
+)
+
+/**
  * A headless form component that provides form state management and validation.
  *
  * This component creates a form context and provides form functionality to its children
@@ -43,6 +63,7 @@ internal val FormContext by lazy { createContext(FormInstance()) }
  * - Create custom form layouts
  *
  * @param formInstance The form instance to use. If not provided, a new instance will be created
+ * @param onSubmit Optional callback invoked when form.submit() is called and validation passes
  * @param content The form content with access to form functionality through [FormScope]
  *
  * @example
@@ -66,9 +87,15 @@ internal val FormContext by lazy { createContext(FormInstance()) }
  * ```
  */
 @Composable
-fun Form(formInstance: FormInstance = Form.useForm(), content: @Composable FormScope.() -> Unit) {
+fun Form(
+    formInstance: FormInstance = Form.useForm(),
+    onSubmit: ((Map<String, Any?>) -> Unit)? = null,
+    content: @Composable FormScope.() -> Unit,
+) {
     val formRef = useCreation { FormRef() }
     formInstance.apply { this.formRef = formRef }
+    // Register onSubmit callback
+    formRef.current.onSubmitCallback = onSubmit
     val formScope = remember(formRef, formInstance) { FormScope.getInstance(formRef, formInstance) }
     FormContext.Provider(formInstance) {
         formScope.content()
@@ -156,6 +183,15 @@ class FormScope private constructor(
             currentFormRef.formOperationCount.longValue += 1
             publish(fieldState.value as? T)
 
+            // Track touched state - mark as touched when value changes
+            if (fieldState.value != null) {
+                currentFormRef.formFieldTouchedMap[name] = true
+            }
+
+            // Track dirty state - compare with initial value
+            val initialValue = currentFormRef.formFieldInitialValueMap[name]
+            currentFormRef.formFieldDirtyMap[name] = fieldState.value != initialValue
+
             fun Validator.pass(): Boolean {
                 errMsg.remove(this::class)
                 return true
@@ -177,6 +213,98 @@ class FormScope private constructor(
         }
         val errorMessages = errMsg.values.toList()
         content(Triple(fieldState, validate.value, errorMessages))
+    }
+
+    /**
+     * Creates a form field container with enhanced state information.
+     * This component provides more detailed state including touched and dirty status.
+     *
+     * @param T The type of the form field value
+     * @param name Unique identifier for the form field
+     * @param validators Array of validators to apply to the field
+     * @param content Composable content that receives [FormItemState] with complete field information
+     *
+     * @example
+     * ```kotlin
+     * FormItemWithState<String>(
+     *     name = "email",
+     *     Email("Invalid email format"),
+     *     Required("Email is required")
+     * ) { state ->
+     *     var value by state.value
+     *     Column {
+     *         TextField(
+     *             value = value ?: "",
+     *             onValueChange = { value = it }
+     *         )
+     *         // Only show errors after user has interacted with the field
+     *         if (state.isTouched && !state.isValid) {
+     *             Text(state.errors.joinToString(), color = Color.Red)
+     *         }
+     *     }
+     * }
+     * ```
+     */
+    @Composable
+    fun <T : Any> FormItemWithState(
+        name: String,
+        vararg validators: Validator,
+        content: @Composable (FormItemState<T>) -> Unit,
+    ) {
+        val fieldState = _useState<T?>(default = null)
+        val (validate, _, set) = useBoolean()
+        val (touched, _, setTouched) = useBoolean(false)
+        val (dirty, _, setDirty) = useBoolean(false)
+        val errMsg = useMap<KClass<*>, String>()
+        val currentFormRef: FormRef = formRefRef.current
+        @Suppress("UNCHECKED_CAST")
+        currentFormRef.formFieldMap[name] = fieldState as MutableState<Any?>
+        val publish = useEventPublish<T?>(name.genFormFieldKey(formInstance))
+        useEffect(fieldState) {
+            currentFormRef.formOperationCount.longValue += 1
+            publish(fieldState.value as? T)
+
+            // Track touched state
+            if (fieldState.value != null) {
+                currentFormRef.formFieldTouchedMap[name] = true
+                setTouched(true)
+            }
+
+            // Track dirty state
+            val initialValue = currentFormRef.formFieldInitialValueMap[name]
+            val isDirty = fieldState.value != initialValue
+            currentFormRef.formFieldDirtyMap[name] = isDirty
+            setDirty(isDirty)
+
+            fun Validator.pass(): Boolean {
+                errMsg.remove(this::class)
+                return true
+            }
+
+            fun Validator.fail(): Boolean {
+                errMsg[this::class] = this.message
+                return false
+            }
+
+            val fieldValue: Any? = fieldState.value
+            val isValidate =
+                (validators as Array<Validator>).validateField(fieldValue, pass = Validator::pass, fail = Validator::fail)
+            set(isValidate)
+            currentFormRef.formFieldValidationMap[name] = isValidate
+        }
+        useEffect(errMsg) {
+            currentFormRef.formFieldErrorMessagesMap[name] = errMsg.values.toList()
+        }
+        val errorMessages = errMsg.values.toList()
+        content(
+            FormItemState(
+                value = fieldState,
+                isValid = validate.value,
+                errors = errorMessages,
+                isTouched = touched.value,
+                isDirty = dirty.value,
+            ),
+        )
     }
 
     /**

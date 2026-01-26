@@ -27,6 +27,7 @@ import xyz.junerver.compose.hooks.useform.CustomValidator
 import xyz.junerver.compose.hooks.useform.Email
 import xyz.junerver.compose.hooks.useform.Form
 import xyz.junerver.compose.hooks.useform.FormInstance
+import xyz.junerver.compose.hooks.useform.FormItemState
 import xyz.junerver.compose.hooks.useform.FormScope
 import xyz.junerver.compose.hooks.useform.Mobile
 import xyz.junerver.compose.hooks.useform.Phone
@@ -75,6 +76,13 @@ fun UseFormExample() {
             // Field watching example
             ExampleCard(title = "Field Watching") {
                 FieldWatchingExample()
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Enhanced form example (touched/dirty/submit)
+            ExampleCard(title = "Enhanced Form (Touched/Dirty/Submit)") {
+                EnhancedFormExample()
             }
         }
     }
@@ -524,3 +532,191 @@ private fun FieldWatchingExample() {
 
 const val CHINA_ID_REGEX =
     """^\d{6}(18|19|20)?\d{2}(0[1-9]|1[12])(0[1-9]|[12]\d|3[01])\d{3}(\d|X)$"""
+
+/**
+ * Enhanced form example
+ * Demonstrates touched/dirty state tracking, onSubmit callback, and FormItemWithState
+ */
+@Composable
+private fun EnhancedFormExample() {
+    val form = Form.useForm()
+
+    // Form with onSubmit callback
+    Form(
+        formInstance = form,
+        onSubmit = { values ->
+            println("Form submitted with values: $values")
+        },
+    ) {
+        // Using FormItemWithState for enhanced state information
+        FormItemWithState<String>(
+            name = "username",
+            Required("Username is required"),
+        ) { state: FormItemState<String> ->
+            var value by state.value
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Username",
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                    Text(
+                        text = " *",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                OutlinedTextField(
+                    value = value ?: "",
+                    onValueChange = { value = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    isError = state.isTouched && !state.isValid,
+                )
+
+                // Only show errors after user has interacted with the field
+                if (state.isTouched && !state.isValid) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = state.errors.joinToString(", "),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+
+                // Show touched/dirty status
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "touched: ${state.isTouched}, dirty: ${state.isDirty}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.outline,
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Email field with FormItemWithState
+        FormItemWithState<String>(
+            name = "email",
+            Email("Invalid email format"),
+            Required("Email is required"),
+        ) { state: FormItemState<String> ->
+            var value by state.value
+            Column {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Text(
+                        text = "Email",
+                        style = MaterialTheme.typography.titleSmall,
+                    )
+                    Text(
+                        text = " *",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                OutlinedTextField(
+                    value = value ?: "",
+                    onValueChange = { value = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    isError = state.isTouched && !state.isValid,
+                )
+
+                if (state.isTouched && !state.isValid) {
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = state.errors.joinToString(", "),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "touched: ${state.isTouched}, dirty: ${state.isDirty}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.outline,
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Form status display
+        val formInstance = Form.useFormInstance()
+        val canSubmit by formInstance._isValidated()
+
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+            ),
+        ) {
+            Column(modifier = Modifier.padding(12.dp)) {
+                Text(
+                    text = "Form Status",
+                    style = MaterialTheme.typography.titleSmall,
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = "Touched fields: ${formInstance.getTouchedFields()}",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Text(
+                    text = "Dirty fields: ${formInstance.getDirtyFields()}",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                Text(
+                    text = "Is validated: $canSubmit",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        // Action buttons
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            TButton(
+                text = "Submit",
+                enabled = canSubmit,
+                modifier = Modifier.weight(1f),
+            ) {
+                // Using submit with callbacks
+                formInstance.submit(
+                    onSuccess = { values ->
+                        println("Success! Values: $values")
+                    },
+                    onError = { errors ->
+                        println("Errors: $errors")
+                    },
+                )
+            }
+
+            TButton(
+                text = "Validate All",
+                modifier = Modifier.weight(1f),
+            ) {
+                val isValid = formInstance.validateFields()
+                println("Validation result: $isValid")
+            }
+
+            TButton(
+                text = "Reset",
+                modifier = Modifier.weight(1f),
+            ) {
+                formInstance.resetFields()
+            }
+        }
+    }
+}

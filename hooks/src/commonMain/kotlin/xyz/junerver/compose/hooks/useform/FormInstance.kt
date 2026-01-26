@@ -183,6 +183,7 @@ class FormInstance {
 
     /**
      * Resets all form fields to null, then optionally sets new values.
+     * Also clears touched and dirty states.
      *
      * @param value Optional map of field values to set after reset
      *
@@ -200,10 +201,19 @@ class FormInstance {
      */
     fun resetFields(value: Map<String, Any> = emptyMap()) {
         checkRef()
+        val ref = formRef.current
+        // Clear touched and dirty states
+        ref.formFieldTouchedMap.clear()
+        ref.formFieldDirtyMap.clear()
+        // Reset field values
         currentFormFieldMap.forEach { (_, state) ->
             state.value = null
         }.then {
             setFieldsValue(value)
+        }
+        // Update initial values for dirty tracking
+        value.forEach { (name, v) ->
+            ref.formFieldInitialValueMap[name] = v
         }
     }
 
@@ -222,6 +232,159 @@ class FormInstance {
      */
     fun resetFields(vararg pairs: Pair<String, Any>) {
         resetFields(mapOf(pairs = pairs))
+    }
+
+    // ==================== Touched/Dirty State Methods ====================
+
+    /**
+     * Checks if a field has been touched (user interacted with it).
+     *
+     * @param name Field name to check
+     * @return true if the field has been touched, false otherwise
+     */
+    fun isTouched(name: String): Boolean {
+        checkRef()
+        return formRef.current.formFieldTouchedMap[name] == true
+    }
+
+    /**
+     * Checks if a field value differs from its initial value.
+     *
+     * @param name Field name to check
+     * @return true if the field value has changed from initial, false otherwise
+     */
+    fun isDirty(name: String): Boolean {
+        checkRef()
+        return formRef.current.formFieldDirtyMap[name] == true
+    }
+
+    /**
+     * Returns the set of field names that have been touched.
+     *
+     * @return Set of touched field names
+     */
+    fun getTouchedFields(): Set<String> {
+        checkRef()
+        return formRef.current.formFieldTouchedMap.filterValues { it }.keys
+    }
+
+    /**
+     * Returns the set of field names that have been modified from their initial values.
+     *
+     * @return Set of dirty field names
+     */
+    fun getDirtyFields(): Set<String> {
+        checkRef()
+        return formRef.current.formFieldDirtyMap.filterValues { it }.keys
+    }
+
+    /**
+     * Marks a specific field as touched.
+     *
+     * @param name Field name to mark as touched
+     */
+    fun markAsTouched(name: String) {
+        checkRef()
+        if (currentFormFieldMap.containsKey(name)) {
+            formRef.current.formFieldTouchedMap[name] = true
+        }
+    }
+
+    /**
+     * Marks all form fields as touched.
+     */
+    fun markAllAsTouched() {
+        checkRef()
+        currentFormFieldMap.keys.forEach { name ->
+            formRef.current.formFieldTouchedMap[name] = true
+        }
+    }
+
+    // ==================== Validation Methods ====================
+
+    /**
+     * Gets the validation trigger for a specific field.
+     *
+     * @param name Field name
+     * @return The validation trigger, defaults to OnChange
+     */
+    fun getFieldValidationTrigger(name: String): ValidationTrigger {
+        checkRef()
+        return formRef.current.formFieldValidationTriggerMap[name] ?: ValidationTrigger.OnChange
+    }
+
+    /**
+     * Manually triggers validation for a specific field.
+     *
+     * @param name Field name to validate
+     * @return true if the field is valid, false otherwise
+     */
+    fun validateField(name: String): Boolean {
+        checkRef()
+        val ref = formRef.current
+        // Clear pending validation flag
+        ref.formFieldPendingValidationMap.remove(name)
+        // Return current validation state
+        return ref.formFieldValidationMap[name] ?: true
+    }
+
+    /**
+     * Manually triggers validation for all fields.
+     * Also marks all fields as touched.
+     *
+     * @return true if all fields are valid, false otherwise
+     */
+    fun validateFields(): Boolean {
+        checkRef()
+        markAllAsTouched()
+        val ref = formRef.current
+        // Clear all pending validations
+        ref.formFieldPendingValidationMap.clear()
+        return ref.isValidated
+    }
+
+    // ==================== Submit Methods ====================
+
+    /**
+     * Retrieves all validation error messages for all fields.
+     *
+     * @return Map of field names to their error message lists (excludes fields with no errors)
+     */
+    fun getAllFieldsErrors(): Map<String, List<String>> {
+        checkRef()
+        return formRef.current.formFieldErrorMessagesMap.filterValues { it.isNotEmpty() }
+    }
+
+    /**
+     * Submits the form with success and error callbacks.
+     * Marks all fields as touched before validation.
+     *
+     * @param onSuccess Called with all field values if validation passes
+     * @param onError Called with all field errors if validation fails (optional)
+     */
+    fun submit(
+        onSuccess: (Map<String, Any?>) -> Unit,
+        onError: ((Map<String, List<String>>) -> Unit)? = null,
+    ) {
+        checkRef()
+        markAllAsTouched()
+        if (isValidated()) {
+            onSuccess(getAllFields())
+        } else {
+            onError?.invoke(getAllFieldsErrors())
+        }
+    }
+
+    /**
+     * Submits the form using the registered onSubmit callback.
+     * Does nothing if no callback is registered or validation fails.
+     */
+    fun submit() {
+        checkRef()
+        markAllAsTouched()
+        if (isValidated()) {
+            formRef.current.onSubmitCallback?.invoke(getAllFields())
+        }
     }
 
     /**

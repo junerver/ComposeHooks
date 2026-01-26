@@ -30,6 +30,24 @@ internal data class FormRef(
     // Record the error message of each field verification failure in the form
     internal val formFieldErrorMessagesMap: MutableMap<String, List<String>> = mutableMapOf()
 
+    // Track whether each field has been touched (user interacted with it)
+    internal val formFieldTouchedMap: MutableMap<String, Boolean> = mutableMapOf()
+
+    // Track whether each field value differs from its initial value
+    internal val formFieldDirtyMap: MutableMap<String, Boolean> = mutableMapOf()
+
+    // Store initial values for dirty state comparison
+    internal val formFieldInitialValueMap: MutableMap<String, Any?> = mutableMapOf()
+
+    // Store validation trigger for each field
+    internal val formFieldValidationTriggerMap: MutableMap<String, ValidationTrigger> = mutableMapOf()
+
+    // Track fields with pending validation (for OnBlur/OnSubmit triggers)
+    internal val formFieldPendingValidationMap: MutableMap<String, Boolean> = mutableMapOf()
+
+    // Callback for form submission
+    internal var onSubmitCallback: ((Map<String, Any?>) -> Unit)? = null
+
     /** Is all fields in the form are verified successfully */
     val isValidated: Boolean
         get() = formFieldValidationMap.isEmpty() || formFieldValidationMap.values.all { it }

@@ -15,6 +15,19 @@ private const val REQUIRED_MESSAGE = "this field is required"
 private const val REGEX_MESSAGE = "value does not match the regex"
 
 /**
+ * Defines when form field validation should be triggered.
+ *
+ * @property OnChange Validate immediately when the field value changes (default behavior)
+ * @property OnBlur Validate when the field loses focus
+ * @property OnSubmit Validate only when the form is submitted
+ */
+enum class ValidationTrigger {
+    OnChange,
+    OnBlur,
+    OnSubmit,
+}
+
+/**
  * Base interface for form field validators.
  * Validators are used to check if form field values meet specific criteria.
  * Each validator provides a message that is displayed when validation fails.
