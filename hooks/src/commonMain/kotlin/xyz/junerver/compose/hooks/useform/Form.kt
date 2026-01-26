@@ -4,7 +4,9 @@ package xyz.junerver.compose.hooks.useform
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 import kotlin.reflect.KClass
 import xyz.junerver.compose.hooks.Ref
 import xyz.junerver.compose.hooks._useState
@@ -67,8 +69,9 @@ internal val FormContext by lazy { createContext(FormInstance()) }
 fun Form(formInstance: FormInstance = Form.useForm(), content: @Composable FormScope.() -> Unit) {
     val formRef = useCreation { FormRef() }
     formInstance.apply { this.formRef = formRef }
+    val formScope = remember(formRef, formInstance) { FormScope.getInstance(formRef, formInstance) }
     FormContext.Provider(formInstance) {
-        FormScope.getInstance(formRef, formInstance).content()
+        formScope.content()
     }
 }
 
@@ -79,6 +82,7 @@ fun Form(formInstance: FormInstance = Form.useForm(), content: @Composable FormS
  * @property formRefRef Reference to the form's internal state
  * @property formInstance The current form instance being used
  */
+@Stable
 class FormScope private constructor(
     private val formRefRef: Ref<FormRef>,
     private val formInstance: FormInstance,
@@ -171,7 +175,8 @@ class FormScope private constructor(
         useEffect(errMsg) {
             currentFormRef.formFieldErrorMessagesMap[name] = errMsg.values.toList()
         }
-        content(Triple(fieldState, validate.value, errMsg.values.toList()))
+        val errorMessages = errMsg.values.toList()
+        content(Triple(fieldState, validate.value, errorMessages))
     }
 
     /**

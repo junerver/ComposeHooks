@@ -199,6 +199,7 @@ class FormInstance {
      * ```
      */
     fun resetFields(value: Map<String, Any> = emptyMap()) {
+        checkRef()
         currentFormFieldMap.forEach { (_, state) ->
             state.value = null
         }.then {
