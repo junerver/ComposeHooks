@@ -15,8 +15,10 @@ import androidx.compose.runtime.State
  * A hook that tracks and returns the previous value of a state.
  *
  * This hook is useful when you need to compare the current value with its previous
- * value, such as detecting changes or implementing undo functionality. It internally
- * uses [useUndo] to maintain the history of values.
+ * value, such as detecting changes or implementing undo functionality.
+ *
+ * This is a lightweight implementation that only stores the previous value,
+ * without maintaining a full history stack.
  *
  * @param present The current value to track
  * @return A [State] containing the previous value, or null if there is no previous value
@@ -37,9 +39,11 @@ import androidx.compose.runtime.State
  */
 @Composable
 fun <T> usePrevious(present: T): State<T?> {
-    val (state, set) = useUndo(initialPresent = present)
+    val previousRef = useRef<T?>(default = null)
+    val previousState = _useState<T?>(default = null)
     useEffect(present) {
-        set(present)
+        previousState.value = previousRef.current
+        previousRef.current = present
     }
-    return useState { state.value.past.lastOrNull() }
+    return previousState
 }
