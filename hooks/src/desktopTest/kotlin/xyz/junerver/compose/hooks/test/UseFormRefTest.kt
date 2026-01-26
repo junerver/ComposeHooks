@@ -16,7 +16,6 @@ import xyz.junerver.compose.hooks.useform.FormRef
 */
 
 class UseFormRefTest {
-
     @Test
     fun formRef_initializes_with_empty_maps() {
         val formRef = FormRef()

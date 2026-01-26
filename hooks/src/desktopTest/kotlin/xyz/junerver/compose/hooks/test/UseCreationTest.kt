@@ -89,8 +89,14 @@ class UseCreationTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { key1 = 2; phase = 1 }
-                    1 -> { key2 = "b"; phase = 2 }
+                    0 -> {
+                        key1 = 2
+                        phase = 1
+                    }
+                    1 -> {
+                        key2 = "b"
+                        phase = 2
+                    }
                 }
             }
 

@@ -246,11 +246,7 @@ class FormScope private constructor(
      * ```
      */
     @Composable
-    fun <T : Any> FormItemWithState(
-        name: String,
-        vararg validators: Validator,
-        content: @Composable (FormItemState<T>) -> Unit,
-    ) {
+    fun <T : Any> FormItemWithState(name: String, vararg validators: Validator, content: @Composable (FormItemState<T>) -> Unit) {
         val fieldState = _useState<T?>(default = null)
         val (validate, _, set) = useBoolean()
         val (touched, _, setTouched) = useBoolean(false)

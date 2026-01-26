@@ -22,11 +22,7 @@ import xyz.junerver.compose.hooks.useState
 */
 
 class UseIntervalTest {
-    private fun waitForCondition(
-        maxAttempts: Int = 50,
-        delayMs: Long = 50,
-        condition: () -> Boolean,
-    ): Boolean {
+    private fun waitForCondition(maxAttempts: Int = 50, delayMs: Long = 50, condition: () -> Boolean): Boolean {
         for (i in 0 until maxAttempts) {
             if (condition()) return true
             Thread.sleep(delayMs)

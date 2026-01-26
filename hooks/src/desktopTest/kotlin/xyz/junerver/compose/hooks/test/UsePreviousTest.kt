@@ -60,8 +60,14 @@ class UsePreviousTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { current = "b"; phase = 1 }
-                    1 -> { current = "c"; phase = 2 }
+                    0 -> {
+                        current = "b"
+                        phase = 1
+                    }
+                    1 -> {
+                        current = "c"
+                        phase = 2
+                    }
                 }
             }
 
@@ -121,7 +127,10 @@ class UsePreviousTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { current = "same"; phase = 1 } // Same value
+                    0 -> {
+                        current = "same"
+                        phase = 1
+                    } // Same value
                 }
             }
 
@@ -161,9 +170,18 @@ class UsePreviousTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { current = "second"; phase = 1 }
-                    1 -> { current = "third"; phase = 2 }
-                    2 -> { current = "fourth"; phase = 3 }
+                    0 -> {
+                        current = "second"
+                        phase = 1
+                    }
+                    1 -> {
+                        current = "third"
+                        phase = 2
+                    }
+                    2 -> {
+                        current = "fourth"
+                        phase = 3
+                    }
                 }
             }
 

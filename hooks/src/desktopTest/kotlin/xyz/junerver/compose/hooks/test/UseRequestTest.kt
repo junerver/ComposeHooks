@@ -118,7 +118,6 @@ class UseRequestTest {
         onNodeWithText("data=4").assertExists()
     }
 
-
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun plugins_same_size_should_update_on_recomposition() = runComposeUiTest {
@@ -131,7 +130,10 @@ class UseRequestTest {
                 @androidx.compose.runtime.Composable
                 { _: UseRequestOptions<String, Int> ->
                     object : Plugin<String, Int>() {
-                        override val invoke: (Fetch<String, Int>, UseRequestOptions<String, Int>) -> PluginLifecycle<String, Int> = { fetch: Fetch<String, Int>, opt: UseRequestOptions<String, Int> ->
+                        override val invoke: (
+                            Fetch<String, Int>,
+                            UseRequestOptions<String, Int>,
+                        ) -> PluginLifecycle<String, Int> = { fetch: Fetch<String, Int>, opt: UseRequestOptions<String, Int> ->
                             initFetch(fetch, opt)
                             object : PluginLifecycle<String, Int>() {
                                 override val onSuccess: ((Int, String) -> Unit)? = { _: Int, _: String ->
@@ -147,7 +149,10 @@ class UseRequestTest {
                 @androidx.compose.runtime.Composable
                 { _: UseRequestOptions<String, Int> ->
                     object : Plugin<String, Int>() {
-                        override val invoke: (Fetch<String, Int>, UseRequestOptions<String, Int>) -> PluginLifecycle<String, Int> = { fetch: Fetch<String, Int>, opt: UseRequestOptions<String, Int> ->
+                        override val invoke: (
+                            Fetch<String, Int>,
+                            UseRequestOptions<String, Int>,
+                        ) -> PluginLifecycle<String, Int> = { fetch: Fetch<String, Int>, opt: UseRequestOptions<String, Int> ->
                             initFetch(fetch, opt)
                             object : PluginLifecycle<String, Int>() {
                                 override val onSuccess: ((Int, String) -> Unit)? = { _: Int, _: String ->

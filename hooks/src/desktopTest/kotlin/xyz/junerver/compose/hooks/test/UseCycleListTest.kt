@@ -86,9 +86,18 @@ class UseCycleListTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { next(); phase = 1 } // A -> B
-                    1 -> { next(); phase = 2 } // B -> C
-                    2 -> { next(); phase = 3 } // C -> A (wrap)
+                    0 -> {
+                        next()
+                        phase = 1
+                    } // A -> B
+                    1 -> {
+                        next()
+                        phase = 2
+                    } // B -> C
+                    2 -> {
+                        next()
+                        phase = 3
+                    } // C -> A (wrap)
                 }
             }
 
@@ -172,8 +181,14 @@ class UseCycleListTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { next(); phase = 1 }
-                    1 -> { next(); phase = 2 }
+                    0 -> {
+                        next()
+                        phase = 1
+                    }
+                    1 -> {
+                        next()
+                        phase = 2
+                    }
                 }
             }
 
@@ -228,8 +243,14 @@ class UseCycleListTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { go(2); phase = 1 } // Go to C
-                    1 -> { shift(-2); phase = 2 } // C -> A
+                    0 -> {
+                        go(2)
+                        phase = 1
+                    } // Go to C
+                    1 -> {
+                        shift(-2)
+                        phase = 2
+                    } // C -> A
                 }
             }
 
@@ -249,8 +270,14 @@ class UseCycleListTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { next(); phase = 1 }
-                    1 -> { next(); phase = 2 }
+                    0 -> {
+                        next()
+                        phase = 1
+                    }
+                    1 -> {
+                        next()
+                        phase = 2
+                    }
                 }
             }
 

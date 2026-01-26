@@ -123,13 +123,13 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
             setState(
                 Keys.loading to false,
                 Keys.params to null,
-                Keys.data to null,  // 清除旧数据
+                Keys.data to null, // 清除旧数据
                 Keys.error to error,
             )
             options.onError.invoke(error, null)
-            runPluginHandler(Methods.OnError(error, null))  // 调用插件的 onError
+            runPluginHandler(Methods.OnError(error, null)) // 调用插件的 onError
             options.onFinally.invoke(null, null, error)
-            runPluginHandler(Methods.OnFinally(null, null, error))  // 调用插件的 onFinally
+            runPluginHandler(Methods.OnFinally(null, null, error)) // 调用插件的 onFinally
             return@coroutineScope
         }
         count += 1
@@ -227,7 +227,7 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
         this.count += 1
         this.setState(
             Keys.loading to false,
-            Keys.error to null  // 清除错误状态
+            Keys.error to null, // 清除错误状态
         )
         cancelRequest()
         runPluginHandler(Methods.OnCancel)

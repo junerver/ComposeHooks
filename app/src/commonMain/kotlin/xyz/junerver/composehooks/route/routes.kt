@@ -4,9 +4,9 @@ import androidx.compose.runtime.Composable
 import xyz.junerver.composehooks.example.DeferReads
 import xyz.junerver.composehooks.example.HomeScreen
 import xyz.junerver.composehooks.example.RequestExampleList
+import xyz.junerver.composehooks.example.UseAgentExample
 import xyz.junerver.composehooks.example.UseAsyncExample
 import xyz.junerver.composehooks.example.UseAutoResetExample
-import xyz.junerver.composehooks.example.UseAgentExample
 import xyz.junerver.composehooks.example.UseBooleanExample
 import xyz.junerver.composehooks.example.UseChatExample
 import xyz.junerver.composehooks.example.UseClipboardExample
@@ -42,6 +42,7 @@ import xyz.junerver.composehooks.example.UseSelectableExample
 import xyz.junerver.composehooks.example.UseSortedExample
 import xyz.junerver.composehooks.example.UseStateExample
 import xyz.junerver.composehooks.example.UseStateMachineExample
+import xyz.junerver.composehooks.example.UseTableExample
 import xyz.junerver.composehooks.example.UseThrottleExample
 import xyz.junerver.composehooks.example.UseTimeAgoExample
 import xyz.junerver.composehooks.example.UseTimeoutExample
@@ -132,6 +133,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "usePausableEffect" to { UsePausableEffectExample() },
     "useCycleList" to { UseCycleListExample() },
     "useSorted" to { UseSortedExample() },
+    "useTable" to { UseTableExample() },
 ) + platformSpecialRoutes
 
 expect fun getSubRequestRoutes(): Map<String, @Composable () -> Unit>

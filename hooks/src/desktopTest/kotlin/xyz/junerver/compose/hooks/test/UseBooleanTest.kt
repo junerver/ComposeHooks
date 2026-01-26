@@ -8,7 +8,6 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
-import kotlin.test.assertEquals
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useState
 

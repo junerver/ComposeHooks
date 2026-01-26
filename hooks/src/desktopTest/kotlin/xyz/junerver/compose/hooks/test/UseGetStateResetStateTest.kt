@@ -111,9 +111,18 @@ class UseGetStateResetStateTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { setValue(1.left()); phase = 1 }
-                    1 -> { setValue({ value: Int -> value + 10 }.right()); phase = 2 }
-                    2 -> { setValue({ value: Int -> value * 2 }.right()); phase = 3 }
+                    0 -> {
+                        setValue(1.left())
+                        phase = 1
+                    }
+                    1 -> {
+                        setValue({ value: Int -> value + 10 }.right())
+                        phase = 2
+                    }
+                    2 -> {
+                        setValue({ value: Int -> value * 2 }.right())
+                        phase = 3
+                    }
                 }
             }
 
@@ -144,8 +153,14 @@ class UseGetStateResetStateTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { setValue(100.left()); phase = 1 }
-                    1 -> { reset(); phase = 2 }
+                    0 -> {
+                        setValue(100.left())
+                        phase = 1
+                    }
+                    1 -> {
+                        reset()
+                        phase = 2
+                    }
                 }
             }
 
@@ -185,8 +200,14 @@ class UseGetStateResetStateTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { setValue(25.left()); phase = 1 }
-                    1 -> { captured = getValue(); phase = 2 }
+                    0 -> {
+                        setValue(25.left())
+                        phase = 1
+                    }
+                    1 -> {
+                        captured = getValue()
+                        phase = 2
+                    }
                 }
             }
 
@@ -205,10 +226,22 @@ class UseGetStateResetStateTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { setValue(10.left()); phase = 1 }
-                    1 -> { reset(); phase = 2 }
-                    2 -> { setValue(20.left()); phase = 3 }
-                    3 -> { reset(); phase = 4 }
+                    0 -> {
+                        setValue(10.left())
+                        phase = 1
+                    }
+                    1 -> {
+                        reset()
+                        phase = 2
+                    }
+                    2 -> {
+                        setValue(20.left())
+                        phase = 3
+                    }
+                    3 -> {
+                        reset()
+                        phase = 4
+                    }
                 }
             }
 
@@ -227,8 +260,14 @@ class UseGetStateResetStateTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { setValue("modified".left()); phase = 1 }
-                    1 -> { reset(); phase = 2 }
+                    0 -> {
+                        setValue("modified".left())
+                        phase = 1
+                    }
+                    1 -> {
+                        reset()
+                        phase = 2
+                    }
                 }
             }
 

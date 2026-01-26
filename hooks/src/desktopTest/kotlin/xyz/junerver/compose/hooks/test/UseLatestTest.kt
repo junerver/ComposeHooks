@@ -61,9 +61,18 @@ class UseLatestTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { value = 1; phase = 1 }
-                    1 -> { value = 2; phase = 2 }
-                    2 -> { value = 3; phase = 3 }
+                    0 -> {
+                        value = 1
+                        phase = 1
+                    }
+                    1 -> {
+                        value = 2
+                        phase = 2
+                    }
+                    2 -> {
+                        value = 3
+                        phase = 3
+                    }
                 }
             }
 
@@ -214,9 +223,18 @@ class UseLatestTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { value = "b"; phase = 1 }
-                    1 -> { value = "c"; phase = 2 }
-                    2 -> { value = "d"; phase = 3 }
+                    0 -> {
+                        value = "b"
+                        phase = 1
+                    }
+                    1 -> {
+                        value = "c"
+                        phase = 2
+                    }
+                    2 -> {
+                        value = "d"
+                        phase = 3
+                    }
                 }
             }
 

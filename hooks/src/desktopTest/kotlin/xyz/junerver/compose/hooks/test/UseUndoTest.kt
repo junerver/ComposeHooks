@@ -8,8 +8,8 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
-import xyz.junerver.compose.hooks.useUndo
 import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.useUndo
 
 /*
   Description: useUndo comprehensive TDD tests
@@ -353,12 +353,30 @@ class UseUndoTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { holder.setValue("b"); phase = 1 }
-                    1 -> { holder.setValue("c"); phase = 2 }
-                    2 -> { holder.setValue("d"); phase = 3 }
-                    3 -> { holder.undo(); phase = 4 } // d -> c
-                    4 -> { holder.undo(); phase = 5 } // c -> b
-                    5 -> { holder.redo(); phase = 6 } // b -> c
+                    0 -> {
+                        holder.setValue("b")
+                        phase = 1
+                    }
+                    1 -> {
+                        holder.setValue("c")
+                        phase = 2
+                    }
+                    2 -> {
+                        holder.setValue("d")
+                        phase = 3
+                    }
+                    3 -> {
+                        holder.undo()
+                        phase = 4
+                    } // d -> c
+                    4 -> {
+                        holder.undo()
+                        phase = 5
+                    } // c -> b
+                    5 -> {
+                        holder.redo()
+                        phase = 6
+                    } // b -> c
                 }
             }
 
@@ -400,9 +418,18 @@ class UseUndoTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { holder.setValue(1); phase = 1 }
-                    1 -> { holder.setValue(2); phase = 2 }
-                    2 -> { holder.undo(); phase = 3 }
+                    0 -> {
+                        holder.setValue(1)
+                        phase = 1
+                    }
+                    1 -> {
+                        holder.setValue(2)
+                        phase = 2
+                    }
+                    2 -> {
+                        holder.undo()
+                        phase = 3
+                    }
                 }
             }
 

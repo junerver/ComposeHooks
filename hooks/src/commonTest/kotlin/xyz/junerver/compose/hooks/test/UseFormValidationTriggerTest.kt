@@ -19,7 +19,6 @@ import xyz.junerver.compose.hooks.useform.ValidationTrigger
 */
 
 class UseFormValidationTriggerTest {
-
     private fun createInitializedFormInstance(): Pair<FormInstance, FormRef> {
         val formInstance = FormInstance()
         val formRef = FormRef()

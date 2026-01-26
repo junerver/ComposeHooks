@@ -8,13 +8,11 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.FetchState
 import xyz.junerver.compose.hooks.userequest.OnBeforeReturn
@@ -23,9 +21,9 @@ import xyz.junerver.compose.hooks.userequest.UseRequestOptions
 
 /**
  * TDD 测试套件：useRequest 边缘场景和缺陷检测
- * 
+ *
  * 目标：通过测试用例发现 Fetch.kt 中的生产级缺陷
- * 
+ *
  * 测试分类：
  * - P0 (Critical): 并发竞态、取消逻辑缺陷
  * - P1 (High): 插件生命周期、错误传播
@@ -138,7 +136,10 @@ class FetchEdgeCaseTest {
         val options = UseRequestOptions.optionOf<String, Int> {}
         val (fetch, _, _) = createFetch(
             options = options,
-            requestFn = { delay(1000); 42 },
+            requestFn = {
+                delay(1000)
+                42
+            },
         )
 
         launch { fetch._runAsync("test") }
@@ -163,7 +164,10 @@ class FetchEdgeCaseTest {
         val options = UseRequestOptions.optionOf<String, Int> {}
         val (fetch, dataBundle, _) = createFetch(
             options = options,
-            requestFn = { delay(1000); 99 },
+            requestFn = {
+                delay(1000)
+                99
+            },
         )
 
         // 直接调用 _runAsync (不通过 _run)
@@ -215,7 +219,10 @@ class FetchEdgeCaseTest {
 
         val (fetch, _, _) = createFetch(
             options = options,
-            requestFn = { delay(1000); 42 },
+            requestFn = {
+                delay(1000)
+                42
+            },
             pluginImpls = arrayOf(plugin),
         )
 
@@ -454,7 +461,10 @@ class FetchEdgeCaseTest {
         }
         val (fetch, _, _) = createFetch(
             options = options,
-            requestFn = { delay(1000); 42 },
+            requestFn = {
+                delay(1000)
+                42
+            },
         )
 
         // 快速执行 runAsync 和 cancel 循环

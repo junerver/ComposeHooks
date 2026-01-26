@@ -10,8 +10,8 @@ import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.useTimeoutFn
 import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.useTimeoutFn
 
 /*
   Description: useTimeoutFn comprehensive TDD tests
@@ -29,7 +29,7 @@ class UseTimeoutFnTest {
             val (isPending) = useTimeoutFn(
                 fn = { },
                 interval = 10.seconds, // Long interval
-                optionsOf = { immediate = true }
+                optionsOf = { immediate = true },
             )
 
             Text("isPending=${isPending.value}")
@@ -49,7 +49,7 @@ class UseTimeoutFnTest {
             val (isPending, _, stop) = useTimeoutFn(
                 fn = { },
                 interval = 10.seconds,
-                optionsOf = { immediate = true }
+                optionsOf = { immediate = true },
             )
 
             SideEffect {
@@ -74,7 +74,7 @@ class UseTimeoutFnTest {
             val (isPending) = useTimeoutFn(
                 fn = { },
                 interval = 100.milliseconds,
-                optionsOf = { immediate = false }
+                optionsOf = { immediate = false },
             )
 
             Text("isPending=${isPending.value}")
@@ -93,7 +93,7 @@ class UseTimeoutFnTest {
             val (isPending, start) = useTimeoutFn(
                 fn = { },
                 interval = 10.seconds,
-                optionsOf = { immediate = false }
+                optionsOf = { immediate = false },
             )
 
             SideEffect {

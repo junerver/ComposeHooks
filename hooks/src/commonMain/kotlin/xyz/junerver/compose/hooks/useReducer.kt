@@ -63,11 +63,7 @@ import androidx.compose.runtime.remember
  * ```
  */
 @Composable
-fun <S, A> useReducer(
-    reducer: Reducer<S, A>,
-    initialState: S,
-    middlewares: Array<Middleware<S, A>> = emptyArray(),
-): ReducerHolder<S, A> {
+fun <S, A> useReducer(reducer: Reducer<S, A>, initialState: S, middlewares: Array<Middleware<S, A>> = emptyArray()): ReducerHolder<S, A> {
     val asyncRun = useAsync()
     val state = _useState(initialState)
 

@@ -28,7 +28,9 @@ import xyz.junerver.compose.hooks.utils.HooksEventManager
 
 // Test event classes
 data class TestEvent(val message: String)
+
 data class CounterEvent(val delta: Int)
+
 data class RefreshEvent(val timestamp: Long = System.currentTimeMillis())
 
 class UseEventTest {
@@ -147,9 +149,18 @@ class UseEventTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { publish(CounterEvent(1)); phase = 1 }
-                    1 -> { publish(CounterEvent(2)); phase = 2 }
-                    2 -> { publish(CounterEvent(3)); phase = 3 }
+                    0 -> {
+                        publish(CounterEvent(1))
+                        phase = 1
+                    }
+                    1 -> {
+                        publish(CounterEvent(2))
+                        phase = 2
+                    }
+                    2 -> {
+                        publish(CounterEvent(3))
+                        phase = 3
+                    }
                 }
             }
 
@@ -236,9 +247,18 @@ class UseEventTest {
 
             SideEffect {
                 when (phase) {
-                    0 -> { publish(CounterEvent(10)); phase = 1 } // 10 * 1 = 10
-                    1 -> { multiplier = 5; phase = 2 }
-                    2 -> { publish(CounterEvent(10)); phase = 3 } // 10 * 5 = 50
+                    0 -> {
+                        publish(CounterEvent(10))
+                        phase = 1
+                    } // 10 * 1 = 10
+                    1 -> {
+                        multiplier = 5
+                        phase = 2
+                    }
+                    2 -> {
+                        publish(CounterEvent(10))
+                        phase = 3
+                    } // 10 * 5 = 50
                 }
             }
 

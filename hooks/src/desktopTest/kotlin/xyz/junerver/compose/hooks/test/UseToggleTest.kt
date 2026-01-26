@@ -137,7 +137,7 @@ class UseToggleTest {
             val (value, _) = useToggleEither("text", 42)
             val result = value.fold(
                 { "left:$it" },
-                { "right:$it" }
+                { "right:$it" },
             )
             Text("result=$result")
         }
@@ -161,7 +161,7 @@ class UseToggleTest {
 
             val result = value.fold(
                 { "left:$it" },
-                { "right:$it" }
+                { "right:$it" },
             )
             Text("result=$result")
         }
@@ -227,7 +227,7 @@ class UseToggleTest {
             val (component, toggle) = useToggleVisible(
                 isFirst = true,
                 content1 = { Text("First") },
-                content2 = { Text("Second") }
+                content2 = { Text("Second") },
             )
 
             SideEffect {
@@ -250,7 +250,7 @@ class UseToggleTest {
             val (component, _) = useToggleVisible(
                 isFirst = true,
                 content1 = { Text("First") },
-                content2 = { Text("Second") }
+                content2 = { Text("Second") },
             )
             component()
         }

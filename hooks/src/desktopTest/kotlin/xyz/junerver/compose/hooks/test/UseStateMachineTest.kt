@@ -185,9 +185,18 @@ class UseStateMachineTest {
 
             SideEffect {
                 when (stepRef.current) {
-                    0 -> { stepRef.current = 1; holder.transition(MachineEvent.Log) }
-                    1 -> { stepRef.current = 2; holder.transition(MachineEvent.Log) }
-                    2 -> { stepRef.current = 3; holder.transition(MachineEvent.Log) }
+                    0 -> {
+                        stepRef.current = 1
+                        holder.transition(MachineEvent.Log)
+                    }
+                    1 -> {
+                        stepRef.current = 2
+                        holder.transition(MachineEvent.Log)
+                    }
+                    2 -> {
+                        stepRef.current = 3
+                        holder.transition(MachineEvent.Log)
+                    }
                 }
             }
 
@@ -580,7 +589,6 @@ class UseStateMachineTest {
         // State should be Success (last transition wins)
         onNodeWithText("state=Success").assertExists()
     }
-
 
     @OptIn(ExperimentalTestApi::class)
     @Test

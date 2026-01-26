@@ -8,7 +8,6 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
-import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import xyz.junerver.compose.hooks.useInterval
 import xyz.junerver.compose.hooks.useState
@@ -56,11 +55,13 @@ class UseIntervalDebugTest {
             waitForIdle()
             val success = runCatching {
                 onNodeWithText("count=1 active=true started=true").assertExists()
-            }.isSuccess || runCatching {
-                onNodeWithText("count=2 active=true started=true").assertExists()
-            }.isSuccess || runCatching {
-                onNodeWithText("count=3 active=true started=true").assertExists()
-            }.isSuccess
+            }.isSuccess ||
+                runCatching {
+                    onNodeWithText("count=2 active=true started=true").assertExists()
+                }.isSuccess ||
+                runCatching {
+                    onNodeWithText("count=3 active=true started=true").assertExists()
+                }.isSuccess
 
             if (success) {
                 println("Found count >= 1 at iteration $i")

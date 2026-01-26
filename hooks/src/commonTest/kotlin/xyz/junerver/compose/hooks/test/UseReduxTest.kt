@@ -3,11 +3,8 @@ package xyz.junerver.compose.hooks.test
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
-import kotlin.test.assertTrue
 import xyz.junerver.compose.hooks.Middleware
 import xyz.junerver.compose.hooks.Reducer
-import xyz.junerver.compose.hooks.useredux.Store
-import xyz.junerver.compose.hooks.useredux.StoreRecord
 import xyz.junerver.compose.hooks.useredux.combineStores
 import xyz.junerver.compose.hooks.useredux.createStore
 import xyz.junerver.compose.hooks.useredux.plus
@@ -21,18 +18,22 @@ import xyz.junerver.compose.hooks.useredux.plus
 */
 
 class UseReduxTest {
-
     // Test state and action types
     data class CounterState(val count: Int)
+
     sealed interface CounterAction {
         data object Increment : CounterAction
+
         data object Decrement : CounterAction
+
         data class Add(val value: Int) : CounterAction
     }
 
     data class TodoState(val items: List<String>)
+
     sealed interface TodoAction {
         data class Add(val item: String) : TodoAction
+
         data class Remove(val index: Int) : TodoAction
     }
 

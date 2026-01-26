@@ -5,10 +5,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 import xyz.junerver.compose.hooks.utils.CacheManager
@@ -23,7 +21,6 @@ import xyz.junerver.compose.hooks.utils.CacheManager
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class UseCachePluginTest {
-
     @Test
     fun cacheManager_saveCache_stores_data_correctly() {
         val key = "test_save_${System.currentTimeMillis()}"

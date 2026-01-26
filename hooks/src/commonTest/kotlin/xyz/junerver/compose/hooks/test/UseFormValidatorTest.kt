@@ -21,7 +21,6 @@ import xyz.junerver.compose.hooks.useform.validateField
 */
 
 class UseFormValidatorTest {
-
     @Test
     fun required_validator_passes_for_non_null_value() {
         val validator = Required()
@@ -126,8 +125,14 @@ class UseFormValidatorTest {
 
         val result = validators.validateField(
             fieldValue = "hello",
-            pass = { passCount++; true },
-            fail = { failCount++; false },
+            pass = {
+                passCount++
+                true
+            },
+            fail = {
+                failCount++
+                false
+            },
         )
 
         assertTrue(result, "All validators should pass")
@@ -147,8 +152,14 @@ class UseFormValidatorTest {
 
         val result = validators.validateField(
             fieldValue = "hello", // Letters, not numbers
-            pass = { passCount++; true },
-            fail = { failCount++; false },
+            pass = {
+                passCount++
+                true
+            },
+            fail = {
+                failCount++
+                false
+            },
         )
 
         assertFalse(result, "Should fail because regex doesn't match")

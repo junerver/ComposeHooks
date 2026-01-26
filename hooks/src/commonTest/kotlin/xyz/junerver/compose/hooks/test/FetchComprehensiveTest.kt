@@ -346,5 +346,3 @@ class FetchComprehensiveTest {
         assertEquals(listOf("options:onError", "options:onFinally"), events)
     }
 }
-
-

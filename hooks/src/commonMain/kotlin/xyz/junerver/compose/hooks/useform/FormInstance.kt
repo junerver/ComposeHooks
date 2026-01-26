@@ -362,10 +362,7 @@ class FormInstance {
      * @param onSuccess Called with all field values if validation passes
      * @param onError Called with all field errors if validation fails (optional)
      */
-    fun submit(
-        onSuccess: (Map<String, Any?>) -> Unit,
-        onError: ((Map<String, List<String>>) -> Unit)? = null,
-    ) {
+    fun submit(onSuccess: (Map<String, Any?>) -> Unit, onError: ((Map<String, List<String>>) -> Unit)? = null) {
         checkRef()
         markAllAsTouched()
         if (isValidated()) {
