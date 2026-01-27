@@ -16,7 +16,7 @@ import xyz.junerver.compose.hooks.usetable.Table
 import xyz.junerver.compose.hooks.usetable.core.column
 import xyz.junerver.compose.hooks.usetable.useTable
 
-private data class User(
+internal data class User(
     val id: Int,
     val name: String,
     val age: Int,
@@ -234,7 +234,7 @@ fun UseTableExample() {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text("Rows per page:", style = MaterialTheme.typography.bodyMedium)
-                            
+
                             Box {
                                 OutlinedButton(
                                     onClick = { pageSizeExpanded = true },
@@ -248,7 +248,7 @@ fun UseTableExample() {
                                         modifier = Modifier.size(16.dp)
                                     )
                                 }
-                                
+
                                 DropdownMenu(
                                     expanded = pageSizeExpanded,
                                     onDismissRequest = { pageSizeExpanded = false }
@@ -293,11 +293,11 @@ fun UseTableExample() {
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text("Page ${pagination.pageIndex + 1} of ${pagination.pageCount}")
-                            
+
                             Text("|", color = MaterialTheme.colorScheme.outline)
-                            
+
                             Text("Go to:", style = MaterialTheme.typography.bodyMedium)
-                            
+
                             OutlinedTextField(
                                 value = jumpToPageText,
                                 onValueChange = { jumpToPageText = it.filter { char -> char.isDigit() } },
@@ -305,7 +305,7 @@ fun UseTableExample() {
                                 singleLine = true,
                                 textStyle = MaterialTheme.typography.bodyMedium
                             )
-                            
+
                             Button(
                                 onClick = {
                                     val targetPage = jumpToPageText.toIntOrNull()
@@ -314,8 +314,8 @@ fun UseTableExample() {
                                         jumpToPageText = ""
                                     }
                                 },
-                                enabled = jumpToPageText.toIntOrNull()?.let { 
-                                    it in 1..pagination.pageCount 
+                                enabled = jumpToPageText.toIntOrNull()?.let {
+                                    it in 1..pagination.pageCount
                                 } == true
                             ) {
                                 Text("Jump")
