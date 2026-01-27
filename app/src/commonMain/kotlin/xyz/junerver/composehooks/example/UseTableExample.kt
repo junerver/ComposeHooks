@@ -1,6 +1,5 @@
 package xyz.junerver.composehooks.example
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -11,9 +10,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import xyz.junerver.compose.hooks.usetable.Table
 import xyz.junerver.compose.hooks.usetable.core.column
 import xyz.junerver.compose.hooks.usetable.useTable
 
@@ -87,21 +86,11 @@ fun UseTableExample() {
         getRowId = { user, _ -> user.id.toString() }
     }
 
-    // Destructure state for easier access
-    val rowModel by table.rowModel
+    // Unpack table state for custom controls
     val tableState by table.state
-    
-    // Derived UI state
+    val rowModel by table.rowModel
     val globalFilter = tableState.filtering.globalFilter
     val selectedCount = tableState.rowSelection.selectedRowIds.size
-    val pageIndex = tableState.pagination.pageIndex
-    val pageSize = tableState.pagination.pageSize
-    
-    // Calculate pagination state manually
-    val totalRows = users.size
-    val pageCount = if (pageSize <= 0) 1 else kotlin.math.ceil(totalRows.toDouble() / pageSize).toInt()
-    val canNext = pageIndex < pageCount - 1
-    val canPrev = pageIndex > 0
 
     Column(modifier = Modifier.fillMaxSize().padding(16.dp)) {
         Text(
@@ -125,118 +114,129 @@ fun UseTableExample() {
                 modifier = Modifier.weight(1f),
                 singleLine = true
             )
-            
+
             Button(onClick = { table.clearFilters() }) {
                 Text("Clear")
             }
         }
 
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Text("Selected: $selectedCount rows")
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        // Table Header
-        Card(
-            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-        ) {
-            Row(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
-                // Select All Checkbox
-                Box(modifier = Modifier.width(40.dp)) {
-                    Checkbox(
-                        checked = selectedCount == rowModel.rows.size && rowModel.rows.isNotEmpty(),
-                        onCheckedChange = { table.toggleAllRowsSelection(it) }
-                    )
-                }
-                
-                // Column Headers
-                columns.forEach { column ->
-                    val isSorted = tableState.sorting.sorting.any { it.columnId == column.id }
-                    val sortDesc = tableState.sorting.sorting.find { it.columnId == column.id }?.desc
-                    
-                    Row(
-                        modifier = Modifier
-                            .weight(1f)
-                            .clickable { table.toggleSorting(column.id, null) }
-                            .padding(vertical = 12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Text(
-                            text = column.header,
-                            style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Bold
-                        )
-                        if (isSorted) {
-                            Icon(
-                                imageVector = if (sortDesc == true) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowUp,
-                                contentDescription = "Sort"
-                            )
-                        }
-                    }
-                }
-            }
-        }
+        // Use the Headless Table Component
+        Table(table = table) {
 
-        HorizontalDivider()
-
-        // Table Rows
-        LazyColumn(modifier = Modifier.weight(1f)) {
-            items(rowModel.rows.size) { index ->
-                val row = rowModel.rows[index]
-                val isSelected = tableState.rowSelection.selectedRowIds.contains(row.id)
-                
-                Surface(
-                    color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
-                    modifier = Modifier.fillMaxWidth().clickable { table.toggleRowSelection(row.id) }
+            // 1. Header (Custom UI)
+            TableHeader { columns, state ->
+                Card(
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                 ) {
-                    Row(
-                        modifier = Modifier.padding(8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        // Selection Checkbox
+                    Row(modifier = Modifier.fillMaxWidth().padding(8.dp)) {
+                        // Select All
                         Box(modifier = Modifier.width(40.dp)) {
                             Checkbox(
-                                checked = isSelected,
-                                onCheckedChange = { table.toggleRowSelection(row.id) }
+                                checked = selectedCount == rowModel.rows.size && rowModel.rows.isNotEmpty(),
+                                onCheckedChange = { table.toggleAllRowsSelection(it) }
                             )
                         }
-                        
-                        // Cells
-                        Text(text = row.original.id.toString(), modifier = Modifier.weight(1f))
-                        Text(text = row.original.name, modifier = Modifier.weight(1f))
-                        Text(text = row.original.age.toString(), modifier = Modifier.weight(1f))
-                        Text(text = row.original.email, modifier = Modifier.weight(1f))
-                        Text(text = row.original.department, modifier = Modifier.weight(1f))
+
+                        // Columns
+                        columns.forEach { column ->
+                            val isSorted = state.sorting.sorting.any { it.columnId == column.id }
+                            val sortDesc = state.sorting.sorting.find { it.columnId == column.id }?.desc
+
+                            Row(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clickable { table.toggleSorting(column.id, null) }
+                                    .padding(vertical = 12.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Text(
+                                    text = column.header,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                if (isSorted) {
+                                    Icon(
+                                        imageVector = if (sortDesc == true) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowUp,
+                                        contentDescription = "Sort"
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
-                HorizontalDivider()
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        // Pagination Controls
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = { table.previousPage() },
-                enabled = canPrev
-            ) {
-                Text("Previous")
             }
 
-            Text("Page ${pageIndex + 1} of $pageCount")
+            HorizontalDivider()
 
-            Button(
-                onClick = { table.nextPage() },
-                enabled = canNext
-            ) {
-                Text("Next")
+            // 2. Body (Custom UI Logic)
+            TableBody { rows ->
+                LazyColumn(modifier = Modifier.weight(1f)) {
+                    items(rows.size) { index ->
+                        val row = rows[index]
+                        val isSelected = tableState.rowSelection.selectedRowIds.contains(row.id)
+
+                        Surface(
+                            color = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface,
+                            modifier = Modifier.fillMaxWidth().clickable { table.toggleRowSelection(row.id) }
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(8.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                // Checkbox
+                                Box(modifier = Modifier.width(40.dp)) {
+                                    Checkbox(
+                                        checked = isSelected,
+                                        onCheckedChange = { table.toggleRowSelection(row.id) }
+                                    )
+                                }
+
+                                // Cells
+                                Text(text = row.original.id.toString(), modifier = Modifier.weight(1f))
+                                Text(text = row.original.name, modifier = Modifier.weight(1f))
+                                Text(text = row.original.age.toString(), modifier = Modifier.weight(1f))
+                                Text(text = row.original.email, modifier = Modifier.weight(1f))
+                                Text(text = row.original.department, modifier = Modifier.weight(1f))
+                            }
+                        }
+                        HorizontalDivider()
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // 3. Pagination (Custom UI with logic from scope)
+            TablePagination { pagination ->
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Button(
+                        onClick = pagination.previousPage,
+                        enabled = pagination.canPrev
+                    ) {
+                        Text("Previous")
+                    }
+
+                    Text("Page ${pagination.pageIndex + 1} of ${pagination.pageCount}")
+
+                    Button(
+                        onClick = pagination.nextPage,
+                        enabled = pagination.canNext
+                    ) {
+                        Text("Next")
+                    }
+                }
             }
         }
     }
 }
+

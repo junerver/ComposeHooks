@@ -29,5 +29,6 @@ data class Row<T>(
 @Stable
 data class RowModel<T>(
     val rows: List<Row<T>>,
-    val flatRows: List<Row<T>> // Flattened view (including expanded sub-rows)
+    val flatRows: List<Row<T>>, // Flattened view (including expanded sub-rows)
+    val totalRows: Int = rows.size
 )

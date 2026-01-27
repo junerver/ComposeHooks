@@ -140,7 +140,7 @@ fun <T> useTable(
             if (options.enableSorting) add(SortingFeature<T>())
             if (options.enableGrouping) add(GroupingFeature<T>())
             if (options.enableExpansion) add(ExpansionFeature<T>())
-            if (options.enablePagination) add(PaginationFeature<T>())
+            // Pagination moved out of pipeline to capture total rows
             if (options.enableRowSelection) add(RowSelectionFeature<T>())
             if (options.enableColumnSizing) add(ColumnSizingFeature<T>())
         }
@@ -189,28 +189,6 @@ fun <T> useTable(
     instance.setPageSize = { size: Int ->
         setTableState(tableState.copy(pagination = tableState.pagination.copy(pageSize = size, pageIndex = 0)))
     }
-    
-    val pageCount = derivedStateOf {
-        val totalRows = data.size
-        val pageSize = tableState.pagination.pageSize
-        if (pageSize <= 0) 1 else ceil(totalRows.toDouble() / pageSize).toInt()
-    }
-    
-    instance.nextPage = {
-        val currentIndex = tableState.pagination.pageIndex
-        if (currentIndex < pageCount.value - 1) {
-            instance.setPageIndex(currentIndex + 1)
-        }
-    }
-    instance.previousPage = {
-        val currentIndex = tableState.pagination.pageIndex
-        if (currentIndex > 0) {
-            instance.setPageIndex(currentIndex - 1)
-        }
-    }
-    instance.getPageCount = { pageCount.value }
-    instance.getCanNextPage = { tableState.pagination.pageIndex < pageCount.value - 1 }
-    instance.getCanPreviousPage = { tableState.pagination.pageIndex > 0 }
     
     // Wire up Row Selection API
     instance.toggleRowSelection = { rowId: String ->
@@ -296,8 +274,8 @@ fun <T> useTable(
         }
     }
     
-    // Execute pipeline
-    val processedRows = remember(coreRows, tableState, columns, featuresList) {
+    // Execute pipeline (filtering, sorting, etc.)
+    val processedRows = remember(coreRows, tableState.sorting, tableState.filtering, tableState.grouping, columns, featuresList) {
         val pipeline = RowModelPipeline(featuresList)
         kotlin.runCatching {
             kotlinx.coroutines.runBlocking {
@@ -305,12 +283,54 @@ fun <T> useTable(
             }
         }.getOrElse { coreRows }
     }
+
+    // Apply Pagination manually to get final rows
+    val paginatedRows = remember(processedRows, tableState.pagination.pageIndex, tableState.pagination.pageSize, options.enablePagination) {
+        if (options.enablePagination) {
+            val pageIndex = tableState.pagination.pageIndex
+            val pageSize = tableState.pagination.pageSize
+            if (pageSize <= 0) processedRows else {
+                val start = (pageIndex * pageSize).coerceAtLeast(0)
+                if (start >= processedRows.size) emptyList() else {
+                    val end = kotlin.math.min(start + pageSize, processedRows.size)
+                    processedRows.subList(start, end)
+                }
+            }
+        } else {
+            processedRows
+        }
+    }
+    
+    // Calculate page count based on filtered rows (before pagination)
+    val pageCount = derivedStateOf {
+        val totalRows = processedRows.size
+        val pageSize = tableState.pagination.pageSize
+        if (pageSize <= 0) 1 else ceil(totalRows.toDouble() / pageSize).toInt()
+    }
+    
+    // Wire up pagination navigation functions
+    instance.nextPage = {
+        val currentIndex = tableState.pagination.pageIndex
+        if (currentIndex < pageCount.value - 1) {
+            instance.setPageIndex(currentIndex + 1)
+        }
+    }
+    instance.previousPage = {
+        val currentIndex = tableState.pagination.pageIndex
+        if (currentIndex > 0) {
+            instance.setPageIndex(currentIndex - 1)
+        }
+    }
+    instance.getPageCount = { pageCount.value }
+    instance.getCanNextPage = { tableState.pagination.pageIndex < pageCount.value - 1 }
+    instance.getCanPreviousPage = { tableState.pagination.pageIndex > 0 }
     
     // Create row model
-    val rowModel = remember(processedRows) {
+    val rowModel = remember(paginatedRows, processedRows) {
         RowModel(
-            rows = processedRows,
-            flatRows = processedRows
+            rows = paginatedRows,
+            flatRows = paginatedRows,
+            totalRows = processedRows.size
         )
     }
     
