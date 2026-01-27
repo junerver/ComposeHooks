@@ -43,6 +43,7 @@ import xyz.junerver.composehooks.example.UseSortedExample
 import xyz.junerver.composehooks.example.UseStateExample
 import xyz.junerver.composehooks.example.UseStateMachineExample
 import xyz.junerver.composehooks.example.UseTableExample
+import xyz.junerver.composehooks.example.UseTableRequestExample
 import xyz.junerver.composehooks.example.UseThrottleExample
 import xyz.junerver.composehooks.example.UseTimeAgoExample
 import xyz.junerver.composehooks.example.UseTimeoutExample
@@ -134,6 +135,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useCycleList" to { UseCycleListExample() },
     "useSorted" to { UseSortedExample() },
     "useTable" to { UseTableExample() },
+    "useTableRequest" to { UseTableRequestExample() },
 ) + platformSpecialRoutes
 
 expect fun getSubRequestRoutes(): Map<String, @Composable () -> Unit>
