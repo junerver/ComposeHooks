@@ -212,27 +212,123 @@ fun UseTableExample() {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // 3. Pagination (Custom UI with logic from scope)
+            // 3. Pagination (Enhanced UI with page size selector and jump to page)
             TablePagination { pagination ->
-                Row(
+                var pageSizeExpanded by remember { mutableStateOf(false) }
+                var jumpToPageText by remember { mutableStateOf("") }
+                val pageSizeOptions = listOf(5, 10, 20)
+
+                Column(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
-                    Button(
-                        onClick = pagination.previousPage,
-                        enabled = pagination.canPrev
+                    // First row: Page size selector and page info
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Previous")
+                        // Page size selector
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Rows per page:", style = MaterialTheme.typography.bodyMedium)
+                            
+                            Box {
+                                OutlinedButton(
+                                    onClick = { pageSizeExpanded = true },
+                                    modifier = Modifier.width(80.dp)
+                                ) {
+                                    Text("${pagination.pageSize}")
+                                    Spacer(Modifier.width(4.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.KeyboardArrowDown,
+                                        contentDescription = "Select page size",
+                                        modifier = Modifier.size(16.dp)
+                                    )
+                                }
+                                
+                                DropdownMenu(
+                                    expanded = pageSizeExpanded,
+                                    onDismissRequest = { pageSizeExpanded = false }
+                                ) {
+                                    pageSizeOptions.forEach { size ->
+                                        DropdownMenuItem(
+                                            text = { Text("$size") },
+                                            onClick = {
+                                                pagination.setPageSize(size)
+                                                pageSizeExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        // Total rows info
+                        Text(
+                            "Total: ${pagination.totalRows} rows",
+                            style = MaterialTheme.typography.bodyMedium
+                        )
                     }
 
-                    Text("Page ${pagination.pageIndex + 1} of ${pagination.pageCount}")
-
-                    Button(
-                        onClick = pagination.nextPage,
-                        enabled = pagination.canNext
+                    // Second row: Navigation controls
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text("Next")
+                        // Previous button
+                        Button(
+                            onClick = pagination.previousPage,
+                            enabled = pagination.canPrev
+                        ) {
+                            Text("Previous")
+                        }
+
+                        // Page info and jump to page
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Page ${pagination.pageIndex + 1} of ${pagination.pageCount}")
+                            
+                            Text("|", color = MaterialTheme.colorScheme.outline)
+                            
+                            Text("Go to:", style = MaterialTheme.typography.bodyMedium)
+                            
+                            OutlinedTextField(
+                                value = jumpToPageText,
+                                onValueChange = { jumpToPageText = it.filter { char -> char.isDigit() } },
+                                modifier = Modifier.width(70.dp),
+                                singleLine = true,
+                                textStyle = MaterialTheme.typography.bodyMedium
+                            )
+                            
+                            Button(
+                                onClick = {
+                                    val targetPage = jumpToPageText.toIntOrNull()
+                                    if (targetPage != null && targetPage in 1..pagination.pageCount) {
+                                        pagination.setPageIndex(targetPage - 1)
+                                        jumpToPageText = ""
+                                    }
+                                },
+                                enabled = jumpToPageText.toIntOrNull()?.let { 
+                                    it in 1..pagination.pageCount 
+                                } == true
+                            ) {
+                                Text("Jump")
+                            }
+                        }
+
+                        // Next button
+                        Button(
+                            onClick = pagination.nextPage,
+                            enabled = pagination.canNext
+                        ) {
+                            Text("Next")
+                        }
                     }
                 }
             }
