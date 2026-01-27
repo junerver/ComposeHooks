@@ -14,8 +14,6 @@ import xyz.junerver.compose.hooks.useredux.useSelector
 import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.UseRequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
-import xyz.junerver.compose.hooks.usetable.Table
-import xyz.junerver.compose.hooks.usetable.TableInstance
 import xyz.junerver.compose.hooks.usetable.useTable
 
 /** 更符合 Compose 的函数命名方式 */
@@ -281,6 +279,5 @@ fun <T> rememberSorted(source: List<T>, optionsOf: UseSortedOptions<T>.() -> Uni
 //endregion
 
 //region useTable
-@Composable
-fun <T> rememberTable(): TableInstance<T> = Table.useTable()
+// Deprecated - useTable has moved to usetable package
 //endregion
