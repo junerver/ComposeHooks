@@ -122,7 +122,7 @@ data class UseRequestOptions<TParams, TData> internal constructor(
     @Stable
     var setCache: ((data: CachedData<TData>) -> Unit)? = null,
     @Stable
-    var getCache: ((params: TParams) -> CachedData<TData>)? = null,
+    var getCache: ((params: TParams) -> CachedData<TData>?)? = null,
     /**
      * By setting options.[loadingDelay], you can delay the time when [FetchState.loading] becomes true, effectively preventing flickering.
      * For example, when an interface normally returns quickly, if we use it conventionally, flickering will occur. After the request is initiated, it changes very quickly from false -> true -> false;

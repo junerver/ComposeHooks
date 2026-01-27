@@ -7,6 +7,8 @@ import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks._useState
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useLatestRef
+import xyz.junerver.compose.hooks.userequest.utils.CachedData
+import xyz.junerver.compose.hooks.utils.CacheManager
 
 /**
  * Paged request parameters.
@@ -163,6 +165,24 @@ fun <T> useTableRequest(
             manual = true
             defaultParams = PageParams(latestPage.current, latestPageSize.current)
             options.requestOptions(this)
+            // Per-page caching: if user set cacheKey, use custom cache functions
+            // to generate unique keys for each page
+            if (cacheKey.isNotEmpty()) {
+                val baseCacheKey = cacheKey
+                setCache = { cachedData ->
+                    val params = cachedData.params as? PageParams
+                    val key = if (params != null) {
+                        "${baseCacheKey}_p${params.page}_s${params.pageSize}"
+                    } else {
+                        baseCacheKey
+                    }
+                    CacheManager.saveCache(key, cacheTime, cachedData)
+                }
+                getCache = { params ->
+                    val key = "${baseCacheKey}_p${params.page}_s${params.pageSize}"
+                    CacheManager.getCache<TableResult<T>>(key)
+                }
+            }
         }
     )
 

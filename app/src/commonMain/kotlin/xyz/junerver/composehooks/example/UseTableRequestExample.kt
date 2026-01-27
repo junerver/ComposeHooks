@@ -19,6 +19,7 @@ import xyz.junerver.compose.hooks.userequest.useTableRequest
 import xyz.junerver.compose.hooks.usetable.core.column
 import xyz.junerver.compose.hooks.usetable.useTable
 import kotlin.math.ceil
+import kotlin.time.Duration.Companion.seconds
 
 /**
  * Example demonstrating useTableRequest hook.
@@ -52,6 +53,9 @@ fun UseTableRequestExample() {
         optionsOf = {
             initialPageSize = 5
             requestOptions = {
+                // Per-page caching: each page is cached independently
+                cacheKey = "users-table"
+                staleTime = 30.seconds
                 onSuccess = { data, _ ->
                     println("Loaded ${data?.rows?.size ?: 0} users")
                 }
