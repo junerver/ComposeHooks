@@ -5,8 +5,8 @@ description: |
   使用此技能当需要：(1) 在 Compose 中管理组件状态 (useState, useGetState, useReducer)，
   (2) 处理副作用和生命周期 (useEffect, useMount, useUnmount)，
   (3) 管理网络请求 (useRequest)，(4) 使用防抖/节流 (useDebounce, useThrottle)，
-  (5) 管理列表/Map状态 (useList, useMap)，(6) 使用定时器 (useInterval, useTimeout)，
-  (7) 全局状态管理 (useSelector, useDispatch)。
+  (5) 管理列表/Map状态 (useList, useMap)，(6) 使用定时器 (useInterval, useTimeoutFn/useTimeoutPoll/useCountdown)，
+  (7) 全局状态管理 (useSelector, useDispatch)，(8) 使用无头表格 (useTable/useTableRequest)。
   关键词: Compose, Hooks, 状态管理, useRequest, useReducer, useState, useEffect
 ---
 
@@ -54,7 +54,7 @@ ComposeHooks 是一个为 Jetpack Compose/Compose Multiplatform 设计的 Hooks 
 | `useDebounce` | 防抖值 | `val debouncedValue = useDebounce(value)` |
 | `useThrottle` | 节流值 | `val throttledValue = useThrottle(value)` |
 | `useInterval` | 定时器 | `useInterval { tick() }` |
-| `useTimeout` | 延时执行 | `useTimeoutFn(fn, 1.seconds)` |
+| `useTimeoutFn` | 延时执行 | `useTimeoutFn(fn, 1.seconds)` |
 | `useUndo` | 撤销/重做 | `val (state, set, reset, undo, redo) = useUndo(initial)` |
 
 ## 详细参考
@@ -63,6 +63,7 @@ ComposeHooks 是一个为 Jetpack Compose/Compose Multiplatform 设计的 Hooks 
 - **副作用 Hooks**: 见 [references/effect-hooks.md](references/effect-hooks.md)
 - **工具 Hooks**: 见 [references/utility-hooks.md](references/utility-hooks.md)
 - **网络请求 Hooks**: 见 [references/request-hooks.md](references/request-hooks.md)
+- **Table 相关 Hooks**: 见 [references/table-hooks.md](references/table-hooks.md)
 
 ## 常见模式
 

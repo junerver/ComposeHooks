@@ -50,22 +50,11 @@ useEffect(page, pageSize) {
 }
 ```
 
-### 清理函数
+### 注意事项
 
-useEffect 内部是协程作用域，使用 try-finally 进行清理：
+useEffect 只是协程作用域，**没有卸载清理回调**。需要卸载清理请用 useUnmount。
 
-```kotlin
-useEffect(Unit) {
-    val job = startBackgroundTask()
-    try {
-        // Effect body
-    } finally {
-        job.cancel()
-    }
-}
-```
-
-**注意**：useEffect 是 LaunchedEffect 的别名，内部是协程作用域，可以直接使用 suspend 函数。
+**说明**：useEffect 是 LaunchedEffect 的别名，内部是协程作用域，可以直接使用 suspend 函数。
 
 ---
 
@@ -305,14 +294,10 @@ useThrottleEffect(scroll) { updateHeader(scroll) }
 ### 2. 清理资源
 
 ```kotlin
-useEffect(key) {
-    val job = scope.launch { /* ... */ }
-    val listener = addListener { /* ... */ }
-
-    onCleanup {
-        job.cancel()
-        removeListener(listener)
-    }
+useUnmount {
+    // 组件卸载时清理资源
+    job.cancel()
+    removeListener(listener)
 }
 ```
 

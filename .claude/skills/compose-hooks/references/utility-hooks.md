@@ -5,7 +5,7 @@
 - [useDebounce / useDebounceFn](#usedebounce--usedebouncefn)
 - [useThrottle / useThrottleFn](#usethrottle--usethrottlefn)
 - [useInterval](#useinterval)
-- [useTimeout / useTimeoutFn](#usetimeout--usetimeoutfn)
+- [useTimeoutFn](#usetimeoutfn)
 - [useTimeoutPoll](#usetimeoutpoll)
 - [useCountdown](#usecountdown)
 - [useCounter](#usecounter)
@@ -136,20 +136,18 @@ optionsOf = {
 
 ---
 
-## useTimeout / useTimeoutFn
+## useTimeoutFn
 
 延时执行。
 
-### useTimeoutFn
-
 ```kotlin
-val (run, cancel, isPending) = useTimeoutFn(
+val (isPending, start, stop) = useTimeoutFn(
     fn = { showNotification() },
     interval = 3.seconds
 )
 
-run()      // 开始计时
-cancel()   // 取消
+start()      // 开始计时
+stop()       // 取消
 // isPending.value 表示是否在等待中
 ```
 
@@ -157,6 +155,7 @@ cancel()   // 取消
 ```kotlin
 useTimeoutFn(fn, interval, optionsOf = {
     immediate = false  // 是否立即开始
+    immediateCallback = false // 是否在开始时立即执行
 })
 ```
 
@@ -167,10 +166,12 @@ useTimeoutFn(fn, interval, optionsOf = {
 超时轮询，上一次任务完成后才开始下一次。
 
 ```kotlin
-val (run, cancel, isPolling) = useTimeoutPoll(
+val timeoutPoll = useTimeoutPoll(
     fn = { fetchData() },
     interval = 5.seconds
 )
+
+// timeoutPoll.isActive.value / timeoutPoll.pause() / timeoutPoll.resume()
 
 // 自动开始
 useTimeoutPoll(
@@ -188,7 +189,7 @@ useTimeoutPoll(
 
 ```kotlin
 val (countdown, formattedRes) = useCountdown {
-    targetDate = Clock.System.now() + 10.minutes
+    targetDate = Clock.System.now() + 10.minutes // kotlin.time.Clock
     interval = 1.seconds
     onEnd = { showComplete() }
 }
@@ -408,7 +409,7 @@ val now = useNow {
 // 自定义格式
 val now = useNow {
     interval = 1.seconds
-    format = { instant -> instant.toString() }
+    format = { epochMillis -> epochMillis.toString() }
 }
 ```
 
