@@ -6,7 +6,6 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks._useState
 import xyz.junerver.compose.hooks.useEffect
-import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 import xyz.junerver.compose.hooks.utils.CacheManager
 import xyz.junerver.compose.hooks.usetable.state.SortDescriptor
@@ -24,6 +23,19 @@ data class TableRequestParams(
     val globalFilter: String = "",
     val columnFilters: Map<String, Any?> = emptyMap()
 )
+
+private fun buildTableRequestCacheKey(baseKey: String, params: TableRequestParams): String {
+    val sortingKey = params.sorting.joinToString("|") { sort ->
+        "${sort.columnId}:${if (sort.desc) 1 else 0}"
+    }
+    val columnFiltersKey = params.columnFilters.entries
+        .sortedBy { it.key }
+        .joinToString("|") { (key, value) -> "$key=$value" }
+    val filterHash = listOf(sortingKey, params.globalFilter, columnFiltersKey)
+        .joinToString("#")
+        .hashCode()
+    return "${baseKey}_p${params.page}_s${params.pageSize}_f$filterHash"
+}
 
 /**
  * Standard table result container.
@@ -193,22 +205,15 @@ fun <T> useTableRequest(
     val globalFilterDep = if (options.triggerOnFilteringChange) currentGlobalFilter else null
     val columnFiltersDep = if (options.triggerOnFilteringChange) currentColumnFilters else null
 
-    // 3. Use refs for latest values
-    val latestPage = useLatestRef(currentPage)
-    val latestPageSize = useLatestRef(currentPageSize)
-    val latestSorting = useLatestRef(currentSorting)
-    val latestGlobalFilter = useLatestRef(currentGlobalFilter)
-    val latestColumnFilters = useLatestRef(currentColumnFilters)
-
-    val requestParams = TableRequestParams(
-        page = latestPage.current,
-        pageSize = latestPageSize.current,
-        sorting = latestSorting.current,
-        globalFilter = latestGlobalFilter.current,
-        columnFilters = latestColumnFilters.current
+    val requestParamsState = _useState(
+        TableRequestParams(
+            page = currentPage,
+            pageSize = currentPageSize,
+            sorting = currentSorting,
+            globalFilter = currentGlobalFilter,
+            columnFilters = currentColumnFilters
+        )
     )
-
-    val requestParamsState = _useState(requestParams)
 
     // 4. Use useRequest with manual mode (force manual to avoid duplicate auto-run)
     val requestHolder = useRequest<TableRequestParams, TableResult<T>>(
@@ -236,7 +241,7 @@ fun <T> useTableRequest(
                 val mergeFullKey = options.mergeCacheKey
                 val resolveKey: (TableRequestParams) -> String = { params ->
                     mergeFullKey?.invoke(baseCacheKey, params)
-                        ?: "${baseCacheKey}_p${params.page}_s${params.pageSize}"
+                        ?: buildTableRequestCacheKey(baseCacheKey, params)
                 }
                 val fallbackSetCache = setCache
                 val fallbackGetCache = getCache
@@ -266,11 +271,11 @@ fun <T> useTableRequest(
     // 5. Auto-fetch when pagination/sorting/filtering changes
     useEffect(currentPage, currentPageSize, sortingDeps, globalFilterDep, columnFiltersDep) {
         val newParams = TableRequestParams(
-            page = latestPage.current,
-            pageSize = latestPageSize.current,
-            sorting = latestSorting.current,
-            globalFilter = latestGlobalFilter.current,
-            columnFilters = latestColumnFilters.current
+            page = currentPage,
+            pageSize = currentPageSize,
+            sorting = currentSorting,
+            globalFilter = currentGlobalFilter,
+            columnFilters = currentColumnFilters
         )
         requestParamsState.value = newParams
         options.onRequestParams?.invoke(newParams)
@@ -310,7 +315,11 @@ fun <T> useTableRequest(
     }
 
     val setColumnFilter: (String, Any?) -> Unit = { columnId, value ->
-        columnFiltersState.value = columnFiltersState.value + (columnId to value)
+        columnFiltersState.value = if (value == null) {
+            columnFiltersState.value - columnId
+        } else {
+            columnFiltersState.value + (columnId to value)
+        }
     }
 
     val clearFilters: () -> Unit = {
