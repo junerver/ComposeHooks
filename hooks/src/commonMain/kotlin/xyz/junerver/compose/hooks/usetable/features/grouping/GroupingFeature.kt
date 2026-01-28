@@ -16,7 +16,7 @@ class GroupingFeature<T> : TableFeature<T> {
         // State wiring in Phase 7
     }
 
-    override suspend fun transform(
+    override fun transform(
         rows: List<Row<T>>,
         state: TableState<T>,
         columns: List<ColumnDef<T, *>>
@@ -28,15 +28,16 @@ class GroupingFeature<T> : TableFeature<T> {
         val groupColumn = columns.find { it.id == grouping.first() } ?: return rows
         
         val groups = rows.groupBy { row -> row.getValue(groupColumn) }
-        
+
         return groups.map { (groupValue, groupRows) ->
+            val groupKey = groupValue?.toString() ?: "null"
             Row(
-                id = "group-${groupValue.hashCode()}",
+                id = "group-${groupColumn.id}-$groupKey",
                 original = groupRows.first().original,
                 index = 0,
                 depth = 0,
                 subRows = groupRows,
-                metadata = mapOf("isGroupHeader" to true, "groupValue" to groupValue)
+                metadata = mapOf("isGroupHeader" to true, "groupValue" to groupValue, "groupKey" to groupKey)
             )
         }
     }

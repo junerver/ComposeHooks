@@ -16,7 +16,7 @@ class ColumnVisibilityFeature<T> : TableFeature<T> {
         // State wiring in Phase 7
     }
 
-    override suspend fun transform(
+    override fun transform(
         rows: List<Row<T>>,
         state: TableState<T>,
         columns: List<ColumnDef<T, *>>

@@ -4,13 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import kotlin.math.ceil
 import xyz.junerver.compose.hooks.createContext
-import xyz.junerver.compose.hooks.useContext
 import xyz.junerver.compose.hooks.usetable.core.ColumnDef
 import xyz.junerver.compose.hooks.usetable.core.Row
 import xyz.junerver.compose.hooks.usetable.state.TableState
+import xyz.junerver.compose.hooks.usetable.features.pagination.PaginationFeature
 
 /**
  * Internal table context for managing table state across components.
@@ -71,7 +69,8 @@ class TableScope<T>(val table: TableHolder<T>) {
     ) {
         val columns by table.columns
         val tableState by table.state
-        content(columns, tableState)
+        val visibleColumns = columns.filter { tableState.columnVisibility.columnVisibility[it.id] != false }
+        content(visibleColumns, tableState)
     }
 
     /**
@@ -103,11 +102,10 @@ class TableScope<T>(val table: TableHolder<T>) {
         val pageIndex = tableState.pagination.pageIndex
         val pageSize = tableState.pagination.pageSize
         val totalRows = rowModel.totalRows
-        
-        // Logic calculation for pagination
-        val pageCount = if (pageSize <= 0) 1 else ceil(totalRows.toDouble() / pageSize).toInt().coerceAtLeast(1)
-        val canNext = pageIndex < pageCount - 1
-        val canPrev = pageIndex > 0
+
+        val pageCount = PaginationFeature.pageCount(totalRows, pageSize)
+        val canNext = PaginationFeature.canNext(pageIndex, pageCount)
+        val canPrev = PaginationFeature.canPrev(pageIndex)
 
         val scope = PaginationScope(
             pageIndex = pageIndex,

@@ -1,6 +1,5 @@
 package xyz.junerver.compose.hooks.usetable.features.sorting
 
-import kotlinx.coroutines.test.runTest
 import xyz.junerver.compose.hooks.usetable.core.Row
 import xyz.junerver.compose.hooks.usetable.core.column
 import xyz.junerver.compose.hooks.usetable.state.SortDescriptor
@@ -32,7 +31,7 @@ class SortingFeatureTest {
     }
 
     @Test
-    fun `transform should sort rows by name ascending`() = runTest {
+    fun `transform should sort rows by name ascending`() {
         val feature = SortingFeature<User>()
         val rows = createRows(testData)
         
@@ -49,7 +48,7 @@ class SortingFeatureTest {
     }
 
     @Test
-    fun `transform should sort rows by age descending`() = runTest {
+    fun `transform should sort rows by age descending`() {
         val feature = SortingFeature<User>()
         val rows = createRows(testData)
         
@@ -66,7 +65,7 @@ class SortingFeatureTest {
     }
 
     @Test
-    fun `transform should support multi-column sorting`() = runTest {
+    fun `transform should support multi-column sorting`() {
         val feature = SortingFeature<User>()
         val rows = createRows(testData)
         
@@ -89,5 +88,26 @@ class SortingFeatureTest {
         
         assertEquals("Bob", result[2].original.name)
         assertEquals("Charlie", result[3].original.name)
+    }
+
+    @Test
+    fun `sorting should ignore disabled column`() {
+        val feature = SortingFeature<User>()
+        val rows = createRows(testData)
+        val disabledColumns = listOf(
+            column<User, String>("name", enableSorting = false) { it.name },
+            column<User, Int>("age", enableSorting = false) { it.age }
+        )
+
+        val state = TableState<User>(
+            sorting = SortingState(listOf(SortDescriptor("name", desc = false)))
+        )
+
+        val result = feature.transform(rows, state, disabledColumns)
+
+        assertEquals("Charlie", result[0].original.name)
+        assertEquals("Alice", result[1].original.name)
+        assertEquals("Bob", result[2].original.name)
+        assertEquals("Alice", result[3].original.name)
     }
 }

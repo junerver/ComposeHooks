@@ -36,8 +36,11 @@ import xyz.junerver.compose.hooks.useEffect
  * Gets the current system time as an [Instant].
  * This is a convenience property that wraps [Clock.System.now].
  */
+@PublishedApi
+internal var instantProvider: () -> Instant = { Clock.System.now() }
+
 internal val currentInstant: Instant
-    get() = Clock.System.now()
+    get() = instantProvider()
 
 /**
  * Gets the current local date and time using the system's default timezone.
@@ -304,3 +307,5 @@ fun String.isEmail(): Boolean {
     )
     return emailPattern.matches(this)
 }
+
+

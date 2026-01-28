@@ -81,13 +81,16 @@ private class TimeoutFn(private val options: UseTimeoutFnOptions) {
 
         scope.launch {
             isPendingState?.value = true
-            if (options.immediateCallback) {
-                timeoutFn.current(this)
-            } else {
-                delay(interval)
-                timeoutFn.current(this)
+            try {
+                if (options.immediateCallback) {
+                    timeoutFn.current(this)
+                } else {
+                    delay(interval)
+                    timeoutFn.current(this)
+                }
+            } finally {
+                isPendingState?.value = false
             }
-            isPendingState?.value = false
         }.also { timeoutJob = it }
     }
 

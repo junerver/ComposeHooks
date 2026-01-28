@@ -16,7 +16,7 @@ class FilteringFeature<T> : TableFeature<T> {
         // TODO: Register state and API
     }
 
-    override suspend fun transform(
+    override fun transform(
         rows: List<Row<T>>,
         state: TableState<T>,
         columns: List<ColumnDef<T, *>>
@@ -28,24 +28,24 @@ class FilteringFeature<T> : TableFeature<T> {
             return rows
         }
 
+        val filterableColumns = columns.filter { it.enableFiltering }
+        if (filterableColumns.isEmpty()) {
+            return rows
+        }
+
         return rows.filter { row ->
-            // 1. Column Filters
             val passColumnFilters = columnFilters.all { (colId, filterValue) ->
                 if (filterValue == null) return@all true
-                val column = columns.find { it.id == colId } ?: return@all true
-                
+                val column = filterableColumns.find { it.id == colId } ?: return@all true
+
                 val cellValue = row.getValue(column)
-                // Simple equality check for Phase 1. 
-                // Phase 3 refactor will add FilterFns (includes, equals, etc.)
                 cellValue.toString().contains(filterValue.toString(), ignoreCase = true)
             }
 
             if (!passColumnFilters) return@filter false
 
-            // 2. Global Filter
             if (globalFilter.isNotBlank()) {
-                // Search across all columns
-                return@filter columns.any { column ->
+                return@filter filterableColumns.any { column ->
                     val cellValue = row.getValue(column)
                     cellValue.toString().contains(globalFilter, ignoreCase = true)
                 }

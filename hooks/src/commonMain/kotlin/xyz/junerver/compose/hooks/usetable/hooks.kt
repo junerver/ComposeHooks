@@ -6,10 +6,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
-import xyz.junerver.compose.hooks.useContext
-import xyz.junerver.compose.hooks.useCreation
-import xyz.junerver.compose.hooks.useEffect
-import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.usetable.core.ColumnDef
 import xyz.junerver.compose.hooks.usetable.core.Row
@@ -34,7 +30,6 @@ import xyz.junerver.compose.hooks.usetable.state.RowSelectionState
 import xyz.junerver.compose.hooks.usetable.state.SortDescriptor
 import xyz.junerver.compose.hooks.usetable.state.SortingState
 import xyz.junerver.compose.hooks.usetable.state.TableState
-import kotlin.math.ceil
 
 /**
  * Configuration options for the table.
@@ -278,24 +273,14 @@ fun <T> useTable(
     val processedRows = remember(coreRows, tableState.sorting, tableState.filtering, tableState.grouping, columns, featuresList) {
         val pipeline = RowModelPipeline(featuresList)
         kotlin.runCatching {
-            kotlinx.coroutines.runBlocking {
-                pipeline.execute(coreRows, tableState, columns)
-            }
+            pipeline.execute(coreRows, tableState, columns)
         }.getOrElse { coreRows }
     }
 
-    // Apply Pagination manually to get final rows
-    val paginatedRows = remember(processedRows, tableState.pagination.pageIndex, tableState.pagination.pageSize, options.enablePagination) {
+    // Apply Pagination to get final rows
+    val paginatedRows = remember(processedRows, tableState.pagination, options.enablePagination) {
         if (options.enablePagination) {
-            val pageIndex = tableState.pagination.pageIndex
-            val pageSize = tableState.pagination.pageSize
-            if (pageSize <= 0) processedRows else {
-                val start = (pageIndex * pageSize).coerceAtLeast(0)
-                if (start >= processedRows.size) emptyList() else {
-                    val end = kotlin.math.min(start + pageSize, processedRows.size)
-                    processedRows.subList(start, end)
-                }
-            }
+            PaginationFeature.paginate(processedRows, tableState.pagination)
         } else {
             processedRows
         }
@@ -303,9 +288,7 @@ fun <T> useTable(
     
     // Calculate page count based on filtered rows (before pagination)
     val pageCount = derivedStateOf {
-        val totalRows = processedRows.size
-        val pageSize = tableState.pagination.pageSize
-        if (pageSize <= 0) 1 else ceil(totalRows.toDouble() / pageSize).toInt()
+        PaginationFeature.pageCount(processedRows.size, tableState.pagination.pageSize)
     }
     
     // Wire up pagination navigation functions
@@ -329,7 +312,7 @@ fun <T> useTable(
     val rowModel = remember(paginatedRows, processedRows) {
         RowModel(
             rows = paginatedRows,
-            flatRows = paginatedRows,
+            flatRows = processedRows,
             totalRows = processedRows.size
         )
     }

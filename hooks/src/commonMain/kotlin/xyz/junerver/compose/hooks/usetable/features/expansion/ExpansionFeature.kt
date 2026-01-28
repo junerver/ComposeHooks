@@ -16,7 +16,7 @@ class ExpansionFeature<T> : TableFeature<T> {
         // State wiring will be done in Phase 7 (useTable hook)
     }
 
-    override suspend fun transform(
+    override fun transform(
         rows: List<Row<T>>,
         state: TableState<T>,
         columns: List<ColumnDef<T, *>>

@@ -21,9 +21,11 @@ import xyz.junerver.compose.hooks.utils.CacheManager
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class UseCachePluginTest {
+    private fun uniqueKey(prefix: String): String = "$prefix-${kotlin.random.Random.nextInt()}"
+
     @Test
     fun cacheManager_saveCache_stores_data_correctly() {
-        val key = "test_save_${System.currentTimeMillis()}"
+        val key = uniqueKey("test_save")
         val data = CachedData("test_data", "params")
 
         val result = CacheManager.saveCache(key, 10.seconds, data)
@@ -37,7 +39,7 @@ class UseCachePluginTest {
 
     @Test
     fun cacheManager_getCache_returns_null_for_nonexistent_key() {
-        val key = "nonexistent_key_${System.currentTimeMillis()}"
+        val key = uniqueKey("nonexistent_key")
 
         val cached = CacheManager.getCache<String>(key)
 
@@ -46,7 +48,7 @@ class UseCachePluginTest {
 
     @Test
     fun cacheManager_saveCache_with_negative_duration_stores_permanently() {
-        val key = "permanent_cache_${System.currentTimeMillis()}"
+        val key = uniqueKey("permanent_cache")
         val data = CachedData("permanent_data")
 
         val result = CacheManager.saveCache(key, (-1).seconds, data)
@@ -59,7 +61,7 @@ class UseCachePluginTest {
 
     @Test
     fun cacheManager_saveCache_with_zero_duration_returns_false() {
-        val key = "zero_duration_${System.currentTimeMillis()}"
+        val key = uniqueKey("zero_duration")
         val data = CachedData("zero_data")
 
         val result = CacheManager.saveCache(key, 0.seconds, data)
@@ -72,8 +74,8 @@ class UseCachePluginTest {
 
     @Test
     fun cacheManager_clearCache_removes_specified_keys() {
-        val key1 = "clear_test_1_${System.currentTimeMillis()}"
-        val key2 = "clear_test_2_${System.currentTimeMillis()}"
+        val key1 = uniqueKey("clear_test_1")
+        val key2 = uniqueKey("clear_test_2")
 
         CacheManager.saveCache(key1, "data1")
         CacheManager.saveCache(key2, "data2")
@@ -92,7 +94,7 @@ class UseCachePluginTest {
 
     @Test
     fun cacheManager_getCache_with_default_returns_default_for_missing() {
-        val key = "missing_with_default_${System.currentTimeMillis()}"
+        val key = uniqueKey("missing_with_default")
 
         val result = CacheManager.getCache(key, "default_value")
 
@@ -101,7 +103,7 @@ class UseCachePluginTest {
 
     @Test
     fun cacheManager_saveCache_overwrites_existing_data() {
-        val key = "overwrite_test_${System.currentTimeMillis()}"
+        val key = uniqueKey("overwrite_test")
 
         CacheManager.saveCache(key, "first_value")
         CacheManager.saveCache(key, "second_value")
@@ -131,9 +133,9 @@ class UseCachePluginTest {
 
     @Test
     fun cacheManager_handles_different_data_types() {
-        val stringKey = "string_type_${System.currentTimeMillis()}"
-        val intKey = "int_type_${System.currentTimeMillis()}"
-        val listKey = "list_type_${System.currentTimeMillis()}"
+        val stringKey = uniqueKey("string_type")
+        val intKey = uniqueKey("int_type")
+        val listKey = uniqueKey("list_type")
 
         CacheManager.saveCache(stringKey, "string_value")
         CacheManager.saveCache(intKey, 42)
@@ -146,7 +148,7 @@ class UseCachePluginTest {
 
     @Test
     fun cacheManager_saveCache_with_cachedData_preserves_params() {
-        val key = "params_test_${System.currentTimeMillis()}"
+        val key = uniqueKey("params_test")
         val params = mapOf("page" to 1, "size" to 10)
         val data = CachedData("response_data", params)
 
@@ -159,7 +161,7 @@ class UseCachePluginTest {
 
     @Test
     fun cacheManager_concurrent_access_is_safe() = runTest {
-        val key = "concurrent_${System.currentTimeMillis()}"
+        val key = uniqueKey("concurrent")
         var successCount = 0
 
         // Simulate concurrent writes
@@ -178,7 +180,7 @@ class UseCachePluginTest {
 
     @Test
     fun cacheManager_handles_null_params_in_cachedData() {
-        val key = "null_params_${System.currentTimeMillis()}"
+        val key = uniqueKey("null_params")
         val data = CachedData("data_without_params", null)
 
         CacheManager.saveCache(key, 10.seconds, data)
@@ -190,7 +192,7 @@ class UseCachePluginTest {
 
     @Test
     fun cacheManager_clearCache_with_multiple_keys() {
-        val keys = (1..5).map { "multi_clear_${it}_${System.currentTimeMillis()}" }
+        val keys = (1..5).map { uniqueKey("multi_clear_$it") }
 
         // Save all
         keys.forEach { CacheManager.saveCache(it, "value") }
@@ -206,7 +208,7 @@ class UseCachePluginTest {
 
     @Test
     fun cacheManager_getCache_typed_returns_correct_type() {
-        val key = "typed_cache_${System.currentTimeMillis()}"
+        val key = uniqueKey("typed_cache")
         val data = CachedData(listOf("a", "b", "c"))
 
         CacheManager.saveCache(key, 10.seconds, data)

@@ -17,7 +17,7 @@ interface TableFeature<T> {
      * Transform the row model.
      * Now includes [columns] to allow features to look up column definitions (e.g. for sorting/filtering).
      */
-    suspend fun transform(
+    fun transform(
         rows: List<Row<T>>,
         state: TableState<T>,
         columns: List<ColumnDef<T, *>>

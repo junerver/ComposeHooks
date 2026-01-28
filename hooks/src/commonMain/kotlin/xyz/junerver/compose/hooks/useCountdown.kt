@@ -49,17 +49,17 @@ private fun useCountdown(options: UseCountdownOptions): CountdownHolder {
     require(leftTime.asBoolean() || targetDate.asBoolean()) {
         "'leftTime' or 'targetDate' must be set"
     }
-    val leftTimeState = useLatestState(leftTime)
-    val targetDateState = useLatestState(targetDate)
-    val target by useState {
-        if (leftTimeState.value.asBoolean()) {
-            currentInstant + leftTimeState.value!!
-        } else {
-            targetDateState.value
-        }
-    }
+    val targetRef = useRef<Instant?>(null)
+    val (timeLeft, setTimeLeft) = useGetState(Duration.ZERO)
 
-    val (timeLeft, setTimeLeft) = useGetState(calcLeft(target))
+    useEffect(leftTime, targetDate) {
+        targetRef.current = if (leftTime.asBoolean()) {
+            currentInstant + leftTime
+        } else {
+            targetDate
+        }
+        setTimeLeft(calcLeft(targetRef.current))
+    }
     val onEndRef by useLatestRef(value = onEnd)
     var pauseRef by useRef(default = {})
     val (resume, pause) = useInterval(
@@ -67,27 +67,27 @@ private fun useCountdown(options: UseCountdownOptions): CountdownHolder {
             period = interval
         },
     ) {
-        val targetLeft = calcLeft(target)
+        val targetLeft = calcLeft(targetRef.current)
         setTimeLeft(targetLeft)
         if (targetLeft == Duration.ZERO) {
             pauseRef()
             onEndRef?.invoke()
         }
     }
-    useEffect(targetDate) {
+    useEffect(targetRef.current) {
         resume()
     }
     pauseRef = pause
     useEffect(interval) {
-        if (!target.asBoolean()) {
+        if (!targetRef.current.asBoolean()) {
             setTimeLeft(Duration.ZERO)
             return@useEffect
         }
-        setTimeLeft(calcLeft(target))
+        setTimeLeft(calcLeft(targetRef.current))
         resume()
     }
-    val formatRes = useState { parseDuration(timeLeft.value) }
-    return remember { CountdownHolder(timeLeft, formatRes) }
+    val formatResState = useState(timeLeft.value) { parseDuration(timeLeft.value) }
+    return remember { CountdownHolder(timeLeft, formatResState) }
 }
 
 /**

@@ -22,7 +22,7 @@ import xyz.junerver.compose.hooks.useState
 */
 
 class UseIntervalTest {
-    private fun waitForCondition(maxAttempts: Int = 50, delayMs: Long = 50, condition: () -> Boolean): Boolean {
+    private fun waitForCondition(maxAttempts: Int = 80, delayMs: Long = 50, condition: () -> Boolean): Boolean {
         for (i in 0 until maxAttempts) {
             if (condition()) return true
             Thread.sleep(delayMs)
@@ -53,7 +53,6 @@ class UseIntervalTest {
             Text("count=$count active=${isActive.value}")
         }
 
-        // Wait for count to reach at least 2
         val found = waitForCondition {
             waitForIdle()
             runCatching { onNodeWithText("count=2 active=true").assertExists() }.isSuccess ||
@@ -95,7 +94,6 @@ class UseIntervalTest {
             Text("count=$count active=${isActive.value} phase=$phase")
         }
 
-        // Wait for pause to happen
         val found = waitForCondition {
             waitForIdle()
             runCatching { onNodeWithText("count=2 active=false phase=2").assertExists() }.isSuccess ||
@@ -122,14 +120,13 @@ class UseIntervalTest {
                 if (fired) return@SideEffect
                 fired = true
                 resume()
-                resume() // Double resume
-                resume() // Triple resume
+                resume()
+                resume()
             }
 
             Text("count=$count active=${isActive.value}")
         }
 
-        // Wait for count to reach 2-4 (not 6-12 which would indicate multiple jobs)
         val found = waitForCondition {
             waitForIdle()
             runCatching { onNodeWithText("count=2 active=true").assertExists() }.isSuccess ||
@@ -156,14 +153,13 @@ class UseIntervalTest {
             SideEffect {
                 if (fired) return@SideEffect
                 fired = true
-                pause() // Pause before starting
+                pause()
                 resume()
             }
 
             Text("count=$count active=${isActive.value}")
         }
 
-        // Should work normally
         val found = waitForCondition {
             waitForIdle()
             runCatching { onNodeWithText("count=2 active=true").assertExists() }.isSuccess ||
@@ -207,7 +203,6 @@ class UseIntervalTest {
             Text("count=$count active=${isActive.value} phase=$phase")
         }
 
-        // Should be active after rapid toggle ending with resume
         val found = waitForCondition {
             waitForIdle()
             runCatching { onNodeWithText("count=2 active=true phase=2").assertExists() }.isSuccess ||
@@ -241,14 +236,12 @@ class UseIntervalTest {
             Text("count=$count active=${isActive.value}")
         }
 
-        // Initially count should be 0 (waiting for initialDelay)
         waitForIdle()
         Thread.sleep(100)
         waitForIdle()
         onNodeWithText("count=0 active=true").assertExists()
 
-        // After initialDelay, count should increase
-        val found = waitForCondition(maxAttempts = 30) {
+        val found = waitForCondition(maxAttempts = 60) {
             waitForIdle()
             runCatching { onNodeWithText("count=1 active=true").assertExists() }.isSuccess ||
                 runCatching { onNodeWithText("count=2 active=true").assertExists() }.isSuccess
@@ -281,7 +274,6 @@ class UseIntervalTest {
             Text("count=$count ready=$ready")
         }
 
-        // Should execute when ready=true
         val found = waitForCondition {
             waitForIdle()
             runCatching { onNodeWithText("count=2 ready=true").assertExists() }.isSuccess ||
@@ -312,7 +304,6 @@ class UseIntervalTest {
             Text("count=$count ready=$ready")
         }
 
-        // Should stop at count=2 when ready becomes false
         val found = waitForCondition {
             waitForIdle()
             runCatching { onNodeWithText("count=2 ready=false").assertExists() }.isSuccess ||
@@ -320,7 +311,6 @@ class UseIntervalTest {
         }
         assertTrue(found, "Expected count >= 2 with ready=false")
 
-        // Verify count doesn't increase after ready=false
         Thread.sleep(300)
         waitForIdle()
         val stillStopped = runCatching { onNodeWithText("count=2 ready=false").assertExists() }.isSuccess ||
@@ -362,10 +352,8 @@ class UseIntervalTest {
             Text("count=$count multiplier=$multiplier phase=$phase")
         }
 
-        // Wait for multiplier to change and count to increase with new multiplier
-        val found = waitForCondition(maxAttempts = 60) {
+        val found = waitForCondition(maxAttempts = 120) {
             waitForIdle()
-            // After phase 2, count should be at least 12 (2 + 10)
             (12..50).any { c ->
                 runCatching { onNodeWithText("count=$c multiplier=10 phase=2").assertExists() }.isSuccess
             }

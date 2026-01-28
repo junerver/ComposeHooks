@@ -1,6 +1,5 @@
 package xyz.junerver.compose.hooks.usetable.features.filtering
 
-import kotlinx.coroutines.test.runTest
 import xyz.junerver.compose.hooks.usetable.core.Row
 import xyz.junerver.compose.hooks.usetable.core.column
 import xyz.junerver.compose.hooks.usetable.state.FilteringState
@@ -30,7 +29,7 @@ class FilteringFeatureTest {
     }
 
     @Test
-    fun `Global filter should search across all columns`() = runTest {
+    fun `Global filter should search across all columns`() {
         val feature = FilteringFeature<User>()
         val rows = createRows(testData)
         
@@ -47,7 +46,7 @@ class FilteringFeatureTest {
     }
 
     @Test
-    fun `Column filter should filter specific column`() = runTest {
+    fun `Column filter should filter specific column`() {
         val feature = FilteringFeature<User>()
         val rows = createRows(testData)
         
@@ -62,5 +61,43 @@ class FilteringFeatureTest {
 
         assertEquals(1, result.size)
         assertEquals("Bob", result[0].original.name)
+    }
+
+    @Test
+    fun `Column filter should ignore disabled column`() {
+        val feature = FilteringFeature<User>()
+        val rows = createRows(testData)
+        val disabledColumns = listOf(
+            column<User, String>("name", enableFiltering = false) { it.name },
+            column<User, String>("email", enableFiltering = false) { it.email }
+        )
+
+        val state = TableState<User>(
+            filtering = FilteringState(
+                columnFilters = mapOf("name" to "Alice")
+            )
+        )
+
+        val result = feature.transform(rows, state, disabledColumns)
+
+        assertEquals(3, result.size)
+    }
+
+    @Test
+    fun `Global filter should ignore disabled columns`() {
+        val feature = FilteringFeature<User>()
+        val rows = createRows(testData)
+        val disabledColumns = listOf(
+            column<User, String>("name", enableFiltering = false) { it.name },
+            column<User, String>("email", enableFiltering = false) { it.email }
+        )
+
+        val state = TableState<User>(
+            filtering = FilteringState(globalFilter = "Alice")
+        )
+
+        val result = feature.transform(rows, state, disabledColumns)
+
+        assertEquals(3, result.size)
     }
 }

@@ -23,9 +23,7 @@ class UseFormValidationTriggerTest {
         val formInstance = FormInstance()
         val formRef = FormRef()
         val ref = MutableRef(formRef)
-        val field = FormInstance::class.java.getDeclaredField("formRef")
-        field.isAccessible = true
-        field.set(formInstance, ref)
+        formInstance.formRef = ref
         return formInstance to formRef
     }
 

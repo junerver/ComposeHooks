@@ -16,7 +16,7 @@ class RowModelPipeline<T>(
     /**
      * Execute the pipeline transformations in order.
      */
-    suspend fun execute(
+    fun execute(
         rows: List<Row<T>>,
         state: TableState<T>,
         columns: List<ColumnDef<T, *>>

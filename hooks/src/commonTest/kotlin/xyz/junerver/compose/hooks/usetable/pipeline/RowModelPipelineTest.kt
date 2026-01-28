@@ -1,7 +1,6 @@
 package xyz.junerver.compose.hooks.usetable.pipeline
 
 import androidx.compose.runtime.Composable
-import kotlinx.coroutines.test.runTest
 import xyz.junerver.compose.hooks.usetable.core.Row
 import xyz.junerver.compose.hooks.usetable.core.TableFeature
 import xyz.junerver.compose.hooks.usetable.core.TableInstance
@@ -14,7 +13,7 @@ class RowModelPipelineTest {
     data class TestData(val value: String)
 
     @Test
-    fun `Pipeline should execute features by priority order`() = runTest {
+    fun `Pipeline should execute features by priority order`() {
         val executionOrder = mutableListOf<String>()
         
         // Feature with priority 200 (should run second)
@@ -25,7 +24,7 @@ class RowModelPipelineTest {
             @Composable
             override fun initState(instance: TableInstance<TestData>) {}
             
-            override suspend fun transform(
+            override fun transform(
                 rows: List<Row<TestData>>, 
                 state: TableState<TestData>,
                 columns: List<xyz.junerver.compose.hooks.usetable.core.ColumnDef<TestData, *>>
@@ -43,7 +42,7 @@ class RowModelPipelineTest {
             @Composable
             override fun initState(instance: TableInstance<TestData>) {}
             
-            override suspend fun transform(
+            override fun transform(
                 rows: List<Row<TestData>>, 
                 state: TableState<TestData>,
                 columns: List<xyz.junerver.compose.hooks.usetable.core.ColumnDef<TestData, *>>

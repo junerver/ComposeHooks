@@ -22,7 +22,7 @@ class RowSelectionFeature<T> : TableFeature<T> {
         // TODO: Register API
     }
 
-    override suspend fun transform(
+    override fun transform(
         rows: List<Row<T>>,
         state: TableState<T>,
         columns: List<ColumnDef<T, *>>
