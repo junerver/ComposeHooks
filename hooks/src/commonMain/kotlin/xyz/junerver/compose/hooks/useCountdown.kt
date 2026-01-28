@@ -52,14 +52,6 @@ private fun useCountdown(options: UseCountdownOptions): CountdownHolder {
     val targetRef = useRef<Instant?>(null)
     val (timeLeft, setTimeLeft) = useGetState(Duration.ZERO)
 
-    useEffect(leftTime, targetDate) {
-        targetRef.current = if (leftTime.asBoolean()) {
-            currentInstant + leftTime
-        } else {
-            targetDate
-        }
-        setTimeLeft(calcLeft(targetRef.current))
-    }
     val onEndRef by useLatestRef(value = onEnd)
     var pauseRef by useRef(default = {})
     val (resume, pause) = useInterval(
@@ -74,11 +66,13 @@ private fun useCountdown(options: UseCountdownOptions): CountdownHolder {
             onEndRef?.invoke()
         }
     }
-    useEffect(targetRef.current) {
-        resume()
-    }
     pauseRef = pause
-    useEffect(interval) {
+    useEffect(leftTime, targetDate, interval) {
+        targetRef.current = if (leftTime.asBoolean()) {
+            currentInstant + leftTime
+        } else {
+            targetDate
+        }
         if (!targetRef.current.asBoolean()) {
             setTimeLeft(Duration.ZERO)
             return@useEffect
@@ -86,7 +80,7 @@ private fun useCountdown(options: UseCountdownOptions): CountdownHolder {
         setTimeLeft(calcLeft(targetRef.current))
         resume()
     }
-    val formatResState = useState(timeLeft.value) { parseDuration(timeLeft.value) }
+    val formatResState = useState(timeLeft) { parseDuration(timeLeft.value) }
     return remember { CountdownHolder(timeLeft, formatResState) }
 }
 

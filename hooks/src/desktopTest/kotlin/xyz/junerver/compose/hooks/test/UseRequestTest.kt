@@ -30,6 +30,14 @@ import xyz.junerver.compose.hooks.userequest.useRequest
   Version: v1.0
 */
 class UseRequestTest {
+    private fun waitForCondition(maxAttempts: Int = 80, delayMs: Long = 50, condition: () -> Boolean): Boolean {
+        for (i in 0 until maxAttempts) {
+            if (condition()) return true
+            Thread.sleep(delayMs)
+        }
+        return false
+    }
+
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun autoRun_runs_once_with_defaultParams_and_not_rerun_on_recompose() = runComposeUiTest {
@@ -297,10 +305,8 @@ class UseRequestTest {
             Text("data=${holder.data.value}")
         }
 
-        waitForIdle()
-        Thread.sleep(200)
-        waitForIdle()
-
+        val found = waitForCondition { callCount.get() == 1 }
+        assertTrue(found, "Expected debounce to invoke once")
         assertEquals(1, callCount.get())
         assertEquals(listOf("abc"), receivedParams)
     }

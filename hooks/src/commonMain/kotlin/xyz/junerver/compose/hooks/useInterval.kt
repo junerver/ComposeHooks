@@ -9,6 +9,7 @@ import kotlin.properties.Delegates
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -55,31 +56,29 @@ private class Interval(private val options: UseIntervalOptions) {
     var scope: CoroutineScope by Delegates.notNull()
     var isActiveState: MutableState<Boolean>? = null
     lateinit var intervalFn: Ref<SuspendAsyncFn>
-    private lateinit var intervalJob: Job
+    private var intervalJob: Job? = null
 
-    fun isRunning() = this::intervalJob.isInitialized && intervalJob.isActive
+    fun isRunning() = intervalJob?.isActive == true
 
     fun resume() {
         if (ready) {
-            scope.launch {
-                if (isRunning()) return@launch
-                launch {
-                    delay(options.initialDelay)
-                    while (isActive) {
-                        intervalFn.current(this)
-                        delay(options.period)
-                    }
-                }.also {
-                    intervalJob = it
-                    isActiveState?.value = true
+            if (isRunning()) return
+            scope.launch(Dispatchers.Default) {
+                delay(options.initialDelay)
+                while (isActive) {
+                    intervalFn.current(this)
+                    delay(options.period)
                 }
+            }.also {
+                intervalJob = it
+                isActiveState?.value = true
             }
         }
     }
 
     fun pause() {
-        if (this::intervalJob.isInitialized && intervalJob.isActive) {
-            intervalJob.cancel()
+        if (intervalJob?.isActive == true) {
+            intervalJob?.cancel()
             isActiveState?.value = false
         }
     }

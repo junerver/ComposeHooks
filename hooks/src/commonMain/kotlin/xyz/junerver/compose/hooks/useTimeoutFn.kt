@@ -9,6 +9,7 @@ import kotlin.properties.Delegates
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -79,7 +80,7 @@ private class TimeoutFn(private val options: UseTimeoutFnOptions) {
             stop()
         }
 
-        scope.launch {
+        scope.launch(Dispatchers.Default) {
             isPendingState?.value = true
             try {
                 if (options.immediateCallback) {

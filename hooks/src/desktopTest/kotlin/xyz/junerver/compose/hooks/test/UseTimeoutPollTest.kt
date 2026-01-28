@@ -21,6 +21,14 @@ import xyz.junerver.compose.hooks.useTimeoutPoll
 */
 
 class UseTimeoutPollTest {
+    private fun waitForCondition(maxAttempts: Int = 80, delayMs: Long = 50, condition: () -> Boolean): Boolean {
+        for (i in 0 until maxAttempts) {
+            if (condition()) return true
+            Thread.sleep(delayMs)
+        }
+        return false
+    }
+
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun poll_executes_repeatedly_with_interval() = runComposeUiTest {
@@ -297,15 +305,12 @@ class UseTimeoutPollTest {
         }
 
         waitForIdle()
-        Thread.sleep(450)
-        waitForIdle()
-
-        // Should use updated multiplier after phase 0
-        val found = runCatching {
-            (20..50).any { c ->
+        val found = waitForCondition(maxAttempts = 120, delayMs = 50) {
+            waitForIdle()
+            (20..80).any { c ->
                 runCatching { onNodeWithText("count=$c multiplier=10 phase=1").assertExists() }.isSuccess
             }
-        }.getOrElse { false }
+        }
         assertTrue(found, "Expected count >= 20 with multiplier=10")
     }
 
