@@ -49,7 +49,7 @@ fun UseTableRequestExample() {
 
     // 1. Use useTableRequest for data fetching
     val tableRequest = useTableRequest<User>(
-        requestFn = { page, pageSize -> mockApiRequest(page, pageSize) },
+        requestFn = { params -> mockApiRequest(params.page, params.pageSize) },
         optionsOf = {
             initialPageSize = 5
             requestOptions = {

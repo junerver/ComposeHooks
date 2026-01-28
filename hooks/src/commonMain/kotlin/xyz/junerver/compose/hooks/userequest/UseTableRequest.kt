@@ -9,6 +9,7 @@ import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 import xyz.junerver.compose.hooks.utils.CacheManager
+import xyz.junerver.compose.hooks.usetable.state.SortDescriptor
 
 /**
  * Paged request parameters.
@@ -16,9 +17,12 @@ import xyz.junerver.compose.hooks.utils.CacheManager
  * @param page Page index (0-based)
  * @param pageSize Number of items per page
  */
-data class PageParams(
+data class TableRequestParams(
     val page: Int = 0,
-    val pageSize: Int = 10
+    val pageSize: Int = 10,
+    val sorting: List<SortDescriptor> = emptyList(),
+    val globalFilter: String = "",
+    val columnFilters: Map<String, Any?> = emptyMap()
 )
 
 /**
@@ -41,6 +45,13 @@ data class TableResult<T>(
  * Options for useTableRequest hook.
  */
 class UseTableRequestOptions<TData : Any> {
+    var initialSorting: List<SortDescriptor> = emptyList()
+    var initialGlobalFilter: String = ""
+    var initialColumnFilters: Map<String, Any?> = emptyMap()
+
+    var triggerOnSortingChange: Boolean = true
+    var triggerOnFilteringChange: Boolean = true
+
     /**
      * Initial page number (default: 0)
      */
@@ -54,7 +65,11 @@ class UseTableRequestOptions<TData : Any> {
     /**
      * All useRequest options (cacheKey, staleTime, onSuccess, etc.)
      */
-    var requestOptions: UseRequestOptions<PageParams, TData>.() -> Unit = {}
+    var requestOptions: UseRequestOptions<TableRequestParams, TData>.() -> Unit = {}
+    var mergeCacheKey: ((baseKey: String, params: TableRequestParams) -> String)? = null
+    var setCache: ((data: CachedData<TData>) -> Unit)? = null
+    var getCache: ((params: TableRequestParams) -> CachedData<TData>?)? = null
+    var onRequestParams: ((TableRequestParams) -> Unit)? = null
 }
 
 /**
@@ -75,12 +90,23 @@ data class TableRequestHolder<T>(
     val pageSize: State<Int>,
     val total: State<Int>,
 
+    // Sorting & filtering states
+    val sorting: State<List<SortDescriptor>>,
+    val globalFilter: State<String>,
+    val columnFilters: State<Map<String, Any?>>,
+
     // Request controls
     val refresh: () -> Unit,
     val cancel: () -> Unit,
 
     // Pagination controls
-    val onPageChange: (page: Int, pageSize: Int) -> Unit
+    val onPageChange: (page: Int, pageSize: Int) -> Unit,
+
+    // Sorting & filtering controls
+    val setSorting: (List<SortDescriptor>) -> Unit,
+    val setGlobalFilter: (String) -> Unit,
+    val setColumnFilter: (String, Any?) -> Unit,
+    val clearFilters: () -> Unit
 )
 
 /**
@@ -92,7 +118,7 @@ data class TableRequestHolder<T>(
  *
  * ## Key Design Principles:
  * 1. **Standard Container**: TableResult<T> abstracts away API response differences
- * 2. **Fixed Function Signature**: (page, pageSize) -> TableResult<T>
+ * 2. **Fixed Function Signature**: TableRequestParams -> TableResult<T>
  * 3. **User Does Mapping**: Convert API response to TableResult in requestFn
  * 4. **Avoid Unnecessary Recompositions**: rows wrapped in State
  *
@@ -103,8 +129,8 @@ data class TableRequestHolder<T>(
  *
  * // Use the hook - map API response to TableResult
  * val tableRequest = useTableRequest<User>(
- *     requestFn = { page, pageSize ->
- *         val response = api.getUsers(page, pageSize)
+ *     requestFn = { params ->
+ *         val response = api.getUsers(params.page, params.pageSize)
  *         // Map your API format to TableResult (plain data class)
  *         TableResult(
  *             rows = response.items,
@@ -138,12 +164,12 @@ data class TableRequestHolder<T>(
  * ```
  *
  * @param T Row data type
- * @param requestFn Async function: (page, pageSize) -> TableResult<T>
+ * @param requestFn Async function: (params) -> TableResult<T>
  * @param optionsOf Configuration DSL
  */
 @Composable
 fun <T> useTableRequest(
-    requestFn: suspend (page: Int, pageSize: Int) -> TableResult<T>,
+    requestFn: suspend (params: TableRequestParams) -> TableResult<T>,
     optionsOf: UseTableRequestOptions<TableResult<T>>.() -> Unit = {}
 ): TableRequestHolder<T> {
     val options = UseTableRequestOptions<TableResult<T>>().apply(optionsOf)
@@ -154,45 +180,104 @@ fun <T> useTableRequest(
     val currentPage = pageState.value
     val currentPageSize = pageSizeState.value
 
-    // 2. Use refs for latest pagination values
+    // 2. Sorting & filtering state
+    val sortingState = _useState(options.initialSorting)
+    val globalFilterState = _useState(options.initialGlobalFilter)
+    val columnFiltersState = _useState(options.initialColumnFilters)
+
+    val currentSorting = sortingState.value
+    val currentGlobalFilter = globalFilterState.value
+    val currentColumnFilters = columnFiltersState.value
+
+    val sortingDeps = if (options.triggerOnSortingChange) currentSorting else null
+    val globalFilterDep = if (options.triggerOnFilteringChange) currentGlobalFilter else null
+    val columnFiltersDep = if (options.triggerOnFilteringChange) currentColumnFilters else null
+
+    // 3. Use refs for latest values
     val latestPage = useLatestRef(currentPage)
     val latestPageSize = useLatestRef(currentPageSize)
+    val latestSorting = useLatestRef(currentSorting)
+    val latestGlobalFilter = useLatestRef(currentGlobalFilter)
+    val latestColumnFilters = useLatestRef(currentColumnFilters)
 
-    // 3. Use useRequest with manual mode
-    val requestHolder = useRequest<PageParams, TableResult<T>>(
-        requestFn = { params -> requestFn(params.page, params.pageSize) },
+    val requestParams = TableRequestParams(
+        page = latestPage.current,
+        pageSize = latestPageSize.current,
+        sorting = latestSorting.current,
+        globalFilter = latestGlobalFilter.current,
+        columnFilters = latestColumnFilters.current
+    )
+
+    val requestParamsState = _useState(requestParams)
+
+    // 4. Use useRequest with manual mode (force manual to avoid duplicate auto-run)
+    val requestHolder = useRequest<TableRequestParams, TableResult<T>>(
+        requestFn = requestFn,
         optionsOf = {
-            manual = true
-            defaultParams = PageParams(latestPage.current, latestPageSize.current)
             options.requestOptions(this)
-            // Per-page caching: if user set cacheKey, use custom cache functions
-            // to generate unique keys for each page
+            manual = true
+            defaultParams = requestParamsState.value
+
+            val customTableSetCache = options.setCache
+            val customTableGetCache = options.getCache
+            if (customTableSetCache != null) {
+                setCache = { cachedData ->
+                    customTableSetCache(cachedData)
+                }
+            }
+            if (customTableGetCache != null) {
+                getCache = { params ->
+                    customTableGetCache(params)
+                }
+            }
+
             if (cacheKey.isNotEmpty()) {
                 val baseCacheKey = cacheKey
+                val mergeFullKey = options.mergeCacheKey
+                val resolveKey: (TableRequestParams) -> String = { params ->
+                    mergeFullKey?.invoke(baseCacheKey, params)
+                        ?: "${baseCacheKey}_p${params.page}_s${params.pageSize}"
+                }
+                val fallbackSetCache = setCache
+                val fallbackGetCache = getCache
                 setCache = { cachedData ->
-                    val params = cachedData.params as? PageParams
+                    val params = cachedData.params as? TableRequestParams
                     val key = if (params != null) {
-                        "${baseCacheKey}_p${params.page}_s${params.pageSize}"
+                        resolveKey(params)
                     } else {
-                        baseCacheKey
+                        resolveKey(requestParamsState.value)
                     }
                     CacheManager.saveCache(key, cacheTime, cachedData)
+                    fallbackSetCache?.invoke(cachedData)
                 }
                 getCache = { params ->
-                    val key = "${baseCacheKey}_p${params.page}_s${params.pageSize}"
+                    val key = resolveKey(params)
                     CacheManager.getCache<TableResult<T>>(key)
+                        ?: fallbackGetCache?.invoke(params)
                 }
             }
         }
     )
 
-    // 4. Auto-fetch when pagination changes
-    useEffect(currentPage, currentPageSize) {
-        val pageParams = PageParams(latestPage.current, latestPageSize.current)
-        requestHolder.request(pageParams)
+    val refresh: () -> Unit = {
+        requestHolder.request(requestParamsState.value)
     }
 
-    // 5. Extract rows and total from TableResult (now plain data, wrap in State at Holder level)
+    // 5. Auto-fetch when pagination/sorting/filtering changes
+    useEffect(currentPage, currentPageSize, sortingDeps, globalFilterDep, columnFiltersDep) {
+        val newParams = TableRequestParams(
+            page = latestPage.current,
+            pageSize = latestPageSize.current,
+            sorting = latestSorting.current,
+            globalFilter = latestGlobalFilter.current,
+            columnFilters = latestColumnFilters.current
+        )
+        requestParamsState.value = newParams
+        options.onRequestParams?.invoke(newParams)
+        requestHolder.request(newParams)
+    }
+
+    // 6. Extract rows and total from TableResult (now plain data, wrap in State at Holder level)
     val rows = remember(requestHolder.data.value) {
         derivedStateOf {
             requestHolder.data.value?.rows ?: emptyList()
@@ -205,7 +290,7 @@ fun <T> useTableRequest(
         }
     }
 
-    // 6. Pagination controls
+    // 7. Pagination controls
     val onPageChange: (Int, Int) -> Unit = { newPage, newSize ->
         if (newSize != currentPageSize) {
             pageSizeState.value = newSize
@@ -215,23 +300,63 @@ fun <T> useTableRequest(
         }
     }
 
-    // 7. Return holder
+    // 8. Sorting & filtering controls
+    val setSorting: (List<SortDescriptor>) -> Unit = { sorting ->
+        sortingState.value = sorting
+    }
+
+    val setGlobalFilter: (String) -> Unit = { filter ->
+        globalFilterState.value = filter
+    }
+
+    val setColumnFilter: (String, Any?) -> Unit = { columnId, value ->
+        columnFiltersState.value = columnFiltersState.value + (columnId to value)
+    }
+
+    val clearFilters: () -> Unit = {
+        columnFiltersState.value = emptyMap()
+        globalFilterState.value = ""
+    }
+
+    // 9. Return holder
     return TableRequestHolder(
         rows = rows,
         isLoading = requestHolder.isLoading,
         error = requestHolder.error,
-        refresh = requestHolder.refresh,
-        cancel = requestHolder.cancel,
         currentPage = pageState,
         pageSize = pageSizeState,
         total = total,
-        onPageChange = onPageChange
+        sorting = sortingState,
+        globalFilter = globalFilterState,
+        columnFilters = columnFiltersState,
+        refresh = refresh,
+        cancel = requestHolder.cancel,
+        onPageChange = onPageChange,
+        setSorting = setSorting,
+        setGlobalFilter = setGlobalFilter,
+        setColumnFilter = setColumnFilter,
+        clearFilters = clearFilters
     )
 }
 
 /**
  * Alias for [useTableRequest] following Compose naming convention.
  */
+@Composable
+fun <T> rememberTableRequest(
+    requestFn: suspend (params: TableRequestParams) -> TableResult<T>,
+    optionsOf: UseTableRequestOptions<TableResult<T>>.() -> Unit = {}
+): TableRequestHolder<T> = useTableRequest(requestFn, optionsOf)
+
+@Composable
+fun <T> useTableRequest(
+    requestFn: suspend (page: Int, pageSize: Int) -> TableResult<T>,
+    optionsOf: UseTableRequestOptions<TableResult<T>>.() -> Unit = {}
+): TableRequestHolder<T> = useTableRequest(
+    requestFn = { params: TableRequestParams -> requestFn(params.page, params.pageSize) },
+    optionsOf = optionsOf
+)
+
 @Composable
 fun <T> rememberTableRequest(
     requestFn: suspend (page: Int, pageSize: Int) -> TableResult<T>,

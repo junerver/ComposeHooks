@@ -307,5 +307,3 @@ fun String.isEmail(): Boolean {
     )
     return emailPattern.matches(this)
 }
-
-
