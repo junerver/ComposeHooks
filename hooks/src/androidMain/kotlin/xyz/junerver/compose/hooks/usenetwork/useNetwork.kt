@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:function-naming")
+
 package xyz.junerver.compose.hooks.usenetwork
 
 import androidx.compose.runtime.Composable

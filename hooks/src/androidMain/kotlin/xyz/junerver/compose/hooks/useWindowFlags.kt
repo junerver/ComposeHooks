@@ -1,9 +1,8 @@
 package xyz.junerver.compose.hooks
 
-import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.platform.LocalContext
+import androidx.activity.compose.LocalActivity
 
 /*
   Description:
@@ -15,8 +14,8 @@ import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun useWindowFlags(key: String, flags: Int): Triple<AddFlagsFn, ClearFlagsFn, IsFlagsAdded> {
-    val window = (LocalContext.current as Activity).window
-    val isFlagSet = (window.attributes.flags and flags) != 0
+    val window = LocalActivity.current?.window
+    val isFlagSet = window?.let { (it.attributes.flags and flags) != 0 } ?: false
     val (isAdded, setIsAdded) = usePersistent(
         key = key,
         defaultValue = isFlagSet,
@@ -24,12 +23,12 @@ fun useWindowFlags(key: String, flags: Int): Triple<AddFlagsFn, ClearFlagsFn, Is
     )
 
     fun addFlags() {
-        window.addFlags(flags)
+        window?.addFlags(flags)
         setIsAdded(true)
     }
 
     fun clearFlags() {
-        window.clearFlags(flags)
+        window?.clearFlags(flags)
         setIsAdded(false)
     }
 

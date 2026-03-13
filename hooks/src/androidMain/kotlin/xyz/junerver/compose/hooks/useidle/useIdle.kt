@@ -1,13 +1,12 @@
 package xyz.junerver.compose.hooks.useidle
 
-import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalContext
+import androidx.activity.compose.LocalActivity
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
@@ -22,10 +21,11 @@ import kotlin.time.Instant
 
 @Composable
 fun useIdle(timeout: Duration = 5.seconds): State<IdleInfo> {
-    val window = (LocalContext.current as Activity).window
-    val originalCallback = remember { window.callback }
+    val window = LocalActivity.current?.window
+    val originalCallback = remember(window) { window?.callback }
     val scope = rememberCoroutineScope()
     return produceState(initialValue = IdleInfo()) {
+        if (window == null || originalCallback == null) return@produceState
         val inactivityCallback =
             InactivityWindowCallback(originalCallback, scope, timeout) { i, i2 ->
                 value = IdleInfo(i, i2)

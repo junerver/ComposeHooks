@@ -100,6 +100,10 @@ kotlin {
     }
 }
 
+tasks.matching { it.name == "lintKotlinCommonMain" || it.name == "formatKotlinCommonMain" }.configureEach {
+    dependsOn("kspCommonMainKotlinMetadata")
+}
+
 android {
     namespace = "xyz.junerver.composehooks"
     compileSdk = 36

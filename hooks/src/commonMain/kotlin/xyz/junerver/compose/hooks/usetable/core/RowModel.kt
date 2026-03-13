@@ -18,9 +18,7 @@ data class Row<T>(
     /**
      * Get value from a column using its accessor.
      */
-    fun <V> getValue(column: ColumnDef<T, V>): V {
-        return column.accessorFn(original)
-    }
+    fun <V> getValue(column: ColumnDef<T, V>): V = column.accessorFn(original)
 }
 
 /**

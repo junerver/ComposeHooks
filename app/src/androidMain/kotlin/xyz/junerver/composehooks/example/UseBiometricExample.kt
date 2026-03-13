@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:function-naming")
+
 package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.layout.Column

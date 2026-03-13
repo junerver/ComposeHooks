@@ -8,9 +8,7 @@ import androidx.compose.runtime.Composable
 import xyz.junerver.compose.hooks.usedeviceinfo.*
 import xyz.junerver.compose.hooks.usevibrate.useVibrate
 
-/** 更符合 Compose 的函数命名方式 */
-
-//region useDeviceInfo
+//region useDeviceInfo - 更符合 Compose 的函数命名方式
 @Composable
 fun rememberBatteryInfo() = useBatteryInfo()
 

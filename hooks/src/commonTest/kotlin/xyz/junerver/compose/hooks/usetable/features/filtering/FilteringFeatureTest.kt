@@ -22,11 +22,10 @@ class FilteringFeatureTest {
         column<User, String>("email") { it.email }
     )
 
-    private fun createRows(data: List<User>): List<Row<User>> {
-        return data.mapIndexed { index, user ->
+    private fun createRows(data: List<User>): List<Row<User>> =
+        data.mapIndexed { index, user ->
             Row(id = index.toString(), original = user, index = index)
         }
-    }
 
     @Test
     fun `Global filter should search across all columns`() {

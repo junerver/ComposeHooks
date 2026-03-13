@@ -24,11 +24,10 @@ class SortingFeatureTest {
         column<User, Int>("age") { it.age }
     )
 
-    private fun createRows(data: List<User>): List<Row<User>> {
-        return data.mapIndexed { index, user ->
+    private fun createRows(data: List<User>): List<Row<User>> =
+        data.mapIndexed { index, user ->
             Row(id = index.toString(), original = user, index = index)
         }
-    }
 
     @Test
     fun `transform should sort rows by name ascending`() {
@@ -71,10 +70,12 @@ class SortingFeatureTest {
         
         // Sort by Name ASC, then Age ASC
         val state = TableState<User>(
-            sorting = SortingState(listOf(
-                SortDescriptor("name", desc = false),
-                SortDescriptor("age", desc = false)
-            ))
+            sorting = SortingState(
+                listOf(
+                    SortDescriptor("name", desc = false),
+                    SortDescriptor("age", desc = false),
+                ),
+            ),
         )
 
         val result = feature.transform(rows, state, columns)
@@ -85,7 +86,7 @@ class SortingFeatureTest {
         
         assertEquals("Alice", result[1].original.name)
         assertEquals(25, result[1].original.age)
-        
+
         assertEquals("Bob", result[2].original.name)
         assertEquals("Charlie", result[3].original.name)
     }

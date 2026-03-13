@@ -22,23 +22,19 @@ class PaginationFeature<T> : TableFeature<T> {
         rows: List<Row<T>>,
         state: TableState<T>,
         columns: List<ColumnDef<T, *>>
-    ): List<Row<T>> {
-        return paginate(rows, state.pagination)
-    }
+    ): List<Row<T>> = paginate(rows, state.pagination)
 
     companion object {
-        fun pageCount(totalRows: Int, pageSize: Int): Int {
-            if (pageSize <= 0) return 1
-            return ceil(totalRows.toDouble() / pageSize).toInt().coerceAtLeast(1)
-        }
+        fun pageCount(totalRows: Int, pageSize: Int): Int =
+            if (pageSize <= 0) {
+                1
+            } else {
+                ceil(totalRows.toDouble() / pageSize).toInt().coerceAtLeast(1)
+            }
 
-        fun canNext(pageIndex: Int, pageCount: Int): Boolean {
-            return pageIndex < pageCount - 1
-        }
+        fun canNext(pageIndex: Int, pageCount: Int): Boolean = pageIndex < pageCount - 1
 
-        fun canPrev(pageIndex: Int): Boolean {
-            return pageIndex > 0
-        }
+        fun canPrev(pageIndex: Int): Boolean = pageIndex > 0
 
         fun <T> paginate(rows: List<Row<T>>, pagination: PaginationState): List<Row<T>> {
             val pageSize = pagination.pageSize

@@ -1,12 +1,4 @@
-buildscript {
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath(libs.kotlin.compiler.embeddable)
-    }
-}
+import org.gradle.api.tasks.SourceTask
 
 plugins {
     alias(libs.plugins.android.application) apply false
@@ -23,5 +15,15 @@ plugins {
 }
 
 allprojects {
-    apply(plugin = rootProject.libs.plugins.kotlinter.get().pluginId)
+    if (path != ":app") {
+        apply(plugin = rootProject.libs.plugins.kotlinter.get().pluginId)
+    }
+
+    tasks
+        .matching { it.name.startsWith("lintKotlin") || it.name.startsWith("formatKotlin") }
+        .configureEach {
+            if (this is SourceTask) {
+                exclude("**/build/**")
+            }
+        }
 }

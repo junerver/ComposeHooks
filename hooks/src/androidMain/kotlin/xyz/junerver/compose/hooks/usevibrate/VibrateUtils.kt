@@ -7,7 +7,7 @@ import android.os.Vibrator
 import android.os.VibratorManager
 import androidx.core.content.getSystemService
 
-/**
+/*
  * @author 海盐芝士不加糖
  */
 

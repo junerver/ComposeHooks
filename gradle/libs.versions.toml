@@ -1,7 +1,7 @@
 [versions]
-agp = "8.9.3"
-kotlin = "2.2.21"
-ksp = "2.2.21-2.0.4"
+agp = "8.13.2"
+kotlin = "2.3.10"
+ksp = "2.3.6"
 
 arrowCore = "2.1.2"
 kotlin-multiplatform-appdirs = "1.1.1"
@@ -16,8 +16,8 @@ android-biometric = "1.2.0-alpha05"
 compose-navigation = "2.7.0-alpha07"
 compose-lifecycle = "2.9.1"
 
-compose-plugin = "1.8.2"
-compose-hot-reload = "1.0.0-beta04"
+compose-plugin = "1.10.2"
+compose-hot-reload = "1.1.0-beta01"
 material-icons = "1.7.3"
 kotlinx-datetime = "0.7.1"
 kotlinx-collections-immutable = "0.4.0"
@@ -84,7 +84,7 @@ android-application = { id = "com.android.application", version.ref = "agp" }
 jetbrains-kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
 android-library = { id = "com.android.library", version.ref = "agp" }
 maven-publish = { id = "com.vanniktech.maven.publish", version = "0.33.0" }
-kotlinter = { id = "org.jmailen.kotlinter", version = "4.5.0" }
+    kotlinter = { id = "org.jmailen.kotlinter", version = "5.3.0" }
 dokka = { id = "org.jetbrains.dokka", version = "2.0.0" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 jetbrains-compose = { id = "org.jetbrains.compose", version.ref = "compose-plugin" }
