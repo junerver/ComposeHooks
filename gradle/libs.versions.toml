@@ -13,10 +13,10 @@ android-appcompat = "1.7.1"
 activity-compose = "1.10.1"
 android-biometric = "1.2.0-alpha05"
 
-compose-navigation = "2.7.0-alpha07"
-compose-lifecycle = "2.9.1"
+compose-navigation = "2.9.2"
+compose-lifecycle = "2.10.0"
 
-compose-plugin = "1.10.2"
+compose-plugin = "1.10.3"
 compose-hot-reload = "1.1.0-beta01"
 material-icons = "1.7.3"
 kotlinx-datetime = "0.7.1"
@@ -42,6 +42,7 @@ material-icons-extended = { group = "org.jetbrains.compose.material", name = "ma
 # composeX
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activity-compose" }
 compose-lifecycle-viewmodel = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "compose-lifecycle" }
+compose-lifecycle-viewmodel-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-viewmodel-compose", version.ref = "compose-lifecycle" }
 compose-lifecycle-runtime-compose = { group = "org.jetbrains.androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "compose-lifecycle" }
 compose-navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "compose-navigation" }
 

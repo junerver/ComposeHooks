@@ -79,6 +79,7 @@ kotlin {
                 implementation(libs.material.icons.core)
                 implementation(libs.material.icons.extended)
                 implementation(libs.compose.lifecycle.viewmodel)
+                implementation(libs.compose.lifecycle.viewmodel.compose)
                 implementation(libs.compose.lifecycle.runtime.compose)
 
                 implementation(libs.compose.navigation.compose)
