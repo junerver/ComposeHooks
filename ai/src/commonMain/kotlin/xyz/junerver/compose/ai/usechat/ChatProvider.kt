@@ -153,13 +153,35 @@ sealed class Providers : ChatProvider {
             systemPrompt: String?,
             tools: List<Tool<*>>,
             toolChoice: ToolChoice,
+        ): String = buildOpenAIRequestBody(
+            messages = messages,
+            model = model,
+            stream = stream,
+            temperature = temperature,
+            maxTokens = maxTokens,
+            systemPrompt = systemPrompt,
+            tools = tools,
+            toolChoice = toolChoice,
+        )
+
+        internal fun buildOpenAIRequestBody(
+            messages: List<ChatMessage>,
+            model: String,
+            stream: Boolean,
+            temperature: Float?,
+            maxTokens: Int?,
+            systemPrompt: String?,
+            tools: List<Tool<*>>,
+            toolChoice: ToolChoice,
+            thinking: ThinkingConfig? = null,
+            reasoningEffort: String? = null,
+            includeReasoningContent: Boolean = true,
         ): String {
             val allMessages = buildList {
                 systemPrompt?.let { add(systemMessage(it)) }
                 addAll(messages)
             }
 
-            // Convert tools to OpenAI format
             val openAITools = if (tools.isNotEmpty()) {
                 tools.map { tool ->
                     OpenAITool(
@@ -175,30 +197,26 @@ sealed class Providers : ChatProvider {
                 null
             }
 
-            // Convert toolChoice to OpenAI format
             val openAIToolChoice = when (toolChoice) {
                 is ToolChoice.Auto -> JsonPrimitive("auto")
                 is ToolChoice.None -> JsonPrimitive("none")
                 is ToolChoice.Required -> JsonPrimitive("required")
                 is ToolChoice.Specific -> buildJsonObject {
                     put("type", "function")
-                    put(
-                        "function",
-                        buildJsonObject {
-                            put("name", toolChoice.name)
-                        },
-                    )
+                    put("function", buildJsonObject { put("name", toolChoice.name) })
                 }
             }.takeIf { tools.isNotEmpty() }
 
             val request = ChatCompletionRequest(
                 model = model,
-                messages = allMessages.toRequestMessages(),
+                messages = allMessages.toRequestMessages(includeReasoningContent),
                 stream = stream,
                 temperature = temperature,
                 maxTokens = maxTokens,
                 tools = openAITools,
                 toolChoice = openAIToolChoice,
+                thinking = thinking,
+                reasoningEffort = reasoningEffort,
             )
             return json.encodeToString(ChatCompletionRequest.serializer(), request)
         }
@@ -216,6 +234,7 @@ sealed class Providers : ChatProvider {
                 val delta = choice?.delta
                 val content = delta?.content ?: ""
                 val role = delta?.role
+                val reasoningContent = delta?.reasoningContent ?: ""
                 val finishReason = choice?.finishReason
                 val toolCalls = delta?.toolCalls.orEmpty()
 
@@ -229,6 +248,10 @@ sealed class Providers : ChatProvider {
                                 usage = chunk.usage,
                             ),
                         )
+                    }
+
+                    if (reasoningContent.isNotEmpty()) {
+                        add(StreamEvent.ReasoningDelta(text = reasoningContent))
                     }
 
                     toolCalls.forEach { tc ->
@@ -260,6 +283,7 @@ sealed class Providers : ChatProvider {
             val finishReason = choice.finishReason?.let { FinishReason.fromString(it) }
 
             val contentParts = buildList<AssistantContentPart> {
+                choice.message.reasoningContent?.takeIf { it.isNotEmpty() }?.let { add(ReasoningPart(it)) }
                 choice.message.content?.takeIf { it.isNotEmpty() }?.let { add(TextPart(it)) }
 
                 choice.message.toolCalls.orEmpty().forEach { tc ->
@@ -307,13 +331,35 @@ sealed class Providers : ChatProvider {
     data class DeepSeek(
         override val apiKey: String,
         override val baseUrl: String = "https://api.deepseek.com",
-        override val defaultModel: String = "deepseek-chat",
+        override val defaultModel: String = "deepseek-v4-flash",
     ) : OpenAICompatible(
             name = "DeepSeek",
             baseUrl = baseUrl,
             apiKey = apiKey,
             defaultModel = defaultModel,
+        ) {
+        override fun buildRequestBody(
+            messages: List<ChatMessage>,
+            model: String,
+            stream: Boolean,
+            temperature: Float?,
+            maxTokens: Int?,
+            systemPrompt: String?,
+            tools: List<Tool<*>>,
+            toolChoice: ToolChoice,
+        ): String = buildOpenAIRequestBody(
+            messages = messages,
+            model = model,
+            stream = stream,
+            temperature = temperature,
+            maxTokens = maxTokens,
+            systemPrompt = systemPrompt,
+            tools = tools,
+            toolChoice = toolChoice,
+            thinking = ThinkingConfig.Enabled,
+            reasoningEffort = "high",
         )
+    }
 
     /** Moonshot (月之暗面) - OpenAI compatible */
     data class Moonshot(
@@ -379,13 +425,34 @@ sealed class Providers : ChatProvider {
     data class MiMo(
         override val apiKey: String,
         override val baseUrl: String = "https://api.xiaomimimo.com/v1",
-        override val defaultModel: String = "mimo-v2-flash",
+        override val defaultModel: String = "mimo-v2.5",
     ) : OpenAICompatible(
             name = "MiMo",
             baseUrl = baseUrl,
             apiKey = apiKey,
             defaultModel = defaultModel,
+        ) {
+        override fun buildRequestBody(
+            messages: List<ChatMessage>,
+            model: String,
+            stream: Boolean,
+            temperature: Float?,
+            maxTokens: Int?,
+            systemPrompt: String?,
+            tools: List<Tool<*>>,
+            toolChoice: ToolChoice,
+        ): String = buildOpenAIRequestBody(
+            messages = messages,
+            model = model,
+            stream = stream,
+            temperature = temperature,
+            maxTokens = maxTokens,
+            systemPrompt = systemPrompt,
+            tools = tools,
+            toolChoice = toolChoice,
+            thinking = ThinkingConfig.Enabled,
         )
+    }
 
     // endregion
 

@@ -428,14 +428,6 @@ class ChatProviderTest {
     // region Provider Defaults Tests
 
     @Test
-    fun testDeepSeekDefaults() {
-        val provider = Providers.DeepSeek(apiKey = "test")
-        assertEquals("DeepSeek", provider.name)
-        assertEquals("https://api.deepseek.com", provider.baseUrl)
-        assertEquals("deepseek-chat", provider.defaultModel)
-    }
-
-    @Test
     fun testMoonshotDefaults() {
         val provider = Providers.Moonshot(apiKey = "test")
         assertEquals("Moonshot", provider.name)
@@ -494,6 +486,101 @@ class ChatProviderTest {
         val headers = provider.buildAuthHeaders()
         assertEquals("Bearer test-token", headers["Authorization"])
         assertNull(headers["anthropic-version"])
+    }
+
+    // endregion
+
+    // region Thinking Mode Tests
+
+    @Test
+    fun testDeepSeekDefaults() {
+        val provider = Providers.DeepSeek(apiKey = "test")
+        assertEquals("DeepSeek", provider.name)
+        assertEquals("https://api.deepseek.com", provider.baseUrl)
+        assertEquals("deepseek-v4-flash", provider.defaultModel)
+    }
+
+    @Test
+    fun testMiMoDefaults() {
+        val provider = Providers.MiMo(apiKey = "test")
+        assertEquals("MiMo", provider.name)
+        assertEquals("https://api.xiaomimimo.com/v1", provider.baseUrl)
+        assertEquals("mimo-v2.5", provider.defaultModel)
+    }
+
+    @Test
+    fun testDeepSeekThinkingMode() {
+        val provider = Providers.DeepSeek(apiKey = "test")
+        val messages = listOf(userMessage("Hello"))
+        val body = provider.buildRequestBody(
+            messages = messages,
+            model = "deepseek-v4-flash",
+            stream = true,
+            temperature = null,
+            maxTokens = null,
+            systemPrompt = null,
+        )
+        val jsonBody = json.parseToJsonElement(body).jsonObject
+        assertNotNull(jsonBody["thinking"], "DeepSeek should include thinking config")
+        assertEquals("enabled", jsonBody["thinking"]!!.jsonObject["type"]!!.jsonPrimitive.content)
+        assertNotNull(jsonBody["reasoning_effort"], "DeepSeek should include reasoning_effort")
+        assertEquals("high", jsonBody["reasoning_effort"]!!.jsonPrimitive.content)
+    }
+
+    @Test
+    fun testMiMoThinkingMode() {
+        val provider = Providers.MiMo(apiKey = "test")
+        val messages = listOf(userMessage("Hello"))
+        val body = provider.buildRequestBody(
+            messages = messages,
+            model = "mimo-v2.5",
+            stream = true,
+            temperature = null,
+            maxTokens = null,
+            systemPrompt = null,
+        )
+        val jsonBody = json.parseToJsonElement(body).jsonObject
+        assertNotNull(jsonBody["thinking"], "MiMo should include thinking config")
+        assertEquals("enabled", jsonBody["thinking"]!!.jsonObject["type"]!!.jsonPrimitive.content)
+        assertNull(jsonBody["reasoning_effort"], "MiMo should not include reasoning_effort")
+    }
+
+    @Test
+    fun testStandardProviderNoThinkingMode() {
+        val provider = Providers.OpenAI(apiKey = "test")
+        val messages = listOf(userMessage("Hello"))
+        val body = provider.buildRequestBody(
+            messages = messages,
+            model = "gpt-4o-mini",
+            stream = true,
+            temperature = null,
+            maxTokens = null,
+            systemPrompt = null,
+        )
+        val jsonBody = json.parseToJsonElement(body).jsonObject
+        assertNull(jsonBody["thinking"], "OpenAI should not include thinking config")
+        assertNull(jsonBody["reasoning_effort"], "OpenAI should not include reasoning_effort")
+    }
+
+    @Test
+    fun testReasoningContentInStreamParsing() {
+        val provider = Providers.DeepSeek(apiKey = "test")
+        val chunk = """{"id":"1","object":"chat.completion.chunk","created":1,"model":"deepseek-v4-flash","choices":[{"index":0,"delta":{"reasoning_content":"Let me think..."},"finish_reason":null}]}"""
+        val event = provider.parseStreamLine("data: $chunk")
+        assertNotNull(event)
+        assertTrue(event is StreamEvent.ReasoningDelta, "Should parse reasoning_content as ReasoningDelta")
+        assertEquals("Let me think...", (event as StreamEvent.ReasoningDelta).text)
+    }
+
+    @Test
+    fun testReasoningContentInNonStreamingResponse() {
+        val provider = Providers.DeepSeek(apiKey = "test")
+        val response = """{"id":"1","object":"chat.completion","created":1,"model":"deepseek-v4-flash","choices":[{"index":0,"message":{"role":"assistant","content":"The answer is 42.","reasoning_content":"Let me calculate..."},"finish_reason":"stop"}]}"""
+        val result = provider.parseResponse(response)
+        val parts = result.message.content
+        val reasoningParts = parts.filterIsInstance<ReasoningPart>()
+        assertEquals(1, reasoningParts.size)
+        assertEquals("Let me calculate...", reasoningParts[0].text)
     }
 
     // endregion

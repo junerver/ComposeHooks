@@ -1,5 +1,6 @@
 package xyz.junerver.compose.ai.usechat
 
+import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
@@ -28,6 +29,7 @@ import kotlinx.serialization.json.put
 /**
  * Request body for OpenAI chat completions API.
  */
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 internal data class ChatCompletionRequest(
     val model: String,
@@ -39,11 +41,43 @@ internal data class ChatCompletionRequest(
     val tools: List<OpenAITool>? = null,
     @SerialName("tool_choice")
     val toolChoice: JsonElement? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val thinking: ThinkingConfig? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    @SerialName("reasoning_effort")
+    val reasoningEffort: String? = null,
 )
+
+@Serializable(with = ThinkingConfigSerializer::class)
+internal data class ThinkingConfig(
+    val type: String,
+) {
+    companion object {
+        val Enabled = ThinkingConfig(type = "enabled")
+        val Disabled = ThinkingConfig(type = "disabled")
+    }
+}
+
+internal object ThinkingConfigSerializer : KSerializer<ThinkingConfig> {
+    override val descriptor: SerialDescriptor = buildClassSerialDescriptor("ThinkingConfig")
+
+    override fun serialize(encoder: Encoder, value: ThinkingConfig) {
+        val jsonEncoder = encoder as JsonEncoder
+        jsonEncoder.encodeJsonElement(
+            buildJsonObject {
+                put("type", value.type)
+            },
+        )
+    }
+
+    override fun deserialize(decoder: Decoder): ThinkingConfig =
+        throw NotImplementedError("Deserialization not needed for request models")
+}
 
 /**
  * Message format for OpenAI API requests with multimodal and tool support.
  */
+@OptIn(ExperimentalSerializationApi::class)
 @Serializable
 internal data class ChatMessageRequest(
     val role: String,
@@ -53,6 +87,9 @@ internal data class ChatMessageRequest(
     val toolCalls: List<OpenAIToolCall>? = null,
     @SerialName("tool_call_id")
     val toolCallId: String? = null,
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    @SerialName("reasoning_content")
+    val reasoningContent: String? = null,
 )
 
 /**
@@ -189,6 +226,8 @@ internal data class ChatMessageResponse(
     val content: String? = null,
     @SerialName("tool_calls")
     val toolCalls: List<OpenAIToolCall>? = null,
+    @SerialName("reasoning_content")
+    val reasoningContent: String? = null,
 )
 
 // endregion
@@ -228,6 +267,8 @@ internal data class ChunkDelta(
     val content: String? = null,
     @SerialName("tool_calls")
     val toolCalls: List<ChunkToolCall>? = null,
+    @SerialName("reasoning_content")
+    val reasoningContent: String? = null,
 )
 
 @Serializable
@@ -281,7 +322,7 @@ class OpenAIException(
  * Converts a list of ChatMessage to ChatMessageRequest format for API calls.
  * Supports multimodal content (text, images) and tool calls.
  */
-internal fun List<ChatMessage>.toRequestMessages(): List<ChatMessageRequest> = map { msg ->
+internal fun List<ChatMessage>.toRequestMessages(includeReasoningContent: Boolean = true): List<ChatMessageRequest> = map { msg ->
     when (msg) {
         is UserMessage -> ChatMessageRequest(
             role = "user",
@@ -309,6 +350,7 @@ internal fun List<ChatMessage>.toRequestMessages(): List<ChatMessageRequest> = m
                         ?.let { ChatMessageContent.Text(msg.textContent) }
                 },
                 toolCalls = toolCalls,
+                reasoningContent = msg.reasoningContent?.takeIf { includeReasoningContent && toolCalls != null },
             )
         }
         is SystemMessage -> ChatMessageRequest(
