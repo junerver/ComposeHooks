@@ -47,6 +47,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import xyz.junerver.compose.ai.invoke
 import xyz.junerver.compose.ai.useagent.ToolChoice
+import xyz.junerver.compose.ai.useagent.flattenSchema
 import xyz.junerver.compose.ai.useagent.tool
 import xyz.junerver.compose.ai.useagent.useAgent
 import xyz.junerver.compose.ai.usechat.AssistantMessage
@@ -119,7 +120,7 @@ fun UseAgentExample() {
         tool<GetTimeParams>(
             name = "get_time",
             description = "Get current time. Optionally provide a timezone string.",
-            parameters = GetTimeParams::class.jsonSchemaString,
+            parameters = GetTimeParams::class.jsonSchema.flattenSchema(),
         ) { params ->
             buildJsonObject {
                 put("timezone", JsonPrimitive(params.timezone ?: "local"))
@@ -133,7 +134,7 @@ fun UseAgentExample() {
         tool<AddParams>(
             name = "add",
             description = "Add two integers and return the sum.",
-            parameters = AddParams::class.jsonSchemaString,
+            parameters = AddParams::class.jsonSchema.flattenSchema(),
         ) { params ->
             JsonPrimitive(params.a + params.b)
         }
@@ -143,7 +144,7 @@ fun UseAgentExample() {
         tool<EchoParams>(
             name = "echo",
             description = "Echo back text.",
-            parameters = EchoParams::class.jsonSchemaString,
+            parameters = EchoParams::class.jsonSchema.flattenSchema(),
         ) { params ->
             JsonPrimitive(params.text)
         }

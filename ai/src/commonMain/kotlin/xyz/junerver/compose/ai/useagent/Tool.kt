@@ -5,6 +5,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.serializer
 
 /*
@@ -14,6 +15,30 @@ import kotlinx.serialization.serializer
   Email: junerver@gmail.com
   Version: v1.0
 */
+
+/**
+ * Flattens a JSON Schema that uses `$defs`/`$ref` into a plain schema.
+ *
+ * Most LLM API providers (OpenAI, DeepSeek, etc.) do not support `$ref` or `$defs`
+ * in tool parameter schemas. This function resolves the reference and returns a flat
+ * schema compatible with these APIs.
+ *
+ * If the schema has no `$ref`, it returns the input with `$id` and `$defs` removed.
+ */
+fun JsonObject.flattenSchema(): JsonObject {
+    val defs = this["\$defs"]?.jsonObject
+    val ref = this["\$ref"]?.let { (it as? JsonPrimitive)?.content }
+
+    val resolved = if (defs != null && ref != null) {
+        val defName = ref.removePrefix("#/\$defs/")
+        defs[defName]?.jsonObject ?: this
+    } else {
+        this
+    }
+
+    // Strip JSON Schema meta fields that LLM APIs don't understand
+    return JsonObject(resolved.filterKeys { it !in setOf("\$id", "\$schema", "\$defs", "\$ref") })
+}
 
 /**
  * Represents a tool that can be called by the AI model.
