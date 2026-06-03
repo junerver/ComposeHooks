@@ -5,6 +5,7 @@ package xyz.junerver.compose.hooks
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks.userequest.UseRequestOptions
+import xyz.junerver.compose.hooks.usses.UseSseOptions
 
 /**
  * Description: 规范Options的形式
@@ -40,6 +41,7 @@ private inline fun <reified T> createOptions(noinline opt: T.() -> Unit): T = wh
     UseTimeoutPollOptions::class -> UseTimeoutPollOptions.optionOf(opt as UseTimeoutPollOptions.() -> Unit)
     UseCycleListOptions::class -> UseCycleListOptions.optionOf(opt as UseCycleListOptions<Any>.() -> Unit)
     UseSortedOptions::class -> UseSortedOptions.optionOf(opt as UseSortedOptions<Any>.() -> Unit)
+    UseSseOptions::class -> UseSseOptions.optionOf(opt as UseSseOptions<Any, Any>.() -> Unit)
     else -> error("unsupported options!!!!")
 } as T
 

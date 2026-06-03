@@ -14,6 +14,10 @@ import xyz.junerver.compose.hooks.useredux.useSelector
 import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.UseRequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
+import xyz.junerver.compose.hooks.usses.SseHolder
+import xyz.junerver.compose.hooks.usses.SseStreamFn
+import xyz.junerver.compose.hooks.usses.UseSseOptions
+import xyz.junerver.compose.hooks.usses.useSse
 import xyz.junerver.compose.hooks.usetable.useTable
 
 /** 更符合 Compose 的函数命名方式 */
@@ -42,6 +46,12 @@ fun <TParams, TData : Any> rememberRequest(
     optionsOf: UseRequestOptions<TParams, TData>.() -> Unit = {},
     plugins: Array<@Composable (UseRequestOptions<TParams, TData>) -> Plugin<TParams, TData>> = emptyArray(),
 ) = useRequest(requestFn, optionsOf, plugins)
+
+@Composable
+fun <TParams, TEvent> rememberSse(
+    streamFn: SseStreamFn<TParams, TEvent>,
+    optionsOf: UseSseOptions<TParams, TEvent>.() -> Unit = {},
+): SseHolder<TParams, TEvent> = useSse(streamFn, optionsOf)
 
 //region useAsync
 @Composable
