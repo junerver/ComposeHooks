@@ -88,6 +88,7 @@ internal class ChatClient(
             timeout = options.timeout.inWholeMilliseconds,
         )
 
+        var doneEmitted = false
         engine.executeStream(request).collect { event ->
             when (event) {
                 is SseEvent.Data -> {
@@ -97,19 +98,31 @@ internal class ChatClient(
                             is StreamEvent.Multi -> {
                                 streamEvent.events.forEach { ev ->
                                     emit(ev)
-                                    if (ev is StreamEvent.Done) return@collect
+                                    if (ev is StreamEvent.Done) {
+                                        doneEmitted = true
+                                        return@collect
+                                    }
                                 }
                             }
 
                             else -> {
                                 emit(streamEvent)
-                                if (streamEvent is StreamEvent.Done) return@collect
+                                if (streamEvent is StreamEvent.Done) {
+                                    doneEmitted = true
+                                    return@collect
+                                }
                             }
                         }
                     }
                 }
 
-                is SseEvent.Complete -> emit(StreamEvent.Done)
+                // Only emit Done from stream completion if not already emitted by parseStreamLine
+                is SseEvent.Complete -> {
+                    if (!doneEmitted) {
+                        doneEmitted = true
+                        emit(StreamEvent.Done)
+                    }
+                }
 
                 is SseEvent.Error -> {
                     val parsed = parseAnyProviderError(event.error.message)
