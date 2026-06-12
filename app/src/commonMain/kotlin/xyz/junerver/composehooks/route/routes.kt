@@ -5,6 +5,7 @@ import xyz.junerver.composehooks.example.DeferReads
 import xyz.junerver.composehooks.example.HomeScreen
 import xyz.junerver.composehooks.example.RequestExampleList
 import xyz.junerver.composehooks.example.UseAgentExample
+import xyz.junerver.composehooks.example.UseAsrExample
 import xyz.junerver.composehooks.example.UseAsyncExample
 import xyz.junerver.composehooks.example.UseAutoResetExample
 import xyz.junerver.composehooks.example.UseBooleanExample
@@ -51,6 +52,7 @@ import xyz.junerver.composehooks.example.UseTimeoutFnExample
 import xyz.junerver.composehooks.example.UseTimeoutPollExample
 import xyz.junerver.composehooks.example.UseTimestampExample
 import xyz.junerver.composehooks.example.UseToggleExample
+import xyz.junerver.composehooks.example.UseTtsExample
 import xyz.junerver.composehooks.example.UseUndoExample
 import xyz.junerver.composehooks.example.UseUpdateEffectExample
 import xyz.junerver.composehooks.example.UseUpdateExample
@@ -88,6 +90,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useAsync" to { UseAsyncExample() },
     "useAutoReset" to { UseAutoResetExample() },
     "useAgent" to { UseAgentExample() },
+    "useAsr" to { UseAsrExample() },
     "useBoolean" to { UseBooleanExample() },
     "useChat" to { UseChatExample() },
     "useClipboard" to { UseClipboardExample() },
@@ -121,6 +124,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useTimeout" to { UseTimeoutExample() },
     "useTimestamp" to { UseTimestampExample() },
     "useToggle" to { UseToggleExample() },
+    "useTts" to { UseTtsExample() },
     "useUndo" to { UseUndoExample() },
     "useUnmount" to { UseMountExample() },
     "useUpdate" to { UseUpdateExample() },
