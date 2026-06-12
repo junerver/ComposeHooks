@@ -125,7 +125,7 @@ class ChatOptionsTest {
         val options = ChatOptions.optionOf {
             provider = Providers.OpenAI(apiKey = "test")
         }
-        assertEquals("gpt-4o-mini", options.effectiveModel)
+        assertEquals("gpt-5.5", options.effectiveModel)
     }
 
     @Test

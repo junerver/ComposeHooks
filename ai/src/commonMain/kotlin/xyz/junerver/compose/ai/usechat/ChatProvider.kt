@@ -340,7 +340,7 @@ sealed class Providers : ChatProvider {
     data class OpenAI(
         override val apiKey: String,
         override val baseUrl: String = "https://api.openai.com/v1",
-        override val defaultModel: String = "gpt-4o-mini",
+        override val defaultModel: String = "gpt-5.5",
     ) : OpenAICompatible(
             name = "OpenAI",
             baseUrl = baseUrl,
@@ -390,7 +390,7 @@ sealed class Providers : ChatProvider {
     data class Moonshot(
         override val apiKey: String,
         override val baseUrl: String = "https://api.moonshot.cn/v1",
-        override val defaultModel: String = "moonshot-v1-8k",
+        override val defaultModel: String = "kimi-k2.6",
     ) : OpenAICompatible(
             name = "Moonshot",
             baseUrl = baseUrl,
@@ -402,7 +402,7 @@ sealed class Providers : ChatProvider {
     data class Zhipu(
         override val apiKey: String,
         override val baseUrl: String = "https://open.bigmodel.cn/api/paas/v4",
-        override val defaultModel: String = "glm-4-flash",
+        override val defaultModel: String = "glm-5.1",
     ) : OpenAICompatible(
             name = "Zhipu",
             baseUrl = baseUrl,
@@ -414,7 +414,7 @@ sealed class Providers : ChatProvider {
     data class Qwen(
         override val apiKey: String,
         override val baseUrl: String = "https://dashscope.aliyuncs.com/compatible-mode/v1",
-        override val defaultModel: String = "qwen-turbo",
+        override val defaultModel: String = "qwen3.7-max",
     ) : OpenAICompatible(
             name = "Qwen",
             baseUrl = baseUrl,
@@ -438,7 +438,7 @@ sealed class Providers : ChatProvider {
     data class Together(
         override val apiKey: String,
         override val baseUrl: String = "https://api.together.xyz/v1",
-        override val defaultModel: String = "meta-llama/Llama-3-70b-chat-hf",
+        override val defaultModel: String = "meta-llama/Llama-3.3-70B-Instruct-Turbo",
     ) : OpenAICompatible(
             name = "Together",
             baseUrl = baseUrl,
@@ -498,7 +498,7 @@ sealed class Providers : ChatProvider {
     data class Anthropic(
         override val apiKey: String,
         override val baseUrl: String = "https://api.anthropic.com",
-        override val defaultModel: String = "claude-sonnet-4-20250514",
+        override val defaultModel: String = "claude-sonnet-4-6",
     ) : Providers() {
         override val name: String = "Anthropic"
         override val chatEndpoint: String = "/v1/messages"

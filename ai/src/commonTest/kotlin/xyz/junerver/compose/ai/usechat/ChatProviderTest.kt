@@ -430,7 +430,7 @@ class ChatProviderTest {
         val provider = Providers.Moonshot(apiKey = "test")
         assertEquals("Moonshot", provider.name)
         assertEquals("https://api.moonshot.cn/v1", provider.baseUrl)
-        assertEquals("moonshot-v1-8k", provider.defaultModel)
+        assertEquals("kimi-k2.6", provider.defaultModel)
     }
 
     @Test
@@ -438,7 +438,7 @@ class ChatProviderTest {
         val provider = Providers.Zhipu(apiKey = "test")
         assertEquals("Zhipu", provider.name)
         assertEquals("https://open.bigmodel.cn/api/paas/v4", provider.baseUrl)
-        assertEquals("glm-4-flash", provider.defaultModel)
+        assertEquals("glm-5.1", provider.defaultModel)
     }
 
     @Test
@@ -446,7 +446,7 @@ class ChatProviderTest {
         val provider = Providers.Qwen(apiKey = "test")
         assertEquals("Qwen", provider.name)
         assertEquals("https://dashscope.aliyuncs.com/compatible-mode/v1", provider.baseUrl)
-        assertEquals("qwen-turbo", provider.defaultModel)
+        assertEquals("qwen3.7-max", provider.defaultModel)
     }
 
     @Test
