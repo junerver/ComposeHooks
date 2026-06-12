@@ -19,7 +19,10 @@ import xyz.junerver.compose.ai.OnResponseCallback
 import xyz.junerver.compose.ai.SendMessageFn
 import xyz.junerver.compose.ai.SetMessagesFn
 import xyz.junerver.compose.ai.StopFn
+import xyz.junerver.compose.ai.TokenUsageStats
+import xyz.junerver.compose.ai.TokenUsageTracker
 import xyz.junerver.compose.ai.http.HttpEngine
+import xyz.junerver.compose.ai.rememberTokenTracker
 import xyz.junerver.compose.ai.usechat.ChatClient
 import xyz.junerver.compose.ai.usechat.ChatMessage
 import xyz.junerver.compose.ai.usechat.ChatProvider
@@ -31,7 +34,9 @@ import xyz.junerver.compose.ai.usechat.userMessage
 import xyz.junerver.compose.hooks.MutableRef
 import xyz.junerver.compose.hooks.Options
 import xyz.junerver.compose.hooks._useGetState
+import xyz.junerver.compose.hooks._useState
 import xyz.junerver.compose.hooks.useCancelableAsync
+import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUnmount
@@ -98,12 +103,16 @@ data class AgentHolder(
     val setMessages: SetMessagesFn,
     val append: AppendMessageFn,
     val stop: StopFn,
+    val tokenStats: TokenUsageStats? = null,
 )
 
 @Composable
 fun useAgent(optionsOf: AgentOptions.() -> Unit = {}): AgentHolder {
     val options = remember { AgentOptions.optionOf(optionsOf) }.apply(optionsOf)
     val optionsRef = useLatestRef(options)
+
+    // Token usage tracking (optional, if TokenUsageProvider is present)
+    val tokenTracker = rememberTokenTracker()
 
     val initialMessages = remember(options.initialMessages) {
         options.initialMessages.toImmutableList()
@@ -178,6 +187,15 @@ fun useAgent(optionsOf: AgentOptions.() -> Unit = {}): AgentHolder {
                             }
 
                             if (response.message.toolCalls.isEmpty()) {
+                                // Record token usage if tracker is available
+                                if (response.usage != null) {
+                                    tokenTracker?.recordUsage(
+                                        requestId = response.message.id,
+                                        provider = optionsRef.current.provider.name,
+                                        model = optionsRef.current.effectiveModel,
+                                        usage = response.usage!!,
+                                    )
+                                }
                                 optionsRef.current.onFinish?.invoke(
                                     response.message,
                                     response.usage,
@@ -221,6 +239,14 @@ fun useAgent(optionsOf: AgentOptions.() -> Unit = {}): AgentHolder {
         }
     }
 
+    // Token stats state (reactive)
+    val tokenStatsState = _useState(tokenTracker?.stats)
+    useEffect(tokenTracker?.stats) {
+        if (tokenTracker != null) {
+            tokenStatsState.value = tokenTracker.stats
+        }
+    }
+
     return remember {
         AgentHolder(
             messages = messagesState,
@@ -230,6 +256,7 @@ fun useAgent(optionsOf: AgentOptions.() -> Unit = {}): AgentHolder {
             setMessages = setMessagesFn,
             append = appendMessage,
             stop = stop,
+            tokenStats = tokenStatsState.value,
         )
     }
 }

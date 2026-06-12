@@ -20,10 +20,14 @@ import xyz.junerver.compose.ai.ReloadFn
 import xyz.junerver.compose.ai.SendMessageFn
 import xyz.junerver.compose.ai.SetMessagesFn
 import xyz.junerver.compose.ai.StopFn
+import xyz.junerver.compose.ai.TokenUsageStats
+import xyz.junerver.compose.ai.TokenUsageTracker
 import xyz.junerver.compose.ai.multiprovider.ModelsContext
+import xyz.junerver.compose.ai.rememberTokenTracker
 import xyz.junerver.compose.ai.multiprovider.MultiProviderChatClient
 import xyz.junerver.compose.hooks.MutableRef
 import xyz.junerver.compose.hooks._useGetState
+import xyz.junerver.compose.hooks._useState
 import xyz.junerver.compose.hooks.useCancelableAsync
 import xyz.junerver.compose.hooks.useContext
 import xyz.junerver.compose.hooks.useEffect
@@ -57,6 +61,7 @@ import xyz.junerver.compose.hooks.useUnmount
  * @property append Function to append a single message without triggering AI response
  * @property reload Function to regenerate the last AI response
  * @property stop Function to cancel the current streaming response
+ * @property tokenStats Token usage statistics for the current session (if TokenUsageProvider is present)
  */
 @Stable
 data class ChatHolder(
@@ -68,6 +73,7 @@ data class ChatHolder(
     val append: AppendMessageFn,
     val reload: ReloadFn,
     val stop: StopFn,
+    val tokenStats: TokenUsageStats? = null,
 )
 
 /**
@@ -161,6 +167,10 @@ fun ChatHolder.sendWithFile(
 fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
     val options = remember { ChatOptions.optionOf(optionsOf) }.apply(optionsOf)
     val optionsRef = useLatestRef(options)
+
+    // Token usage tracking (optional, if TokenUsageProvider is present)
+    // Uses a separate composable to safely access the context
+    val tokenTracker = rememberTokenTracker()
 
     // Check if we're in a ModelsProvider context
     val modelsContext = useContext(ModelsContext)
@@ -387,6 +397,15 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                 is StreamEvent.Done -> {
                                     val finalMessage = currentAssistantMessageRef.current
                                     if (finalMessage != null) {
+                                        // Record token usage if tracker is available
+                                        if (lastUsage != null) {
+                                            tokenTracker?.recordUsage(
+                                                requestId = finalMessage.id,
+                                                provider = optionsRef.current.provider.name,
+                                                model = optionsRef.current.effectiveModel,
+                                                usage = lastUsage!!,
+                                            )
+                                        }
                                         optionsRef.current.onFinish?.invoke(
                                             finalMessage,
                                             lastUsage,
@@ -425,6 +444,15 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                 msgs[msgs.lastIndex] = finalMessage
                                 setMessages(msgs.toImmutableList())
                             }
+                        }
+                        // Record token usage if tracker is available
+                        if (result.usage != null) {
+                            tokenTracker?.recordUsage(
+                                requestId = finalMessage.id,
+                                provider = optionsRef.current.provider.name,
+                                model = optionsRef.current.effectiveModel,
+                                usage = result.usage!!,
+                            )
                         }
                         optionsRef.current.onFinish?.invoke(
                             finalMessage,
@@ -490,6 +518,14 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
         }
     }
 
+    // Token stats state (reactive)
+    val tokenStatsState = _useState(tokenTracker?.stats)
+    useEffect(tokenTracker?.stats) {
+        if (tokenTracker != null) {
+            tokenStatsState.value = tokenTracker.stats
+        }
+    }
+
     return remember {
         ChatHolder(
             messages = messagesState,
@@ -500,6 +536,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
             append = appendMessage,
             reload = reload,
             stop = stop,
+            tokenStats = tokenStatsState.value,
         )
     }
 }
