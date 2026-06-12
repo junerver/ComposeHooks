@@ -4,7 +4,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -40,8 +43,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import xyz.junerver.compose.ai.usechat.ChatProvider
 import xyz.junerver.compose.ai.usechat.Providers
 import xyz.junerver.compose.ai.usetts.useTts
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.useCreation
+import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.composehooks.ui.component.ExampleCard
 
@@ -50,13 +57,26 @@ import xyz.junerver.composehooks.ui.component.ExampleCard
   Author: Junerver
   Date: 2026/06/12
   Email: junerver@gmail.com
-  Version: v1.0
+  Version: v1.1 - Support multiple providers
 */
+
+/** Available provider types for TTS selection */
+private enum class TtsProviderType(val displayName: String) {
+    OpenAI("OpenAI"),
+    DeepSeek("DeepSeek"),
+    Moonshot("Moonshot"),
+    Zhipu("Zhipu"),
+    Qwen("Qwen"),
+    Groq("Groq"),
+    Together("Together"),
+    MiMo("MiMo"),
+    Anthropic("Anthropic"),
+}
 
 /** Preset voices for MiMo TTS */
 private data class VoiceOption(val id: String, val displayName: String, val gender: String)
 
-private val voiceOptions = listOf(
+private val mimoVoiceOptions = listOf(
     VoiceOption("mimo_default", "MiMo Default", "F"),
     VoiceOption("冰糖", "冰糖 (Bingtang)", "F"),
     VoiceOption("茉莉", "茉莉 (Jasmine)", "F"),
@@ -70,15 +90,43 @@ private val voiceOptions = listOf(
 
 @Composable
 fun UseTtsExample() {
+    // Provider configuration
+    var selectedType by useState(TtsProviderType.MiMo)
     var apiKey by useState("")
+    var customModel by useState("")
+    var customVoice by useState("")
     var selectedVoice by useState("mimo_default")
     var streamEnabled by useState(true)
-    var inputText by useState("你好，我是MiMo语音合成助手，很高兴认识你！")
+    var inputText by useState("你好，我是语音合成助手，很高兴认识你！")
     var styleInstruction by useState("用甜美可爱的语调说")
 
+    // Create provider instance based on selection
+    val provider by useCreation(selectedType, apiKey) {
+        when (selectedType) {
+            TtsProviderType.OpenAI -> Providers.OpenAI(apiKey = apiKey)
+            TtsProviderType.DeepSeek -> Providers.DeepSeek(apiKey = apiKey)
+            TtsProviderType.Moonshot -> Providers.Moonshot(apiKey = apiKey)
+            TtsProviderType.Zhipu -> Providers.Zhipu(apiKey = apiKey)
+            TtsProviderType.Qwen -> Providers.Qwen(apiKey = apiKey)
+            TtsProviderType.Groq -> Providers.Groq(apiKey = apiKey)
+            TtsProviderType.Together -> Providers.Together(apiKey = apiKey)
+            TtsProviderType.MiMo -> Providers.MiMo(apiKey = apiKey)
+            TtsProviderType.Anthropic -> Providers.Anthropic(apiKey = apiKey)
+        }
+    }
+
+    // Reset voice when provider changes
+    useEffect(selectedType) {
+        selectedVoice = "mimo_default"
+        customVoice = ""
+    }
+
     val (audioDataBase64, isLoading, error, synthesize, stop, reset) = useTts {
-        provider = Providers.MiMo(apiKey = apiKey)
-        voice = selectedVoice
+        this.provider = provider
+        if (customModel.isNotBlank()) {
+            model = customModel
+        }
+        voice = if (customVoice.isNotBlank()) customVoice else selectedVoice
         stream = streamEnabled
     }
 
@@ -95,28 +143,59 @@ fun UseTtsExample() {
                 style = MaterialTheme.typography.headlineMedium,
             )
             Text(
-                text = "Text-to-Speech via MiMo-V2.5-TTS (OpenAI Compatible)",
+                text = "Text-to-Speech via OpenAI-compatible API (supports multiple providers)",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             // Config section
             ExampleCard(title = "Configuration") {
+                TtsProviderSelector(
+                    selectedType = selectedType,
+                    onTypeChange = { selectedType = it },
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 OutlinedTextField(
                     value = apiKey,
                     onValueChange = { apiKey = it },
                     label = { Text("API Key") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    placeholder = { Text("Enter MiMo API Key") },
+                    placeholder = { Text("Enter API Key for ${selectedType.displayName}") },
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                VoiceSelector(
-                    selected = selectedVoice,
-                    onSelect = { selectedVoice = it },
+                OutlinedTextField(
+                    value = customModel,
+                    onValueChange = { customModel = it },
+                    label = { Text("Model (Optional)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    placeholder = { Text("Leave empty to use default model") },
+                    supportingText = { Text("Default: ${provider.defaultModel}") },
                 )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Voice selection - show MiMo voices or custom input
+                if (selectedType == TtsProviderType.MiMo) {
+                    VoiceSelector(
+                        selected = selectedVoice,
+                        onSelect = { selectedVoice = it },
+                    )
+                } else {
+                    OutlinedTextField(
+                        value = customVoice,
+                        onValueChange = { customVoice = it },
+                        label = { Text("Voice (Optional)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        placeholder = { Text("Enter voice name for ${selectedType.displayName}") },
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
@@ -295,9 +374,60 @@ fun UseTtsExample() {
 }
 
 @Composable
+private fun TtsProviderSelector(selectedType: TtsProviderType, onTypeChange: (TtsProviderType) -> Unit, modifier: Modifier = Modifier) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(modifier = modifier) {
+        OutlinedTextField(
+            value = selectedType.displayName,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Provider") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = true },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                )
+            },
+            singleLine = true,
+        )
+
+        // Invisible clickable overlay
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clickable { expanded = true },
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            TtsProviderType.entries.forEach { type ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = type.displayName,
+                            fontWeight = if (type == selectedType) FontWeight.Bold else FontWeight.Normal,
+                        )
+                    },
+                    onClick = {
+                        onTypeChange(type)
+                        expanded = false
+                    },
+                )
+            }
+        }
+    }
+}
+
+@Composable
 private fun VoiceSelector(selected: String, onSelect: (String) -> Unit) {
     var expanded by remember { mutableStateOf(false) }
-    val displayText = voiceOptions.firstOrNull { it.id == selected }
+    val displayText = mimoVoiceOptions.firstOrNull { it.id == selected }
         ?.let { "${it.displayName} (${it.gender})" }
         ?: selected
 
@@ -316,7 +446,7 @@ private fun VoiceSelector(selected: String, onSelect: (String) -> Unit) {
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
-            voiceOptions.forEach { option ->
+            mimoVoiceOptions.forEach { option ->
                 DropdownMenuItem(
                     text = {
                         Text(

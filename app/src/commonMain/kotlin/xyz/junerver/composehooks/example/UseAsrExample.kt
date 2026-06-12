@@ -4,7 +4,9 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -17,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Mic
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -40,7 +43,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.ai.useasr.useAsr
+import xyz.junerver.compose.ai.usechat.ChatProvider
 import xyz.junerver.compose.ai.usechat.Providers
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.useCreation
+import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.composehooks.ui.component.ExampleCard
 import xyz.junerver.composehooks.utils.PickedFile
@@ -51,17 +58,51 @@ import xyz.junerver.composehooks.utils.rememberFilePickerLauncher
   Author: Junerver
   Date: 2026/06/12
   Email: junerver@gmail.com
-  Version: v1.0
+  Version: v1.1 - Support multiple providers
 */
+
+/** Available provider types for ASR selection */
+private enum class AsrProviderType(val displayName: String) {
+    OpenAI("OpenAI"),
+    DeepSeek("DeepSeek"),
+    Moonshot("Moonshot"),
+    Zhipu("Zhipu"),
+    Qwen("Qwen"),
+    Groq("Groq"),
+    Together("Together"),
+    MiMo("MiMo"),
+    Anthropic("Anthropic"),
+}
 
 @Composable
 fun UseAsrExample() {
+    // Provider configuration
+    var selectedType by useState(AsrProviderType.MiMo)
     var apiKey by useState("")
+    var customModel by useState("")
     var selectedLanguage by useState("auto")
     var pickedFile by remember { mutableStateOf<PickedFile?>(null) }
 
+    // Create provider instance based on selection
+    val provider by useCreation(selectedType, apiKey) {
+        when (selectedType) {
+            AsrProviderType.OpenAI -> Providers.OpenAI(apiKey = apiKey)
+            AsrProviderType.DeepSeek -> Providers.DeepSeek(apiKey = apiKey)
+            AsrProviderType.Moonshot -> Providers.Moonshot(apiKey = apiKey)
+            AsrProviderType.Zhipu -> Providers.Zhipu(apiKey = apiKey)
+            AsrProviderType.Qwen -> Providers.Qwen(apiKey = apiKey)
+            AsrProviderType.Groq -> Providers.Groq(apiKey = apiKey)
+            AsrProviderType.Together -> Providers.Together(apiKey = apiKey)
+            AsrProviderType.MiMo -> Providers.MiMo(apiKey = apiKey)
+            AsrProviderType.Anthropic -> Providers.Anthropic(apiKey = apiKey)
+        }
+    }
+
     val (text, isLoading, error, recognize, reset) = useAsr {
-        provider = Providers.MiMo(apiKey = apiKey)
+        this.provider = provider
+        if (customModel.isNotBlank()) {
+            model = customModel
+        }
         language = selectedLanguage
     }
 
@@ -82,20 +123,39 @@ fun UseAsrExample() {
                 style = MaterialTheme.typography.headlineMedium,
             )
             Text(
-                text = "Speech Recognition via MiMo-V2.5-ASR (OpenAI Compatible)",
+                text = "Speech Recognition via OpenAI-compatible API (supports multiple providers)",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             // Config section
             ExampleCard(title = "Configuration") {
+                AsrProviderSelector(
+                    selectedType = selectedType,
+                    onTypeChange = { selectedType = it },
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
                 OutlinedTextField(
                     value = apiKey,
                     onValueChange = { apiKey = it },
                     label = { Text("API Key") },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
-                    placeholder = { Text("Enter MiMo API Key") },
+                    placeholder = { Text("Enter API Key for ${selectedType.displayName}") },
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                OutlinedTextField(
+                    value = customModel,
+                    onValueChange = { customModel = it },
+                    label = { Text("Model (Optional)") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    placeholder = { Text("Leave empty to use default model") },
+                    supportingText = { Text("Default: ${provider.defaultModel}") },
                 )
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -213,6 +273,57 @@ fun UseAsrExample() {
                         modifier = Modifier.fillMaxWidth(),
                     )
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AsrProviderSelector(selectedType: AsrProviderType, onTypeChange: (AsrProviderType) -> Unit, modifier: Modifier = Modifier) {
+    var expanded by remember { mutableStateOf(false) }
+
+    Box(modifier = modifier) {
+        OutlinedTextField(
+            value = selectedType.displayName,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Provider") },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { expanded = true },
+            trailingIcon = {
+                Icon(
+                    imageVector = Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                )
+            },
+            singleLine = true,
+        )
+
+        // Invisible clickable overlay
+        Box(
+            modifier = Modifier
+                .matchParentSize()
+                .clickable { expanded = true },
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            AsrProviderType.entries.forEach { type ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = type.displayName,
+                            fontWeight = if (type == selectedType) FontWeight.Bold else FontWeight.Normal,
+                        )
+                    },
+                    onClick = {
+                        onTypeChange(type)
+                        expanded = false
+                    },
+                )
             }
         }
     }
