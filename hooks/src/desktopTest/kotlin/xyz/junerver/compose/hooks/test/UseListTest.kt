@@ -19,6 +19,7 @@ import xyz.junerver.compose.hooks.useState
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UseListTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -246,3 +247,6 @@ class UseListTest {
         onNodeWithText("size=4 counter=2").assertExists()
     }
 }
+
+
+

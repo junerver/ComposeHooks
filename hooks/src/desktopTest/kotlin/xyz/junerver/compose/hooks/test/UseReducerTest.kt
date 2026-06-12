@@ -39,6 +39,7 @@ private val counterReducer: Reducer<Int, CounterAction> = { state, action ->
     }
 }
 
+@Suppress("DEPRECATION")
 class UseReducerTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -315,3 +316,6 @@ class UseReducerTest {
         assertEquals(listOf("m2"), order) // 应使用最新的 m2
     }
 }
+
+
+

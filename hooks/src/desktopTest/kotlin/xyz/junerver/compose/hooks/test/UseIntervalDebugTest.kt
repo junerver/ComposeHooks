@@ -20,6 +20,7 @@ import xyz.junerver.compose.hooks.useState
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UseIntervalDebugTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -74,3 +75,6 @@ class UseIntervalDebugTest {
         onNodeWithText("count=1 active=true started=true").assertExists()
     }
 }
+
+
+

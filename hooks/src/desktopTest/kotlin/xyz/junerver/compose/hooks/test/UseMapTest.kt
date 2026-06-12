@@ -19,6 +19,7 @@ import xyz.junerver.compose.hooks.useState
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UseMapTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -243,3 +244,6 @@ class UseMapTest {
         onNodeWithText("value=100 counter=2").assertExists()
     }
 }
+
+
+

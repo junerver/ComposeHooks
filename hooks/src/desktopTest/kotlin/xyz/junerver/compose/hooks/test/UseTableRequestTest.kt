@@ -20,6 +20,7 @@ import xyz.junerver.compose.hooks.usetable.state.SortDescriptor
   Email: junerver@gmail.com
   Version: v1.0
 */
+@Suppress("DEPRECATION")
 class UseTableRequestTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -81,3 +82,6 @@ class UseTableRequestTest {
         assertEquals("active", last.columnFilters["status"])
     }
 }
+
+
+

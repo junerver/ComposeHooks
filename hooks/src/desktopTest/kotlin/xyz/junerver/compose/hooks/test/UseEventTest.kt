@@ -33,6 +33,7 @@ data class CounterEvent(val delta: Int)
 
 data class RefreshEvent(val timestamp: Long = System.currentTimeMillis())
 
+@Suppress("DEPRECATION")
 class UseEventTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -311,3 +312,6 @@ class UseEventTest {
         unsub2()
     }
 }
+
+
+

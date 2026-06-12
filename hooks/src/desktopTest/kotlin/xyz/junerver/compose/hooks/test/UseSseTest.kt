@@ -23,6 +23,7 @@ import xyz.junerver.compose.hooks.usses.useSse
   Email: junerver@gmail.com
   Version: v1.1
 */
+@Suppress("DEPRECATION")
 class UseSseTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -157,3 +158,6 @@ class UseSseTest {
         onNodeWithText("error=stream error streaming=false").assertExists()
     }
 }
+
+
+

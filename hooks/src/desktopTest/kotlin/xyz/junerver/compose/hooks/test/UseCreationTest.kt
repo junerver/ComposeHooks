@@ -19,6 +19,7 @@ import xyz.junerver.compose.hooks.useState
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UseCreationTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -179,3 +180,6 @@ class UseCreationTest {
         assert(creationCount == 1) { "Expected creationCount=1, got $creationCount" }
     }
 }
+
+
+

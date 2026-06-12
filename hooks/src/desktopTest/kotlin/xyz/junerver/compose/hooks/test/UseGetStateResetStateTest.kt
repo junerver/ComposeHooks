@@ -22,6 +22,7 @@ import xyz.junerver.compose.hooks.useState
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UseGetStateResetStateTest {
     // useGetState tests
     @OptIn(ExperimentalTestApi::class)
@@ -277,3 +278,6 @@ class UseGetStateResetStateTest {
         onNodeWithText("value=initial phase=2").assertExists()
     }
 }
+
+
+

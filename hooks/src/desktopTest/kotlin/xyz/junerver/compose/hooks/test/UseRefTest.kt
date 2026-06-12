@@ -19,6 +19,7 @@ import xyz.junerver.compose.hooks.useUpdate
   Email: junerver@gmail.com
   Version: v1.0
 */
+@Suppress("DEPRECATION")
 class UseRefTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -55,3 +56,6 @@ class UseRefTest {
         assertEquals(2, refresh) // component recompose sideEffect executed
     }
 }
+
+
+

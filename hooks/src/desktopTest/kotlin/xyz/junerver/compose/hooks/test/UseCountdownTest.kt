@@ -25,6 +25,7 @@ import xyz.junerver.compose.hooks.utils.instantProvider
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UseCountdownTest {
     private var currentInstant: Instant = Clock.System.now()
 
@@ -328,3 +329,6 @@ class UseCountdownTest {
         assertTrue(updatedFound, "Expected seconds to update")
     }
 }
+
+
+

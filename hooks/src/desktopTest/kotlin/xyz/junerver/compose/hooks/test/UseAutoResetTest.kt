@@ -20,6 +20,7 @@ import xyz.junerver.compose.hooks.useState
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UseAutoResetTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -83,3 +84,6 @@ class UseAutoResetTest {
         onNodeWithText("value=modified").assertExists()
     }
 }
+
+
+

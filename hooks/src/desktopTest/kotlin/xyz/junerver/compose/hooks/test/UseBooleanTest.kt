@@ -19,6 +19,7 @@ import xyz.junerver.compose.hooks.useState
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UseBooleanTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -217,3 +218,6 @@ class UseBooleanTest {
         onNodeWithText("value=true").assertExists()
     }
 }
+
+
+

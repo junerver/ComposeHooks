@@ -20,6 +20,7 @@ import xyz.junerver.compose.hooks.useState
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UseCycleListTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -287,3 +288,6 @@ class UseCycleListTest {
         onNodeWithText("value=30 phase=2").assertExists()
     }
 }
+
+
+

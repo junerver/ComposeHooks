@@ -21,6 +21,7 @@ import xyz.junerver.compose.hooks.useToggleVisible
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UseToggleTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -258,3 +259,6 @@ class UseToggleTest {
         onNodeWithText("First").assertExists()
     }
 }
+
+
+

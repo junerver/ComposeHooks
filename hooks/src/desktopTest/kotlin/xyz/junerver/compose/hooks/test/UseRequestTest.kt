@@ -29,6 +29,7 @@ import xyz.junerver.compose.hooks.userequest.useRequest
   Email: junerver@gmail.com
   Version: v1.0
 */
+@Suppress("DEPRECATION")
 class UseRequestTest {
     private fun waitForCondition(maxAttempts: Int = 80, delayMs: Long = 50, condition: () -> Boolean): Boolean {
         for (i in 0 until maxAttempts) {
@@ -555,3 +556,6 @@ class UseRequestTest {
 
     // endregion
 }
+
+
+

@@ -21,6 +21,7 @@ import xyz.junerver.compose.hooks.useState
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UseCounterTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -357,3 +358,6 @@ class UseCounterTest {
         onNodeWithText("value=10 phase=3").assertExists()
     }
 }
+
+
+

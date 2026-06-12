@@ -20,6 +20,7 @@ import xyz.junerver.compose.hooks.useUpdate
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UseUpdateTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -90,3 +91,6 @@ class UseUpdateTest {
         onNodeWithText("phase=1").assertExists()
     }
 }
+
+
+

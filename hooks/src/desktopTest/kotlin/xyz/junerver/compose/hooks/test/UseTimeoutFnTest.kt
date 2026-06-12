@@ -21,6 +21,7 @@ import xyz.junerver.compose.hooks.useTimeoutFn
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UseTimeoutFnTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -111,3 +112,6 @@ class UseTimeoutFnTest {
         onNodeWithText("isPending=true started=true").assertExists()
     }
 }
+
+
+

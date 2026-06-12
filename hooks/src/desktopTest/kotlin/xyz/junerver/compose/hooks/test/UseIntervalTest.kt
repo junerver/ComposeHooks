@@ -21,6 +21,7 @@ import xyz.junerver.compose.hooks.useState
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UseIntervalTest {
     private fun waitForCondition(maxAttempts: Int = 80, delayMs: Long = 50, condition: () -> Boolean): Boolean {
         for (i in 0 until maxAttempts) {
@@ -361,3 +362,6 @@ class UseIntervalTest {
         assertTrue(found, "Expected count >= 12 with multiplier=10")
     }
 }
+
+
+

@@ -19,6 +19,7 @@ import xyz.junerver.compose.hooks.useUndo
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UseUndoTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -439,3 +440,6 @@ class UseUndoTest {
         onNodeWithText("present=1 phase=3").assertExists()
     }
 }
+
+
+

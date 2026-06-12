@@ -19,6 +19,7 @@ import xyz.junerver.compose.hooks.useState
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UsePreviousTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -191,3 +192,6 @@ class UsePreviousTest {
         onNodeWithText("current=fourth previous=third phase=3").assertExists()
     }
 }
+
+
+

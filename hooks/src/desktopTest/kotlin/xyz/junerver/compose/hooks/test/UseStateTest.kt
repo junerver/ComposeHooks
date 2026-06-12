@@ -15,6 +15,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import xyz.junerver.compose.hooks.useState
 
+@Suppress("DEPRECATION")
 class UseStateTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -46,3 +47,6 @@ class UseStateTest {
         onNode(hasText("")).assertExists()
     }
 }
+
+
+

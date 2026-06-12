@@ -21,6 +21,7 @@ import xyz.junerver.compose.hooks.useStateMachine
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UseStateMachineTest {
     private enum class MachineState {
         Idle,
@@ -897,3 +898,6 @@ class UseStateMachineTest {
         onNodeWithText("state=Idle").assertExists()
     }
 }
+
+
+

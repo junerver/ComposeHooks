@@ -22,6 +22,7 @@ import xyz.junerver.compose.hooks.useUnmount
   Version: v1.0
 */
 
+@Suppress("DEPRECATION")
 class UseMountUnmountTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
@@ -138,3 +139,6 @@ private fun ChildWithUnmount(onUnmount: () -> Unit) {
     }
     Text("Child")
 }
+
+
+
