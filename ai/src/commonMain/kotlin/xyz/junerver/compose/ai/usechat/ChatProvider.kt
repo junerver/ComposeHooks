@@ -304,21 +304,39 @@ sealed class Providers : ChatProvider {
 
             val contentParts = buildList<AssistantContentPart> {
                 choice.message.reasoningContent?.takeIf { it.isNotEmpty() }?.let { add(ReasoningPart(it)) }
-                choice.message.content?.takeIf { it.isNotEmpty() }?.let { add(TextPart(it)) }
 
-                choice.message.toolCalls.orEmpty().forEach { tc ->
-                    val args: JsonObject = try {
-                        json.parseToJsonElement(tc.function.arguments).jsonObject
-                    } catch (e: Exception) {
-                        buildJsonObject { }
+                val toolCalls = choice.message.toolCalls.orEmpty()
+                if (toolCalls.isNotEmpty()) {
+                    // Standard OpenAI format: tool_calls array
+                    choice.message.content?.takeIf { it.isNotEmpty() }?.let { add(TextPart(it)) }
+                    toolCalls.forEach { tc ->
+                        val args: JsonObject = try {
+                            json.parseToJsonElement(tc.function.arguments).jsonObject
+                        } catch (e: Exception) {
+                            buildJsonObject { }
+                        }
+                        add(
+                            ToolCallPart(
+                                toolCallId = tc.id,
+                                toolName = tc.function.name,
+                                args = args,
+                            ),
+                        )
                     }
-                    add(
-                        ToolCallPart(
-                            toolCallId = tc.id,
-                            toolName = tc.function.name,
-                            args = args,
-                        ),
-                    )
+                } else {
+                    // Check for XML-formatted tool calls in content (MiMo API format)
+                    val content = choice.message.content ?: ""
+                    val xmlToolCalls = parseXmlToolCalls(content)
+                    if (xmlToolCalls.isNotEmpty()) {
+                        // Strip XML tool call tags from content for display
+                        val cleanContent = content.replace(XML_TOOL_CALL_REGEX, "").trim()
+                        if (cleanContent.isNotEmpty()) {
+                            add(TextPart(cleanContent))
+                        }
+                        addAll(xmlToolCalls)
+                    } else if (content.isNotEmpty()) {
+                        add(TextPart(content))
+                    }
                 }
             }.ifEmpty { listOf(TextPart("")) }
 
