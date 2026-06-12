@@ -183,6 +183,23 @@ implementation("xyz.junerver.compose:hai:<latest_release>")
 - 可配置选项（temperature、maxTokens、timeout 等）
 - 生命周期回调（onFinish、onError、onStream）
 
+**内置 Provider：**
+
+| Provider | 说明 |
+| -------- | ---- |
+| `Providers.OpenAI` | OpenAI 官方 API |
+| `Providers.DeepSeek` | DeepSeek（默认开启思考模式） |
+| `Providers.Moonshot` | 月之暗面 Kimi |
+| `Providers.Zhipu` | 智谱 GLM |
+| `Providers.Qwen` | 通义千问 |
+| `Providers.Groq` | Groq 快速推理 |
+| `Providers.Together` | Together AI |
+| `Providers.MiMo` | 小米 MiMo（支持 XML 工具调用格式） |
+| `Providers.Anthropic` | Anthropic Claude |
+| `Providers.Custom` | 自定义 OpenAI 兼容 API |
+
+> **注意：** MiMo API 在工具调用时使用 XML 格式返回（而非标准 OpenAI 的 `tool_calls` 数组），本库已自动适配此格式。
+
 **示例 - 聊天对话：**
 ```kotlin
 val (messages, isLoading, error, sendMessage, _, _, reload, stop) = useChat {

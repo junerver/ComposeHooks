@@ -176,6 +176,23 @@ implementation("xyz.junerver.compose:ai:<latest_release>")
 - Configurable options (temperature, maxTokens, timeout, etc.)
 - Lifecycle callbacks (onFinish, onError, onStream)
 
+**Built-in Providers:**
+
+| Provider | Description |
+| -------- | ----------- |
+| `Providers.OpenAI` | OpenAI official API |
+| `Providers.DeepSeek` | DeepSeek (thinking mode enabled by default) |
+| `Providers.Moonshot` | Moonshot Kimi |
+| `Providers.Zhipu` | Zhipu GLM |
+| `Providers.Qwen` | Qwen |
+| `Providers.Groq` | Groq fast inference |
+| `Providers.Together` | Together AI |
+| `Providers.MiMo` | Xiaomi MiMo (supports XML tool call format) |
+| `Providers.Anthropic` | Anthropic Claude |
+| `Providers.Custom` | Custom OpenAI-compatible API |
+
+> **Note:** MiMo API returns tool calls in XML format (instead of standard OpenAI `tool_calls` array). This library automatically handles this format.
+
 **Example - Chat:**
 ```kotlin
 val (messages, isLoading, error, sendMessage, _, _, reload, stop) = useChat {
