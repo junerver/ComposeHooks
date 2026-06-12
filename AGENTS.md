@@ -96,6 +96,44 @@ Tests exist to discover implementation defects, not merely to pass. Follow these
 
 5. **Red-Green-Refactor cycle**: When adding new functionality, write a failing test first, implement the minimum code to pass, then refactor while keeping tests green.
 
+## Troubleshooting: WSL 混合构建导致增量编译缓存损坏
+
+**症状**: `./gradlew :app:hotRunDesktop` 或其他编译任务失败，报错类似：
+```
+e: file:///E:/GitHub/ComposeHooks/hooks/src/commonMain/.../declare.kt:5:8 Unresolved reference 'androidx'
+```
+或：
+```
+Incremental compilation failed: Expected absolute path but found relative path: \mnt\e\github\composehooks\...
+```
+
+**根因**: 在 WSL (Windows Subsystem for Linux) 和 Windows 之间交替构建同一项目时，Kotlin 增量编译缓存（`.gradle/` 目录）会混入两种路径格式：
+- Windows: `E:\GitHub\ComposeHooks\...`
+- WSL: `/mnt/e/github/composehooks/...`
+
+缓存中的路径不一致导致编译器无法正确定位源文件，产生 `Unresolved reference` 或路径解析错误。
+
+**修复方法**:
+```bash
+# 1. 停止所有 Gradle 守护进程
+./gradlew --stop
+
+# 2. 删除项目级 .gradle 缓存
+Remove-Item -Recurse -Force .gradle   # PowerShell
+# rm -rf .gradle                       # WSL/Linux
+
+# 3. 删除所有模块的 build 目录
+Remove-Item -Recurse -Force hooks\build, ai\build, app\build
+
+# 4. 重新构建
+./gradlew :app:hotRunDesktop
+```
+
+**预防措施**:
+- 避免在 WSL 和 Windows 之间交替构建同一项目
+- 如果必须切换环境，先执行上述清理步骤
+- 考虑在 `.gitignore` 中确保 `.gradle/` 不被提交
+
 ## Commit & Pull Request Guidelines
 
 使用 Gitmoji 格式：
