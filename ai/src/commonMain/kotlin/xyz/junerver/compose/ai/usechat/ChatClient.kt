@@ -38,6 +38,15 @@ sealed class StreamEvent {
         val text: String,
     ) : StreamEvent()
 
+    /**
+     * TTS streaming audio chunk.
+     *
+     * @param audioDataBase64 Base64-encoded audio data chunk (PCM16 format)
+     */
+    data class AudioDelta(
+        val audioDataBase64: String,
+    ) : StreamEvent()
+
     data class Multi(
         val events: List<StreamEvent>,
     ) : StreamEvent()

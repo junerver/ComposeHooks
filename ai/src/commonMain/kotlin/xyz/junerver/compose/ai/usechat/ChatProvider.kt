@@ -71,6 +71,8 @@ interface ChatProvider {
         systemPrompt: String?,
         tools: List<Tool<*>> = emptyList(),
         toolChoice: ToolChoice = ToolChoice.Auto,
+        audioOptions: AudioOptions? = null,
+        asrOptions: AsrOptions? = null,
     ): String
 
     /**
@@ -97,6 +99,8 @@ data class ChatResponseResult(
     val message: AssistantMessage,
     val usage: ChatUsage? = null,
     val finishReason: FinishReason? = null,
+    /** TTS audio data as base64 string. Non-null only for TTS responses. */
+    val audioDataBase64: String? = null,
 )
 
 /**
@@ -153,6 +157,8 @@ sealed class Providers : ChatProvider {
             systemPrompt: String?,
             tools: List<Tool<*>>,
             toolChoice: ToolChoice,
+            audioOptions: AudioOptions?,
+            asrOptions: AsrOptions?,
         ): String = buildOpenAIRequestBody(
             messages = messages,
             model = model,
@@ -162,6 +168,8 @@ sealed class Providers : ChatProvider {
             systemPrompt = systemPrompt,
             tools = tools,
             toolChoice = toolChoice,
+            audioOptions = audioOptions,
+            asrOptions = asrOptions,
         )
 
         internal fun buildOpenAIRequestBody(
@@ -176,6 +184,8 @@ sealed class Providers : ChatProvider {
             thinking: ThinkingConfig? = null,
             reasoningEffort: String? = null,
             includeReasoningContent: Boolean = true,
+            audioOptions: AudioOptions? = null,
+            asrOptions: AsrOptions? = null,
         ): String {
             val allMessages = buildList {
                 systemPrompt?.let { add(systemMessage(it)) }
@@ -217,6 +227,8 @@ sealed class Providers : ChatProvider {
                 toolChoice = openAIToolChoice,
                 thinking = thinking,
                 reasoningEffort = reasoningEffort,
+                audio = audioOptions,
+                asrOptions = asrOptions,
             )
             return json.encodeToString(ChatCompletionRequest.serializer(), request)
         }
@@ -264,6 +276,11 @@ sealed class Providers : ChatProvider {
                             ),
                         )
                     }
+
+                    // TTS streaming audio chunk
+                    delta?.audio?.data?.takeIf { it.isNotEmpty() }?.let { audioData ->
+                        add(StreamEvent.AudioDelta(audioDataBase64 = audioData))
+                    }
                 }
 
                 when (events.size) {
@@ -281,6 +298,9 @@ sealed class Providers : ChatProvider {
             val choice = response.choices.firstOrNull()
                 ?: throw Exception("No choices in response")
             val finishReason = choice.finishReason?.let { FinishReason.fromString(it) }
+
+            // Extract TTS audio data if present
+            val audioDataBase64 = choice.message.audio?.data
 
             val contentParts = buildList<AssistantContentPart> {
                 choice.message.reasoningContent?.takeIf { it.isNotEmpty() }?.let { add(ReasoningPart(it)) }
@@ -311,6 +331,7 @@ sealed class Providers : ChatProvider {
                 ),
                 usage = response.usage,
                 finishReason = finishReason,
+                audioDataBase64 = audioDataBase64,
             )
         }
     }
@@ -347,6 +368,8 @@ sealed class Providers : ChatProvider {
             systemPrompt: String?,
             tools: List<Tool<*>>,
             toolChoice: ToolChoice,
+            audioOptions: AudioOptions?,
+            asrOptions: AsrOptions?,
         ): String = buildOpenAIRequestBody(
             messages = messages,
             model = model,
@@ -358,6 +381,8 @@ sealed class Providers : ChatProvider {
             toolChoice = toolChoice,
             thinking = ThinkingConfig.Enabled,
             reasoningEffort = "high",
+            audioOptions = audioOptions,
+            asrOptions = asrOptions,
         )
     }
 
@@ -441,6 +466,8 @@ sealed class Providers : ChatProvider {
             systemPrompt: String?,
             tools: List<Tool<*>>,
             toolChoice: ToolChoice,
+            audioOptions: AudioOptions?,
+            asrOptions: AsrOptions?,
         ): String = buildOpenAIRequestBody(
             messages = messages,
             model = model,
@@ -451,6 +478,8 @@ sealed class Providers : ChatProvider {
             tools = tools,
             toolChoice = toolChoice,
             thinking = ThinkingConfig.Enabled,
+            audioOptions = audioOptions,
+            asrOptions = asrOptions,
         )
     }
 
@@ -488,6 +517,8 @@ sealed class Providers : ChatProvider {
             systemPrompt: String?,
             tools: List<Tool<*>>,
             toolChoice: ToolChoice,
+            audioOptions: AudioOptions?,
+            asrOptions: AsrOptions?,
         ): String {
             // Anthropic: filter out system messages, they go in separate field
             // Use toAnthropicMessages() for multimodal support
@@ -692,6 +723,8 @@ sealed class Providers : ChatProvider {
             systemPrompt: String?,
             tools: List<Tool<*>>,
             toolChoice: ToolChoice,
+            audioOptions: AudioOptions?,
+            asrOptions: AsrOptions?,
         ): String {
             val anthropicTools = tools.map { tool ->
                 AnthropicTool(

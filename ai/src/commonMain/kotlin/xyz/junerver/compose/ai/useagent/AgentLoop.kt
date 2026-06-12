@@ -167,6 +167,7 @@ private suspend fun streamChatToResult(
             is StreamEvent.Done -> return@collect
             is StreamEvent.Error -> throw event.error
             is StreamEvent.Multi -> Unit
+            is StreamEvent.AudioDelta -> Unit // TTS audio events not used in agent loop
         }
 
         assistant = assistant.copy(

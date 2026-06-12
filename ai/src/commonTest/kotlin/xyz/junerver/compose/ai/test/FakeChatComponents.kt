@@ -8,6 +8,8 @@ import xyz.junerver.compose.ai.http.HttpResult
 import xyz.junerver.compose.ai.http.SseEvent
 import xyz.junerver.compose.ai.useagent.Tool
 import xyz.junerver.compose.ai.useagent.ToolChoice
+import xyz.junerver.compose.ai.usechat.AsrOptions
+import xyz.junerver.compose.ai.usechat.AudioOptions
 import xyz.junerver.compose.ai.usechat.ChatMessage
 import xyz.junerver.compose.ai.usechat.ChatProvider
 import xyz.junerver.compose.ai.usechat.ChatResponseResult
@@ -47,6 +49,8 @@ internal class FakeChatProvider(
         systemPrompt: String?,
         tools: List<Tool<*>>,
         toolChoice: ToolChoice,
+        audioOptions: AudioOptions?,
+        asrOptions: AsrOptions?,
     ): String {
         lastRequestMessages = messages
         lastStreamFlag = stream

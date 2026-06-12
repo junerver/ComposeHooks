@@ -46,6 +46,13 @@ internal data class ChatCompletionRequest(
     @EncodeDefault(EncodeDefault.Mode.NEVER)
     @SerialName("reasoning_effort")
     val reasoningEffort: String? = null,
+    /** TTS audio options. Only included for text-to-speech requests. */
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    val audio: AudioOptions? = null,
+    /** ASR options. Only included for speech recognition requests. */
+    @EncodeDefault(EncodeDefault.Mode.NEVER)
+    @SerialName("asr_options")
+    val asrOptions: AsrOptions? = null,
 )
 
 @Serializable(with = ThinkingConfigSerializer::class)
@@ -73,6 +80,41 @@ internal object ThinkingConfigSerializer : KSerializer<ThinkingConfig> {
     override fun deserialize(decoder: Decoder): ThinkingConfig =
         throw NotImplementedError("Deserialization not needed for request models")
 }
+
+// region Audio Models (TTS / ASR)
+
+/**
+ * Audio options for TTS requests.
+ *
+ * @param format Output audio format. "wav" for non-streaming, "pcm16" for streaming.
+ * @param voice Preset voice ID or voice name (e.g., "Chloe", "mimo_default").
+ */
+@Serializable
+data class AudioOptions(
+    val format: String = "wav",
+    val voice: String = "mimo_default",
+)
+
+/**
+ * ASR options for speech recognition requests.
+ *
+ * @param language Recognition language. "auto" for auto-detect, "zh" for Chinese, "en" for English.
+ */
+@Serializable
+data class AsrOptions(
+    val language: String = "auto",
+)
+
+/**
+ * TTS response audio data wrapper (non-streaming).
+ */
+@Serializable
+internal data class AudioResponseData(
+    val data: String? = null,
+    val id: String? = null,
+)
+
+// endregion
 
 /**
  * Message format for OpenAI API requests with multimodal and tool support.
@@ -146,6 +188,13 @@ internal sealed class OpenAIContentPart {
     data class Text(val text: String) : OpenAIContentPart()
 
     data class ImageUrl(val url: String, val detail: String = "auto") : OpenAIContentPart()
+
+    /**
+     * Audio input content part for ASR requests.
+     *
+     * @param data Data URL formatted base64 audio: `data:{MIME};base64,{B64}`
+     */
+    data class InputAudio(val data: String) : OpenAIContentPart()
 }
 
 /**
@@ -179,6 +228,17 @@ internal object ChatMessageContentSerializer : KSerializer<ChatMessageContent?> 
                                         buildJsonObject {
                                             put("url", part.url)
                                             put("detail", part.detail)
+                                        },
+                                    )
+                                },
+                            )
+                            is OpenAIContentPart.InputAudio -> add(
+                                buildJsonObject {
+                                    put("type", "input_audio")
+                                    put(
+                                        "input_audio",
+                                        buildJsonObject {
+                                            put("data", part.data)
                                         },
                                     )
                                 },
@@ -228,6 +288,8 @@ internal data class ChatMessageResponse(
     val toolCalls: List<OpenAIToolCall>? = null,
     @SerialName("reasoning_content")
     val reasoningContent: String? = null,
+    /** TTS audio response data. Present when using TTS models. */
+    val audio: AudioResponseData? = null,
 )
 
 // endregion
@@ -269,6 +331,8 @@ internal data class ChunkDelta(
     val toolCalls: List<ChunkToolCall>? = null,
     @SerialName("reasoning_content")
     val reasoningContent: String? = null,
+    /** TTS streaming audio chunk data. Present when streaming TTS responses. */
+    val audio: AudioResponseData? = null,
 )
 
 @Serializable
@@ -392,6 +456,7 @@ private fun List<UserContentPart>.toOpenAIContent(): ChatMessageContent {
                     // Skip file parts
                     null
                 }
+                is InputAudioPart -> OpenAIContentPart.InputAudio(part.data)
             }
         },
     )

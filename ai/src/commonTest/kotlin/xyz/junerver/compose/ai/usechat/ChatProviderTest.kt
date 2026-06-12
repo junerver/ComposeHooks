@@ -12,9 +12,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.put
 import xyz.junerver.compose.ai.useagent.ToolChoice
-import xyz.junerver.compose.ai.useagent.tool
 import xyz.junerver.compose.ai.useagent.toolText
 
 /**

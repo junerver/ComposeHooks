@@ -18,7 +18,7 @@ compose-lifecycle = "2.11.0-beta01"
 
 compose-plugin = "1.11.1"
 compose-hot-reload = "1.1.1"
-material-icons = "1.7.4"
+material-icons = "1.7.3"
 kotlinx-datetime = "0.8.0"
 kotlinx-collections-immutable = "0.4.0"
 kotlinx-coroutines = "1.11.0"

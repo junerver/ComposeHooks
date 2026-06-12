@@ -177,11 +177,11 @@ data class ImagePart(
 }
 
 /**
- * File content part. Can be used in both user and assistant messages.
+ * File content part. Both user and assistant messages.
  *
- * @param data Base64-encoded file data
- * @param mimeType MIME type (application/pdf, etc.)
- * @param fileName Optional file name
+ * @param data Base64-encoded file data or URL
+ * @param mimeType MIME type of the file
+ * @param fileName Original filename
  */
 @Immutable
 @Serializable
@@ -191,6 +191,22 @@ data class FilePart(
     val mimeType: String,
     val fileName: String? = null,
 ) : UserContentPart, AssistantContentPart
+
+/**
+ * Audio input content part. User messages only.
+ * Used for speech recognition (ASR) requests.
+ *
+ * The [data] should be a data URL in the format: `data:{MIME_TYPE};base64,{BASE64_AUDIO}`
+ * Supported formats: mp3 (audio/mpeg, audio/mp3), wav (audio/wav)
+ *
+ * @param data Base64-encoded audio data with data URL prefix
+ */
+@Immutable
+@Serializable
+@SerialName("input_audio")
+data class InputAudioPart(
+    val data: String,
+) : UserContentPart
 
 /**
  * Reasoning/thinking content part. Only for assistant messages.

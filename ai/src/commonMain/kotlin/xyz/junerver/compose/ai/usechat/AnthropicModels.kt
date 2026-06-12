@@ -431,7 +431,7 @@ private fun List<UserContentPart>.toAnthropicContent(): AnthropicMessageContent 
 
     // Multiple parts or multimodal - use array format
     return AnthropicMessageContent.Parts(
-        map { part ->
+        mapNotNull { part ->
             when (part) {
                 is TextPart -> AnthropicContentPart.Text(part.text)
                 is ImagePart -> {
@@ -452,6 +452,7 @@ private fun List<UserContentPart>.toAnthropicContent(): AnthropicMessageContent 
                         ),
                     )
                 }
+                is InputAudioPart -> null // Anthropic doesn't support audio input
             }
         },
     )

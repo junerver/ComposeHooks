@@ -60,6 +60,9 @@ data class ChatOptions internal constructor(
     // Tool calling
     var tools: List<Tool<*>> = emptyList(),
     var toolChoice: ToolChoice = ToolChoice.Auto,
+    // Audio options (TTS / ASR)
+    var audioOptions: AudioOptions? = null,
+    var asrOptions: AsrOptions? = null,
     // Callbacks
     override var onResponse: OnResponseCallback? = null,
     var onFinish: OnFinishCallback? = null,
@@ -93,5 +96,7 @@ data class ChatOptions internal constructor(
         systemPrompt = systemPrompt,
         tools = tools,
         toolChoice = toolChoice,
+        audioOptions = audioOptions,
+        asrOptions = asrOptions,
     )
 }

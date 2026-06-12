@@ -403,6 +403,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                 }
 
                                 is StreamEvent.Multi -> Unit
+                                is StreamEvent.AudioDelta -> Unit // TTS audio events not used in chat
                             }
                         }
                             ?.collect()
