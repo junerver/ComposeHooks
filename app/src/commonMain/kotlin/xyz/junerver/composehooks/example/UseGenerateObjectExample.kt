@@ -57,9 +57,11 @@ import androidx.compose.ui.unit.dp
 import kotlinx.schema.Description
 import kotlinx.schema.Schema
 import kotlinx.serialization.Serializable
+import xyz.junerver.compose.ai.TokenUsageProvider
 import xyz.junerver.compose.ai.invoke
 import xyz.junerver.compose.ai.usechat.Providers
 import xyz.junerver.compose.ai.usegenerateobject.useGenerateObject
+import xyz.junerver.compose.ai.useTokenStats
 import xyz.junerver.compose.hooks.getValue
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
@@ -126,125 +128,129 @@ private enum class ObjectProviderType(val displayName: String) {
 
 @Composable
 fun UseGenerateObjectExample() {
-    // Provider configuration
-    var selectedType by useState(ObjectProviderType.DeepSeek)
-    var apiKey by useState("")
-    var model by useState("")
-    var streamEnabled by useState(true)
-    var incrementalEnabled by useState(true)
+    TokenUsageProvider {
+        // Provider configuration
+        var selectedType by useState(ObjectProviderType.DeepSeek)
+        var apiKey by useState("")
+        var model by useState("")
+        var streamEnabled by useState(true)
+        var incrementalEnabled by useState(true)
 
-    // Create provider instance
-    val provider by useCreation(selectedType, apiKey) {
-        when (selectedType) {
-            ObjectProviderType.OpenAI -> Providers.OpenAI(apiKey = apiKey)
-            ObjectProviderType.DeepSeek -> Providers.DeepSeek(apiKey = apiKey)
-            ObjectProviderType.Moonshot -> Providers.Moonshot(apiKey = apiKey)
-            ObjectProviderType.Zhipu -> Providers.Zhipu(apiKey = apiKey)
-            ObjectProviderType.Qwen -> Providers.Qwen(apiKey = apiKey)
-            ObjectProviderType.Groq -> Providers.Groq(apiKey = apiKey)
-            ObjectProviderType.Together -> Providers.Together(apiKey = apiKey)
-            ObjectProviderType.MiMo -> Providers.MiMo(apiKey = apiKey)
-            ObjectProviderType.Anthropic -> Providers.Anthropic(apiKey = apiKey)
+        // Create provider instance
+        val provider by useCreation(selectedType, apiKey) {
+            when (selectedType) {
+                ObjectProviderType.OpenAI -> Providers.OpenAI(apiKey = apiKey)
+                ObjectProviderType.DeepSeek -> Providers.DeepSeek(apiKey = apiKey)
+                ObjectProviderType.Moonshot -> Providers.Moonshot(apiKey = apiKey)
+                ObjectProviderType.Zhipu -> Providers.Zhipu(apiKey = apiKey)
+                ObjectProviderType.Qwen -> Providers.Qwen(apiKey = apiKey)
+                ObjectProviderType.Groq -> Providers.Groq(apiKey = apiKey)
+                ObjectProviderType.Together -> Providers.Together(apiKey = apiKey)
+                ObjectProviderType.MiMo -> Providers.MiMo(apiKey = apiKey)
+                ObjectProviderType.Anthropic -> Providers.Anthropic(apiKey = apiKey)
+            }
         }
-    }
 
-    // Reset model when provider changes
-    useEffect(selectedType) {
-        model = ""
-    }
-
-    // Use the hook
-    val (recipe, rawJson, isLoading, error, submit, stop) = useGenerateObject<Recipe>(
-        schema = recipeSchema,
-    ) {
-        this.provider = provider
-        this.model = model.ifBlank { null }
-        stream = streamEnabled
-        enableIncrementalParsing = incrementalEnabled
-        systemPrompt = "你是一位专业的中餐厨师，擅长创作各种美味的菜谱。请根据用户的描述生成详细的菜谱。"
-        onFinish = { r, usage ->
-            println("Generated recipe: ${r.name}")
-            usage?.let { println("Tokens used: ${it.totalTokens}") }
+        // Reset model when provider changes
+        useEffect(selectedType) {
+            model = ""
         }
-        onError = { e ->
-            println("Error: ${e.message}")
+
+        // Use the hook
+        val (recipe, rawJson, isLoading, error, submit, stop) = useGenerateObject<Recipe>(
+            schema = recipeSchema,
+        ) {
+            this.provider = provider
+            this.model = model.ifBlank { null }
+            stream = streamEnabled
+            enableIncrementalParsing = incrementalEnabled
+            systemPrompt = "你是一位专业的中餐厨师，擅长创作各种美味的菜谱。请根据用户的描述生成详细的菜谱。"
+            onFinish = { r, usage ->
+                println("Generated recipe: ${r.name}")
+                usage?.let { println("Tokens used: ${it.totalTokens}") }
+            }
+            onError = { e ->
+                println("Error: ${e.message}")
+            }
         }
-    }
 
-    var inputText by remember { mutableStateOf("") }
-    var pickedFile: PickedFile? by remember { mutableStateOf(null) }
-    val filePickerLauncher = rememberFilePickerLauncher { file ->
-        pickedFile = file
-    }
+        // Token usage statistics
+        val tokenStats = useTokenStats()
 
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Header
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-            ) {
-                Text(
-                    text = "useGenerateObject 示例",
-                    style = MaterialTheme.typography.headlineMedium,
-                )
-                Text(
-                    text = "AI 菜谱生成器 - 结构化输出",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Spacer(modifier = Modifier.height(12.dp))
+        var inputText by remember { mutableStateOf("") }
+        var pickedFile: PickedFile? by remember { mutableStateOf(null) }
+        val filePickerLauncher = rememberFilePickerLauncher { file ->
+            pickedFile = file
+        }
 
-                // Provider selector
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    ObjectProviderSelector(
-                        selectedType = selectedType,
-                        onTypeChange = { selectedType = it },
-                        modifier = Modifier.weight(1f),
-                    )
-                    OutlinedTextField(
-                        value = model,
-                        onValueChange = { model = it },
-                        label = { Text("Model") },
-                        placeholder = { Text(provider.defaultModel) },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true,
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // API Key input
-                OutlinedTextField(
-                    value = apiKey,
-                    onValueChange = { apiKey = it },
-                    label = { Text("API Key") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    placeholder = { Text("输入你的 ${selectedType.displayName} API Key") },
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+        Surface(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                // Header
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
                 ) {
                     Text(
-                        text = "生成模式:",
+                        text = "useGenerateObject 示例",
+                        style = MaterialTheme.typography.headlineMedium,
+                    )
+                    Text(
+                        text = "AI 菜谱生成器 - 结构化输出",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
-                    Text(
-                        text = "阻塞",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Provider selector
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        ObjectProviderSelector(
+                            selectedType = selectedType,
+                            onTypeChange = { selectedType = it },
+                            modifier = Modifier.weight(1f),
+                        )
+                        OutlinedTextField(
+                            value = model,
+                            onValueChange = { model = it },
+                            label = { Text("Model") },
+                            placeholder = { Text(provider.defaultModel) },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // API Key input
+                    OutlinedTextField(
+                        value = apiKey,
+                        onValueChange = { apiKey = it },
+                        label = { Text("API Key") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        placeholder = { Text("输入你的 ${selectedType.displayName} API Key") },
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Text(
+                            text = "生成模式:",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Text(
+                            text = "阻塞",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Switch(
                         checked = streamEnabled,
@@ -267,6 +273,40 @@ fun UseGenerateObjectExample() {
                         enabled = streamEnabled && !isLoading.value,
                         onCheckedChange = { incrementalEnabled = it },
                     )
+                }
+
+                // Token usage display
+                if (tokenStats.totalTokens > 0) {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                        ),
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Text(
+                                text = "Tokens: ${tokenStats.totalTokens}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Text(
+                                text = "Requests: ${tokenStats.requestCount}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            Text(
+                                text = "In: ${tokenStats.totalPromptTokens} / Out: ${tokenStats.totalCompletionTokens}",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
                 }
             }
 
@@ -343,6 +383,7 @@ fun UseGenerateObjectExample() {
                 canSend = apiKey.isNotBlank() && inputText.isNotBlank(),
             )
         }
+    }
     }
 }
 

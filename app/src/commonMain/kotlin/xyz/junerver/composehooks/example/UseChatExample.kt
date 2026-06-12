@@ -56,12 +56,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
+import xyz.junerver.compose.ai.TokenUsageProvider
 import xyz.junerver.compose.ai.invoke
 import xyz.junerver.compose.ai.usechat.AssistantMessage
 import xyz.junerver.compose.ai.usechat.ChatMessage
 import xyz.junerver.compose.ai.usechat.Providers
 import xyz.junerver.compose.ai.usechat.UserMessage
 import xyz.junerver.compose.ai.usechat.useChat
+import xyz.junerver.compose.ai.useTokenStats
 import xyz.junerver.compose.hooks.getValue
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
@@ -92,246 +94,285 @@ private enum class ProviderType(val displayName: String) {
 
 @Composable
 fun UseChatExample() {
-    // Provider configuration
-    var selectedType by useState(ProviderType.DeepSeek)
-    var apiKey by useState("")
-    var model by useState("")
-    var streamEnabled by useState(true)
+    TokenUsageProvider {
+        // Provider configuration
+        var selectedType by useState(ProviderType.DeepSeek)
+        var apiKey by useState("")
+        var model by useState("")
+        var streamEnabled by useState(true)
 
-    // Create provider instance based on selection
-    val provider by useCreation(selectedType, apiKey) {
-        when (selectedType) {
-            ProviderType.OpenAI -> Providers.OpenAI(apiKey = apiKey)
-            ProviderType.DeepSeek -> Providers.DeepSeek(apiKey = apiKey)
-            ProviderType.Moonshot -> Providers.Moonshot(apiKey = apiKey)
-            ProviderType.Zhipu -> Providers.Zhipu(apiKey = apiKey)
-            ProviderType.Qwen -> Providers.Qwen(apiKey = apiKey)
-            ProviderType.Groq -> Providers.Groq(apiKey = apiKey)
-            ProviderType.Together -> Providers.Together(apiKey = apiKey)
-            ProviderType.MiMo -> Providers.MiMo(apiKey = apiKey)
-            ProviderType.Anthropic -> Providers.Anthropic(apiKey = apiKey)
-        }
-    }
-
-    // Reset model when provider changes
-    useEffect(selectedType) {
-        model = ""
-    }
-
-    val (messages, isLoading, error, sendMessage, _, _, reload, stop) = useChat {
-        this.provider = provider
-        this.model = model.ifBlank { null }
-        stream = streamEnabled
-        systemPrompt = "You are a helpful assistant. Keep responses concise and well-formatted."
-        onFinish = { message, usage, _ ->
-            println("Completed: ${message.textContent.take(50)}...")
-            usage?.let { println("Tokens: ${it.totalTokens}") }
-        }
-    }
-
-    var inputText by useState("")
-    var pickedFile by remember { mutableStateOf<PickedFile?>(null) }
-    val filePickerLauncher = rememberFilePickerLauncher { file ->
-        pickedFile = file
-    }
-    val listState = rememberLazyListState()
-
-    // Auto-scroll to bottom
-    useEffect(messages.value.size) {
-        if (messages.value.isNotEmpty()) {
-            listState.animateScrollToItem(messages.value.size - 1)
-        }
-    }
-
-    Surface(modifier = Modifier.fillMaxSize()) {
-        Column(modifier = Modifier.fillMaxSize()) {
-            // Header
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-            ) {
-                Text(
-                    text = "useChat Example",
-                    style = MaterialTheme.typography.headlineMedium,
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-
-                // Provider selector row
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    ProviderSelector(
-                        selectedType = selectedType,
-                        onTypeChange = { selectedType = it },
-                        modifier = Modifier.weight(1f),
-                    )
-                    OutlinedTextField(
-                        value = model,
-                        onValueChange = { model = it },
-                        label = { Text("Model") },
-                        placeholder = { Text(provider.defaultModel) },
-                        modifier = Modifier.weight(1f),
-                        singleLine = true,
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                // API Key input
-                OutlinedTextField(
-                    value = apiKey,
-                    onValueChange = { apiKey = it },
-                    label = { Text("API Key") },
-                    modifier = Modifier.fillMaxWidth(),
-                    singleLine = true,
-                    placeholder = { Text("Enter your ${selectedType.displayName} API key") },
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    Text(
-                        text = "Output mode:",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Spacer(modifier = Modifier.weight(1f))
-                    Text(
-                        text = "Blocking",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Switch(
-                        checked = streamEnabled,
-                        enabled = !isLoading.value,
-                        onCheckedChange = { streamEnabled = it },
-                    )
-                    Text(
-                        text = "Streaming",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+        // Create provider instance based on selection
+        val provider by useCreation(selectedType, apiKey) {
+            when (selectedType) {
+                ProviderType.OpenAI -> Providers.OpenAI(apiKey = apiKey)
+                ProviderType.DeepSeek -> Providers.DeepSeek(apiKey = apiKey)
+                ProviderType.Moonshot -> Providers.Moonshot(apiKey = apiKey)
+                ProviderType.Zhipu -> Providers.Zhipu(apiKey = apiKey)
+                ProviderType.Qwen -> Providers.Qwen(apiKey = apiKey)
+                ProviderType.Groq -> Providers.Groq(apiKey = apiKey)
+                ProviderType.Together -> Providers.Together(apiKey = apiKey)
+                ProviderType.MiMo -> Providers.MiMo(apiKey = apiKey)
+                ProviderType.Anthropic -> Providers.Anthropic(apiKey = apiKey)
             }
+        }
 
-            // Error display
-            AnimatedVisibility(
-                visible = error.value != null,
-                enter = slideInVertically() + fadeIn(),
-                exit = fadeOut(),
-            ) {
-                error.value?.let { err ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.errorContainer,
-                        ),
+        // Reset model when provider changes
+        useEffect(selectedType) {
+            model = ""
+        }
+
+        val (messages, isLoading, error, sendMessage, _, _, reload, stop) = useChat {
+            this.provider = provider
+            this.model = model.ifBlank { null }
+            stream = streamEnabled
+            systemPrompt = "You are a helpful assistant. Keep responses concise and well-formatted."
+            onFinish = { message, usage, _ ->
+                println("Completed: ${message.textContent.take(50)}...")
+                usage?.let { println("Tokens: ${it.totalTokens}") }
+            }
+        }
+
+        // Token usage statistics
+        val tokenStats = useTokenStats()
+
+        var inputText by useState("")
+        var pickedFile by remember { mutableStateOf<PickedFile?>(null) }
+        val filePickerLauncher = rememberFilePickerLauncher { file ->
+            pickedFile = file
+        }
+        val listState = rememberLazyListState()
+
+        // Auto-scroll to bottom
+        useEffect(messages.value.size) {
+            if (messages.value.isNotEmpty()) {
+                listState.animateScrollToItem(messages.value.size - 1)
+            }
+        }
+
+        Surface(modifier = Modifier.fillMaxSize()) {
+            Column(modifier = Modifier.fillMaxSize()) {
+                // Header
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                ) {
+                    Text(
+                        text = "useChat Example",
+                        style = MaterialTheme.typography.headlineMedium,
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+
+                    // Provider selector row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(
-                            text = "Error: ${err.message}",
-                            modifier = Modifier.padding(12.dp),
-                            color = MaterialTheme.colorScheme.onErrorContainer,
-                            style = MaterialTheme.typography.bodySmall,
+                        ProviderSelector(
+                            selectedType = selectedType,
+                            onTypeChange = { selectedType = it },
+                            modifier = Modifier.weight(1f),
+                        )
+                        OutlinedTextField(
+                            value = model,
+                            onValueChange = { model = it },
+                            label = { Text("Model") },
+                            placeholder = { Text(provider.defaultModel) },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
                         )
                     }
-                }
-            }
 
-            // Messages
-            LazyColumn(
-                state = listState,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                // Welcome message when empty
-                if (messages.value.isEmpty() && !isLoading.value) {
-                    item {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 32.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally,
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    // API Key input
+                    OutlinedTextField(
+                        value = apiKey,
+                        onValueChange = { apiKey = it },
+                        label = { Text("API Key") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        placeholder = { Text("Enter your ${selectedType.displayName} API key") },
+                    )
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            text = "Output mode:",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(modifier = Modifier.weight(1f))
+                        Text(
+                            text = "Blocking",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Switch(
+                            checked = streamEnabled,
+                            enabled = !isLoading.value,
+                            onCheckedChange = { streamEnabled = it },
+                        )
+                        Text(
+                            text = "Streaming",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+
+                    // Token usage display
+                    if (tokenStats.totalTokens > 0) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                            ),
                         ) {
-                            Text(
-                                text = "Start chatting with ${selectedType.displayName}",
-                                style = MaterialTheme.typography.bodyLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            if (apiKey.isBlank()) {
-                                Spacer(modifier = Modifier.height(4.dp))
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(12.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                            ) {
                                 Text(
-                                    text = "Please enter your API key first",
+                                    text = "Tokens: ${tokenStats.totalTokens}",
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.outline,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text = "Requests: ${tokenStats.requestCount}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    text = "In: ${tokenStats.totalPromptTokens} / Out: ${tokenStats.totalCompletionTokens}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
                         }
                     }
                 }
 
-                items(
-                    items = messages.value,
-                    key = { it.id },
-                ) { message ->
-                    ChatMessageBubble(message = message)
-                }
-
-                // Loading indicator
-                if (isLoading.value) {
-                    item {
-                        Row(
-                            modifier = Modifier.padding(start = 40.dp),
-                            verticalAlignment = Alignment.CenterVertically,
+                // Error display
+                AnimatedVisibility(
+                    visible = error.value != null,
+                    enter = slideInVertically() + fadeIn(),
+                    exit = fadeOut(),
+                ) {
+                    error.value?.let { err ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                            ),
                         ) {
-                            CircularProgressIndicator(
-                                modifier = Modifier.size(16.dp),
-                                strokeWidth = 2.dp,
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Thinking...",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                text = "Error: ${err.message}",
+                                modifier = Modifier.padding(12.dp),
+                                color = MaterialTheme.colorScheme.onErrorContainer,
                                 style = MaterialTheme.typography.bodySmall,
                             )
                         }
                     }
                 }
-            }
 
-            // Input area
-            ChatInputArea(
-                value = inputText,
-                onValueChange = { inputText = it },
-                pickedFile = pickedFile,
-                onFileClear = { pickedFile = null },
-                onAddFile = { filePickerLauncher.launch() },
-                onSend = {
-                    if (inputText.isNotBlank() && apiKey.isNotBlank()) {
-                        pickedFile?.let { file ->
-                            sendMessage(inputText, file.base64Content, file.mimeType)
-                        } ?: sendMessage(inputText)
-                        inputText = ""
-                        pickedFile = null
+                // Messages
+                LazyColumn(
+                    state = listState,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    // Welcome message when empty
+                    if (messages.value.isEmpty() && !isLoading.value) {
+                        item {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 32.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                            ) {
+                                Text(
+                                    text = "Start chatting with ${selectedType.displayName}",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                if (apiKey.isBlank()) {
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = "Please enter your API key first",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.outline,
+                                    )
+                                }
+                            }
+                        }
                     }
-                },
-                onStop = stop,
-                onReload = reload,
-                isLoading = isLoading.value,
-                canSend = apiKey.isNotBlank() && inputText.isNotBlank(),
-                canReload = !isLoading.value && messages.value.any { it is AssistantMessage },
-            )
+
+                    items(
+                        items = messages.value,
+                        key = { it.id },
+                    ) { message ->
+                        ChatMessageBubble(message = message)
+                    }
+
+                    // Loading indicator
+                    if (isLoading.value) {
+                        item {
+                            Row(
+                                modifier = Modifier.padding(start = 40.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(16.dp),
+                                    strokeWidth = 2.dp,
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "Thinking...",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // Input area
+                ChatInputArea(
+                    value = inputText,
+                    onValueChange = { inputText = it },
+                    pickedFile = pickedFile,
+                    onFileClear = { pickedFile = null },
+                    onAddFile = { filePickerLauncher.launch() },
+                    onSend = {
+                        if (inputText.isNotBlank() && apiKey.isNotBlank()) {
+                            pickedFile?.let { file ->
+                                sendMessage(inputText, file.base64Content, file.mimeType)
+                            } ?: sendMessage(inputText)
+                            inputText = ""
+                            pickedFile = null
+                        }
+                    },
+                    onStop = stop,
+                    onReload = reload,
+                    isLoading = isLoading.value,
+                    canSend = apiKey.isNotBlank() && inputText.isNotBlank(),
+                    canReload = !isLoading.value && messages.value.any { it is AssistantMessage },
+                )
+            }
         }
     }
 }
