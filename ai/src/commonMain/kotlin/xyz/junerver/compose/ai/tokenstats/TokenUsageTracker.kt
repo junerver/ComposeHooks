@@ -3,6 +3,7 @@ package xyz.junerver.compose.ai
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -88,15 +89,18 @@ data class WindowTokenUsage(
  *
  * This is designed to be used as a Context value, allowing all AI hooks
  * within a provider to share and contribute to the same statistics.
+ *
+ * Uses MutableState for reactive updates in Compose.
  */
 @Stable
 class TokenUsageTracker {
-    private var _stats = TokenUsageStats.EMPTY
+    private val _statsState = mutableStateOf(TokenUsageStats.EMPTY)
 
     /**
      * Current aggregated token usage statistics.
+     * This is a reactive state that will trigger recomposition when updated.
      */
-    val stats: TokenUsageStats get() = _stats
+    val stats: TokenUsageStats get() = _statsState.value
 
     /**
      * Record a new token usage from a completed request.
@@ -113,12 +117,12 @@ class TokenUsageTracker {
             model = model,
             usage = usage,
         )
-        _stats = _stats.copy(
-            totalPromptTokens = _stats.totalPromptTokens + usage.promptTokens,
-            totalCompletionTokens = _stats.totalCompletionTokens + usage.completionTokens,
-            totalTokens = _stats.totalTokens + usage.totalTokens,
-            requestCount = _stats.requestCount + 1,
-            records = (_stats.records + record).toImmutableList(),
+        _statsState.value = _statsState.value.copy(
+            totalPromptTokens = _statsState.value.totalPromptTokens + usage.promptTokens,
+            totalCompletionTokens = _statsState.value.totalCompletionTokens + usage.completionTokens,
+            totalTokens = _statsState.value.totalTokens + usage.totalTokens,
+            requestCount = _statsState.value.requestCount + 1,
+            records = (_statsState.value.records + record).toImmutableList(),
         )
     }
 
@@ -126,7 +130,7 @@ class TokenUsageTracker {
      * Reset all accumulated statistics.
      */
     fun reset() {
-        _stats = TokenUsageStats.EMPTY
+        _statsState.value = TokenUsageStats.EMPTY
     }
 }
 

@@ -239,13 +239,8 @@ fun useAgent(optionsOf: AgentOptions.() -> Unit = {}): AgentHolder {
         }
     }
 
-    // Token stats state (reactive)
-    val tokenStatsState = _useState(tokenTracker?.stats)
-    useEffect(tokenTracker?.stats) {
-        if (tokenTracker != null) {
-            tokenStatsState.value = tokenTracker.stats
-        }
-    }
+    // Token stats state (reactive - directly from tracker's MutableState)
+    val tokenStats = tokenTracker?.stats
 
     return remember {
         AgentHolder(
@@ -256,7 +251,7 @@ fun useAgent(optionsOf: AgentOptions.() -> Unit = {}): AgentHolder {
             setMessages = setMessagesFn,
             append = appendMessage,
             stop = stop,
-            tokenStats = tokenStatsState.value,
+            tokenStats = tokenStats,
         )
     }
 }

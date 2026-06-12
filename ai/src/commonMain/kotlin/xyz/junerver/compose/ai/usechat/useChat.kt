@@ -258,6 +258,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                 var accumulatedReasoning = ""
                 var lastUsage: ChatUsage? = null
                 var lastFinishReason: FinishReason? = null
+                var usageRecorded = false
 
                 data class ToolCallBuilder(
                     var toolCallId: String? = null,
@@ -397,8 +398,9 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                 is StreamEvent.Done -> {
                                     val finalMessage = currentAssistantMessageRef.current
                                     if (finalMessage != null) {
-                                        // Record token usage if tracker is available
-                                        if (lastUsage != null) {
+                                        // Record token usage if tracker is available (once per request)
+                                        if (lastUsage != null && !usageRecorded) {
+                                            usageRecorded = true
                                             tokenTracker?.recordUsage(
                                                 requestId = finalMessage.id,
                                                 provider = optionsRef.current.provider.name,
@@ -445,8 +447,9 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                 setMessages(msgs.toImmutableList())
                             }
                         }
-                        // Record token usage if tracker is available
-                        if (result.usage != null) {
+                        // Record token usage if tracker is available (once per request)
+                        if (result.usage != null && !usageRecorded) {
+                            usageRecorded = true
                             tokenTracker?.recordUsage(
                                 requestId = finalMessage.id,
                                 provider = optionsRef.current.provider.name,
@@ -518,13 +521,8 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
         }
     }
 
-    // Token stats state (reactive)
-    val tokenStatsState = _useState(tokenTracker?.stats)
-    useEffect(tokenTracker?.stats) {
-        if (tokenTracker != null) {
-            tokenStatsState.value = tokenTracker.stats
-        }
-    }
+    // Token stats state (reactive - directly from tracker's MutableState)
+    val tokenStats = tokenTracker?.stats
 
     return remember {
         ChatHolder(
@@ -536,7 +534,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
             append = appendMessage,
             reload = reload,
             stop = stop,
-            tokenStats = tokenStatsState.value,
+            tokenStats = tokenStats,
         )
     }
 }
