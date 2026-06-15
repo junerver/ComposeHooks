@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,29 +33,21 @@ import xyz.junerver.composehooks.ui.component.ScrollColumn
  */
 @Composable
 fun UsePreviousExample() {
-    Surface {
-        ScrollColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                text = "usePrevious Examples",
-                style = MaterialTheme.typography.headlineMedium,
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "usePrevious Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            Text(
-                text = "This hook returns the previous value of a state or prop, allowing you to track changes over time.",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
+        // Interactive Demo
+        InteractivePreviousDemo()
 
-            // Interactive Demo
-            InteractivePreviousDemo()
-
-            // Basic usage example
-            ExampleCard(title = "Basic Usage") {
-                BasicPreviousExample()
-            }
+        // Basic usage example
+        ExampleCard(title = "Basic Usage") {
+            BasicPreviousExample()
         }
     }
 }

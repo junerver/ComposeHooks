@@ -1,5 +1,6 @@
 package xyz.junerver.composehooks.example
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -43,49 +44,41 @@ import xyz.junerver.composehooks.ui.component.TButton
  */
 @Composable
 fun UseToggleExample() {
-    Surface {
-        ScrollColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = androidx.compose.foundation.layout.Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                text = "useToggle Examples",
-                style = MaterialTheme.typography.headlineMedium,
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "useToggle Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            Text(
-                text = "These hooks provide convenient ways to toggle between values, types, or component visibility.",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
+        // Interactive Demo
+        InteractiveToggleDemo()
 
-            // Interactive Demo
-            InteractiveToggleDemo()
+        // Basic usage example
+        ExampleCard(
+            title = "Basic Toggle Example",
+            content = { BasicToggleExample() },
+        )
 
-            // Basic usage example
-            ExampleCard(
-                title = "Basic Toggle Example",
-                content = { BasicToggleExample() },
-            )
+        // Toggle Either example
+        ExampleCard(
+            title = "Toggle Either Example",
+            content = { ToggleEitherExample() },
+        )
 
-            // Toggle Either example
-            ExampleCard(
-                title = "Toggle Either Example",
-                content = { ToggleEitherExample() },
-            )
+        // Toggle Visibility example
+        ExampleCard(
+            title = "Toggle Visibility Example",
+            content = { ToggleVisibilityExample() },
+        )
 
-            // Toggle Visibility example
-            ExampleCard(
-                title = "Toggle Visibility Example",
-                content = { ToggleVisibilityExample() },
-            )
-
-            // Practical application example
-            ExampleCard(
-                title = "Practical Application: Collapsible Panel",
-                content = { CollapsiblePanelExample() },
-            )
-        }
+        // Practical application example
+        ExampleCard(
+            title = "Practical Application: Collapsible Panel",
+            content = { CollapsiblePanelExample() },
+        )
     }
 }
 

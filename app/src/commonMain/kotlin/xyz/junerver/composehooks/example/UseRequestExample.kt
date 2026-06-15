@@ -1,6 +1,5 @@
 package xyz.junerver.composehooks.example
 
-import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import xyz.junerver.composehooks.route.subRequestRoutes
 import xyz.junerver.composehooks.route.useNavigate
@@ -18,12 +17,10 @@ import xyz.junerver.composehooks.ui.component.TButton
 @Composable
 fun RequestExampleList() {
     val nav = useNavigate()
-    Surface {
-        ScrollColumn {
-            subRequestRoutes.entries.map { (route, _) ->
-                TButton(text = route) {
-                    nav.navigate(route)
-                }
+    ScrollColumn {
+        subRequestRoutes.entries.map { (route, _) ->
+            TButton(text = route) {
+                nav.navigate(route)
             }
         }
     }

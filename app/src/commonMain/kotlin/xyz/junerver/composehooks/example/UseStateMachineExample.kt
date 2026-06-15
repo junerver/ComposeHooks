@@ -16,19 +16,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.collections.immutable.PersistentList
 import xyz.junerver.compose.hooks.createMachine
 import xyz.junerver.compose.hooks.useStateMachine
+import xyz.junerver.composehooks.ui.component.ScrollColumn
 import xyz.junerver.composehooks.ui.component.TButton
 
 /*
@@ -124,39 +125,35 @@ fun UseStateMachineExample() {
         machineGraph = machineGraph,
     )
 
-    Surface {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            // Title
-            Text(
-                text = "State Machine Example - DSL Approach",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold,
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "useStateMachine Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            // Current state display card
-            StateDisplayCard(currentState.value)
+        // Current state display card
+        StateDisplayCard(currentState.value)
 
-            // Current context display
-            ContextDisplayCard(context.value)
+        // Current context display
+        ContextDisplayCard(context.value)
 
-            // State history records
-            HistoryCard(history.value)
+        // State history records
+        HistoryCard(history.value)
 
-            // Control buttons section
-            ControlButtonsSection(
-                canTransition = canTransition,
-                transition = transition,
-                reset = reset,
-                canGoBack = canGoBack.value,
-                goBack = goBack,
-            )
+        // Control buttons section
+        ControlButtonsSection(
+            canTransition = canTransition,
+            transition = transition,
+            reset = reset,
+            canGoBack = canGoBack.value,
+            goBack = goBack,
+        )
 
-            // Available events display
-            AvailableEventsCard(getAvailableEvents())
-        }
+        // Available events display
+        AvailableEventsCard(getAvailableEvents())
     }
 }
 

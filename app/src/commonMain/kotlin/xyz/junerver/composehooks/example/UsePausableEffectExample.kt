@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,39 +40,28 @@ import xyz.junerver.composehooks.ui.component.TButton
  */
 @Composable
 fun UsePausableEffectExample() {
-    Surface {
-        ScrollColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            // Page title
-            Text(
-                text = "usePausableEffect Examples",
-                style = MaterialTheme.typography.headlineMedium,
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "usePausableEffect Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            // Introduction text
-            Text(
-                text = "This hook provides a way to create effects that can be paused, resumed, and stopped. " +
-                    "It's useful for controlling side effects that need to be temporarily disabled or permanently terminated.",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
+        // Interactive Demo
+        ExampleCard(title = "Interactive Demo") {
+            InteractivePausableEffectDemo()
+        }
 
-            // Interactive Demo
-            ExampleCard(title = "Interactive Demo") {
-                InteractivePausableEffectDemo()
-            }
+        // Basic usage example
+        ExampleCard(title = "Basic Usage") {
+            BasicPausableEffectExample()
+        }
 
-            // Basic usage example
-            ExampleCard(title = "Basic Usage") {
-                BasicPausableEffectExample()
-            }
-
-            // Advanced control example
-            ExampleCard(title = "Advanced Control") {
-                AdvancedControlExample()
-            }
+        // Advanced control example
+        ExampleCard(title = "Advanced Control") {
+            AdvancedControlExample()
         }
     }
 }

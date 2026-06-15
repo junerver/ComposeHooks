@@ -12,7 +12,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -49,41 +48,33 @@ import xyz.junerver.composehooks.ui.component.TButton
 */
 @Composable
 fun UseFormExample() {
-    Surface {
-        ScrollColumn(modifier = Modifier.padding(16.dp)) {
-            // Page title
-            Text(
-                text = "useForm Examples",
-                style = MaterialTheme.typography.headlineMedium,
-                color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.padding(bottom = 16.dp),
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "useForm Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            // Basic form example
-            ExampleCard(title = "Basic Form Example") {
-                BasicFormExample()
-            }
+        // Basic form example
+        ExampleCard(title = "Basic Form Example") {
+            BasicFormExample()
+        }
 
-            Spacer(modifier = Modifier.height(16.dp))
+        // Form operations example
+        ExampleCard(title = "Form Operations") {
+            FormOperationsExample()
+        }
 
-            // Form operations example
-            ExampleCard(title = "Form Operations") {
-                FormOperationsExample()
-            }
+        // Field watching example
+        ExampleCard(title = "Field Watching") {
+            FieldWatchingExample()
+        }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Field watching example
-            ExampleCard(title = "Field Watching") {
-                FieldWatchingExample()
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Enhanced form example (touched/dirty/submit)
-            ExampleCard(title = "Enhanced Form (Touched/Dirty/Submit)") {
-                EnhancedFormExample()
-            }
+        // Enhanced form example (touched/dirty/submit)
+        ExampleCard(title = "Enhanced Form (Touched/Dirty/Submit)") {
+            EnhancedFormExample()
         }
     }
 }

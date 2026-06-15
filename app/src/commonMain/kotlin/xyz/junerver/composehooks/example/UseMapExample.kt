@@ -34,34 +34,24 @@ import xyz.junerver.composehooks.ui.component.TButton
 */
 @Composable
 fun UseMapExample() {
-    ScrollColumn(modifier = Modifier.padding(16.dp)) {
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
         Text(
             text = "useMap Examples",
             style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 8.dp),
         )
-
-        Text(
-            text = "This hook provides a convenient way to create and manage a mutable map state that triggers recomposition when modified.",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(bottom = 16.dp),
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         // Interactive Demo
         ExampleCard(title = "Interactive Demo") {
             InteractiveDemo()
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-
         // Basic Usage Example
         ExampleCard(title = "Basic Usage") {
             BasicUsageExample()
         }
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         // Advanced Usage Example
         ExampleCard(title = "Advanced Usage - Type Safety") {

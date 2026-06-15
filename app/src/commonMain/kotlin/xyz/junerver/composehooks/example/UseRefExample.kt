@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,31 +41,23 @@ import xyz.junerver.composehooks.ui.component.randomBackground
  */
 @Composable
 fun UseRefExample() {
-    Surface {
-        ScrollColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                text = "useRef Examples",
-                style = MaterialTheme.typography.headlineMedium,
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "useRef Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            Text(
-                text = "The useRef hook provides a mutable reference that persists across renders without causing recomposition when its value changes.",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
+        InteractiveRefDemo()
 
-            InteractiveRefDemo()
+        ExampleCard(title = "Ref Non-Reactivity Feature") {
+            NonReactivityExample()
+        }
 
-            ExampleCard(title = "Ref Non-Reactivity Feature") {
-                NonReactivityExample()
-            }
-
-            ExampleCard(title = "Converting Ref to State") {
-                RefToStateExample()
-            }
+        ExampleCard(title = "Converting Ref to State") {
+            RefToStateExample()
         }
     }
 }

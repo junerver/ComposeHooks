@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -46,48 +45,46 @@ import xyz.junerver.composehooks.ui.component.TButton
 */
 @Composable
 fun UseStateExample() {
-    Surface {
-        ScrollColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                text = "useState Examples",
-                style = MaterialTheme.typography.headlineMedium,
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "useState Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            // Interactive Demo
-            InteractiveStateDemo()
+        // Interactive Demo
+        InteractiveStateDemo()
 
-            // Basic usage example
-            ExampleCard(title = "Basic Usage") {
-                BasicUsageExample()
-            }
+        // Basic usage example
+        ExampleCard(title = "Basic Usage") {
+            BasicUsageExample()
+        }
 
-            // Closure problems example
-            ExampleCard(title = "Closure Problems") {
-                ClosureProblemsExample()
-            }
+        // Closure problems example
+        ExampleCard(title = "Closure Problems") {
+            ClosureProblemsExample()
+        }
 
-            // Quick state updates example
-            ExampleCard(title = "Quick State Updates") {
-                QuickStateUpdatesExample()
-            }
+        // Quick state updates example
+        ExampleCard(title = "Quick State Updates") {
+            QuickStateUpdatesExample()
+        }
 
-            // Solutions to closure problems
-            ExampleCard(title = "Solutions to Closure Problems") {
-                ClosureSolutionsExample()
-            }
+        // Solutions to closure problems
+        ExampleCard(title = "Solutions to Closure Problems") {
+            ClosureSolutionsExample()
+        }
 
-            // Computed properties example
-            ExampleCard(title = "Computed Properties") {
-                ComputedPropertiesExample()
-            }
+        // Computed properties example
+        ExampleCard(title = "Computed Properties") {
+            ComputedPropertiesExample()
+        }
 
-            // Async computed properties example
-            ExampleCard(title = "Async Computed Properties") {
-                AsyncComputedPropertiesExample()
-            }
+        // Async computed properties example
+        ExampleCard(title = "Async Computed Properties") {
+            AsyncComputedPropertiesExample()
         }
     }
 }

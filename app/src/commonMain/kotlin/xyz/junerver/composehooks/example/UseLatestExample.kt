@@ -1,5 +1,6 @@
 package xyz.junerver.composehooks.example
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -34,20 +35,14 @@ import xyz.junerver.composehooks.ui.component.randomBackground
 */
 @Composable
 fun UseLatestExample() {
-    ScrollColumn(modifier = Modifier.padding(16.dp)) {
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
         Text(
             text = "useLatest Examples",
             style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 8.dp),
         )
-
-        Text(
-            text = "This hook is used to get the latest value of a variable, solving closure problems in asynchronous contexts.",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(bottom = 16.dp),
-        )
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         // Interactive Demo
         ExampleCard(title = "Interactive Demo") {

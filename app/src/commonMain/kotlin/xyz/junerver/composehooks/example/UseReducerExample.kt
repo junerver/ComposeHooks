@@ -12,7 +12,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -126,36 +125,26 @@ val simpleReducer: Reducer<SimpleData, SimpleAction> =
  */
 @Composable
 fun UseReducerExample() {
-    Surface {
-        ScrollColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            // Page title
-            Text(
-                text = "useReducer Examples",
-                style = MaterialTheme.typography.headlineMedium,
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "useReducer Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            // Description text - briefly introduces the purpose of useReducer hook
-            Text(
-                text = "This hook provides a Redux-like state management solution for Compose, allowing complex state logic to be organized through reducers and actions.",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
+        // Interactive demonstration - shows basic usage of useReducer, including interactive UI elements
+        InteractiveReducerDemo()
 
-            // Interactive demonstration - shows basic usage of useReducer, including interactive UI elements
-            InteractiveReducerDemo()
+        // Basic usage example - shows the simplest implementation of useReducer
+        ExampleCard(title = "Basic Usage") {
+            BasicReducerExample()
+        }
 
-            // Basic usage example - shows the simplest implementation of useReducer
-            ExampleCard(title = "Basic Usage") {
-                BasicReducerExample()
-            }
-
-            // Task list example - shows the application of useReducer in complex application scenarios
-            ExampleCard(title = "Task List Example") {
-                TaskApp()
-            }
+        // Task list example - shows the application of useReducer in complex application scenarios
+        ExampleCard(title = "Task List Example") {
+            TaskApp()
         }
     }
 }

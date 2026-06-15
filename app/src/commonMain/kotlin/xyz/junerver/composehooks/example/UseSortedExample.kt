@@ -13,7 +13,6 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -47,38 +46,36 @@ data class Person(val name: String, val age: Int)
  */
 @Composable
 fun UseSortedExample() {
-    Surface {
-        ScrollColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                text = "useSorted Examples",
-                style = MaterialTheme.typography.headlineMedium,
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "useSorted Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            // Interactive Demo
-            InteractiveSortedDemo()
+        // Interactive Demo
+        InteractiveSortedDemo()
 
-            // Basic usage example
-            ExampleCard(title = "Basic Usage") {
-                BasicSortedExample()
-            }
+        // Basic usage example
+        ExampleCard(title = "Basic Usage") {
+            BasicSortedExample()
+        }
 
-            // Custom comparator example
-            ExampleCard(title = "Custom Comparator") {
-                CustomComparatorExample()
-            }
+        // Custom comparator example
+        ExampleCard(title = "Custom Comparator") {
+            CustomComparatorExample()
+        }
 
-            // Dirty mode example
-            ExampleCard(title = "Dirty Mode (Modifies Source)") {
-                DirtyModeExample()
-            }
+        // Dirty mode example
+        ExampleCard(title = "Dirty Mode (Modifies Source)") {
+            DirtyModeExample()
+        }
 
-            // Practical application
-            ExampleCard(title = "Practical Application: Data Table") {
-                DataTableExample()
-            }
+        // Practical application
+        ExampleCard(title = "Practical Application: Data Table") {
+            DataTableExample()
         }
     }
 }

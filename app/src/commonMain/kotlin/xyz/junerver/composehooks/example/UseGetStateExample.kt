@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -38,30 +37,28 @@ import xyz.junerver.composehooks.utils.now
  */
 @Composable
 fun UseGetStateExample() {
-    Surface {
-        ScrollColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                text = "useGetState Examples",
-                style = MaterialTheme.typography.headlineMedium,
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "useGetState Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            // Basic usage example
-            ExampleCard(title = "Basic Usage") {
-                BasicUsageExample()
-            }
+        // Basic usage example
+        ExampleCard(title = "Basic Usage") {
+            BasicUsageExample()
+        }
 
-            // Closure problem solution example
-            ExampleCard(title = "Solving Closure Problems") {
-                ClosureProblemExample()
-            }
+        // Closure problem solution example
+        ExampleCard(title = "Solving Closure Problems") {
+            ClosureProblemExample()
+        }
 
-            // Rapid state updates example
-            ExampleCard(title = "Handling Rapid State Updates") {
-                RapidStateUpdatesExample()
-            }
+        // Rapid state updates example
+        ExampleCard(title = "Handling Rapid State Updates") {
+            RapidStateUpdatesExample()
         }
     }
 }

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -52,41 +51,31 @@ import xyz.junerver.composehooks.utils.now
  */
 @Composable
 fun UseMountExample() {
-    Surface {
-        ScrollColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            // 页面标题
-            Text(
-                text = "useMount, useUnmount & useUnmountedRef Examples",
-                style = MaterialTheme.typography.headlineMedium,
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "useMount, useUnmount & useUnmountedRef Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            // 介绍文本
-            Text(
-                text = "These hooks provide lifecycle management for composable functions, allowing you to execute code when a component mounts or unmounts.",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
+        // 交互式演示
+        InteractiveMountDemo()
 
-            // 交互式演示
-            InteractiveMountDemo()
+        // 基本用法示例
+        ExampleCard(title = "Basic Usage") {
+            BasicMountExample()
+        }
 
-            // 基本用法示例
-            ExampleCard(title = "Basic Usage") {
-                BasicMountExample()
-            }
+        // 使用 useUnmountedRef 示例
+        ExampleCard(title = "Using useUnmountedRef") {
+            UnmountedRefExample()
+        }
 
-            // 使用 useUnmountedRef 示例
-            ExampleCard(title = "Using useUnmountedRef") {
-                UnmountedRefExample()
-            }
-
-            // 实际应用示例
-            ExampleCard(title = "Practical Application: Resource Cleanup") {
-                ResourceCleanupExample()
-            }
+        // 实际应用示例
+        ExampleCard(title = "Practical Application: Resource Cleanup") {
+            ResourceCleanupExample()
         }
     }
 }

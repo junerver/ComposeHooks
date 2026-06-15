@@ -1,5 +1,6 @@
 package xyz.junerver.composehooks.example
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -7,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -44,31 +44,25 @@ import xyz.junerver.composehooks.ui.component.randomBackground
  */
 @Composable
 fun UseTimestampExample() {
-    Surface {
-        ScrollColumn(
-            modifier = Modifier.padding(16.dp),
-        ) {
-            Text(
-                text = "Timestamp Hook Examples",
-                style = MaterialTheme.typography.headlineMedium,
-                modifier = Modifier.padding(bottom = 16.dp),
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "useTimestamp Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            ExampleCard(title = "Basic Timestamp Example") {
-                BasicTimestampExample()
-            }
+        ExampleCard(title = "Basic Timestamp Example") {
+            BasicTimestampExample()
+        }
 
-            Spacer(modifier = Modifier.height(16.dp))
+        ExampleCard(title = "Timestamp Reference Example") {
+            TimestampRefExample()
+        }
 
-            ExampleCard(title = "Timestamp Reference Example") {
-                TimestampRefExample()
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            ExampleCard(title = "Comparison Example") {
-                ComparisonExample()
-            }
+        ExampleCard(title = "Comparison Example") {
+            ComparisonExample()
         }
     }
 }

@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,44 +41,36 @@ import xyz.junerver.composehooks.ui.component.TButton
  */
 @Composable
 fun UseListExample() {
-    Surface {
-        ScrollColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                text = "useList Examples",
-                style = MaterialTheme.typography.headlineMedium,
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "useList Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            Text(
-                text = "This hook provides a convenient way to create and manage a mutable list state that triggers recomposition when modified.",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
+        // Interactive Demo
+        InteractiveListDemo()
 
-            // Interactive Demo
-            InteractiveListDemo()
+        // Basic usage example
+        ExampleCard(title = "Basic Usage") {
+            BasicListExample()
+        }
 
-            // Basic usage example
-            ExampleCard(title = "Basic Usage") {
-                BasicListExample()
-            }
+        // List operations example
+        ExampleCard(title = "List Operations") {
+            ListOperationsExample()
+        }
 
-            // List operations example
-            ExampleCard(title = "List Operations") {
-                ListOperationsExample()
-            }
+        // List reduce example
+        ExampleCard(title = "List Reduce") {
+            ListReduceExample()
+        }
 
-            // List reduce example
-            ExampleCard(title = "List Reduce") {
-                ListReduceExample()
-            }
-
-            // Practical application
-            ExampleCard(title = "Practical Application: Dynamic List") {
-                DynamicListExample()
-            }
+        // Practical application
+        ExampleCard(title = "Practical Application: Dynamic List") {
+            DynamicListExample()
         }
     }
 }

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -36,38 +35,28 @@ import xyz.junerver.composehooks.ui.component.TButton
  */
 @Composable
 fun UseNumberExample() {
-    Surface {
-        ScrollColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            // Page title
-            Text(
-                text = "Number State Examples",
-                style = MaterialTheme.typography.headlineMedium,
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "Number State Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            // Introduction text
-            Text(
-                text = "These examples demonstrate different ways to manage numeric state in Compose. The useState hook provides a generic way to handle state, while specialized hooks like useInt, useLong, useFloat, and useDouble offer optimized performance for specific number types.",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
+        // Generic useState example
+        ExampleCard(title = "Generic useState with Numbers") {
+            GenericStateExample()
+        }
 
-            // Generic useState example
-            ExampleCard(title = "Generic useState with Numbers") {
-                GenericStateExample()
-            }
+        // Specialized number hooks example
+        ExampleCard(title = "Specialized Number Hooks") {
+            SpecializedNumberHooksExample()
+        }
 
-            // Specialized number hooks example
-            ExampleCard(title = "Specialized Number Hooks") {
-                SpecializedNumberHooksExample()
-            }
-
-            // Performance comparison example
-            ExampleCard(title = "Performance Comparison") {
-                PerformanceComparisonExample()
-            }
+        // Performance comparison example
+        ExampleCard(title = "Performance Comparison") {
+            PerformanceComparisonExample()
         }
     }
 }

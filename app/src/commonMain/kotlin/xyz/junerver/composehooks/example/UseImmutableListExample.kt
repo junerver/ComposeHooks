@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -41,30 +40,28 @@ import xyz.junerver.composehooks.ui.component.randomBackground
  */
 @Composable
 fun UseImmutableListExample() {
-    Surface {
-        ScrollColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                text = "useImmutableList Examples",
-                style = MaterialTheme.typography.headlineMedium,
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "useImmutableList Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            // Basic usage example
-            ExampleCard(title = "Basic Usage") {
-                BasicUsageExample()
-            }
+        // Basic usage example
+        ExampleCard(title = "Basic Usage") {
+            BasicUsageExample()
+        }
 
-            // List operations example
-            ExampleCard(title = "List Operations") {
-                ListOperationsExample()
-            }
+        // List operations example
+        ExampleCard(title = "List Operations") {
+            ListOperationsExample()
+        }
 
-            // List reduce example
-            ExampleCard(title = "List Reduce") {
-                ListReduceExample()
-            }
+        // List reduce example
+        ExampleCard(title = "List Reduce") {
+            ListReduceExample()
         }
     }
 }

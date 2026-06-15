@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -95,45 +94,37 @@ val simpleStore = createStore(arrayOf(logMiddleware())) {
 @Composable
 fun UseReduxExample() {
     /** Store is provided by root component, see at MainActivity */
-    Surface {
-        ScrollColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                text = "useRedux Examples",
-                style = MaterialTheme.typography.headlineMedium,
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "useRedux Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            Text(
-                text = "The useRedux hook provides a powerful state management solution based on Redux pattern, with centralized store, actions, and reducers.",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
+        // Interactive Demo
+        InteractiveReduxDemo()
 
-            // Interactive Demo
-            InteractiveReduxDemo()
+        // Basic Usage
+        ExampleCard(title = "Basic Usage: Simple Data Management") {
+            SimpleDataContainer()
+        }
 
-            // Basic Usage
-            ExampleCard(title = "Basic Usage: Simple Data Management") {
-                SimpleDataContainer()
-            }
+        // Todo List Example
+        ExampleCard(title = "Practical Application: Todo List") {
+            TodosListContainer()
+        }
 
-            // Todo List Example
-            ExampleCard(title = "Practical Application: Todo List") {
-                TodosListContainer()
-            }
-
-            // Async Operations
-            ExampleCard(title = "Advanced Usage: Complex Asynchronous Requests") {
-                Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Text(
-                        text = "Demonstrates how to build a tool for complex asynchronous requests based on useSelector and useDispatchAsync, featuring automatic requests, request state transitions, error retries, and default parameters.",
-                        style = MaterialTheme.typography.bodySmall,
-                    )
-                    UseReduxFetchErrorRetrySample()
-                    UseReduxFetchUserInfoSample()
-                }
+        // Async Operations
+        ExampleCard(title = "Advanced Usage: Complex Asynchronous Requests") {
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text(
+                    text = "Demonstrates how to build a tool for complex asynchronous requests based on useSelector and useDispatchAsync, featuring automatic requests, request state transitions, error retries, and default parameters.",
+                    style = MaterialTheme.typography.bodySmall,
+                )
+                UseReduxFetchErrorRetrySample()
+                UseReduxFetchUserInfoSample()
             }
         }
     }

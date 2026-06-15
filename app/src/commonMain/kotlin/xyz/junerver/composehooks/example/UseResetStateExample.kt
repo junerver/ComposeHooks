@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -39,33 +38,31 @@ import xyz.junerver.composehooks.utils.Timestamp
  */
 @Composable
 fun UseResetStateExample() {
-    Surface {
-        ScrollColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            Text(
-                text = "useResetState Examples",
-                style = MaterialTheme.typography.headlineMedium,
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "useResetState Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            // Interactive Demo
-            InteractiveResetStateDemo()
+        // Interactive Demo
+        InteractiveResetStateDemo()
 
-            // Basic usage example
-            ExampleCard(title = "Basic Usage") {
-                BasicResetStateExample()
-            }
+        // Basic usage example
+        ExampleCard(title = "Basic Usage") {
+            BasicResetStateExample()
+        }
 
-            // Advanced usage example
-            ExampleCard(title = "Form Reset Example") {
-                FormResetExample()
-            }
+        // Advanced usage example
+        ExampleCard(title = "Form Reset Example") {
+            FormResetExample()
+        }
 
-            // Practical application
-            ExampleCard(title = "Practical Application: Settings Panel") {
-                SettingsPanelExample()
-            }
+        // Practical application
+        ExampleCard(title = "Practical Application: Settings Panel") {
+            SettingsPanelExample()
         }
     }
 }

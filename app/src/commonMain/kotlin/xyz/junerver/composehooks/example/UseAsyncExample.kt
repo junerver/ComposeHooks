@@ -1,10 +1,10 @@
 package xyz.junerver.composehooks.example
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -40,32 +40,37 @@ fun UseAsyncExample() {
 
     val (cancelableAsyncRun, cancel, isRunning) = useCancelableAsync()
 
-    Surface {
-        Column {
-            Text(text = "count:${getState()}")
-            Spacer(modifier = Modifier.height(20.dp))
-            Text("The asynchronous closure is passed as an argument to `useAsync`")
-            TButton(text = "delay  +1") {
-                async()
+    Column(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "useAsync Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
+
+        Text(text = "count:${getState()}")
+        Text("The asynchronous closure is passed as an argument to `useAsync`")
+        TButton(text = "delay  +1") {
+            async()
+        }
+        Text("equivalent to `rememberCoroutineScope`")
+        TButton(text = "delay +1") {
+            asyncRun {
+                delay(1.seconds)
+                setState { it + 1 }
             }
-            Text("equivalent to `rememberCoroutineScope`")
+        }
+        Text("useCancelableAsync")
+        Row {
             TButton(text = "delay +1") {
-                asyncRun {
+                cancelableAsyncRun {
                     delay(1.seconds)
                     setState { it + 1 }
                 }
             }
-            Text("useCancelableAsync")
-            Row {
-                TButton(text = "delay +1") {
-                    cancelableAsyncRun {
-                        delay(1.seconds)
-                        setState { it + 1 }
-                    }
-                }
-                TButton(text = "cancel", enabled = isRunning.value) {
-                    cancel()
-                }
+            TButton(text = "cancel", enabled = isRunning.value) {
+                cancel()
             }
         }
     }

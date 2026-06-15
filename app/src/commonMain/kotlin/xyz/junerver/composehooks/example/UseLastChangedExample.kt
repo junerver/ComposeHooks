@@ -1,5 +1,6 @@
 package xyz.junerver.composehooks.example
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -46,17 +47,13 @@ import xyz.junerver.composehooks.utils.now
 
 @Composable
 fun UseLastChangedExample() {
-    ScrollColumn(modifier = Modifier.padding(16.dp)) {
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
         Text(
             text = "useLastChanged & useTimeAgo",
             style = MaterialTheme.typography.headlineMedium,
-            modifier = Modifier.padding(bottom = 8.dp),
-        )
-
-        Text(
-            text = "These hooks are used to track the last change time of a value and display time differences in a human-readable format.",
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(bottom = 16.dp),
         )
 
         Spacer(modifier = Modifier.height(8.dp))

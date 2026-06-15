@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,38 +42,28 @@ import xyz.junerver.composehooks.ui.component.TButton
  */
 @Composable
 fun UsePersistentExample() {
-    Surface {
-        ScrollColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            // Page title
-            Text(
-                text = "usePersistent Examples",
-                style = MaterialTheme.typography.headlineMedium,
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "usePersistent Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            // Introduction text
-            Text(
-                text = "This hook provides a way to create and manage state that persists across component recompositions and app restarts. It supports both memory-based and custom persistence solutions.",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
+        // Default persistence example
+        ExampleCard(title = "Memory Persistence") {
+            DefaultPersistent()
+        }
 
-            // Default persistence example
-            ExampleCard(title = "Memory Persistence") {
-                DefaultPersistent()
-            }
+        // MMKV persistence example
+        ExampleCard(title = "Custom Persistence (MMKV)") {
+            MMKVPersistent()
+        }
 
-            // MMKV persistence example
-            ExampleCard(title = "Custom Persistence (MMKV)") {
-                MMKVPersistent()
-            }
-
-            // Comparison with ViewModel
-            ExampleCard(title = "Comparison with ViewModel") {
-                VsViewModel()
-            }
+        // Comparison with ViewModel
+        ExampleCard(title = "Comparison with ViewModel") {
+            VsViewModel()
         }
     }
 }

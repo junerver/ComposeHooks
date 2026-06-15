@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -44,43 +43,33 @@ import xyz.junerver.composehooks.utils.tsMs
  */
 @Composable
 fun UseNowExample() {
-    Surface {
-        ScrollColumn(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            // Page title
-            Text(
-                text = "useNow Examples",
-                style = MaterialTheme.typography.headlineMedium,
-            )
+    ScrollColumn(
+        modifier = Modifier.padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            text = "useNow Examples",
+            style = MaterialTheme.typography.headlineMedium,
+        )
 
-            // Introduction text
-            Text(
-                text = "This hook provides a way to display the current time that updates at regular intervals. It supports both default formatting and custom formatting through a format function.",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier.padding(bottom = 8.dp),
-            )
+        // Interactive Demo
+        ExampleCard(title = "Interactive Demo") {
+            InteractiveTimeDemo()
+        }
 
-            // Interactive Demo
-            ExampleCard(title = "Interactive Demo") {
-                InteractiveTimeDemo()
-            }
+        // Basic usage example
+        ExampleCard(title = "Basic Usage") {
+            BasicTimeExample()
+        }
 
-            // Basic usage example
-            ExampleCard(title = "Basic Usage") {
-                BasicTimeExample()
-            }
+        // Custom format example
+        ExampleCard(title = "Custom Formats") {
+            CustomFormatExample()
+        }
 
-            // Custom format example
-            ExampleCard(title = "Custom Formats") {
-                CustomFormatExample()
-            }
-
-            // Interval control example
-            ExampleCard(title = "Update Interval Control") {
-                IntervalControlExample()
-            }
+        // Interval control example
+        ExampleCard(title = "Update Interval Control") {
+            IntervalControlExample()
         }
     }
 }
