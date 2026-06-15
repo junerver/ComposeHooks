@@ -89,6 +89,8 @@ private val hookCategories = listOf(
             HookItem("useList", "useList"),
             HookItem("useMap", "useMap"),
             HookItem("useNumber", "useNumber"),
+            HookItem("useControllable", "useControllable"),
+            HookItem("useMemoizedFn", "useMemoizedFn"),
         ),
     ),
     HookCategory(
@@ -98,6 +100,10 @@ private val hookCategories = listOf(
             HookItem("useEffect", "useEffect"),
             HookItem("useUpdateEffect", "useUpdateEffect"),
             HookItem("usePausableEffect", "usePausableEffect"),
+            HookItem("useDebounceEffect", "useDebounce"),
+            HookItem("useThrottleEffect", "useThrottle"),
+            HookItem("useBackToFrontEffect", "useBackFront"),
+            HookItem("useFrontToBackEffect", "useBackFront"),
         ),
     ),
     HookCategory(
@@ -106,6 +112,7 @@ private val hookCategories = listOf(
         hooks = listOf(
             HookItem("useMount", "useMount"),
             HookItem("useUnmount", "useUnmount"),
+            HookItem("useUnmountedRef", "useUnmount"),
         ),
     ),
     HookCategory(
@@ -129,6 +136,7 @@ private val hookCategories = listOf(
         hooks = listOf(
             HookItem("useRequest", "useRequest"),
             HookItem("useAsync", "useAsync"),
+            HookItem("useSse", "useSse"),
         ),
     ),
     HookCategory(
@@ -142,6 +150,7 @@ private val hookCategories = listOf(
             HookItem("useSorted", "useSorted"),
             HookItem("useUndo", "useUndo"),
             HookItem("useUpdate", "useUpdate"),
+            HookItem("useKeyboard", "useKeyboard"),
         ),
     ),
     HookCategory(
@@ -153,6 +162,21 @@ private val hookCategories = listOf(
         ),
     ),
     HookCategory(
+        name = "Math",
+        icon = "\uD83E\uDDEE",
+        hooks = listOf(
+            HookItem("useAbs", "useMath"),
+            HookItem("useCeil", "useMath"),
+            HookItem("useFloor", "useMath"),
+            HookItem("useRound", "useMath"),
+            HookItem("useTrunc", "useMath"),
+            HookItem("useMin", "useMath"),
+            HookItem("useMax", "useMath"),
+            HookItem("usePow", "useMath"),
+            HookItem("useSqrt", "useMath"),
+        ),
+    ),
+    HookCategory(
         name = "AI",
         icon = "\uD83E\uDD16",
         hooks = listOf(
@@ -161,6 +185,26 @@ private val hookCategories = listOf(
             HookItem("useGenerateObject", "useGenerateObject"),
             HookItem("useAsr", "useAsr"),
             HookItem("useTts", "useTts"),
+        ),
+    ),
+    HookCategory(
+        name = "Android",
+        icon = "\uD83D\uDCF1",
+        hooks = listOf(
+            HookItem("useBiometric", "useBiometric"),
+            HookItem("useDeviceInfo", "useDeviceInfo"),
+            HookItem("useIdle", "useIdle"),
+            HookItem("useIlluminance", "useIlluminance"),
+            HookItem("useNetwork", "useNetwork"),
+            HookItem("useSensor", "useSensor"),
+            HookItem("useVibrate", "useVibrate"),
+        ),
+    ),
+    HookCategory(
+        name = "Desktop",
+        icon = "\uD83D\uDDA5\uFE0F",
+        hooks = listOf(
+            HookItem("useKeyPress", "useKeyPress"),
         ),
     ),
 )

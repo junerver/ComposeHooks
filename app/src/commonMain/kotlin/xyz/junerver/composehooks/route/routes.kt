@@ -56,6 +56,12 @@ import xyz.junerver.composehooks.example.UseTtsExample
 import xyz.junerver.composehooks.example.UseUndoExample
 import xyz.junerver.composehooks.example.UseUpdateEffectExample
 import xyz.junerver.composehooks.example.UseUpdateExample
+import xyz.junerver.composehooks.example.UseBackFrontExample
+import xyz.junerver.composehooks.example.UseKeyboardExample
+import xyz.junerver.composehooks.example.UseMathExample
+import xyz.junerver.composehooks.example.UseControllableExample
+import xyz.junerver.composehooks.example.UseMemoizedFnExample
+import xyz.junerver.composehooks.example.UseSseExample
 import xyz.junerver.composehooks.example.request.AutoManual
 import xyz.junerver.composehooks.example.request.Cache
 import xyz.junerver.composehooks.example.request.Cancel
@@ -88,6 +94,7 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "DeferReads" to { DeferReads() },
     "useRequest" to { RequestExampleList() },
     "useAsync" to { UseAsyncExample() },
+    "useSse" to { UseSseExample() },
     "useAutoReset" to { UseAutoResetExample() },
     "useAgent" to { UseAgentExample() },
     "useAsr" to { UseAsrExample() },
@@ -136,6 +143,11 @@ val routes = mapOf<String, @Composable () -> Unit>(
     "useTimeoutFn" to { UseTimeoutFnExample() },
     "useTimeoutPoll" to { UseTimeoutPollExample() },
     "usePausableEffect" to { UsePausableEffectExample() },
+    "useBackFront" to { UseBackFrontExample() },
+    "useKeyboard" to { UseKeyboardExample() },
+    "useMath" to { UseMathExample() },
+    "useControllable" to { UseControllableExample() },
+    "useMemoizedFn" to { UseMemoizedFnExample() },
     "useCycleList" to { UseCycleListExample() },
     "useSorted" to { UseSortedExample() },
     "useTable" to { UseTableExample() },
