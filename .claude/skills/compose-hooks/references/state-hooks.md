@@ -3,15 +3,21 @@
 ## 目录
 
 - [useState](#usestate)
+- [useStateAsync](#usestateasync)
 - [useGetState](#usegetstate)
+- [useControllable](#usecontrollable)
 - [useBoolean](#useboolean)
 - [useToggle](#usetoggle)
 - [useReducer](#usereducer)
 - [useRef](#useref)
 - [useLatest](#uselatest)
+- [useLastChanged](#uselastchanged)
 - [useList](#uselist)
 - [useMap](#usemap)
 - [useImmutableList](#useimmutablelist)
+- [useSorted](#usesorted)
+- [useCycleList](#usecyclelist)
+- [useSelectable](#useselectable)
 - [useResetState](#useresetstate)
 - [useAutoReset](#useautoreset)
 - [usePrevious](#useprevious)
@@ -20,6 +26,7 @@
 - [useContext](#usecontext)
 - [useSelector/useDispatch](#useselectorusedispatch)
 - [useStateMachine](#usestatemachine)
+- [数值类型 Hooks](#数值类型-hooks)
 
 ---
 
@@ -30,6 +37,7 @@
 **重要**：useState 解构使用时存在闭包问题和快速更新丢失问题，推荐：
 - 需要解构时使用 `useGetState`
 - 使用 `by` 委托访问
+- 需要异步初始化时使用 `useStateAsync`
 
 ```kotlin
 // 推荐：使用 by 委托
@@ -66,6 +74,46 @@ LaunchedEffect(Unit) {
 }
 ```
 
+### 派生状态重载
+
+`useState` 有一个接受 `keys` + `factory` 的重载，内部封装了 `derivedStateOf`，返回只读 `State<T>`。它是项目的计算属性，等价于 `remember(keys) { derivedStateOf(factory) }`。
+
+```kotlin
+// 基础用法：依赖变化时重新计算
+val fullName by useState(firstName, lastName) {
+    "$firstName $lastName"
+}
+
+// 列表过滤/派生
+val filteredList by useState(searchText, sourceList) {
+    if (searchText.isEmpty()) sourceList
+    else sourceList.filter { it.contains(searchText) }
+}
+```
+
+**适用场景**：
+- 替代直接使用 `derivedStateOf`（项目规范要求用 `useState` 代替）
+- 当需要基于其他状态派生出新的只读状态时
+- 与 `useEffect` 不同，派生状态是同步计算、惰性求值的，不执行副作用
+
+**注意**：此重载返回 `State<T>`（只读），不是 `MutableState`，不支持 `by` 赋值。
+
+---
+
+## useStateAsync
+
+异步初始化状态，适用于需要从数据库或网络获取初始值的场景。
+
+```kotlin
+val state = useStateAsync {
+    // 在协程中异步获取初始值
+    database.getDefaultValue()
+}
+
+// state.value 在初始化完成前为 null，完成后为实际值
+Text("值: ${state.value ?: "加载中..."}")
+```
+
 ---
 
 ## useGetState
@@ -88,6 +136,37 @@ val currentValue = getState()
 **适用场景**：
 - 协程/回调中需要访问最新状态
 - 快速连续更新状态
+
+---
+
+## useControllable
+
+受控/非受控组件模式。当父组件传入值时使用受控模式，否则使用内部状态。
+
+```kotlin
+// 受控模式：父组件传入 value
+@Composable
+fun MyTextField(
+    value: String? = null,  // 可选，不传则为非受控模式
+    onValueChange: (String) -> Unit = {}
+) {
+    val (state, setValue, getState) = useControllable(value ?: "")
+    
+    OutlinedTextField(
+        value = state.value,
+        onValueChange = { newValue ->
+            setValue(newValue)
+            onValueChange(newValue)
+        }
+    )
+}
+
+// 非受控模式
+MyTextField()  // 使用内部状态
+
+// 受控模式
+MyTextField(value = externalValue, onValueChange = { updateExternal(it) })
+```
 
 ---
 
@@ -129,6 +208,17 @@ toggle()  // A -> B -> A
 
 // 不同类型切换
 val (state, toggle, setValue) = useToggleEither("left", 100)
+
+// 可见性切换（单内容）
+val (content, toggle) = useToggleVisible(content = { Text("Hello") })
+toggle()  // 显示/隐藏
+
+// 可见性切换（双内容）
+val (content, toggle) = useToggleVisible(
+    content1 = { Text("内容1") },
+    content2 = { Text("内容2") }
+)
+toggle()  // 切换内容
 ```
 
 ---
@@ -222,6 +312,38 @@ useEffect {
 }
 ```
 
+### useLatestState
+
+始终返回最新 State 值的引用（State 版本）。
+
+```kotlin
+val state = useState(0)
+val latestState = useLatestState(state)
+
+useEffect {
+    delay(1.seconds)
+    println(latestState.current.value)
+}
+```
+
+---
+
+## useLastChanged
+
+追踪值的最后变更时间。
+
+```kotlin
+val (count, setCount) = useState(0)
+val lastChanged = useLastChanged(count)
+
+// count 变化时，lastChanged 自动更新为当前时间
+Text("最后修改: ${lastChanged.value}")
+
+Button(onClick = { setCount { it + 1 } }) {
+    Text("增加")
+}
+```
+
 ---
 
 ## useList
@@ -281,6 +403,65 @@ mutate { it.replaceAll { it * 2 } }
 
 // 访问当前列表
 val currentList = list.value
+```
+
+---
+
+## useSorted
+
+列表排序 Hook。
+
+```kotlin
+val list = listOf(3, 1, 4, 1, 5)
+val sorted by useSorted(list) { a, b -> a.compareTo(b) }
+
+// 或使用配置
+val sorted by useSorted(list) {
+    compareFn = { a, b -> a.compareTo(b) }
+    dirty = false  // 是否修改原列表
+}
+```
+
+---
+
+## useCycleList
+
+循环列表，在列表元素间循环切换。
+
+```kotlin
+val (current, next, prev, go) = useCycleList(listOf("A", "B", "C"))
+
+// current.value = "A"
+next()  // "B"
+next()  // "C"
+next()  // "A" (循环)
+prev()  // "C"
+go(1)   // "B" (跳转到索引)
+```
+
+---
+
+## useSelectable
+
+选择/多选功能。
+
+```kotlin
+data class Item(val id: Int, val name: String)
+val items = listOf(Item(1, "A"), Item(2, "B"), Item(3, "C"))
+
+// 单选
+val (selected, select, isSelected) = useSelectable(
+    selectionMode = SelectionMode.Single,
+    items = items,
+    keyProvider = { it.id }
+)
+
+// 多选
+val (selected, toggle, isSelected, selectAll, clearAll) = useSelectable(
+    selectionMode = SelectionMode.Multiple,
+    items = items,
+    keyProvider = { it.id }
+)
 ```
 
 ---
@@ -411,6 +592,26 @@ fun Counter() {
 }
 ```
 
+### useDispatchAsync
+
+异步 dispatch，用于在 reducer 中执行异步操作。
+
+```kotlin
+@Composable
+fun AsyncCounter() {
+    val dispatchAsync = useDispatchAsync<AppAction>()
+
+    Button(onClick = {
+        dispatchAsync {
+            delay(1.seconds)  // 异步操作
+            AppAction.SetValue(100)
+        }
+    }) {
+        Text("异步更新")
+    }
+}
+```
+
 ---
 
 ## useStateMachine
@@ -450,3 +651,43 @@ val (currentState, send) = useStateMachine(machineGraph)
 
 send(Event.Load)
 ```
+
+---
+
+## 数值类型 Hooks
+
+专用于特定数值类型的轻量状态 Hook，避免装箱开销。
+
+### useInt
+
+```kotlin
+val count = useInt(0)
+count.intValue++
+Text("Count: ${count.intValue}")
+```
+
+### useLong
+
+```kotlin
+val id = useLong(0L)
+id.longValue = 123456789L
+Text("ID: ${id.longValue}")
+```
+
+### useFloat
+
+```kotlin
+val ratio = useFloat(0f)
+ratio.floatValue = 0.5f
+Text("Ratio: ${ratio.floatValue}")
+```
+
+### useDouble
+
+```kotlin
+val price = useDouble(0.0)
+price.doubleValue = 99.99
+Text("Price: ${price.doubleValue}")
+```
+
+**说明**：这些 Hooks 返回 Compose 的 `MutableIntState`/`MutableLongState`/`MutableFloatState`/`MutableDoubleState`，适用于对性能要求较高的数值场景。

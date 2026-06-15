@@ -5,15 +5,19 @@
 - [useDebounce / useDebounceFn](#usedebounce--usedebouncefn)
 - [useThrottle / useThrottleFn](#usethrottle--usethrottlefn)
 - [useInterval](#useinterval)
+- [useTimeout](#usetimeout)
 - [useTimeoutFn](#usetimeoutfn)
 - [useTimeoutPoll](#usetimeoutpoll)
 - [useCountdown](#usecountdown)
 - [useCounter](#usecounter)
 - [useUndo](#useundo)
 - [useAsync](#useasync)
+- [useCancelableAsync](#usecancelableasync)
+- [useMemoizedFn](#usememorizedfn)
 - [useUpdate](#useupdate)
 - [useEvent](#useevent)
 - [useClipboard](#useclipboard)
+- [useKeyboard](#usekeyboard)
 - [useCycleList](#usecyclelist)
 - [useSelectable](#useselectable)
 - [useSorted](#usesorted)
@@ -132,6 +136,20 @@ optionsOf = {
     period = 1.seconds         // 间隔时间
     initialDelay = 0.seconds   // 初始延迟
 }
+```
+
+---
+
+## useTimeout
+
+简单延时执行，无需手动控制。
+
+```kotlin
+useTimeout(delay = 3.seconds) {
+    showNotification()
+}
+
+// 立即开始计时，3秒后执行
 ```
 
 ---
@@ -273,12 +291,46 @@ Button(onClick = {
         updateUI(result)
     }
 }) { Text("执行") }
-
-// 方式3: 可取消
-val (run, cancel) = useCancelableAsync()
-run { longOperation() }
-cancel()  // 取消执行
 ```
+
+---
+
+## useCancelableAsync
+
+可取消的异步执行。
+
+```kotlin
+val (run, cancel) = useCancelableAsync()
+
+Button(onClick = {
+    run {
+        val data = longOperation()
+        processData(data)
+    }
+}) { Text("开始") }
+
+Button(onClick = cancel) { Text("取消") }
+```
+
+---
+
+## useMemoizedFn
+
+记忆化递归函数，使用堆栈而非调用栈，支持深度递归且自动缓存结果。
+
+```kotlin
+val fibonacci = useMemoizedFn<Int, Long> { n ->
+    if (n <= 1) n.toLong()
+    else callRecursive(n - 1) + callRecursive(n - 2)
+}
+
+// 使用
+val result = fibonacci(100)  // 快速计算，结果被缓存
+```
+
+**适用场景**：
+- 深度递归计算（避免栈溢出）
+- 需要缓存中间结果的纯函数
 
 ---
 
@@ -331,6 +383,28 @@ setText("复制的文本")
 
 // 清空
 clear()
+```
+
+---
+
+## useKeyboard
+
+键盘状态检测（软键盘弹出/收起）。
+
+```kotlin
+val keyboard = useKeyboard()
+
+// 检测软键盘是否弹出
+Text("键盘状态: ${if (keyboard.isVisible.value) "弹出" else "收起"}")
+
+// 根据键盘状态调整布局
+Box(
+    modifier = Modifier.padding(
+        bottom = if (keyboard.isVisible.value) keyboard.height.value.dp else 0.dp
+    )
+) {
+    // 内容
+}
 ```
 
 ---

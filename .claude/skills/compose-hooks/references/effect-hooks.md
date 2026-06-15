@@ -5,6 +5,7 @@
 - [useEffect](#useeffect)
 - [useMount](#usemount)
 - [useUnmount](#useunmount)
+- [useUnmountedRef](#useunmountedref)
 - [useUpdateEffect](#useupdateeffect)
 - [useDebounceEffect](#usedebounceeffect)
 - [useThrottleEffect](#usethrottleeffect)
@@ -131,6 +132,28 @@ private fun ResourceComponent(onStatusChange: (String) -> Unit) {
     }
 }
 ```
+
+---
+
+## useUnmountedRef
+
+追踪组件是否已卸载，用于避免在卸载后执行状态更新。
+
+```kotlin
+val unmountedRef = useUnmountedRef()
+
+useMount {
+    val data = fetchData()
+    if (!unmountedRef.current) {
+        // 仅在组件未卸载时更新状态
+        setData(data)
+    }
+}
+```
+
+**适用场景**：
+- 异步操作完成后需要更新状态
+- 防止 "setState on unmounted component" 警告
 
 ---
 
