@@ -164,6 +164,8 @@ implementation("xyz.junerver.compose:ai:<latest_release>")
 | [useChat](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseChatExample.kt) | A hook for managing chat conversations with OpenAI-compatible APIs and Anthropic Messages API, supporting streaming responses with typewriter effect. |
 | [useAgent](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseAgentExample.kt) | A hook for multi-step tool calling (agent loop) built on top of useChat. |
 | [useGenerateObject](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseGenerateObjectExample.kt) | A hook for generating structured data objects from AI responses, supports streaming and incremental object updates. |
+| [useAsr](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseAsrExample.kt) | A hook for automatic speech recognition (ASR) via OpenAI-compatible APIs, supporting multiple providers and audio file input. |
+| [useTts](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTtsExample.kt) | A hook for text-to-speech (TTS) synthesis via OpenAI-compatible APIs, supporting streaming and blocking modes with multiple providers. |
 
 **Features:**
 - Streaming responses (SSE) with real-time typewriter effect

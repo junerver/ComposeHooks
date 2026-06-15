@@ -171,6 +171,8 @@ implementation("xyz.junerver.compose:hai:<latest_release>")
 | [useChat](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseChatExample.kt) | 用于管理与 OpenAI 兼容 API 和 Anthropic Messages API 聊天对话的 Hook，支持流式响应的打字机效果。 |
 | [useAgent](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseAgentExample.kt) | 用于多轮工具调用（agent loop）的 Hook（构建在 useChat 之上）。 |
 | [useGenerateObject](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseGenerateObjectExample.kt) | 用于从 AI 响应生成结构化数据对象的 Hook，支持流式与增量更新对象。 |
+| [useAsr](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseAsrExample.kt) | 用于语音识别（ASR）的 Hook，通过 OpenAI 兼容 API 实现，支持多种 Provider 和音频文件输入。 |
+| [useTts](https://github.com/junerver/ComposeHooks/blob/master/app/src/commonMain/kotlin/xyz/junerver/composehooks/example/UseTtsExample.kt) | 用于语音合成（TTS）的 Hook，通过 OpenAI 兼容 API 实现，支持流式和阻塞模式，支持多种 Provider。 |
 
 **功能特性：**
 - 流式响应 (SSE)，实时打字机效果
