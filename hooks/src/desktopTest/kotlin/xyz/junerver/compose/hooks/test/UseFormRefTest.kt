@@ -181,5 +181,3 @@ class UseFormRefTest {
         assertFalse(formRef.isValidated)
     }
 }
-
-

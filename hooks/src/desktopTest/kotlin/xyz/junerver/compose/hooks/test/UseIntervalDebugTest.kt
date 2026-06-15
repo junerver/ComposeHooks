@@ -75,6 +75,3 @@ class UseIntervalDebugTest {
         onNodeWithText("count=1 active=true started=true").assertExists()
     }
 }
-
-
-

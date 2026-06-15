@@ -898,6 +898,3 @@ class UseStateMachineTest {
         onNodeWithText("state=Idle").assertExists()
     }
 }
-
-
-

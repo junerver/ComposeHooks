@@ -82,6 +82,3 @@ class UseTableRequestTest {
         assertEquals("active", last.columnFilters["status"])
     }
 }
-
-
-

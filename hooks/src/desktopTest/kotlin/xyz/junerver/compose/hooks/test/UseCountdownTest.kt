@@ -329,6 +329,3 @@ class UseCountdownTest {
         assertTrue(updatedFound, "Expected seconds to update")
     }
 }
-
-
-

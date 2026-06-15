@@ -192,6 +192,3 @@ class UsePreviousTest {
         onNodeWithText("current=fourth previous=third phase=3").assertExists()
     }
 }
-
-
-

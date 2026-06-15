@@ -180,6 +180,3 @@ class UseCreationTest {
         assert(creationCount == 1) { "Expected creationCount=1, got $creationCount" }
     }
 }
-
-
-

@@ -362,6 +362,3 @@ class UseIntervalTest {
         assertTrue(found, "Expected count >= 12 with multiplier=10")
     }
 }
-
-
-

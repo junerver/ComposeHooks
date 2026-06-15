@@ -112,6 +112,3 @@ class UseTimeoutFnTest {
         onNodeWithText("isPending=true started=true").assertExists()
     }
 }
-
-
-

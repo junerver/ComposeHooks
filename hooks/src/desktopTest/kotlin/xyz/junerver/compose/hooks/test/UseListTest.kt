@@ -247,6 +247,3 @@ class UseListTest {
         onNodeWithText("size=4 counter=2").assertExists()
     }
 }
-
-
-

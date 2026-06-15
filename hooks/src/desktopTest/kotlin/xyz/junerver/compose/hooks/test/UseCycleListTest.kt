@@ -288,6 +288,3 @@ class UseCycleListTest {
         onNodeWithText("value=30 phase=2").assertExists()
     }
 }
-
-
-

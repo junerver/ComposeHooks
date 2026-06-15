@@ -360,6 +360,3 @@ class UseTimeoutPollTest {
         onNodeWithText("count=$finalCount mounted=false").assertExists()
     }
 }
-
-
-

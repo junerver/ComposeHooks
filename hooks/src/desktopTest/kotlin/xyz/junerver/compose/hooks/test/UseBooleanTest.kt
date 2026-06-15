@@ -218,6 +218,3 @@ class UseBooleanTest {
         onNodeWithText("value=true").assertExists()
     }
 }
-
-
-

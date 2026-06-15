@@ -56,6 +56,3 @@ class UseRefTest {
         assertEquals(2, refresh) // component recompose sideEffect executed
     }
 }
-
-
-

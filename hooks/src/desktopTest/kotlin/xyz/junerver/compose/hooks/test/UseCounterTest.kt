@@ -358,6 +358,3 @@ class UseCounterTest {
         onNodeWithText("value=10 phase=3").assertExists()
     }
 }
-
-
-

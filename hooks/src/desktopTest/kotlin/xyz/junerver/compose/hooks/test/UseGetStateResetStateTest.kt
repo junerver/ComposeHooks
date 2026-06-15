@@ -278,6 +278,3 @@ class UseGetStateResetStateTest {
         onNodeWithText("value=initial phase=2").assertExists()
     }
 }
-
-
-
