@@ -3,8 +3,8 @@
 package xyz.junerver.compose.ai.multiprovider
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import xyz.junerver.compose.ai.usechat.ChatProvider
+import xyz.junerver.compose.hooks.useCreation
 
 /*
   Description: Provider component for multi-provider support
@@ -84,13 +84,13 @@ fun ModelsProvider(
 ) {
     require(providers.isNotEmpty()) { "At least one provider must be specified" }
 
-    val contextValue = remember(providers, strategy, retryConfig) {
+    val contextValue = useCreation(providers, strategy, retryConfig) {
         ModelsContextValue(
             providers = providers,
             strategy = strategy,
             retryConfig = retryConfig,
         )
-    }
+    }.current
 
     ModelsContext.Provider(value = contextValue, content = content)
 }

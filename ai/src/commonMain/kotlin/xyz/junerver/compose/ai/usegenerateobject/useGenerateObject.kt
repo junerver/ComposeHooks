@@ -3,8 +3,6 @@ package xyz.junerver.compose.ai.usegenerateobject
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.remember
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
@@ -16,6 +14,8 @@ import xyz.junerver.compose.ai.usechat.TextPart
 import xyz.junerver.compose.ai.usechat.UserContentPart
 import xyz.junerver.compose.ai.usechat.useChat
 import xyz.junerver.compose.hooks._useState
+import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useLatestRef
 
@@ -211,7 +211,7 @@ fun <T : Any> useGenerateObject(
     serializer: KSerializer<T>,
     optionsOf: GenerateObjectOptions<T>.() -> Unit = {},
 ): GenerateObjectHolder<T> {
-    val options = remember { GenerateObjectOptions.optionOf(optionsOf) }.apply(optionsOf)
+    val options = useCreation { GenerateObjectOptions.optionOf(optionsOf) }.current.apply(optionsOf)
     val optionsRef = useLatestRef(options)
     val serializerRef = useLatestRef(serializer)
 
@@ -220,9 +220,9 @@ fun <T : Any> useGenerateObject(
     val parseError = _useState<Throwable?>(null)
 
     // Build schema-injected system prompt
-    val schemaSystemPrompt = remember(schema, options.systemPrompt) {
+    val schemaSystemPrompt = useCreation(schema, options.systemPrompt) {
         buildSchemaSystemPrompt(options.systemPrompt, schema)
-    }
+    }.current
 
     // Use useChat internally
     val chatHolder = useChat {
@@ -260,10 +260,13 @@ fun <T : Any> useGenerateObject(
     }
 
     // Derive rawJson from last assistant message
-    val rawJsonState = remember {
-        derivedStateOf {
-            chatHolder.messages.value.lastOrNull()?.textContent ?: ""
-        }
+    val rawJsonState = useState(chatHolder.messages.value) {
+        chatHolder.messages.value.lastOrNull()?.textContent ?: ""
+    }
+
+    // Combine chat error with parse error
+    val combinedError = useState(chatHolder.error.value, parseError.value) {
+        chatHolder.error.value ?: parseError.value
     }
 
     useEffect(rawJsonState.value, chatHolder.isLoading.value) {
@@ -282,24 +285,17 @@ fun <T : Any> useGenerateObject(
         }
     }
 
-    // Combine chat error with parse error
-    val combinedError = remember {
-        derivedStateOf {
-            chatHolder.error.value ?: parseError.value
-        }
-    }
-
     // Submit function - sends content and clears previous state
-    val submit: SubmitFn = remember(chatHolder) {
+    val submit: SubmitFn = useCreation(chatHolder) {
         { content: List<UserContentPart> ->
             parsedObject.value = null
             parseError.value = null
             chatHolder.setMessages(emptyList())
             chatHolder.sendMessage(content)
         }
-    }
+    }.current
 
-    return remember(chatHolder, parsedObject.value, parseError.value) {
+    return useCreation(chatHolder, parsedObject.value, parseError.value) {
         GenerateObjectHolder(
             object_ = parsedObject,
             rawJson = rawJsonState,
@@ -308,7 +304,7 @@ fun <T : Any> useGenerateObject(
             submit = submit,
             stop = chatHolder.stop,
         )
-    }
+    }.current
 }
 
 /**

@@ -3,7 +3,6 @@ package xyz.junerver.compose.ai.usechat
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import arrow.core.left
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
@@ -30,6 +29,7 @@ import xyz.junerver.compose.hooks._useGetState
 import xyz.junerver.compose.hooks._useState
 import xyz.junerver.compose.hooks.useCancelableAsync
 import xyz.junerver.compose.hooks.useContext
+import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.useRef
@@ -165,7 +165,7 @@ fun ChatHolder.sendWithFile(
  */
 @Composable
 fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
-    val options = remember { ChatOptions.optionOf(optionsOf) }.apply(optionsOf)
+    val options = useCreation { ChatOptions.optionOf(optionsOf) }.current.apply(optionsOf)
     val optionsRef = useLatestRef(options)
 
     // Token usage tracking (optional, if TokenUsageProvider is present)
@@ -184,9 +184,9 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
         options.provider == AIOptionsDefaults.DEFAULT_PROVIDER
 
     // Initialize messages with initial messages only (system prompt is handled internally)
-    val initialMessages = remember(options.initialMessages) {
+    val initialMessages = useCreation(options.initialMessages) {
         options.initialMessages.toImmutableList()
-    }
+    }.current
 
     // State management using hooks module
     val (messagesState, setMessagesInternal, getMessages) = _useGetState<ImmutableList<ChatMessage>>(initialMessages)
@@ -232,9 +232,9 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
     val setError: (Throwable?) -> Unit = { error -> setErrorInternal(error.left()) }
 
     // Send message function (multimodal)
-    val sendMessage: SendMessageFn = remember {
+    val sendMessage: SendMessageFn = useCreation {
         { content: List<UserContentPart> ->
-            if (content.isEmpty()) return@remember
+            if (content.isEmpty()) return@useCreation
 
             val userMsg = userMessage(content)
             val currentMessages = getMessages().toMutableList()
@@ -476,26 +476,26 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                 }
             }
         }
-    }
+    }.current
 
     // Set messages function
-    val setMessagesFn: SetMessagesFn = remember {
+    val setMessagesFn: SetMessagesFn = useCreation {
         { messages: List<ChatMessage> ->
             setMessages(messages.toImmutableList())
         }
-    }
+    }.current
 
     // Append message function
-    val appendMessage: AppendMessageFn = remember {
+    val appendMessage: AppendMessageFn = useCreation {
         { message: ChatMessage ->
             val current = getMessages().toMutableList()
             current.add(message)
             setMessages(current.toImmutableList())
         }
-    }
+    }.current
 
     // Reload function - regenerate the last assistant response
-    val reload: ReloadFn = remember {
+    val reload: ReloadFn = useCreation {
         {
             val currentMessages = getMessages().toMutableList()
             // Remove the last assistant message if exists
@@ -511,20 +511,20 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                 sendMessage(lastUserMessage.content)
             }
         }
-    }
+    }.current
 
     // Stop function
-    val stop: StopFn = remember {
+    val stop: StopFn = useCreation {
         {
             cancelAsync()
             setIsLoading(false)
         }
-    }
+    }.current
 
     // Token stats state (reactive - directly from tracker's MutableState)
     val tokenStats = tokenTracker?.stats
 
-    return remember {
+    return useCreation(messagesState, isLoadingState, errorState, sendMessage, setMessagesFn, appendMessage, reload, stop, tokenStats) {
         ChatHolder(
             messages = messagesState,
             isLoading = isLoadingState,
@@ -536,7 +536,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
             stop = stop,
             tokenStats = tokenStats,
         )
-    }
+    }.current
 }
 
 /**

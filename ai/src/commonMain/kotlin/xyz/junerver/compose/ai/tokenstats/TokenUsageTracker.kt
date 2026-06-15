@@ -4,13 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import xyz.junerver.compose.ai.usechat.ChatUsage
 import xyz.junerver.compose.hooks.createContext
 import xyz.junerver.compose.hooks.useContext
+import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useRef
 
@@ -226,7 +226,7 @@ fun useWindowTokens(
  */
 @Composable
 fun TokenUsageProvider(content: @Composable () -> Unit) {
-    val tracker = remember { TokenUsageTracker() }
+    val tracker = useCreation { TokenUsageTracker() }.current
     isTokenUsageContextProvided = true
     TokenUsageContext.Provider(tracker) {
         content()

@@ -3,7 +3,6 @@ package xyz.junerver.compose.ai.useagent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import arrow.core.left
 import kotlin.time.Duration
 import kotlinx.collections.immutable.ImmutableList
@@ -36,6 +35,7 @@ import xyz.junerver.compose.hooks.Options
 import xyz.junerver.compose.hooks._useGetState
 import xyz.junerver.compose.hooks._useState
 import xyz.junerver.compose.hooks.useCancelableAsync
+import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.useRef
@@ -108,15 +108,15 @@ data class AgentHolder(
 
 @Composable
 fun useAgent(optionsOf: AgentOptions.() -> Unit = {}): AgentHolder {
-    val options = remember { AgentOptions.optionOf(optionsOf) }.apply(optionsOf)
+    val options = useCreation { AgentOptions.optionOf(optionsOf) }.current.apply(optionsOf)
     val optionsRef = useLatestRef(options)
 
     // Token usage tracking (optional, if TokenUsageProvider is present)
     val tokenTracker = rememberTokenTracker()
 
-    val initialMessages = remember(options.initialMessages) {
+    val initialMessages = useCreation(options.initialMessages) {
         options.initialMessages.toImmutableList()
-    }
+    }.current
 
     val (messagesState, setMessagesInternal, getMessages) = _useGetState<ImmutableList<ChatMessage>>(initialMessages)
     val (isLoadingState, setIsLoadingInternal, _) = _useGetState(false)
@@ -133,30 +133,30 @@ fun useAgent(optionsOf: AgentOptions.() -> Unit = {}): AgentHolder {
     val setIsLoading: (Boolean) -> Unit = { loading -> setIsLoadingInternal(loading.left()) }
     val setError: (Throwable?) -> Unit = { error -> setErrorInternal(error.left()) }
 
-    val setMessagesFn: SetMessagesFn = remember {
+    val setMessagesFn: SetMessagesFn = useCreation {
         { messages: List<ChatMessage> ->
             setMessages(messages.toImmutableList())
         }
-    }
+    }.current
 
-    val appendMessage: AppendMessageFn = remember {
+    val appendMessage: AppendMessageFn = useCreation {
         { message: ChatMessage ->
             val current = getMessages().toMutableList()
             current.add(message)
             setMessages(current.toImmutableList())
         }
-    }
+    }.current
 
-    val stop: StopFn = remember {
+    val stop: StopFn = useCreation {
         {
             cancelAsync()
             setIsLoading(false)
         }
-    }
+    }.current
 
-    val send: SendMessageFn = remember {
+    val send: SendMessageFn = useCreation {
         { content: List<UserContentPart> ->
-            if (content.isEmpty()) return@remember
+            if (content.isEmpty()) return@useCreation
 
             setError(null)
             setIsLoading(true)
@@ -237,12 +237,12 @@ fun useAgent(optionsOf: AgentOptions.() -> Unit = {}): AgentHolder {
                 }
             }
         }
-    }
+    }.current
 
     // Token stats state (reactive - directly from tracker's MutableState)
     val tokenStats = tokenTracker?.stats
 
-    return remember {
+    return useCreation(messagesState, isLoadingState, errorState, send, setMessagesFn, appendMessage, stop, tokenStats) {
         AgentHolder(
             messages = messagesState,
             isLoading = isLoadingState,
@@ -253,7 +253,7 @@ fun useAgent(optionsOf: AgentOptions.() -> Unit = {}): AgentHolder {
             stop = stop,
             tokenStats = tokenStats,
         )
-    }
+    }.current
 }
 
 @Composable

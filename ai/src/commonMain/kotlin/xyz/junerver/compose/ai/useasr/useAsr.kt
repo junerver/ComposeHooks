@@ -3,7 +3,6 @@ package xyz.junerver.compose.ai.useasr
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import arrow.core.left
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -25,6 +24,7 @@ import xyz.junerver.compose.ai.usechat.StreamEvent
 import xyz.junerver.compose.ai.usechat.userMessage
 import xyz.junerver.compose.hooks._useGetState
 import xyz.junerver.compose.hooks.useCancelableAsync
+import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUnmount
@@ -129,7 +129,7 @@ typealias RecognizeFn = (audioDataUrl: String) -> Unit
  */
 @Composable
 fun useAsr(optionsOf: AsrOptionsConfig.() -> Unit = {}): AsrHolder {
-    val options = remember { AsrOptionsConfig() }.apply(optionsOf)
+    val options = useCreation { AsrOptionsConfig() }.current.apply(optionsOf)
     val optionsRef = useLatestRef(options)
 
     // State management
@@ -144,7 +144,7 @@ fun useAsr(optionsOf: AsrOptionsConfig.() -> Unit = {}): AsrHolder {
     val (asyncRun, cancelAsync, _) = useCancelableAsync()
 
     // Initialize client
-    val chatOptions = remember(options.provider, options.model, options.timeout, options.language) {
+    val chatOptions = useCreation(options.provider, options.model, options.timeout, options.language) {
         ChatOptions(
             provider = options.provider,
             model = options.effectiveModel,
@@ -156,7 +156,7 @@ fun useAsr(optionsOf: AsrOptionsConfig.() -> Unit = {}): AsrHolder {
             onError = options.onError,
             asrOptions = AsrOptions(language = options.language),
         )
-    }
+    }.current
 
     // Create/recreate client when options change
     val chatOptionsRef = useLatestRef(chatOptions)
@@ -174,9 +174,9 @@ fun useAsr(optionsOf: AsrOptionsConfig.() -> Unit = {}): AsrHolder {
     val setError: (Throwable?) -> Unit = { err -> setErrorInternal(err.left()) }
 
     // Recognize function
-    val recognize: RecognizeFn = remember {
+    val recognize: RecognizeFn = useCreation {
         { audioDataUrl: String ->
-            if (audioDataUrl.isBlank()) return@remember
+            if (audioDataUrl.isBlank()) return@useCreation
 
             setText("")
             setError(null)
@@ -226,17 +226,17 @@ fun useAsr(optionsOf: AsrOptionsConfig.() -> Unit = {}): AsrHolder {
                 }
             }
         }
-    }
+    }.current
 
     // Reset function
-    val reset: () -> Unit = remember {
+    val reset: () -> Unit = useCreation {
         {
             cancelAsync()
             setText("")
             setError(null)
             setIsLoading(false)
         }
-    }
+    }.current
 
     return AsrHolder(
         text = textState,

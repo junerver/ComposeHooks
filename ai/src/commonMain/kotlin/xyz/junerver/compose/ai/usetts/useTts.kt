@@ -3,7 +3,6 @@ package xyz.junerver.compose.ai.usetts
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.remember
 import arrow.core.left
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -25,6 +24,7 @@ import xyz.junerver.compose.ai.usechat.assistantMessage
 import xyz.junerver.compose.ai.usechat.userMessage
 import xyz.junerver.compose.hooks._useGetState
 import xyz.junerver.compose.hooks.useCancelableAsync
+import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUnmount
@@ -149,7 +149,7 @@ typealias SynthesizeFn = (text: String, styleInstruction: String?) -> Unit
  */
 @Composable
 fun useTts(optionsOf: TtsOptionsConfig.() -> Unit = {}): TtsHolder {
-    val options = remember { TtsOptionsConfig() }.apply(optionsOf)
+    val options = useCreation { TtsOptionsConfig() }.current.apply(optionsOf)
     val optionsRef = useLatestRef(options)
 
     // State management
@@ -164,7 +164,7 @@ fun useTts(optionsOf: TtsOptionsConfig.() -> Unit = {}): TtsHolder {
     val (asyncRun, cancelAsync, _) = useCancelableAsync()
 
     // Build ChatOptions for TTS
-    val chatOptions = remember(
+    val chatOptions = useCreation(
         options.provider,
         options.model,
         options.voice,
@@ -186,7 +186,7 @@ fun useTts(optionsOf: TtsOptionsConfig.() -> Unit = {}): TtsHolder {
                 voice = options.voice,
             ),
         )
-    }
+    }.current
 
     // Create/recreate client when options change
     val chatOptionsRef = useLatestRef(chatOptions)
@@ -204,9 +204,9 @@ fun useTts(optionsOf: TtsOptionsConfig.() -> Unit = {}): TtsHolder {
     val setError: (Throwable?) -> Unit = { err -> setErrorInternal(err.left()) }
 
     // Synthesize function
-    val synthesize: SynthesizeFn = remember {
+    val synthesize: SynthesizeFn = useCreation {
         { text: String, styleInstruction: String? ->
-            if (text.isBlank()) return@remember
+            if (text.isBlank()) return@useCreation
 
             setAudio("")
             setError(null)
@@ -277,25 +277,25 @@ fun useTts(optionsOf: TtsOptionsConfig.() -> Unit = {}): TtsHolder {
                 }
             }
         }
-    }
+    }.current
 
     // Stop function
-    val stop: () -> Unit = remember {
+    val stop: () -> Unit = useCreation {
         {
             cancelAsync()
             setIsLoading(false)
         }
-    }
+    }.current
 
     // Reset function
-    val reset: () -> Unit = remember {
+    val reset: () -> Unit = useCreation {
         {
             cancelAsync()
             setAudio("")
             setError(null)
             setIsLoading(false)
         }
-    }
+    }.current
 
     return TtsHolder(
         audioDataBase64 = audioState,
