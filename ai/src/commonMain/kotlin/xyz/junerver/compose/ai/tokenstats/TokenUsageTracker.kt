@@ -94,13 +94,13 @@ data class WindowTokenUsage(
  */
 @Stable
 class TokenUsageTracker {
-    private val _statsState = mutableStateOf(TokenUsageStats.EMPTY)
+    private val statsState = mutableStateOf(TokenUsageStats.EMPTY)
 
     /**
      * Current aggregated token usage statistics.
      * This is a reactive state that will trigger recomposition when updated.
      */
-    val stats: TokenUsageStats get() = _statsState.value
+    val stats: TokenUsageStats get() = statsState.value
 
     /**
      * Record a new token usage from a completed request.
@@ -117,12 +117,12 @@ class TokenUsageTracker {
             model = model,
             usage = usage,
         )
-        _statsState.value = _statsState.value.copy(
-            totalPromptTokens = _statsState.value.totalPromptTokens + usage.promptTokens,
-            totalCompletionTokens = _statsState.value.totalCompletionTokens + usage.completionTokens,
-            totalTokens = _statsState.value.totalTokens + usage.totalTokens,
-            requestCount = _statsState.value.requestCount + 1,
-            records = (_statsState.value.records + record).toImmutableList(),
+        statsState.value = statsState.value.copy(
+            totalPromptTokens = statsState.value.totalPromptTokens + usage.promptTokens,
+            totalCompletionTokens = statsState.value.totalCompletionTokens + usage.completionTokens,
+            totalTokens = statsState.value.totalTokens + usage.totalTokens,
+            requestCount = statsState.value.requestCount + 1,
+            records = (statsState.value.records + record).toImmutableList(),
         )
     }
 
@@ -130,7 +130,7 @@ class TokenUsageTracker {
      * Reset all accumulated statistics.
      */
     fun reset() {
-        _statsState.value = TokenUsageStats.EMPTY
+        statsState.value = TokenUsageStats.EMPTY
     }
 }
 

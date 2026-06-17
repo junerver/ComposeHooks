@@ -405,7 +405,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                                 requestId = finalMessage.id,
                                                 provider = optionsRef.current.provider.name,
                                                 model = optionsRef.current.effectiveModel,
-                                                usage = lastUsage!!,
+                                                usage = lastUsage,
                                             )
                                         }
                                         optionsRef.current.onFinish?.invoke(
@@ -426,8 +426,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                 is StreamEvent.Multi -> Unit
                                 is StreamEvent.AudioDelta -> Unit // TTS audio events not used in chat
                             }
-                        }
-                            ?.collect()
+                        }.collect()
                     } else {
                         // Use multi-provider or single-provider client
                         val result = if (useMultiProvider) {
@@ -454,7 +453,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                 requestId = finalMessage.id,
                                 provider = optionsRef.current.provider.name,
                                 model = optionsRef.current.effectiveModel,
-                                usage = result.usage!!,
+                                usage = result.usage,
                             )
                         }
                         optionsRef.current.onFinish?.invoke(

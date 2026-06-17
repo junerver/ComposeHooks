@@ -19,7 +19,7 @@ class RowSelectionFeature<T> : TableFeature<T> {
 
     @Composable
     override fun initState(instance: TableInstance<T>) {
-        // TODO: Register API
+        // Row selection state and APIs are wired by useTable.
     }
 
     override fun transform(

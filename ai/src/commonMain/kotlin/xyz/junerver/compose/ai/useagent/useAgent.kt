@@ -193,7 +193,7 @@ fun useAgent(optionsOf: AgentOptions.() -> Unit = {}): AgentHolder {
                                         requestId = response.message.id,
                                         provider = optionsRef.current.provider.name,
                                         model = optionsRef.current.effectiveModel,
-                                        usage = response.usage!!,
+                                        usage = response.usage,
                                     )
                                 }
                                 optionsRef.current.onFinish?.invoke(

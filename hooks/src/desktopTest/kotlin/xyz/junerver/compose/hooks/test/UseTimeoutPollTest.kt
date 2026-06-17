@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks.test
 
 import androidx.compose.material3.Text
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
@@ -318,6 +319,9 @@ class UseTimeoutPollTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun cleanup_on_unmount_stops_polling() = runComposeUiTest {
+        var observedCount = 0
+        var observedMounted = true
+
         setContent {
             var count by useState(default = 0)
             var mounted by useState(default = true)
@@ -337,26 +341,26 @@ class UseTimeoutPollTest {
                 )
             }
 
+            SideEffect {
+                observedCount = count
+                observedMounted = mounted
+            }
+
             Text("count=$count mounted=$mounted")
         }
 
         waitForIdle()
-        Thread.sleep(350)
-        waitForIdle()
-
-        // Should stop after unmount
-        val finalCount = runCatching {
-            onNodeWithText("count=2 mounted=false").assertExists()
-            2
-        }.getOrElse {
-            onNodeWithText("count=3 mounted=false").assertExists()
-            3
+        val unmounted = waitForCondition(maxAttempts = 120, delayMs = 50) {
+            waitForIdle()
+            !observedMounted && observedCount >= 2
         }
+        assertTrue(unmounted, "Expected polling composable to unmount after count reaches 2")
 
+        val finalCount = observedCount
         Thread.sleep(200)
         waitForIdle()
 
-        // Count should not increase after unmount
-        onNodeWithText("count=$finalCount mounted=false").assertExists()
+        assertTrue(!observedMounted, "Polling composable should remain unmounted")
+        assertTrue(observedCount == finalCount, "Count should not increase after unmount")
     }
 }

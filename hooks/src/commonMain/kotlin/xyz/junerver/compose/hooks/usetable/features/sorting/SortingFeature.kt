@@ -13,7 +13,7 @@ class SortingFeature<T> : TableFeature<T> {
 
     @Composable
     override fun initState(instance: TableInstance<T>) {
-        // TODO: Register state and API
+        // Sorting state and APIs are wired by useTable.
     }
 
     override fun transform(

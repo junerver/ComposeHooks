@@ -13,7 +13,7 @@ class FilteringFeature<T> : TableFeature<T> {
 
     @Composable
     override fun initState(instance: TableInstance<T>) {
-        // TODO: Register state and API
+        // Filtering state and APIs are wired by useTable.
     }
 
     override fun transform(

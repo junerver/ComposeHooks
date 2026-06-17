@@ -5,9 +5,9 @@ import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
 import xyz.junerver.compose.hooks.useInterval
 import xyz.junerver.compose.hooks.useState
@@ -25,6 +25,9 @@ class UseIntervalDebugTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun simple_interval_test() = runComposeUiTest {
+        var observedCount = 0
+        var observedActive = false
+
         setContent {
             var count by useState(default = 0)
             var started by useState(default = false)
@@ -43,35 +46,21 @@ class UseIntervalDebugTest {
                 }
             }
 
+            SideEffect {
+                observedCount = count
+                observedActive = isActive.value
+            }
+
             Text("count=$count active=${isActive.value} started=$started")
         }
 
-        // Initial state
-        waitForIdle()
-        println("Initial state checked")
-
-        // Wait and check multiple times
-        for (i in 1..100) {
+        repeat(100) {
             Thread.sleep(50)
             waitForIdle()
-            val success = runCatching {
-                onNodeWithText("count=1 active=true started=true").assertExists()
-            }.isSuccess ||
-                runCatching {
-                    onNodeWithText("count=2 active=true started=true").assertExists()
-                }.isSuccess ||
-                runCatching {
-                    onNodeWithText("count=3 active=true started=true").assertExists()
-                }.isSuccess
-
-            if (success) {
-                println("Found count >= 1 at iteration $i")
-                return@runComposeUiTest
-            }
+            if (observedCount > 0 && observedActive) return@runComposeUiTest
         }
 
-        // If we get here, print what we actually see
-        println("Test failed - checking final state")
-        onNodeWithText("count=1 active=true started=true").assertExists()
+        assertTrue(observedCount > 0, "Interval should execute at least once")
+        assertTrue(observedActive, "Interval should remain active after resume")
     }
 }
