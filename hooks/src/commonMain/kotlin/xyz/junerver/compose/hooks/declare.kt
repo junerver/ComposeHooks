@@ -10,19 +10,32 @@ import kotlin.time.Instant
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.datetime.LocalDateTime
 import xyz.junerver.compose.hooks.annotation.ExperimentalComputed
+import xyz.junerver.compose.hooks.useform.Form
+import xyz.junerver.compose.hooks.useform.FormInstance
+import xyz.junerver.compose.hooks.useform.useForm
+import xyz.junerver.compose.hooks.useform.useFormInstance
+import xyz.junerver.compose.hooks.useform.useWatch
 import xyz.junerver.compose.hooks.useredux.useDispatch
 import xyz.junerver.compose.hooks.useredux.useDispatchAsync
 import xyz.junerver.compose.hooks.useredux.useSelector
 import xyz.junerver.compose.hooks.userequest.Plugin
+import xyz.junerver.compose.hooks.userequest.TableRequestHolder
+import xyz.junerver.compose.hooks.userequest.TableRequestParams
+import xyz.junerver.compose.hooks.userequest.TableResult
 import xyz.junerver.compose.hooks.userequest.UseRequestOptions
+import xyz.junerver.compose.hooks.userequest.UseTableRequestOptions
+import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 import xyz.junerver.compose.hooks.userequest.useRequest
+import xyz.junerver.compose.hooks.userequest.useTableRequest
 import xyz.junerver.compose.hooks.usses.SseHolder
 import xyz.junerver.compose.hooks.usses.SseStreamFn
 import xyz.junerver.compose.hooks.usses.UseSseOptions
 import xyz.junerver.compose.hooks.usses.useSse
+import xyz.junerver.compose.hooks.usetable.Table
 import xyz.junerver.compose.hooks.usetable.TableHolder
 import xyz.junerver.compose.hooks.usetable.TableOptions
 import xyz.junerver.compose.hooks.usetable.core.ColumnDef
+import xyz.junerver.compose.hooks.usetable.core.TableInstance
 import xyz.junerver.compose.hooks.usetable.useTable
 import xyz.junerver.compose.hooks.utils.currentInstant
 
@@ -52,6 +65,21 @@ fun <TParams, TData : Any> rememberRequest(
     optionsOf: UseRequestOptions<TParams, TData>.() -> Unit = {},
     plugins: Array<@Composable (UseRequestOptions<TParams, TData>) -> Plugin<TParams, TData>> = emptyArray(),
 ) = useRequest(requestFn, optionsOf, plugins)
+
+@Composable
+fun <TParams, TData : Any> rememberEmptyPlugin(): Plugin<TParams, TData> = useEmptyPlugin()
+
+@Composable
+fun <T> rememberTableRequest(
+    requestFn: suspend (params: TableRequestParams) -> TableResult<T>,
+    optionsOf: UseTableRequestOptions<TableResult<T>>.() -> Unit = {},
+): TableRequestHolder<T> = useTableRequest(requestFn, optionsOf)
+
+@Composable
+fun <T> rememberTableRequest(
+    requestFn: suspend (page: Int, pageSize: Int) -> TableResult<T>,
+    optionsOf: UseTableRequestOptions<TableResult<T>>.() -> Unit = {},
+): TableRequestHolder<T> = useTableRequest(requestFn, optionsOf)
 
 @Composable
 fun <TParams, TEvent> rememberSse(
@@ -197,6 +225,18 @@ fun <K, V> rememberMap(vararg pairs: Pair<K, V>) = useMap(*pairs)
 
 @Composable
 fun <K, V> rememberMap(pairs: Iterable<Pair<K, V>>) = useMap(pairs)
+//endregion
+
+//region useForm
+@Composable
+fun Form.rememberForm(): FormInstance = useForm()
+
+@Composable
+fun <T> Form.rememberWatch(fieldName: String, formInstance: FormInstance): State<T?> =
+    useWatch(fieldName, formInstance)
+
+@Composable
+fun Form.rememberFormInstance(): FormInstance = useFormInstance()
 //endregion
 
 @Composable
@@ -373,6 +413,12 @@ fun <T> rememberTable(
     columns: List<ColumnDef<T, *>>,
     optionsOf: TableOptions<T>.() -> Unit = {},
 ): TableHolder<T> = useTable(data, columns, optionsOf)
+
+@Composable
+fun <T> Table.rememberTable(): TableInstance<T> = useTable()
+
+@Composable
+fun <T> Table.rememberTableInstance(): TableInstance<T> = useTableInstance()
 //endregion
 
 //region useMath

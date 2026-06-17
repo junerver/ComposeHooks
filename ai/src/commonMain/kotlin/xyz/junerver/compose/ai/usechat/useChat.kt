@@ -537,9 +537,3 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
         )
     }.current
 }
-
-/**
- * Alias for useChat following the project's naming convention.
- */
-@Composable
-fun rememberChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder = useChat(optionsOf)

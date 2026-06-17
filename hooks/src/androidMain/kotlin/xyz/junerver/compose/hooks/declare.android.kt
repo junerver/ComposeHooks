@@ -9,6 +9,7 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.usedeviceinfo.*
 import xyz.junerver.compose.hooks.useidle.useIdle
+import xyz.junerver.compose.hooks.usenetwork.NetworkContext
 import xyz.junerver.compose.hooks.usevibrate.useVibrate
 
 //region useDeviceInfo - 更符合 Compose 的函数命名方式
@@ -36,6 +37,12 @@ fun rememberIdle(timeout: Duration = 5.seconds) = useIdle(timeout)
 
 @Composable
 fun rememberIlluminance(calibrate: Float = 1.0f): IlluminanceHolder = useIlluminance(calibrate)
+
+/**
+ * 务必注意：必须配合 [xyz.junerver.compose.hooks.usenetwork.NetworkProvider] 在子组件内使用。
+ */
+@Composable
+fun rememberNetwork() = useContext(context = NetworkContext)
 
 @Composable
 fun rememberScreenBrightness(): Pair<SetValueFn<Float>, Float> = useScreenBrightness()

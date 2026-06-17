@@ -358,22 +358,8 @@ object Table {
     fun <T> useTable(): TableInstance<T> = error("Table.useTable() is deprecated. Use useTable(data, columns) with explicit data and columns instead.")
 
     /**
-     * Legacy alias kept only for Compose naming consistency.
-     * @deprecated Use the top-level rememberTable(data, columns, optionsOf {}) alias or useTable(data, columns, optionsOf {}) directly.
-     */
-    @Composable
-    fun <T> rememberTable(): TableInstance<T> = useTable()
-
-    /**
      * Accesses the current table instance from context (removed - not needed in new implementation).
      */
     @Composable
     fun <T> useTableInstance(): TableInstance<T> = error("useTableInstance is deprecated. Use the useTable hook directly.")
-
-    /**
-     * Legacy alias kept only for Compose naming consistency.
-     * @deprecated useTableInstance is deprecated. Use the useTable hook directly.
-     */
-    @Composable
-    fun <T> rememberTableInstance(): TableInstance<T> = useTableInstance()
 }

@@ -255,6 +255,3 @@ fun useAgent(optionsOf: AgentOptions.() -> Unit = {}): AgentHolder {
         )
     }.current
 }
-
-@Composable
-fun rememberAgent(optionsOf: AgentOptions.() -> Unit = {}): AgentHolder = useAgent(optionsOf)

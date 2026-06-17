@@ -348,15 +348,6 @@ fun <T> useTableRequest(
     )
 }
 
-/**
- * Alias for [useTableRequest] following Compose naming convention.
- */
-@Composable
-fun <T> rememberTableRequest(
-    requestFn: suspend (params: TableRequestParams) -> TableResult<T>,
-    optionsOf: UseTableRequestOptions<TableResult<T>>.() -> Unit = {}
-): TableRequestHolder<T> = useTableRequest(requestFn, optionsOf)
-
 @Composable
 fun <T> useTableRequest(
     requestFn: suspend (page: Int, pageSize: Int) -> TableResult<T>,
@@ -365,9 +356,3 @@ fun <T> useTableRequest(
     requestFn = { params: TableRequestParams -> requestFn(params.page, params.pageSize) },
     optionsOf = optionsOf
 )
-
-@Composable
-fun <T> rememberTableRequest(
-    requestFn: suspend (page: Int, pageSize: Int) -> TableResult<T>,
-    optionsOf: UseTableRequestOptions<TableResult<T>>.() -> Unit = {}
-): TableRequestHolder<T> = useTableRequest(requestFn, optionsOf)

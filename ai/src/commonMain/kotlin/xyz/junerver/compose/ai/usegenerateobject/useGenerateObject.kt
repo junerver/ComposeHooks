@@ -306,12 +306,3 @@ fun <T : Any> useGenerateObject(
         )
     }.current
 }
-
-/**
- * Alias for useGenerateObject following the project's naming convention.
- */
-@Composable
-inline fun <reified T : Any> rememberGenerateObject(
-    schema: String,
-    noinline optionsOf: GenerateObjectOptions<T>.() -> Unit = {},
-): GenerateObjectHolder<T> = useGenerateObject(schema, optionsOf)

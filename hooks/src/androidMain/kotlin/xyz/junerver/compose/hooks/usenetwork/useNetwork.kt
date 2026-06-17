@@ -12,7 +12,6 @@ import androidx.compose.ui.platform.LocalContext
 import xyz.junerver.compose.hooks.ComposeComponent
 import xyz.junerver.compose.hooks.ReactContext
 import xyz.junerver.compose.hooks.createContext
-import xyz.junerver.compose.hooks.useContext
 
 /*
   Description:
@@ -32,7 +31,7 @@ internal val NetworkContext: ReactContext<State<NetworkState>> by lazy { createC
 
 /**
  * 直接到处使用该hook会导致大量的监听器回调创建，虽影响不大，但是更建议使用
- * [NetworkProvider]作为根组件，配合 [rememberNetwork] 来使用。
+ * [NetworkProvider]作为根组件，配合 [xyz.junerver.compose.hooks.rememberNetwork] 来使用。
  */
 @Composable
 fun useNetwork(): State<NetworkState> {
@@ -60,7 +59,7 @@ fun useNetwork(): State<NetworkState> {
 }
 
 /**
- * 使用提供器的好处是在整个根组件的范围内，都可以使用[rememberNetwork]获得同一个状态
+ * 使用提供器的好处是在整个根组件的范围内，都可以使用[xyz.junerver.compose.hooks.rememberNetwork]获得同一个状态
  */
 @Composable
 fun NetworkProvider(content: ComposeComponent) {
@@ -69,9 +68,3 @@ fun NetworkProvider(content: ComposeComponent) {
         content()
     }
 }
-
-/**
- * 务必注意：必须配合[NetworkProvider]在子组件内使用。
- */
-@Composable
-fun rememberNetwork() = useContext(context = NetworkContext)
