@@ -247,14 +247,14 @@ useThrottleEffect(dep, optionsOf = {
 ```kotlin
 val (count, setCount) = useState(0)
 
-val (isActive, pause, resume) = usePausableEffect(count) {
+val (stop, pause, resume) = usePausableEffect(count) {
     // 可以被暂停的 effect
     println("Count: $count")
 }
 
+Button(onClick = stop) { Text("停止") }
 Button(onClick = pause) { Text("暂停") }
 Button(onClick = resume) { Text("恢复") }
-Text("Effect 状态: ${if (isActive.value) "活跃" else "暂停"}")
 ```
 
 ---

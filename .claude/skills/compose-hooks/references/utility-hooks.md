@@ -54,9 +54,7 @@ val debouncedSearch = useDebounceFn<String>(
 )
 
 // 调用
-debouncedSearch.run("keyword")
-debouncedSearch.cancel()  // 取消
-debouncedSearch.flush()   // 立即执行
+debouncedSearch("keyword")
 ```
 
 **配置选项**：
@@ -97,7 +95,7 @@ val throttledLog = useThrottleFn<Int>(
     optionsOf = { wait = 200.milliseconds }
 )
 
-throttledLog.run(42)
+throttledLog(42)
 ```
 
 ---
@@ -142,7 +140,7 @@ optionsOf = {
 
 ## useTimeout
 
-简单延时执行，无需手动控制。
+简单延时执行，无需手动控制。该 Hook 在源码中已标记为 deprecated，新代码优先使用 `useTimeoutFn`。
 
 ```kotlin
 useTimeout(delay = 3.seconds) {
@@ -184,12 +182,12 @@ useTimeoutFn(fn, interval, optionsOf = {
 超时轮询，上一次任务完成后才开始下一次。
 
 ```kotlin
-val timeoutPoll = useTimeoutPoll(
+val (isActive, pause, resume) = useTimeoutPoll(
     fn = { fetchData() },
     interval = 5.seconds
 )
 
-// timeoutPoll.isActive.value / timeoutPoll.pause() / timeoutPoll.resume()
+// isActive.value / pause() / resume()
 
 // 自动开始
 useTimeoutPoll(
@@ -277,11 +275,12 @@ reset() // 重置为 "initial"
 简化协程使用。
 
 ```kotlin
-// 方式1: 直接执行
-useAsync {
+// 方式1: 预先绑定一个 suspend block，返回可调用函数
+val runFetch = useAsync {
     val data = fetchData()
     processData(data)
 }
+Button(onClick = runFetch) { Text("执行") }
 
 // 方式2: 获取执行函数
 val asyncRun = useAsync()
@@ -300,7 +299,7 @@ Button(onClick = {
 可取消的异步执行。
 
 ```kotlin
-val (run, cancel) = useCancelableAsync()
+val (run, cancel, isActive) = useCancelableAsync()
 
 Button(onClick = {
     run {
@@ -373,38 +372,23 @@ publish(UserLoggedIn("user123"))
 剪贴板操作。
 
 ```kotlin
-val (text, setText, clear) = useClipboard()
+val (copy, paste) = useClipboard()
 
-// 读取剪贴板
-Text("剪贴板内容: ${text.value}")
-
-// 写入剪贴板
-setText("复制的文本")
-
-// 清空
-clear()
+copy("复制的文本")
+val text = paste()
 ```
 
 ---
 
 ## useKeyboard
 
-键盘状态检测（软键盘弹出/收起）。
+软键盘显隐控制。
 
 ```kotlin
-val keyboard = useKeyboard()
+val (hideKeyboard, showKeyboard) = useKeyboard()
 
-// 检测软键盘是否弹出
-Text("键盘状态: ${if (keyboard.isVisible.value) "弹出" else "收起"}")
-
-// 根据键盘状态调整布局
-Box(
-    modifier = Modifier.padding(
-        bottom = if (keyboard.isVisible.value) keyboard.height.value.dp else 0.dp
-    )
-) {
-    // 内容
-}
+Button(onClick = hideKeyboard) { Text("隐藏键盘") }
+Button(onClick = showKeyboard) { Text("显示键盘") }
 ```
 
 ---
@@ -414,7 +398,7 @@ Box(
 循环列表。
 
 ```kotlin
-val (current, next, prev, go) = useCycleList(listOf("A", "B", "C"))
+val (current, index, next, prev, go, shift) = useCycleList(persistentListOf("A", "B", "C"))
 
 // current.value = "A"
 next()  // "B"
@@ -422,6 +406,7 @@ next()  // "C"
 next()  // "A" (循环)
 prev()  // "C"
 go(1)   // "B" (跳转到索引)
+shift(-2)
 ```
 
 ---
@@ -435,15 +420,15 @@ data class Item(val id: Int, val name: String)
 val items = listOf(Item(1, "A"), Item(2, "B"), Item(3, "C"))
 
 // 单选
-val (selected, select, isSelected) = useSelectable(
-    selectionMode = SelectionMode.Single,
+val (selectedItems, isSelected, toggleSelected) = useSelectable(
+    selectionMode = SelectionMode.SingleSelect(defaultSelectKey = 1),
     items = items,
     keyProvider = { it.id }
 )
 
 // 多选
-val (selected, toggle, isSelected, selectAll, clearAll) = useSelectable(
-    selectionMode = SelectionMode.Multiple,
+val (selectedItems, isSelected, toggleSelected, selectAll, invertSelection, revertAll) = useSelectable(
+    selectionMode = SelectionMode.MultiSelect(defaultSelectKeys = setOf(1, 3)),
     items = items,
     keyProvider = { it.id }
 )
@@ -490,7 +475,7 @@ val now = useNow {
 ### useTimestamp
 
 ```kotlin
-val timestamp = useTimestamp {
+val (timestamp, pause, resume, isActive) = useTimestamp {
     interval = 100.milliseconds
 }
 // timestamp.value = 1705301445123 (毫秒)
@@ -505,9 +490,7 @@ val timestamp = useTimestamp {
 ### useDateFormat
 
 ```kotlin
-val formatted = useDateFormat(instant) {
-    formatStr = "YYYY-MM-DD HH:mm:ss"
-}
+val formatted = useDateFormat(instant, "YYYY-MM-DD HH:mm:ss")
 ```
 
 ### useTimeAgo

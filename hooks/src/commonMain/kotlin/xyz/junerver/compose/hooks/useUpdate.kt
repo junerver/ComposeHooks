@@ -67,7 +67,7 @@ import androidx.compose.runtime.setValue
  */
 @Suppress("UNUSED_VARIABLE")
 @Composable
-inline fun useUpdate(): () -> Unit {
+fun useUpdate(): () -> Unit {
     var state by useState(0.0)
     val (single) = Tuple1(state) // core logic
     return {

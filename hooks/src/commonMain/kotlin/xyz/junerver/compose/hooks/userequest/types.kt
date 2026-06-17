@@ -343,6 +343,10 @@ fun <TParams, TData : Any> useEmptyPlugin(): Plugin<TParams, TData> {
     return emptyPluginRef.current
 }
 
+/** [useEmptyPlugin] 的 Compose 命名风格别名 */
+@Composable
+fun <TParams, TData : Any> rememberEmptyPlugin(): Plugin<TParams, TData> = useEmptyPlugin()
+
 /** 用于判断处理动作 */
 internal sealed interface Methods<TParams, out TData> {
     class OnBefore<TParams>(val params: TParams?) : Methods<TParams, Nothing>

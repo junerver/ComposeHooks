@@ -86,7 +86,7 @@ fun Mutate() {
 private fun ManualMutateRollback() {
     val (input, setInput) = useControllable("")
     val (userInfoState, loadingState, _, _, mutate) = useRequest(
-        requestFn = { NetApi.userInfo(it[0] as String) },
+        requestFn = { NetApi.userInfo(it[0]) },
         optionsOf = {
             defaultParams = arrayOf("junerver")
         },

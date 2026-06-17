@@ -169,7 +169,7 @@ fun useFloor(number: Long): State<Long> = useState(number) {
  */
 @Composable
 fun useRound(number: Double): State<Double> = useState(number) {
-    round(number).toDouble()
+    round(number)
 }
 
 /**
@@ -181,7 +181,7 @@ fun useRound(number: Double): State<Double> = useState(number) {
  */
 @Composable
 fun useRound(number: Float): State<Float> = useState(number) {
-    round(number).toFloat()
+    round(number)
 }
 
 /**

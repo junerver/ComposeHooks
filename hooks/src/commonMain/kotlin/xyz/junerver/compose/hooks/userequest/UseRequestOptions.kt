@@ -259,8 +259,8 @@ private class ThrottleOptionsDelegate(
  * A shortcut configuration function for option lambda functions without parameters.
  * This function is used to specify that the option lambda function has no parameters by setting defaultParams to None.
  */
-inline fun <TData : Any> noneParams(
-    noinline optionsOf: UseRequestOptions<None, TData>.() -> Unit,
+fun <TData : Any> noneParams(
+    optionsOf: UseRequestOptions<None, TData>.() -> Unit,
 ): UseRequestOptions<None, TData>.() -> Unit = {
     optionsOf()
     defaultParams = None

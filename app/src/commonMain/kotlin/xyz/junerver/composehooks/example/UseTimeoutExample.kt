@@ -20,7 +20,7 @@ import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.useGetState
 import xyz.junerver.compose.hooks.useList
-import xyz.junerver.compose.hooks.useTimeout
+import xyz.junerver.compose.hooks.useTimeoutFn
 import xyz.junerver.compose.hooks.useUpdate
 import xyz.junerver.composehooks.ui.component.ExampleCard
 import xyz.junerver.composehooks.ui.component.LogCard
@@ -92,10 +92,13 @@ private fun BasicTimeoutExample() {
 
     // When component is mounted, execute this block after 3 seconds
     // This will only run ONCE when the component is first mounted
-    useTimeout(3.seconds) {
-        setText("Done!")
-        logs.add("Timeout completed at ${now()}")
-    }
+    useTimeoutFn(
+        fn = {
+            setText("Done!")
+            logs.add("Timeout completed at ${now()}")
+        },
+        interval = 3.seconds,
+    )
 
     Column(modifier = Modifier.fillMaxWidth()) {
         // Description of the example
@@ -170,11 +173,14 @@ private fun NotificationExample() {
         // Each notification gets its own useTimeout
         key(notification.id) {
             // Use key to ensure proper recomposition behavior
-            useTimeout(duration) {
-                notifications.removeAll { it.id == notification.id }
-                autoDismissNotifications.removeAll { it.first.id == notification.id }
-                logs.add("Auto-dismissed notification: ${notification.message}")
-            }
+            useTimeoutFn(
+                fn = {
+                    notifications.removeAll { it.id == notification.id }
+                    autoDismissNotifications.removeAll { it.first.id == notification.id }
+                    logs.add("Auto-dismissed notification: ${notification.message}")
+                },
+                interval = duration,
+            )
         }
     }
 

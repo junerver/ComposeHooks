@@ -43,7 +43,7 @@ val error by errorState
 | loadingState | State<Boolean> | 加载状态 |
 | errorState | State<Throwable?> | 错误信息 |
 | request | (params) -> Unit | 手动触发请求 |
-| mutate | (T?) -> Unit | 直接修改数据 |
+| mutate | ((T?) -> T) -> Unit | 基于当前数据直接修改数据 |
 | refresh | () -> Unit | 使用上次参数重新请求 |
 | cancel | () -> Unit | 取消请求 |
 
@@ -63,10 +63,13 @@ val (data, loading, error) = useRequest(
     }
 )
 
-if (loading) {
+val user by data
+val isLoading by loading
+
+if (isLoading) {
     CircularProgressIndicator()
 }
-data?.let { UserCard(it) }
+user?.let { UserCard(it) }
 ```
 
 ### 手动请求
@@ -164,7 +167,9 @@ val (data, loading, error, _, mutate) = useRequest(
 
 // 乐观更新
 Button(onClick = {
-    mutate(data?.copy(liked = true))
+    mutate { current ->
+        current?.copy(liked = true) ?: error("No data to mutate")
+    }
 }) {
     Text("点赞")
 }
@@ -334,6 +339,8 @@ val (data, loading, error) = useRequest(
 ## 自定义插件
 
 扩展 useRequest 功能。
+
+`useEmptyPlugin` / `rememberEmptyPlugin` 是插件系统内部辅助，用于在插件按配置未启用时返回空生命周期插件；业务请求代码通常不需要直接调用。
 
 ```kotlin
 // 定义插件

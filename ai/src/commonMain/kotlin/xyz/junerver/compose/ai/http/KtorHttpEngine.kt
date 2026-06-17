@@ -19,7 +19,7 @@ import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.http.withCharset
 import io.ktor.utils.io.charsets.Charsets
-import io.ktor.utils.io.readUTF8Line
+import io.ktor.utils.io.readLine
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -101,7 +101,7 @@ class KtorHttpEngine(
 
                 val channel = response.bodyAsChannel()
                 while (!channel.isClosedForRead) {
-                    val line = channel.readUTF8Line() ?: continue
+                    val line = channel.readLine() ?: continue
                     emit(SseEvent.Data(line))
                 }
                 emit(SseEvent.Complete)

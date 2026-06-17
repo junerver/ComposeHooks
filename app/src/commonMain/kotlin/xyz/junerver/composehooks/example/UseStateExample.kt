@@ -1,3 +1,5 @@
+@file:OptIn(xyz.junerver.compose.hooks.annotation.ExperimentalComputed::class)
+
 package xyz.junerver.composehooks.example
 
 import androidx.compose.foundation.layout.Arrangement

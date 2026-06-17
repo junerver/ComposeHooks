@@ -13,6 +13,7 @@ import xyz.junerver.compose.hooks.useState
  * @return
  */
 @Composable
+@Suppress("UNCHECKED_CAST")
 inline fun <reified T> useSelector(alias: String? = null): State<T> = alias?.let {
     useContext(context = ReduxContext).aliasMap[it]?.first as? State<T> ?: registerErr("alias:<$alias>")
 }

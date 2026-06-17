@@ -1,6 +1,6 @@
+@file:Suppress("DEPRECATION")
 @file:OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
 
-import org.jetbrains.compose.ExperimentalComposeLibrary
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 

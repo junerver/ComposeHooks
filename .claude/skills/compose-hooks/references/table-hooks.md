@@ -2,14 +2,14 @@
 
 ## useTable
 
-无头表格，负责行模型与状态，不负责 UI 渲染。
+无头表格，负责行模型与状态，不负责 UI 渲染。`rememberTable` 是同签名别名。
 
 ```kotlin
 val table = useTable(
     data = users,
     columns = listOf(
-        column<User, String>("name") { it.name },
-        column<User, Int>("age") { it.age },
+        column<User, String>("name", header = "姓名") { it.name },
+        column<User, Int>("age", header = "年龄") { it.age },
     ),
 ) {
     enableSorting = true
@@ -46,8 +46,11 @@ Table(table) {
 分页请求 + 表格组合用法：
 
 ```kotlin
-val tableRequest = useTableRequest<User>(
-    requestFn = { page, pageSize -> api.fetch(page, pageSize) },
+val tableRequest = useTableRequest(
+    requestFn = { params: TableRequestParams ->
+        val response = api.fetch(params.page, params.pageSize)
+        TableResult(rows = response.items, total = response.total)
+    },
     optionsOf = { initialPageSize = 20 },
 )
 
@@ -60,12 +63,14 @@ val table = useTable(
 ```
 
 - `tableRequest.rows` / `tableRequest.total` 为 `State`
-- 翻页时把 `tableRequest.pageIndex` / `pageSize` 传入请求
+- 翻页使用 `tableRequest.onPageChange(page, pageSize)`，当前页和页大小分别在 `currentPage` / `pageSize`
+- 兼容重载也支持 `requestFn = { page, pageSize -> TableResult(...) }`
 
 ## remember 别名
 
-- `rememberTable` 目前没有专用别名，可直接使用 `useTable`
-- `rememberTableRequest` 目前没有专用别名，可直接使用 `useTableRequest`
+- `rememberTable(data, columns) { ... }` 等价于 `useTable(data, columns) { ... }`
+- `rememberTableRequest(...)` 等价于 `useTableRequest(...)`
+- `Table.useTable()` / `Table.useTableInstance()` 以及对应 `remember` 版本是废弃入口，不要在新代码中使用
 
 ## 依据
 

@@ -37,7 +37,7 @@ val error by errorState      // 错误信息
 | dataState | State<TEvent?> | 最新事件数据 |
 | streamingState | State<Boolean> | 是否正在流式传输 |
 | errorState | State<Throwable?> | 错误信息 |
-| params | State<TParams?> | 当前参数 |
+| params | TParams? | 当前参数 |
 | send | (TParams?) -> Unit | 手动发起流 |
 | cancel | () -> Unit | 取消当前流 |
 | refresh | () -> Unit | 使用上次参数重新连接 |
@@ -102,12 +102,12 @@ val (data, isStreaming, error) = useSse(
             println("事件: $event")
         }
 
-        onError = { error ->
-            println("流错误: ${error.message}")
+        onError = { error, params ->
+            println("流错误: ${error.message}, params=$params")
         }
 
-        onFinally = {
-            println("流结束")
+        onFinally = { params, error ->
+            println("流结束: params=$params, error=$error")
         }
     }
 )
@@ -139,20 +139,20 @@ Button(onClick = refresh) {
 
 ---
 
-## 错误处理与重试
+## 条件启动与依赖刷新
 
 ```kotlin
 val (data, isStreaming, error) = useSse(
     streamFn = { params -> api.subscribe(params) },
     optionsOf = {
         defaultParams = "topic"
-        retryCount = 3              // 重试次数
-        retryInterval = 2.seconds   // 重试间隔
+        ready = isLoggedIn
+        refreshDeps = arrayOf(authToken)
     }
 )
 
-if (error != null) {
-    Text("错误: ${error.message}")
+if (error.value != null) {
+    Text("错误: ${error.value?.message}")
 }
 ```
 
@@ -165,16 +165,14 @@ optionsOf = {
     // 基础配置
     manual = false                    // 是否手动触发
     defaultParams = params            // 默认参数
+    ready = true                      // 是否允许自动启动
+    refreshDeps = emptyArray()        // 依赖变化时重启流
 
     // 生命周期
     onBefore = { params -> }
     onEvent = { event -> }           // 每个事件回调
-    onError = { error -> }
-    onFinally = { }
-
-    // 重试
-    retryCount = 0                    // 重试次数
-    retryInterval = 0.seconds        // 重试间隔
+    onError = { error, params -> }
+    onFinally = { params, error -> }
 }
 ```
 

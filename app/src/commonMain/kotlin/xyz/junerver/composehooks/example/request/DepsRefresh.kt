@@ -26,7 +26,7 @@ import xyz.junerver.composehooks.ui.component.TButton
 fun DepsRefresh() {
     val (_, setState, getState) = useGetState(0)
     val (userInfoState, loadingState) = useRequest(
-        requestFn = { NetApi.userInfo(it[0] as String) },
+        requestFn = { NetApi.userInfo(it[0]) },
         optionsOf = {
             defaultParams = arrayOf("junerver")
             refreshDeps = arrayOf(getState())

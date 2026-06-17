@@ -16,7 +16,7 @@ ComposeHooks 是一个为 Jetpack Compose/Compose Multiplatform 设计的 Hooks 
 
 ## 核心概念
 
-所有 `useXxx` 函数都有对应的 `rememberXxx` 别名，选择你喜欢的命名风格。
+公开的 `useXxx` Hook 均提供对应的 `rememberXxx` 别名，选择你喜欢的命名风格。少数历史 API（如 `Table.useTableInstance`）仅为兼容保留，优先使用顶层 `useXxx`/`rememberXxx`。
 
 ## 快速参考
 
@@ -30,18 +30,18 @@ ComposeHooks 是一个为 Jetpack Compose/Compose Multiplatform 设计的 Hooks 
 | `useControllable` | 受控/非受控组件 | `val (state, setValue) = useControllable(default)` |
 | `useResetState` | 带重置功能的状态 | `val (state, setState, reset) = useResetState("init")` |
 | `useBoolean` | 布尔状态管理 | `val (state, toggle, set, setTrue, setFalse) = useBoolean(false)` |
-| `useToggle` | 两值切换 | `val (state, toggle, set) = useToggle("A", "B")` |
+| `useToggle` | 两值切换 | `val (state, toggle) = useToggle("A", "B")` |
 | `useToggleEither` | 不同类型切换 | `val (state, toggle) = useToggleEither("left", 100)` |
 | `useToggleVisible` | 切换内容可见性 | `val (content, toggle) = useToggleVisible { Text("Hi") }` |
 | `useReducer` | Redux 风格状态管理 | `val (state, dispatch) = useReducer(reducer, initialState)` |
 | `useRef` | 不触发重组的引用 | `val ref = useRef(0)` |
-| `useCreation` | 创建复杂对象（类似 useMemo） | `val obj = useCreation { ExpensiveObj() }` |
+| `useCreation` | 创建复杂对象（类似 useMemo），返回 `Ref<T>` | `val obj by useCreation { ExpensiveObj() }` |
 | `usePersistent` | 轻量级持久化状态 | `val (state, setState) = usePersistent("key", "default")` |
 | `usePrevious` | 获取前一个值 | `val prev = usePrevious(state)` |
 | `useLatestRef` | 始终返回最新值的引用 | `val ref = useLatestRef(state)` |
-| `useLatestState` | 始终返回最新 State 的引用 | `val ref = useLatestState(state)` |
+| `useLatestState` | 始终返回最新值的 `State<T>` | `val latest by useLatestState(value)` |
 | `useLastChanged` | 最后变更时间 | `val time = useLastChanged(source)` |
-| `useAutoReset` | 自动重置状态 | `val (state, set) = useAutoReset("default", 3.seconds)` |
+| `useAutoReset` | 自动重置状态 | `var state by useAutoReset("default", 3.seconds)` |
 
 ### 集合 Hooks
 
@@ -53,8 +53,8 @@ ComposeHooks 是一个为 Jetpack Compose/Compose Multiplatform 设计的 Hooks 
 | `useImmutableList` | 不可变列表 | `val (list, mutate) = useImmutableList(1, 2, 3)` |
 | `useImmutableListReduce` | 不可变列表聚合 | `val sum by useImmutableListReduce(list) { a, b -> a + b }` |
 | `useSorted` | 列表排序 | `val sorted by useSorted(list) { a, b -> a.compareTo(b) }` |
-| `useCycleList` | 循环列表 | `val (current, next, prev) = useCycleList(listOf("A","B","C"))` |
-| `useSelectable` | 选择/多选 | `val (selected, select, isSelected) = useSelectable(...)` |
+| `useCycleList` | 循环列表 | `val (current, index, next, prev, go) = useCycleList(persistentListOf("A","B","C"))` |
+| `useSelectable` | 选择/多选 | `val (selectedItems, isSelected, toggleSelected) = useSelectable(...)` |
 
 ### 数值 Hooks
 
@@ -75,7 +75,7 @@ ComposeHooks 是一个为 Jetpack Compose/Compose Multiplatform 设计的 Hooks 
 | `useUnmount` | 组件卸载时执行 | `useUnmount { cleanup() }` |
 | `useUnmountedRef` | 是否已卸载 | `val unmounted = useUnmountedRef()` |
 | `useUpdateEffect` | 跳过首次执行的 Effect | `useUpdateEffect(dep) { /* effect */ }` |
-| `usePausableEffect` | 可暂停的 Effect | `val (active, pause, resume) = usePausableEffect(dep) { }` |
+| `usePausableEffect` | 可暂停/停止的 Effect | `val (stop, pause, resume) = usePausableEffect(dep) { }` |
 | `useDebounceEffect` | 防抖 Effect | `useDebounceEffect(dep) { /* 500ms后执行 */ }` |
 | `useThrottleEffect` | 节流 Effect | `useThrottleEffect(dep) { /* 限频执行 */ }` |
 | `useBackToFrontEffect` | 应用回到前台（Android） | `useBackToFrontEffect { refreshData() }` |
@@ -94,8 +94,8 @@ ComposeHooks 是一个为 Jetpack Compose/Compose Multiplatform 设计的 Hooks 
 
 | Hook | 用途 | 示例 |
 |------|------|------|
-| `useInterval` | 定时器 | `useInterval({ tick() }, optionsOf = { period = 1.seconds })` |
-| `useTimeout` | 延时执行 | `useTimeout(3.seconds) { showNotification() }` |
+| `useInterval` | 定时器 | `useInterval(optionsOf = { period = 1.seconds }) { tick() }` |
+| `useTimeout` | 延时执行（已废弃，优先用 `useTimeoutFn`） | `useTimeout(3.seconds) { showNotification() }` |
 | `useTimeoutFn` | 延时执行（可控） | `val (pending, start, stop) = useTimeoutFn(fn, 3.seconds)` |
 | `useTimeoutPoll` | 超时轮询 | `useTimeoutPoll({ fetchData() }, 5.seconds)` |
 | `useCountdown` | 倒计时 | `val (remain, formatted) = useCountdown { targetDate = ... }` |
@@ -105,8 +105,8 @@ ComposeHooks 是一个为 Jetpack Compose/Compose Multiplatform 设计的 Hooks 
 | Hook | 用途 | 示例 |
 |------|------|------|
 | `useNow` | 当前时间（定时更新） | `val now = useNow { interval = 1.seconds }` |
-| `useTimestamp` | 时间戳（定时更新） | `val ts = useTimestamp { interval = 100.milliseconds }` |
-| `useTimestampRef` | 时间戳 Ref 版本 | `val ref = useTimestampRef { interval = 100.milliseconds }` |
+| `useTimestamp` | 时间戳（定时更新） | `val (ts, pause, resume) = useTimestamp { interval = 100.milliseconds }` |
+| `useTimestampRef` | 时间戳 Ref 版本 | `val (ref, pause, resume) = useTimestampRef { interval = 100.milliseconds }` |
 | `useDateFormat` | 日期格式化 | `val formatted = useDateFormat(instant, "YYYY-MM-DD")` |
 | `useTimeAgo` | 相对时间 | `val ago = useTimeAgo(pastInstant)` |
 
@@ -127,8 +127,8 @@ ComposeHooks 是一个为 Jetpack Compose/Compose Multiplatform 设计的 Hooks 
 
 | Hook | 用途 | 示例 |
 |------|------|------|
-| `useAsync` | 简化协程 | `useAsync { fetchData() }` |
-| `useCancelableAsync` | 可取消协程 | `val (run, cancel) = useCancelableAsync()` |
+| `useAsync` | 简化协程 | `val run = useAsync { fetchData() }` |
+| `useCancelableAsync` | 可取消协程 | `val (run, cancel, isActive) = useCancelableAsync()` |
 | `useMemoizedFn` | 记忆化递归函数 | `val fn = useMemoizedFn<T, R> { ... }` |
 
 ### 组件通信
@@ -145,7 +145,7 @@ ComposeHooks 是一个为 Jetpack Compose/Compose Multiplatform 设计的 Hooks 
 | Hook | 用途 | 示例 |
 |------|------|------|
 | `useRequest` | 网络请求管理 | `val (data, loading, error, request) = useRequest(requestFn)` |
-| `useSse` | SSE 流式连接 | `val (data, streaming, error, send, cancel) = useSse(streamFn)` |
+| `useSse` | SSE 流式连接 | `val (data, streaming, error, _, send, cancel) = useSse(streamFn)` |
 
 ### 全局状态管理
 
@@ -166,8 +166,8 @@ ComposeHooks 是一个为 Jetpack Compose/Compose Multiplatform 设计的 Hooks 
 
 | Hook | 用途 | 示例 |
 |------|------|------|
-| `useClipboard` | 剪贴板操作 | `val (text, setText, clear) = useClipboard()` |
-| `useKeyboard` | 键盘事件 | `val keyboard = useKeyboard()` |
+| `useClipboard` | 剪贴板操作 | `val (copy, paste) = useClipboard()` |
+| `useKeyboard` | 软键盘显隐控制 | `val (hideKeyboard, showKeyboard) = useKeyboard()` |
 
 ### 表单 Hooks
 
@@ -182,7 +182,7 @@ ComposeHooks 是一个为 Jetpack Compose/Compose Multiplatform 设计的 Hooks 
 | Hook | 用途 | 示例 |
 |------|------|------|
 | `useTable` | 无头表格 | `val table = useTable(data, columns) { ... }` |
-| `useTableRequest` | 分页请求表格 | `val tableReq = useTableRequest<User>(requestFn)` |
+| `useTableRequest` | 分页请求表格 | `val tableReq = useTableRequest(requestFn)` |
 
 ### 平台专属 Hooks
 
@@ -190,26 +190,26 @@ ComposeHooks 是一个为 Jetpack Compose/Compose Multiplatform 设计的 Hooks 
 
 | Hook | 用途 | 示例 |
 |------|------|------|
-| `useBiometric` | 生物识别 | `val biometric = useBiometric()` |
-| `useNetwork` | 网络状态 | `val network = useNetwork()` |
-| `useBatteryInfo` | 电池信息 | `val battery = useBatteryInfo()` |
+| `useBiometric` | 生物识别 | `val (openBiometric, isAuthed) = useBiometric()` |
+| `useNetwork` | 网络状态 | `val network by useNetwork()` |
+| `useBatteryInfo` | 电池信息 | `val battery by useBatteryInfo()` |
 | `useBuildInfo` | 设备信息 | `val build = useBuildInfo()` |
 | `useScreenInfo` | 屏幕信息 | `val screen = useScreenInfo()` |
-| `useVibrate` | 振动 | `val vibrate = useVibrate()` |
-| `useFlashlight` | 手电筒 | `val flashlight = useFlashlight()` |
-| `useWakeLock` | 唤醒锁 | `val wakeLock = useWakeLock()` |
-| `useSensor` | 传感器 | `val sensor = useSensor()` |
-| `useIlluminance` | 光照强度 | `val lux = useIlluminance()` |
+| `useVibrate` | 振动 | `val (shortVibrate, longVibrate) = useVibrate()` |
+| `useFlashlight` | 手电筒 | `val (turnOn, turnOff) = useFlashlight()` |
+| `useWakeLock` | 唤醒锁 | `val (request, release, isActive) = useWakeLock()` |
+| `useSensor` | 传感器 | `useSensor(Sensor.TYPE_ACCELEROMETER) { event -> ... }` |
+| `useIlluminance` | 光照强度 | `val illuminance = useIlluminance()` |
 | `useIdle` | 空闲检测 | `val idle = useIdle()` |
-| `useScreenBrightness` | 屏幕亮度 | `val brightness = useScreenBrightness()` |
-| `useDisableScreenshot` | 禁用截图 | `useDisableScreenshot()` |
-| `useWindowFlags` | 窗口标志 | `useWindowFlags(...)` |
+| `useScreenBrightness` | 屏幕亮度 | `val (setBrightness, initialBrightness) = useScreenBrightness()` |
+| `useDisableScreenshot` | 禁用截图 | `val (disable, enable, isDisabled) = useDisableScreenshot()` |
+| `useWindowFlags` | 窗口标志 | `val (add, clear, isAdded) = useWindowFlags(key, flags)` |
 
 #### Desktop
 
 | Hook | 用途 | 示例 |
 |------|------|------|
-| `useKeyPress` | 键盘按键检测 | `useKeyPress("Enter") { handleEnter() }` |
+| `useKeyPress` | 键盘按键检测 | `useKeyPress(Key.Enter) { handleEnter() }` |
 
 ## 详细参考
 
@@ -221,6 +221,7 @@ ComposeHooks 是一个为 Jetpack Compose/Compose Multiplatform 设计的 Hooks 
 - **表单 Hooks**: 见 [references/form-hooks.md](references/form-hooks.md)
 - **SSE 流式连接**: 见 [references/sse-hooks.md](references/sse-hooks.md)
 - **平台专属 Hooks**: 见 [references/platform-hooks.md](references/platform-hooks.md)
+- **remember 别名索引**: 见 [references/remember-aliases.md](references/remember-aliases.md)
 
 ## 常见模式
 

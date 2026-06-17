@@ -52,8 +52,8 @@ fun useIlluminance(calibrate: Float = 1.0f): IlluminanceHolder {
         val min = validValues.minOrNull() ?: 0
         IlluminanceInfo(
             now = if (undoState.value.present < 0) 0 else undoState.value.present,
-            min = if (min < 0) 0 else min.toInt(),
-            max = if (max < 0) 0 else max.toInt(),
+            min = if (min < 0) 0 else min,
+            max = if (max < 0) 0 else max,
             avg = if (average < 0) 0 else average.toInt(),
         )
     }

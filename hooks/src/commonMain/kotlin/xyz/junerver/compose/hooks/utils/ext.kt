@@ -103,7 +103,7 @@ internal fun LocalDateTime.format(formatPattern: String): String = this.format(L
  * ```
  */
 @Composable
-internal inline fun unwrap(deps: Array<out Any?>) = deps.map {
+internal fun unwrap(deps: Array<out Any?>) = deps.map {
     when (it) {
         is State<*> -> it.value
         is Ref<*> -> it.observeAsState().value
@@ -138,7 +138,7 @@ val Any?.isNotNull get() = this != null
  * ```
  */
 @OptIn(ExperimentalContracts::class)
-public inline fun <T, R> T.runIf(condition: Boolean = true, noinline block: T.() -> R): R? {
+public inline fun <T, R> T.runIf(condition: Boolean = true, block: T.() -> R): R? {
     contract {
         callsInPlace(block, InvocationKind.AT_MOST_ONCE)
         returnsNotNull() implies condition

@@ -36,6 +36,7 @@ class SortingFeature<T> : TableFeature<T> {
                 val v1 = r1.getValue(column)
                 val v2 = r2.getValue(column)
 
+                @Suppress("UNCHECKED_CAST")
                 val comparison = compareValues(v1 as? Comparable<Any>, v2 as? Comparable<Any>)
 
                 if (comparison != 0) {

@@ -26,6 +26,7 @@ import androidx.compose.ui.text.AnnotatedString
  * ```
  */
 @Composable
+@Suppress("DEPRECATION")
 fun useClipboard(): CopyPasteHolder {
     val clipboardManager = LocalClipboardManager.current
     return remember {

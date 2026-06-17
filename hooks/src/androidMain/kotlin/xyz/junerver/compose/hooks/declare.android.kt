@@ -5,7 +5,10 @@ package xyz.junerver.compose.hooks
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import androidx.compose.runtime.Composable
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.usedeviceinfo.*
+import xyz.junerver.compose.hooks.useidle.useIdle
 import xyz.junerver.compose.hooks.usevibrate.useVibrate
 
 //region useDeviceInfo - 更符合 Compose 的函数命名方式
@@ -27,6 +30,12 @@ fun rememberDisableScreenshot(): Triple<DisableFn, EnableFn, IsDisabled> = useDi
 
 @Composable
 fun rememberFlashlight(): Pair<TurnOnFn, TurnOffFn> = useFlashlight()
+
+@Composable
+fun rememberIdle(timeout: Duration = 5.seconds) = useIdle(timeout)
+
+@Composable
+fun rememberIlluminance(calibrate: Float = 1.0f): IlluminanceHolder = useIlluminance(calibrate)
 
 @Composable
 fun rememberScreenBrightness(): Pair<SetValueFn<Float>, Float> = useScreenBrightness()

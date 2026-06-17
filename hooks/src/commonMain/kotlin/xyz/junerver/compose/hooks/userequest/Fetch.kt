@@ -170,8 +170,9 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
                     ) as List<OnRequestReturn<TData>>
                 ).cover(),
             )
-            // 此处要明确声明async所在的job，避免异常传递
-            serviceDeferred = serviceDeferred ?: async(SupervisorJob()) { requestFn(latestParams!!) }
+            // 此处要明确声明 async 所在的 job，避免异常传递
+            val requestContext = SupervisorJob(coroutineContext[Job]) + coroutineContext.minusKey(Job)
+            serviceDeferred = serviceDeferred ?: async(requestContext) { requestFn(latestParams!!) }
             val result = serviceDeferred.awaitPlus()
             if (currentCount != count) return@coroutineScope
             requestResult = result

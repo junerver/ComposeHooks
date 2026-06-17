@@ -5,6 +5,7 @@ import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
 import xyz.junerver.compose.hooks.MutableRef
@@ -102,7 +103,8 @@ private class CachePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
                             return@onRequest OnRequestReturn(servicePromise)
                         }
                         // 发起异步请求，将Deferred存入 ref、缓存，并且返回 包装后的OnRequestReturn
-                        servicePromise = async(SupervisorJob()) { requestFn(param) }
+                        val requestContext = SupervisorJob(coroutineContext[Job]) + coroutineContext.minusKey(Job)
+                        servicePromise = async(requestContext) { requestFn(param) }
                         currentPromiseRef.current = servicePromise
                         setCacheDeferred(cacheKey, servicePromise)
                         OnRequestReturn(servicePromise)

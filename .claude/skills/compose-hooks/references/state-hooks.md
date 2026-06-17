@@ -203,11 +203,11 @@ Row(verticalAlignment = Alignment.CenterVertically) {
 
 ```kotlin
 // 基础用法
-val (state, toggle, setValue) = useToggle("A", "B")
+val (state, toggle) = useToggle("A", "B")
 toggle()  // A -> B -> A
 
 // 不同类型切换
-val (state, toggle, setValue) = useToggleEither("left", 100)
+val (state, toggle) = useToggleEither("left", 100)
 
 // 可见性切换（单内容）
 val (content, toggle) = useToggleVisible(content = { Text("Hello") })
@@ -314,15 +314,14 @@ useEffect {
 
 ### useLatestState
 
-始终返回最新 State 值的引用（State 版本）。
+始终返回最新值的 `State<T>`，内部使用 `rememberUpdatedState`。
 
 ```kotlin
-val state = useState(0)
-val latestState = useLatestState(state)
+val latestValue = useLatestState(count)
 
 useEffect {
     delay(1.seconds)
-    println(latestState.current.value)
+    println(latestValue.value)
 }
 ```
 
@@ -429,7 +428,7 @@ val sorted by useSorted(list) {
 循环列表，在列表元素间循环切换。
 
 ```kotlin
-val (current, next, prev, go) = useCycleList(listOf("A", "B", "C"))
+val (current, index, next, prev, go, shift) = useCycleList(persistentListOf("A", "B", "C"))
 
 // current.value = "A"
 next()  // "B"
@@ -437,6 +436,7 @@ next()  // "C"
 next()  // "A" (循环)
 prev()  // "C"
 go(1)   // "B" (跳转到索引)
+shift(2) // 按偏移量移动
 ```
 
 ---
@@ -450,15 +450,15 @@ data class Item(val id: Int, val name: String)
 val items = listOf(Item(1, "A"), Item(2, "B"), Item(3, "C"))
 
 // 单选
-val (selected, select, isSelected) = useSelectable(
-    selectionMode = SelectionMode.Single,
+val (selectedItems, isSelected, toggleSelected) = useSelectable(
+    selectionMode = SelectionMode.SingleSelect(defaultSelectKey = 1),
     items = items,
     keyProvider = { it.id }
 )
 
 // 多选
-val (selected, toggle, isSelected, selectAll, clearAll) = useSelectable(
-    selectionMode = SelectionMode.Multiple,
+val (selectedItems, isSelected, toggleSelected, selectAll, invertSelection, revertAll) = useSelectable(
+    selectionMode = SelectionMode.MultiSelect(defaultSelectKeys = setOf(1, 3)),
     items = items,
     keyProvider = { it.id }
 )
@@ -484,9 +484,9 @@ reset()  // 重置为 "initial"
 自动重置状态，在指定时间后恢复默认值。
 
 ```kotlin
-val (state, setState) = useAutoReset("default", 3.seconds)
+var state by useAutoReset("default", 3.seconds)
 
-setState("temporary")  // 3秒后自动恢复为 "default"
+state = "temporary"  // 3秒后自动恢复为 "default"
 ```
 
 ---
@@ -511,13 +511,19 @@ val previous = usePrevious(state)
 
 ```kotlin
 // 无依赖，只创建一次
-val service = useCreation {
+val serviceRef = useCreation {
+    ExpensiveService()
+}
+val service = serviceRef.current
+
+// 或使用 by 委托读取 Ref.current
+val service by useCreation {
     ExpensiveService()
 }
 
 // 有依赖，依赖变化时重新创建
 val (userId) = useState("")
-val userProfile = useCreation(userId) {
+val userProfile by useCreation(userId) {
     UserProfile(userId)
 }
 ```
@@ -529,11 +535,14 @@ val userProfile = useCreation(userId) {
 轻量级持久化状态。
 
 ```kotlin
-// 需要先配置持久化方法
-HooksConfig.persistentSaver = { key, value -> /* 保存 */ }
-HooksConfig.persistentReader = { key -> /* 读取 */ }
+// 默认使用内存缓存；需要接入 MMKV/DataStore 等持久化方案时，用 PersistentContext.Provider 提供三元组：
+// Triple(getPersistent, savePersistent, clearPersistent)
 
 val (state, setState) = usePersistent("key", "default")
+
+// 推荐也可以使用属性委托
+var value by usePersistent("key", "default")
+value = "next"
 ```
 
 ---

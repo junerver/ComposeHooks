@@ -55,7 +55,7 @@ fun ErrorRetry() {
 
     val (mockInfoState, stuLoadingState, errState) = useRequest(
         requestFn = {
-            mockRequest(it[0] as String, it[1] as String)
+            mockRequest(it[0], it[1])
         },
         optionsOf = {
             defaultParams = arrayOf("1", "2")

@@ -84,6 +84,9 @@ object Form
 @Composable
 fun Form.useForm(): FormInstance = remember { FormInstance() }
 
+@Composable
+fun Form.rememberForm(): FormInstance = useForm()
+
 /**
  * Internal helper function for creating a form instance.
  */
@@ -138,6 +141,10 @@ fun <T> Form.useWatch(fieldName: String, formInstance: FormInstance): State<T?> 
     return state
 }
 
+@Composable
+fun <T> Form.rememberWatch(fieldName: String, formInstance: FormInstance): State<T?> =
+    useWatch(fieldName, formInstance)
+
 /**
  * A hook for accessing the current form instance from child components.
  *
@@ -187,3 +194,6 @@ fun <T> Form.useWatch(fieldName: String, formInstance: FormInstance): State<T?> 
  */
 @Composable
 fun Form.useFormInstance(): FormInstance = useContext(context = FormContext)
+
+@Composable
+fun Form.rememberFormInstance(): FormInstance = useFormInstance()

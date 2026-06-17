@@ -30,7 +30,7 @@ import xyz.junerver.composehooks.ui.component.DividerSpacer
 fun Ready() {
     val (isReady, setReady) = useGetState(false)
     val (userInfoState, userLoadingState) = useRequest(
-        requestFn = { NetApi.userInfo(it[0] as String) },
+        requestFn = { NetApi.userInfo(it[0]) },
         optionsOf = {
             defaultParams = arrayOf("junerver")
             onSuccess = { _, _ ->

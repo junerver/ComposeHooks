@@ -34,6 +34,9 @@ fun useKeyPress(key: Key, eventHandler: () -> Unit) {
     }
 }
 
+@Composable
+fun rememberKeyPress(key: Key, eventHandler: () -> Unit) = useKeyPress(key, eventHandler)
+
 /**
  * A composable hook that detects when a specific combination of two keys is pressed simultaneously
  * and executes the provided event handler.
@@ -53,6 +56,9 @@ fun useKeyPress(key1: Key, key2: Key, eventHandler: () -> Unit) {
         }
     }
 }
+
+@Composable
+fun rememberKeyPress(key1: Key, key2: Key, eventHandler: () -> Unit) = useKeyPress(key1, key2, eventHandler)
 
 /**
  * A composable hook that detects when a specific combination of three keys is pressed simultaneously
@@ -79,6 +85,14 @@ fun useKeyPress(
         }
     }
 }
+
+@Composable
+fun rememberKeyPress(
+    key1: Key,
+    key2: Key,
+    key3: Key,
+    eventHandler: () -> Unit,
+) = useKeyPress(key1, key2, key3, eventHandler)
 
 /**
  * A composable hook that detects when a specific combination of four keys is pressed simultaneously
@@ -107,6 +121,15 @@ fun useKeyPress(
         }
     }
 }
+
+@Composable
+fun rememberKeyPress(
+    key1: Key,
+    key2: Key,
+    key3: Key,
+    key4: Key,
+    eventHandler: () -> Unit,
+) = useKeyPress(key1, key2, key3, key4, eventHandler)
 
 /**
  * Delegate object that manages key press state and handles keyboard events.

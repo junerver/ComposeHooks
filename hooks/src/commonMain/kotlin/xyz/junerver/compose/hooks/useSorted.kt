@@ -60,7 +60,7 @@ data class UseSortedOptions<T> internal constructor(
 /**
  * Default sort function that uses the standard sort method
  */
-private inline fun <T> defaultSortFn(): SortedFn<T> = { arr, compareFn ->
+private fun <T> defaultSortFn(): SortedFn<T> = { arr, compareFn ->
     arr.sortedWith(Comparator { a, b -> compareFn(a, b) })
 }
 
@@ -69,7 +69,7 @@ private inline fun <T> defaultSortFn(): SortedFn<T> = { arr, compareFn ->
  * - For Comparable types, uses their natural ordering via compareTo
  * - For other types, converts to strings and compares lexicographically
  */
-private inline fun <T> defaultCompare(): SortedCompareFn<T> = { a, b ->
+private fun <T> defaultCompare(): SortedCompareFn<T> = { a, b ->
     when {
         // Check if both are Comparable
         a is Comparable<*> && b is Comparable<*> -> {
