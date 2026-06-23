@@ -38,6 +38,9 @@ internal val FormContext by lazy { createContext(FormInstance()) }
  *
  * @param T The type of the form field value
  * @property value The mutable state holding the field's current value
+ * @property state Read-only view of the field value, preferred for consumers that do not need direct state mutation
+ * @property onValueChange Setter callback for updating the field value without depending on MutableState APIs
+ * @property setValue Alias of [onValueChange]
  * @property isValid Whether the field passes all validation rules
  * @property errors List of validation error messages
  * @property isTouched Whether the user has interacted with this field
@@ -50,7 +53,11 @@ data class FormItemState<T>(
     val errors: List<String>,
     val isTouched: Boolean,
     val isDirty: Boolean,
-)
+    val onValueChange: (T?) -> Unit = { nextValue -> value.value = nextValue },
+) {
+    val state: State<T?> get() = value
+    val setValue: (T?) -> Unit get() = onValueChange
+}
 
 /**
  * A headless form component that provides form state management and validation.
@@ -95,7 +102,7 @@ fun Form(
     val formRef = useCreation { FormRef() }
     formInstance.apply { this.formRef = formRef }
     // Register onSubmit callback
-    formRef.current.onSubmitCallback = onSubmit
+    formRef.current.setOnSubmitCallback(onSubmit)
     val formScope = remember(formRef, formInstance) { FormScope.getInstance(formRef, formInstance) }
     FormContext.Provider(formInstance) {
         formScope.content()
@@ -167,52 +174,15 @@ class FormScope private constructor(
      * ```
      */
     @Composable
+    @Deprecated(
+        message = "Use FormItemWithState, which exposes FormItemState with state and onValueChange instead of a Triple<MutableState<T?>, Boolean, List<String>>.",
+    )
     fun <T : Any> FormItem(
         name: String,
         vararg validators: Validator,
         content: @Composable (Triple<MutableState<T?>, Boolean, List<String>>) -> Unit,
-    ) {
-        val fieldState = _useState<T?>(default = null)
-        val (validate, _, set) = useBoolean()
-        val errMsg = useMap<KClass<*>, String>()
-        val currentFormRef: FormRef = formRefRef.current
-        @Suppress("UNCHECKED_CAST")
-        currentFormRef.formFieldMap[name] = fieldState as MutableState<Any?>
-        val publish = useEventPublish<T?>(name.genFormFieldKey(formInstance))
-        useEffect(fieldState) {
-            currentFormRef.formOperationCount.longValue += 1
-            publish(fieldState.value as? T)
-
-            // Track touched state - mark as touched when value changes
-            if (fieldState.value != null) {
-                currentFormRef.formFieldTouchedMap[name] = true
-            }
-
-            // Track dirty state - compare with initial value
-            val initialValue = currentFormRef.formFieldInitialValueMap[name]
-            currentFormRef.formFieldDirtyMap[name] = fieldState.value != initialValue
-
-            fun Validator.pass(): Boolean {
-                errMsg.remove(this::class)
-                return true
-            }
-
-            fun Validator.fail(): Boolean {
-                errMsg[this::class] = this.message
-                return false
-            }
-
-            val fieldValue: Any? = fieldState.value
-            val isValidate =
-                (validators as Array<Validator>).validateField(fieldValue, pass = Validator::pass, fail = Validator::fail)
-            set(isValidate)
-            currentFormRef.formFieldValidationMap[name] = isValidate
-        }
-        useEffect(errMsg) {
-            currentFormRef.formFieldErrorMessagesMap[name] = errMsg.values.toList()
-        }
-        val errorMessages = errMsg.values.toList()
-        content(Triple(fieldState, validate.value, errorMessages))
+    ) = FormItemWithState<T>(name, *validators) { field ->
+        content(Triple(field.value, field.isValid, field.errors))
     }
 
     /**
@@ -254,22 +224,25 @@ class FormScope private constructor(
         val errMsg = useMap<KClass<*>, String>()
         val currentFormRef: FormRef = formRefRef.current
         @Suppress("UNCHECKED_CAST")
-        currentFormRef.formFieldMap[name] = fieldState as MutableState<Any?>
+        currentFormRef.registerField(name, fieldState as MutableState<Any?>)
+        val onValueChange = remember(fieldState) {
+            { nextValue: T? -> fieldState.value = nextValue }
+        }
         val publish = useEventPublish<T?>(name.genFormFieldKey(formInstance))
         useEffect(fieldState) {
-            currentFormRef.formOperationCount.longValue += 1
+            currentFormRef.incrementOperationCount()
             publish(fieldState.value as? T)
 
             // Track touched state
             if (fieldState.value != null) {
-                currentFormRef.formFieldTouchedMap[name] = true
+                currentFormRef.markTouched(name)
                 setTouched(true)
             }
 
             // Track dirty state
-            val initialValue = currentFormRef.formFieldInitialValueMap[name]
+            val initialValue = currentFormRef.initialValue(name)
             val isDirty = fieldState.value != initialValue
-            currentFormRef.formFieldDirtyMap[name] = isDirty
+            currentFormRef.setDirty(name, isDirty)
             setDirty(isDirty)
 
             fun Validator.pass(): Boolean {
@@ -286,15 +259,16 @@ class FormScope private constructor(
             val isValidate =
                 (validators as Array<Validator>).validateField(fieldValue, pass = Validator::pass, fail = Validator::fail)
             set(isValidate)
-            currentFormRef.formFieldValidationMap[name] = isValidate
+            currentFormRef.setValidation(name, isValidate)
         }
         useEffect(errMsg) {
-            currentFormRef.formFieldErrorMessagesMap[name] = errMsg.values.toList()
+            currentFormRef.setErrorMessages(name, errMsg.values.toList())
         }
         val errorMessages = errMsg.values.toList()
         content(
             FormItemState(
                 value = fieldState,
+                onValueChange = onValueChange,
                 isValid = validate.value,
                 errors = errorMessages,
                 isTouched = touched.value,

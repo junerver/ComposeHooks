@@ -35,9 +35,9 @@ class UseFormRefTest {
     @Test
     fun formRef_isValidated_returns_true_when_all_fields_are_valid() {
         val formRef = FormRef()
-        formRef.formFieldValidationMap["field1"] = true
-        formRef.formFieldValidationMap["field2"] = true
-        formRef.formFieldValidationMap["field3"] = true
+        formRef.setValidation("field1", true)
+        formRef.setValidation("field2", true)
+        formRef.setValidation("field3", true)
 
         assertTrue(formRef.isValidated, "All valid fields should return true")
     }
@@ -45,9 +45,9 @@ class UseFormRefTest {
     @Test
     fun formRef_isValidated_returns_false_when_any_field_is_invalid() {
         val formRef = FormRef()
-        formRef.formFieldValidationMap["field1"] = true
-        formRef.formFieldValidationMap["field2"] = false
-        formRef.formFieldValidationMap["field3"] = true
+        formRef.setValidation("field1", true)
+        formRef.setValidation("field2", false)
+        formRef.setValidation("field3", true)
 
         assertFalse(formRef.isValidated, "Any invalid field should return false")
     }
@@ -55,8 +55,8 @@ class UseFormRefTest {
     @Test
     fun formRef_isValidated_returns_false_when_all_fields_are_invalid() {
         val formRef = FormRef()
-        formRef.formFieldValidationMap["field1"] = false
-        formRef.formFieldValidationMap["field2"] = false
+        formRef.setValidation("field1", false)
+        formRef.setValidation("field2", false)
 
         assertFalse(formRef.isValidated, "All invalid fields should return false")
     }
@@ -64,7 +64,7 @@ class UseFormRefTest {
     @Test
     fun formRef_isValidated_returns_false_when_single_field_is_invalid() {
         val formRef = FormRef()
-        formRef.formFieldValidationMap["field1"] = false
+        formRef.setValidation("field1", false)
 
         assertFalse(formRef.isValidated, "Single invalid field should return false")
     }
@@ -75,8 +75,8 @@ class UseFormRefTest {
         val state1 = mutableStateOf<Any?>("value1")
         val state2 = mutableStateOf<Any?>(123)
 
-        formRef.formFieldMap["field1"] = state1
-        formRef.formFieldMap["field2"] = state2
+        formRef.registerField("field1", state1)
+        formRef.registerField("field2", state2)
 
         assertEquals(2, formRef.formFieldMap.size)
         assertEquals("value1", formRef.formFieldMap["field1"]?.value)
@@ -87,7 +87,7 @@ class UseFormRefTest {
     fun formRef_formFieldMap_allows_value_updates() {
         val formRef = FormRef()
         val state = mutableStateOf<Any?>("initial")
-        formRef.formFieldMap["field"] = state
+        formRef.registerField("field", state)
 
         state.value = "updated"
 
@@ -97,8 +97,8 @@ class UseFormRefTest {
     @Test
     fun formRef_formFieldErrorMessagesMap_stores_error_lists() {
         val formRef = FormRef()
-        formRef.formFieldErrorMessagesMap["field1"] = listOf("Error 1", "Error 2")
-        formRef.formFieldErrorMessagesMap["field2"] = listOf("Error 3")
+        formRef.setErrorMessages("field1", listOf("Error 1", "Error 2"))
+        formRef.setErrorMessages("field2", listOf("Error 3"))
 
         assertEquals(2, formRef.formFieldErrorMessagesMap.size)
         assertEquals(listOf("Error 1", "Error 2"), formRef.formFieldErrorMessagesMap["field1"])
@@ -108,7 +108,7 @@ class UseFormRefTest {
     @Test
     fun formRef_formFieldErrorMessagesMap_allows_empty_error_list() {
         val formRef = FormRef()
-        formRef.formFieldErrorMessagesMap["field"] = emptyList()
+        formRef.setErrorMessages("field", emptyList())
 
         assertEquals(emptyList<String>(), formRef.formFieldErrorMessagesMap["field"])
     }
@@ -134,11 +134,11 @@ class UseFormRefTest {
     @Test
     fun formRef_validation_state_can_be_updated() {
         val formRef = FormRef()
-        formRef.formFieldValidationMap["field"] = false
+        formRef.setValidation("field", false)
 
         assertFalse(formRef.isValidated)
 
-        formRef.formFieldValidationMap["field"] = true
+        formRef.setValidation("field", true)
 
         assertTrue(formRef.isValidated)
     }
@@ -146,12 +146,12 @@ class UseFormRefTest {
     @Test
     fun formRef_handles_field_removal() {
         val formRef = FormRef()
-        formRef.formFieldValidationMap["field1"] = true
-        formRef.formFieldValidationMap["field2"] = false
+        formRef.setValidation("field1", true)
+        formRef.setValidation("field2", false)
 
         assertFalse(formRef.isValidated)
 
-        formRef.formFieldValidationMap.remove("field2")
+        formRef.removeValidation("field2")
 
         assertTrue(formRef.isValidated)
     }
@@ -171,12 +171,12 @@ class UseFormRefTest {
         val formRef = FormRef()
 
         repeat(100) { i ->
-            formRef.formFieldValidationMap["field$i"] = true
+            formRef.setValidation("field$i", true)
         }
 
         assertTrue(formRef.isValidated)
 
-        formRef.formFieldValidationMap["field50"] = false
+        formRef.setValidation("field50", false)
 
         assertFalse(formRef.isValidated)
     }

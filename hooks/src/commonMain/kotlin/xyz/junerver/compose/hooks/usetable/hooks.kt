@@ -3,9 +3,11 @@
 package xyz.junerver.compose.hooks.usetable
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.usetable.core.ColumnDef
 import xyz.junerver.compose.hooks.usetable.core.Row
@@ -52,12 +54,32 @@ class TableOptions<T> {
     var pageSize: Int = 10
     
     // Row ID generator
-    var getRowId: (T, Int) -> String = { _, index -> index.toString() }
+    var getRowId: (T, Int) -> String = defaultTableRowId()
+
+    internal fun reset() {
+        enableSorting = false
+        enableFiltering = false
+        enablePagination = false
+        enableRowSelection = false
+        enableExpansion = false
+        enableGrouping = false
+        enableColumnSizing = false
+        enableColumnVisibility = false
+        initialState = null
+        pageSize = 10
+        getRowId = defaultTableRowId()
+    }
 }
+
+private val defaultTableRowId: (Any?, Int) -> String = { _, index -> index.toString() }
+
+@Suppress("UNCHECKED_CAST")
+private fun <T> defaultTableRowId(): (T, Int) -> String = defaultTableRowId as (T, Int) -> String
 
 /**
  * Return type for useTable hook containing all table state and controls.
  */
+@Stable
 data class TableHolder<T>(
     // States
     val rowModel: State<RowModel<T>>,
@@ -111,10 +133,14 @@ fun <T> useTable(
     columns: List<ColumnDef<T, *>>,
     optionsOf: TableOptions<T>.() -> Unit = {}
 ): TableHolder<T> {
-    val options = TableOptions<T>().apply(optionsOf)
+    val options = remember { TableOptions<T>() }.apply {
+        reset()
+        optionsOf()
+    }
     
-    // Create table instance (direct creation, no ref needed)
-    val instance = TableInstance<T>()
+    val dataRef = useLatestRef(data)
+    val columnsRef = useLatestRef(columns)
+    val optionsRef = useLatestRef(options)
     
     // Initialize state
     val (tableState, setTableState) = useState(
@@ -122,6 +148,12 @@ fun <T> useTable(
             pagination = PaginationState(pageSize = options.pageSize)
         )
     )
+    val tableStateRef = useLatestRef(tableState)
+
+    // Create one table instance and make its imperative handlers read latest values from refs.
+    val instance = remember { TableInstance<T>() }.apply {
+        stateRef = tableStateRef
+    }
     
     // Register features (collect in local list first)
     val featuresList = remember(
@@ -143,10 +175,10 @@ fun <T> useTable(
     
     // Wire up Sorting API
     instance.setSorting = { sorting: List<SortDescriptor> ->
-        setTableState(tableState.copy(sorting = SortingState(sorting)))
+        setTableState(tableStateRef.current.copy(sorting = SortingState(sorting)))
     }
     instance.toggleSorting = { columnId: String, desc: Boolean? ->
-        val current = tableState.sorting.sorting
+        val current = tableStateRef.current.sorting.sorting
         val existing = current.find { it.columnId == columnId }
         val newSorting = if (existing == null) {
             current + SortDescriptor(columnId, desc ?: false)
@@ -167,99 +199,113 @@ fun <T> useTable(
     
     // Wire up Filtering API
     instance.setGlobalFilter = { filter: String ->
-        setTableState(tableState.copy(filtering = tableState.filtering.copy(globalFilter = filter)))
+        val currentState = tableStateRef.current
+        setTableState(currentState.copy(filtering = currentState.filtering.copy(globalFilter = filter)))
     }
     instance.setColumnFilter = { columnId: String, value: Any? ->
-        val newFilters = tableState.filtering.columnFilters + (columnId to value)
-        setTableState(tableState.copy(filtering = tableState.filtering.copy(columnFilters = newFilters)))
+        val currentState = tableStateRef.current
+        val newFilters = currentState.filtering.columnFilters + (columnId to value)
+        setTableState(currentState.copy(filtering = currentState.filtering.copy(columnFilters = newFilters)))
     }
     instance.clearFilters = {
-        setTableState(tableState.copy(filtering = FilteringState()))
+        setTableState(tableStateRef.current.copy(filtering = FilteringState()))
     }
     
     // Wire up Pagination API
     instance.setPageIndex = { index: Int ->
-        setTableState(tableState.copy(pagination = tableState.pagination.copy(pageIndex = index)))
+        val currentState = tableStateRef.current
+        setTableState(currentState.copy(pagination = currentState.pagination.copy(pageIndex = index)))
     }
     instance.setPageSize = { size: Int ->
-        setTableState(tableState.copy(pagination = tableState.pagination.copy(pageSize = size, pageIndex = 0)))
+        val currentState = tableStateRef.current
+        setTableState(currentState.copy(pagination = currentState.pagination.copy(pageSize = size, pageIndex = 0)))
     }
     
     // Wire up Row Selection API
     instance.toggleRowSelection = { rowId: String ->
-        val current = tableState.rowSelection.selectedRowIds
+        val currentState = tableStateRef.current
+        val current = currentState.rowSelection.selectedRowIds
         val newSelection = if (rowId in current) {
             current - rowId
         } else {
             current + rowId
         }
-        setTableState(tableState.copy(rowSelection = RowSelectionState(newSelection)))
+        setTableState(currentState.copy(rowSelection = RowSelectionState(newSelection)))
     }
     instance.toggleAllRowsSelection = { selected: Boolean? ->
+        val currentData = dataRef.current
+        val currentOptions = optionsRef.current
         val newSelection = if (selected == true) {
-            data.indices.map { options.getRowId(data[it], it) }.toSet()
+            currentData.indices.map { currentOptions.getRowId(currentData[it], it) }.toSet()
         } else {
             emptySet()
         }
-        setTableState(tableState.copy(rowSelection = RowSelectionState(newSelection)))
+        setTableState(tableStateRef.current.copy(rowSelection = RowSelectionState(newSelection)))
     }
     instance.clearRowSelection = {
-        setTableState(tableState.copy(rowSelection = RowSelectionState()))
+        setTableState(tableStateRef.current.copy(rowSelection = RowSelectionState()))
     }
     
     // Wire up Expansion API
     instance.toggleRowExpanded = { rowId: String ->
-        val current = tableState.expanded.expanded
+        val currentState = tableStateRef.current
+        val current = currentState.expanded.expanded
         val newExpanded = if (current[rowId] == true) {
             current - rowId
         } else {
             current + (rowId to true)
         }
-        setTableState(tableState.copy(expanded = ExpandedState(newExpanded)))
+        setTableState(currentState.copy(expanded = ExpandedState(newExpanded)))
     }
     instance.expandAll = {
-        val allRowIds = data.indices.map { options.getRowId(data[it], it) }
+        val currentData = dataRef.current
+        val currentOptions = optionsRef.current
+        val allRowIds = currentData.indices.map { currentOptions.getRowId(currentData[it], it) }
         val newExpanded = allRowIds.associateWith { true }
-        setTableState(tableState.copy(expanded = ExpandedState(newExpanded)))
+        setTableState(tableStateRef.current.copy(expanded = ExpandedState(newExpanded)))
     }
     instance.collapseAll = {
-        setTableState(tableState.copy(expanded = ExpandedState()))
+        setTableState(tableStateRef.current.copy(expanded = ExpandedState()))
     }
     instance.getIsRowExpanded = { rowId: String ->
-        tableState.expanded.expanded[rowId] == true
+        tableStateRef.current.expanded.expanded[rowId] == true
     }
     
     // Wire up Grouping API
     instance.setGrouping = { grouping: List<String> ->
-        setTableState(tableState.copy(grouping = GroupingState(grouping)))
+        setTableState(tableStateRef.current.copy(grouping = GroupingState(grouping)))
     }
     
     // Wire up Column Sizing API
     instance.setColumnSize = { columnId: String, size: Float ->
-        val newSizing = tableState.columnSizing.columnSizing + (columnId to size)
-        setTableState(tableState.copy(columnSizing = ColumnSizingState(newSizing)))
+        val currentState = tableStateRef.current
+        val newSizing = currentState.columnSizing.columnSizing + (columnId to size)
+        setTableState(currentState.copy(columnSizing = ColumnSizingState(newSizing)))
     }
     instance.resetColumnSizing = {
-        setTableState(tableState.copy(columnSizing = ColumnSizingState()))
+        setTableState(tableStateRef.current.copy(columnSizing = ColumnSizingState()))
     }
     
     // Wire up Column Visibility API
     instance.setColumnVisibility = { columnId: String, visible: Boolean ->
-        val newVisibility = tableState.columnVisibility.columnVisibility + (columnId to visible)
-        setTableState(tableState.copy(columnVisibility = ColumnVisibilityState(newVisibility)))
+        val currentState = tableStateRef.current
+        val newVisibility = currentState.columnVisibility.columnVisibility + (columnId to visible)
+        setTableState(currentState.copy(columnVisibility = ColumnVisibilityState(newVisibility)))
     }
     instance.toggleAllColumnsVisible = {
-        val allHidden = columns.all { tableState.columnVisibility.columnVisibility[it.id] == false }
+        val currentState = tableStateRef.current
+        val currentColumns = columnsRef.current
+        val allHidden = currentColumns.all { currentState.columnVisibility.columnVisibility[it.id] == false }
         val newVisibility = if (allHidden) {
             emptyMap()
         } else {
-            columns.associate { it.id to false }
+            currentColumns.associate { it.id to false }
         }
-        setTableState(tableState.copy(columnVisibility = ColumnVisibilityState(newVisibility)))
+        setTableState(currentState.copy(columnVisibility = ColumnVisibilityState(newVisibility)))
     }
     
     // Create core rows
-    val coreRows = remember(data, options.getRowId) {
+    val coreRows = remember(data) {
         data.mapIndexed { index, item ->
             Row(
                 id = options.getRowId(item, index),
@@ -287,26 +333,25 @@ fun <T> useTable(
     }
     
     // Calculate page count based on filtered rows (before pagination)
-    val pageCount = derivedStateOf {
-        PaginationFeature.pageCount(processedRows.size, tableState.pagination.pageSize)
-    }
+    val pageCount = PaginationFeature.pageCount(processedRows.size, tableState.pagination.pageSize)
+    val pageCountRef = useLatestRef(pageCount)
     
     // Wire up pagination navigation functions
     instance.nextPage = {
-        val currentIndex = tableState.pagination.pageIndex
-        if (currentIndex < pageCount.value - 1) {
+        val currentIndex = tableStateRef.current.pagination.pageIndex
+        if (currentIndex < pageCountRef.current - 1) {
             instance.setPageIndex(currentIndex + 1)
         }
     }
     instance.previousPage = {
-        val currentIndex = tableState.pagination.pageIndex
+        val currentIndex = tableStateRef.current.pagination.pageIndex
         if (currentIndex > 0) {
             instance.setPageIndex(currentIndex - 1)
         }
     }
-    instance.getPageCount = { pageCount.value }
-    instance.getCanNextPage = { tableState.pagination.pageIndex < pageCount.value - 1 }
-    instance.getCanPreviousPage = { tableState.pagination.pageIndex > 0 }
+    instance.getPageCount = { pageCountRef.current }
+    instance.getCanNextPage = { tableStateRef.current.pagination.pageIndex < pageCountRef.current - 1 }
+    instance.getCanPreviousPage = { tableStateRef.current.pagination.pageIndex > 0 }
     
     // Create row model
     val rowModel = remember(paginatedRows, processedRows) {
@@ -317,33 +362,39 @@ fun <T> useTable(
         )
     }
     
-    // Return TableHolder
-    return TableHolder(
-        rowModel = derivedStateOf { rowModel },
-        columns = derivedStateOf { columns },
-        state = derivedStateOf { tableState },
-        setSorting = instance.setSorting,
-        toggleSorting = instance.toggleSorting,
-        clearSorting = instance.clearSorting,
-        setGlobalFilter = instance.setGlobalFilter,
-        setColumnFilter = instance.setColumnFilter,
-        clearFilters = instance.clearFilters,
-        setPageIndex = instance.setPageIndex,
-        setPageSize = instance.setPageSize,
-        nextPage = instance.nextPage,
-        previousPage = instance.previousPage,
-        toggleRowSelection = instance.toggleRowSelection,
-        toggleAllRowsSelection = instance.toggleAllRowsSelection,
-        clearRowSelection = instance.clearRowSelection,
-        toggleRowExpanded = instance.toggleRowExpanded,
-        expandAll = instance.expandAll,
-        collapseAll = instance.collapseAll,
-        setGrouping = instance.setGrouping,
-        setColumnSize = instance.setColumnSize,
-        resetColumnSizing = instance.resetColumnSizing,
-        setColumnVisibility = instance.setColumnVisibility,
-        toggleAllColumnsVisible = instance.toggleAllColumnsVisible
-    )
+    val rowModelState = rememberUpdatedState(rowModel)
+    val columnsState = rememberUpdatedState(columns)
+    val tableStateState = rememberUpdatedState(tableState)
+
+    // Return a stable holder with wrapper functions that dispatch to the latest instance handlers.
+    return remember(instance, rowModelState, columnsState, tableStateState) {
+        TableHolder(
+            rowModel = rowModelState,
+            columns = columnsState,
+            state = tableStateState,
+            setSorting = { sorting -> instance.setSorting(sorting) },
+            toggleSorting = { columnId, desc -> instance.toggleSorting(columnId, desc) },
+            clearSorting = { instance.clearSorting() },
+            setGlobalFilter = { filter -> instance.setGlobalFilter(filter) },
+            setColumnFilter = { columnId, value -> instance.setColumnFilter(columnId, value) },
+            clearFilters = { instance.clearFilters() },
+            setPageIndex = { index -> instance.setPageIndex(index) },
+            setPageSize = { size -> instance.setPageSize(size) },
+            nextPage = { instance.nextPage() },
+            previousPage = { instance.previousPage() },
+            toggleRowSelection = { rowId -> instance.toggleRowSelection(rowId) },
+            toggleAllRowsSelection = { selected -> instance.toggleAllRowsSelection(selected) },
+            clearRowSelection = { instance.clearRowSelection() },
+            toggleRowExpanded = { rowId -> instance.toggleRowExpanded(rowId) },
+            expandAll = { instance.expandAll() },
+            collapseAll = { instance.collapseAll() },
+            setGrouping = { grouping -> instance.setGrouping(grouping) },
+            setColumnSize = { columnId, size -> instance.setColumnSize(columnId, size) },
+            resetColumnSizing = { instance.resetColumnSizing() },
+            setColumnVisibility = { columnId, visible -> instance.setColumnVisibility(columnId, visible) },
+            toggleAllColumnsVisible = { instance.toggleAllColumnsVisible() },
+        )
+    }
 }
 
 /**

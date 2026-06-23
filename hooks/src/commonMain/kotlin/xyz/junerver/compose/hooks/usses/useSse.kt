@@ -104,16 +104,16 @@ fun <TParams, TEvent> useSse(
                     try {
                         options.onEvent(event)
                     } catch (callbackError: Throwable) {
+                        if (callbackError is CancellationException) throw callbackError
                         // Swallow callback errors to avoid treating them as stream errors
                         callbackError.printStackTrace()
                     }
                 }
             } catch (e: Throwable) {
-                if (e !is CancellationException) {
-                    caughtError = e
-                    setError(e)
-                    options.onError(e, resolvedParams)
-                }
+                if (e is CancellationException) throw e
+                caughtError = e
+                setError(e)
+                options.onError(e, resolvedParams)
             } finally {
                 // Only update state if this is still the current stream (not superseded)
                 if (streamId == currentStreamId) {

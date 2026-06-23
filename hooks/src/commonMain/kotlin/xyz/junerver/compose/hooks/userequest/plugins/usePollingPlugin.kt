@@ -4,7 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -87,7 +86,7 @@ private class PollingPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
                         usedScope = if (pollingWhenHidden) pluginScope else fetch.scope
                         if (!pollingWhenHidden && inBackground) return@onFinally
                         if (pollingErrorRetryCount == -1 || currentRetryCount <= pollingErrorRetryCount) {
-                            usedScope.launch(Dispatchers.Default) {
+                            usedScope.launch {
                                 delay(pollingInterval)
                                 if (pollingWhenHidden) fetch.refreshAsync() else fetch.refresh()
                             }.also { pollingJob = it }

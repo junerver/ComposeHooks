@@ -49,21 +49,21 @@ class UseFormTouchedDirtyTest {
     @Test
     fun formRef_touchedMap_can_store_touched_state() {
         val formRef = FormRef()
-        formRef.formFieldTouchedMap["email"] = true
+        formRef.setTouched("email", true)
         assertTrue(formRef.formFieldTouchedMap["email"] == true)
     }
 
     @Test
     fun formRef_dirtyMap_can_store_dirty_state() {
         val formRef = FormRef()
-        formRef.formFieldDirtyMap["email"] = true
+        formRef.setDirty("email", true)
         assertTrue(formRef.formFieldDirtyMap["email"] == true)
     }
 
     @Test
     fun formRef_initialValueMap_can_store_initial_values() {
         val formRef = FormRef()
-        formRef.formFieldInitialValueMap["name"] = "John"
+        formRef.setInitialValue("name", "John")
         assertEquals("John", formRef.formFieldInitialValueMap["name"])
     }
 
@@ -72,7 +72,7 @@ class UseFormTouchedDirtyTest {
     @Test
     fun formInstance_isTouched_returns_false_initially() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>(null)
+        formRef.registerField("email", mutableStateOf<Any?>(null))
 
         assertFalse(formInstance.isTouched("email"))
     }
@@ -80,8 +80,8 @@ class UseFormTouchedDirtyTest {
     @Test
     fun formInstance_isTouched_returns_true_when_field_is_touched() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>(null)
-        formRef.formFieldTouchedMap["email"] = true
+        formRef.registerField("email", mutableStateOf<Any?>(null))
+        formRef.setTouched("email", true)
 
         assertTrue(formInstance.isTouched("email"))
     }
@@ -98,7 +98,7 @@ class UseFormTouchedDirtyTest {
     @Test
     fun formInstance_isDirty_returns_false_initially() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>(null)
+        formRef.registerField("email", mutableStateOf<Any?>(null))
 
         assertFalse(formInstance.isDirty("email"))
     }
@@ -106,8 +106,8 @@ class UseFormTouchedDirtyTest {
     @Test
     fun formInstance_isDirty_returns_true_when_field_is_dirty() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>("changed")
-        formRef.formFieldDirtyMap["email"] = true
+        formRef.registerField("email", mutableStateOf<Any?>("changed"))
+        formRef.setDirty("email", true)
 
         assertTrue(formInstance.isDirty("email"))
     }
@@ -124,7 +124,7 @@ class UseFormTouchedDirtyTest {
     @Test
     fun formInstance_markAsTouched_sets_touched_true() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>(null)
+        formRef.registerField("email", mutableStateOf<Any?>(null))
 
         formInstance.markAsTouched("email")
 
@@ -143,9 +143,9 @@ class UseFormTouchedDirtyTest {
     @Test
     fun formInstance_markAllAsTouched_marks_all_fields() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["name"] = mutableStateOf<Any?>(null)
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>(null)
-        formRef.formFieldMap["phone"] = mutableStateOf<Any?>(null)
+        formRef.registerField("name", mutableStateOf<Any?>(null))
+        formRef.registerField("email", mutableStateOf<Any?>(null))
+        formRef.registerField("phone", mutableStateOf<Any?>(null))
 
         formInstance.markAllAsTouched()
 
@@ -159,7 +159,7 @@ class UseFormTouchedDirtyTest {
     @Test
     fun formInstance_getTouchedFields_returns_empty_set_initially() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>(null)
+        formRef.registerField("email", mutableStateOf<Any?>(null))
 
         val touched = formInstance.getTouchedFields()
 
@@ -169,9 +169,9 @@ class UseFormTouchedDirtyTest {
     @Test
     fun formInstance_getTouchedFields_returns_touched_field_names() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["name"] = mutableStateOf<Any?>(null)
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>(null)
-        formRef.formFieldTouchedMap["email"] = true
+        formRef.registerField("name", mutableStateOf<Any?>(null))
+        formRef.registerField("email", mutableStateOf<Any?>(null))
+        formRef.setTouched("email", true)
 
         val touched = formInstance.getTouchedFields()
 
@@ -183,7 +183,7 @@ class UseFormTouchedDirtyTest {
     @Test
     fun formInstance_getDirtyFields_returns_empty_set_initially() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>(null)
+        formRef.registerField("email", mutableStateOf<Any?>(null))
 
         val dirty = formInstance.getDirtyFields()
 
@@ -193,9 +193,9 @@ class UseFormTouchedDirtyTest {
     @Test
     fun formInstance_getDirtyFields_returns_dirty_field_names() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["name"] = mutableStateOf<Any?>(null)
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>("changed")
-        formRef.formFieldDirtyMap["email"] = true
+        formRef.registerField("name", mutableStateOf<Any?>(null))
+        formRef.registerField("email", mutableStateOf<Any?>("changed"))
+        formRef.setDirty("email", true)
 
         val dirty = formInstance.getDirtyFields()
 
@@ -207,8 +207,8 @@ class UseFormTouchedDirtyTest {
     @Test
     fun formInstance_resetFields_clears_touched_state() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>("test")
-        formRef.formFieldTouchedMap["email"] = true
+        formRef.registerField("email", mutableStateOf<Any?>("test"))
+        formRef.setTouched("email", true)
 
         formInstance.resetFields()
 
@@ -218,8 +218,8 @@ class UseFormTouchedDirtyTest {
     @Test
     fun formInstance_resetFields_clears_dirty_state() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>("test")
-        formRef.formFieldDirtyMap["email"] = true
+        formRef.registerField("email", mutableStateOf<Any?>("test"))
+        formRef.setDirty("email", true)
 
         formInstance.resetFields()
 
@@ -229,8 +229,8 @@ class UseFormTouchedDirtyTest {
     @Test
     fun formInstance_resetFields_updates_initial_values() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["name"] = mutableStateOf<Any?>("old")
-        formRef.formFieldInitialValueMap["name"] = "old"
+        formRef.registerField("name", mutableStateOf<Any?>("old"))
+        formRef.setInitialValue("name", "old")
 
         formInstance.resetFields(mapOf("name" to "new"))
 

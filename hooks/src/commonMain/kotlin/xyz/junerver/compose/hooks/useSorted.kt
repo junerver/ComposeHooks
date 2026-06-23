@@ -152,16 +152,16 @@ fun <T> useSorted(source: List<T>, optionsOf: UseSortedOptions<T>.() -> Unit = {
     val compareFn by useCreation(options.compareFn) { options.compareFn ?: defaultCompare() }
 
     val dirty = options.dirty
-    return useState {
+    val sortedState = useState {
         val sorted = sortFn(sourceState.value, compareFn)
-        // Only attempt to modify the source if it's actually a MutableList
-        if (dirty && source is MutableList<T>) {
-            // Only clear and add if the source is not already sorted correctly
-            if (source != sorted) {
-                source.clear()
-                source.addAll(sorted)
-            }
-        }
         sorted
     }
+    useEffect(sortedState.value, dirty) {
+        // Keep dirty-mode mutation out of the derived state read path.
+        if (dirty && source is MutableList<T> && source != sortedState.value) {
+            source.clear()
+            source.addAll(sortedState.value)
+        }
+    }
+    return sortedState
 }

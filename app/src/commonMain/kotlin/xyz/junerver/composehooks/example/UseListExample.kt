@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -35,6 +36,11 @@ import xyz.junerver.composehooks.ui.component.TButton
   Email: junerver@gmail.com
   Version: v1.0
 */
+
+private data class DemoTask(
+    val id: Int,
+    val text: String,
+)
 
 /**
  * Example component demonstrating the useList hook
@@ -201,7 +207,7 @@ private fun ListOperationsExample() {
         LazyColumn(
             modifier = Modifier.height(120.dp),
         ) {
-            items(listState) { item ->
+            items(listState, key = { item -> item }) { item ->
                 Row(modifier = Modifier.fillMaxWidth().padding(4.dp)) {
                     Text(text = item)
                 }
@@ -307,8 +313,9 @@ private fun ListReduceExample() {
 @Composable
 private fun DynamicListExample() {
     // Task list state
-    val tasks = useList<String>()
+    val tasks = useList<DemoTask>()
     var newTask by useState("")
+    var nextTaskId by useState(0)
 
     Column(modifier = Modifier.fillMaxWidth()) {
         // Task input
@@ -326,7 +333,8 @@ private fun DynamicListExample() {
                 modifier = Modifier.padding(start = 8.dp),
             ) {
                 if (newTask.isNotEmpty()) {
-                    tasks.add(newTask)
+                    tasks.add(DemoTask(id = nextTaskId, text = newTask))
+                    nextTaskId += 1
                     newTask = ""
                 }
             }
@@ -351,18 +359,18 @@ private fun DynamicListExample() {
             LazyColumn(
                 modifier = Modifier.height(200.dp),
             ) {
-                items(tasks.size) { index ->
+                itemsIndexed(tasks, key = { _, task -> task.id }) { index, task ->
                     Row(
                         modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "${index + 1}. ${tasks[index]}",
+                            text = "${index + 1}. ${task.text}",
                             modifier = Modifier.weight(1f),
                         )
 
                         TButton(text = "Remove") {
-                            tasks.removeAt(index)
+                            tasks.remove(task)
                         }
                     }
                 }

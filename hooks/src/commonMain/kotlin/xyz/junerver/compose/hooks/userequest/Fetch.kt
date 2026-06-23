@@ -4,6 +4,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import kotlin.properties.Delegates
 import kotlin.reflect.KFunction
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -72,6 +73,10 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
             it.cancel()
         }
         requestJobs.clear()
+    }
+
+    private fun Throwable.rethrowIfCancellation() {
+        if (this is CancellationException) throw this
     }
 
     /**
@@ -184,10 +189,12 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
             try {
                 options.onSuccess.invoke(result, latestParams)
             } catch (e: Throwable) {
+                e.rethrowIfCancellation()
                 // 捕获 onSuccess 回调异常，防止影响后续流程
             }
             runPluginHandler(Methods.OnSuccess(result, latestParams))
         } catch (error: Throwable) {
+            error.rethrowIfCancellation()
             if (currentCount != count) return@coroutineScope
             requestError = error
             setState(
@@ -197,6 +204,7 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
             try {
                 options.onError.invoke(error, latestParams)
             } catch (e: Throwable) {
+                e.rethrowIfCancellation()
                 // 捕获 onError 回调异常，保留原始错误
             }
             runPluginHandler(Methods.OnError(error, latestParams))
@@ -205,6 +213,7 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
             try {
                 options.onFinally.invoke(latestParams, requestResult, requestError)
             } catch (e: Throwable) {
+                e.rethrowIfCancellation()
                 // 捕获 onFinally 回调异常
             }
             // 插件的 onFinally 应该总是执行，用于清理资源
@@ -257,6 +266,7 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
             runPluginHandler(Methods.OnMutate(targetData))
             setState(Keys.data to targetData)
         } catch (e: Throwable) {
+            e.rethrowIfCancellation()
             // 捕获 mutate 函数异常，保持状态一致性
         }
     }
@@ -319,6 +329,7 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
                 }
             }
         } catch (e: Throwable) {
+            e.rethrowIfCancellation()
             // 捕获插件异常，防止中断其他插件执行
             null
         }

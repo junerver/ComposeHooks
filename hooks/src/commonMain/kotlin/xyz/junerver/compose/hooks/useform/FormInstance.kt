@@ -1,6 +1,5 @@
 package xyz.junerver.compose.hooks.useform
 
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import xyz.junerver.compose.hooks.Ref
 import xyz.junerver.compose.hooks.utils.then
@@ -46,13 +45,6 @@ class FormInstance {
     internal lateinit var formRef: Ref<FormRef>
 
     /**
-     * Internal property to access the current form field map.
-     * Contains all form field states mapped by their field names.
-     */
-    private val currentFormFieldMap: MutableMap<String, MutableState<Any?>>
-        get() = formRef.current.formFieldMap
-
-    /**
      * Retrieves all form field values as a map.
      * Each entry contains the field name as the key and its current value.
      *
@@ -67,9 +59,7 @@ class FormInstance {
      */
     fun getAllFields(): Map<String, Any?> {
         checkRef()
-        return currentFormFieldMap.entries.associate {
-            it.key to it.value.value
-        }
+        return formRef.current.getAllFields()
     }
 
     /**
@@ -105,8 +95,9 @@ class FormInstance {
      */
     fun setFieldsValue(value: Map<String, Any>) {
         checkRef()
-        value.filterKeys { currentFormFieldMap.keys.contains(it) }.forEach {
-            currentFormFieldMap[it.key]!!.value = it.value
+        val ref = formRef.current
+        value.filterKeys(ref::containsField).forEach {
+            ref.setFieldValue(it.key, it.value)
         }
     }
 
@@ -143,9 +134,7 @@ class FormInstance {
      */
     fun setFieldValue(name: String, value: Any?) {
         checkRef()
-        currentFormFieldMap.keys.find { it == name }?.let { key ->
-            currentFormFieldMap[key]!!.value = value
-        }
+        formRef.current.setFieldValue(name, value)
     }
 
     /**
@@ -178,7 +167,7 @@ class FormInstance {
      */
     fun getFieldError(name: String): List<String> {
         checkRef()
-        return formRef.current.formFieldErrorMessagesMap[name] ?: emptyList()
+        return formRef.current.errorMessages(name)
     }
 
     /**
@@ -202,18 +191,14 @@ class FormInstance {
     fun resetFields(value: Map<String, Any> = emptyMap()) {
         checkRef()
         val ref = formRef.current
-        // Clear touched and dirty states
-        ref.formFieldTouchedMap.clear()
-        ref.formFieldDirtyMap.clear()
+        ref.clearTouchedAndDirty()
         // Reset field values
-        currentFormFieldMap.forEach { (_, state) ->
-            state.value = null
-        }.then {
+        ref.resetFieldValues().then {
             setFieldsValue(value)
         }
         // Update initial values for dirty tracking
         value.forEach { (name, v) ->
-            ref.formFieldInitialValueMap[name] = v
+            ref.setInitialValue(name, v)
         }
     }
 
@@ -244,7 +229,7 @@ class FormInstance {
      */
     fun isTouched(name: String): Boolean {
         checkRef()
-        return formRef.current.formFieldTouchedMap[name] == true
+        return formRef.current.isTouched(name)
     }
 
     /**
@@ -255,7 +240,7 @@ class FormInstance {
      */
     fun isDirty(name: String): Boolean {
         checkRef()
-        return formRef.current.formFieldDirtyMap[name] == true
+        return formRef.current.isDirty(name)
     }
 
     /**
@@ -265,7 +250,7 @@ class FormInstance {
      */
     fun getTouchedFields(): Set<String> {
         checkRef()
-        return formRef.current.formFieldTouchedMap.filterValues { it }.keys
+        return formRef.current.touchedFields()
     }
 
     /**
@@ -275,7 +260,7 @@ class FormInstance {
      */
     fun getDirtyFields(): Set<String> {
         checkRef()
-        return formRef.current.formFieldDirtyMap.filterValues { it }.keys
+        return formRef.current.dirtyFields()
     }
 
     /**
@@ -285,9 +270,7 @@ class FormInstance {
      */
     fun markAsTouched(name: String) {
         checkRef()
-        if (currentFormFieldMap.containsKey(name)) {
-            formRef.current.formFieldTouchedMap[name] = true
-        }
+        formRef.current.markTouched(name)
     }
 
     /**
@@ -295,9 +278,7 @@ class FormInstance {
      */
     fun markAllAsTouched() {
         checkRef()
-        currentFormFieldMap.keys.forEach { name ->
-            formRef.current.formFieldTouchedMap[name] = true
-        }
+        formRef.current.markAllTouched()
     }
 
     // ==================== Validation Methods ====================
@@ -310,7 +291,7 @@ class FormInstance {
      */
     fun getFieldValidationTrigger(name: String): ValidationTrigger {
         checkRef()
-        return formRef.current.formFieldValidationTriggerMap[name] ?: ValidationTrigger.OnChange
+        return formRef.current.validationTrigger(name)
     }
 
     /**
@@ -322,10 +303,8 @@ class FormInstance {
     fun validateField(name: String): Boolean {
         checkRef()
         val ref = formRef.current
-        // Clear pending validation flag
-        ref.formFieldPendingValidationMap.remove(name)
-        // Return current validation state
-        return ref.formFieldValidationMap[name] ?: true
+        ref.clearPendingValidation(name)
+        return ref.validationState(name)
     }
 
     /**
@@ -338,8 +317,7 @@ class FormInstance {
         checkRef()
         markAllAsTouched()
         val ref = formRef.current
-        // Clear all pending validations
-        ref.formFieldPendingValidationMap.clear()
+        ref.clearAllPendingValidation()
         return ref.isValidated
     }
 
@@ -352,7 +330,7 @@ class FormInstance {
      */
     fun getAllFieldsErrors(): Map<String, List<String>> {
         checkRef()
-        return formRef.current.formFieldErrorMessagesMap.filterValues { it.isNotEmpty() }
+        return formRef.current.allErrorMessages()
     }
 
     /**
@@ -380,7 +358,7 @@ class FormInstance {
         checkRef()
         markAllAsTouched()
         if (isValidated()) {
-            formRef.current.onSubmitCallback?.invoke(getAllFields())
+            formRef.current.invokeSubmitCallback(getAllFields())
         }
     }
 

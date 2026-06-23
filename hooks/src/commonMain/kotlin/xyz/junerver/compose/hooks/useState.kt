@@ -143,11 +143,11 @@ fun <T> useStateAsync(
         asyncRun {
             try {
                 setState(factory())
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
-                if (e !is CancellationException) {
-                    onError(e)
-                    setState(null)
-                }
+                onError(e)
+                setState(null)
             }
         }
     }

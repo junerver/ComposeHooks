@@ -34,9 +34,9 @@ enum class OptionFunc {
 }
 
 @Composable
-fun Container(label: String, optionFunc: OptionFunc) {
+fun Container(label: String, optionFunc: OptionFunc, modifier: Modifier = Modifier) {
     val post = useEventPublish<Unit>()
-    Column {
+    Column(modifier = modifier) {
         TButton(text = "refresh") {
             post(Unit)
         }
@@ -47,7 +47,7 @@ fun Container(label: String, optionFunc: OptionFunc) {
 }
 
 @Composable
-fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc) {
+fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc, modifier: Modifier = Modifier) {
     val (userInfoState, loadingState, _, request) = useRequest(
         requestFn = { NetApi.userInfo(it) },
         optionsOf = {
@@ -90,7 +90,7 @@ fun SubComponent(label: String, isUsed: Boolean = false, optionFunc: OptionFunc)
     }
     val userInfo by userInfoState
     val loading by loadingState
-    Column(modifier = Modifier.height(100.dp)) {
+    Column(modifier = modifier.height(100.dp)) {
         Text(text = "$label:$isUsed${if (isUsed) " $label wait 3seconds" else ""}")
         if (loading) {
             Text(text = "Loading ...")

@@ -1,5 +1,6 @@
 package xyz.junerver.compose.ai.useagent
 
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -219,6 +220,7 @@ private suspend fun executeSingleToolCall(call: ToolCallPart, tools: List<Tool<*
             isError = false,
         )
     } catch (e: Exception) {
+        if (e is CancellationException) throw e
         toolMessage(
             toolCallId = call.toolCallId,
             toolName = call.toolName,

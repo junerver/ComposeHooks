@@ -28,6 +28,20 @@ import xyz.junerver.compose.hooks.utils.toLocalDateTime
  */
 internal typealias DateLike = Any?
 
+private val DATE_FORMAT_TOKEN_REGEX = Regex(
+    "(\\[[^]]*])|" + // Capture anything inside square brackets as a literal
+        "zzzz|zzz|zz|z|" + // Timezone tokens
+        "YYYY|YY|Yo|" + // Year tokens
+        "MMMM|MMM|MM|Mo|M|" + // Month tokens
+        "dddd|ddd|DD|Do|dd|D|d|" + // Day of week & Day of month tokens (order DD/Do before D)
+        "HH|Ho|H|" + // 24-hour tokens
+        "hh|ho|h|" + // 12-hour tokens
+        "mm|mo|m|" + // Minute tokens
+        "ss|so|s|" + // Second tokens
+        "SSS|" + // Millisecond token
+        "AA|A|aa|a", // Meridiem tokens
+)
+
 /**
  * Custom function type for meridiem formatting
  */
@@ -325,24 +339,8 @@ internal fun formatDate(date: LocalDateTime, formatStr: String, options: UseDate
         else -> DefaultEnglishDateFormatMessages
     }
 
-    // Regex pattern to match format tokens and literal strings in square brackets
-    // Order matters: literal match ([^\]]+) should come first to ensure it's prioritized
-    val formatRegex = Regex(
-        "(\\[[^]]*])|" + // Capture anything inside square brackets as a literal
-            "zzzz|zzz|zz|z|" + // Timezone tokens
-            "YYYY|YY|Yo|" + // Year tokens
-            "MMMM|MMM|MM|Mo|M|" + // Month tokens
-            "dddd|ddd|DD|Do|dd|D|d|" + // Day of week & Day of month tokens (order DD/Do before D)
-            "HH|Ho|H|" + // 24-hour tokens
-            "hh|ho|h|" + // 12-hour tokens
-            "mm|mo|m|" + // Minute tokens
-            "ss|so|s|" + // Second tokens
-            "SSS|" + // Millisecond token
-            "AA|A|aa|a", // Meridiem tokens
-    )
-
     // Using replace (or replaceAll in newer versions) with a lambda to handle each match
-    return formatRegex.replace(formatStr) { matchResult ->
+    return DATE_FORMAT_TOKEN_REGEX.replace(formatStr) { matchResult ->
         val token = matchResult.value
         val literalContent = matchResult.groups[1] // Check if the first capture group (for literals) has content
 

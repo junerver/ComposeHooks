@@ -152,12 +152,18 @@ private fun BasicUsageExample() {
  */
 @Composable
 private fun ListOperationsExample() {
-    val immutableListHolder = useImmutableList(1, 2, 3, 4, 5)
+    val immutableListHolder = useImmutableList(
+        DemoImmutableItem(id = 1, value = 1),
+        DemoImmutableItem(id = 2, value = 2),
+        DemoImmutableItem(id = 3, value = 3),
+        DemoImmutableItem(id = 4, value = 4),
+        DemoImmutableItem(id = 5, value = 5),
+    )
     val immutableList by immutableListHolder.list
 
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
-            text = "Current list: $immutableList",
+            text = "Current list: ${immutableList.map { it.value }}",
             style = MaterialTheme.typography.bodyLarge,
         )
 
@@ -168,7 +174,7 @@ private fun ListOperationsExample() {
                 if (immutableList.isNotEmpty()) {
                     val index = Random.nextInt(immutableList.size)
                     immutableListHolder.mutate {
-                        it[index] = Random.nextInt(100)
+                        it[index] = it[index].copy(value = Random.nextInt(100))
                     }
                 }
             }
@@ -182,7 +188,15 @@ private fun ListOperationsExample() {
             TButton(text = "Reset") {
                 immutableListHolder.mutate {
                     it.clear()
-                    it.addAll(listOf(1, 2, 3, 4, 5))
+                    it.addAll(
+                        listOf(
+                            DemoImmutableItem(id = 1, value = 1),
+                            DemoImmutableItem(id = 2, value = 2),
+                            DemoImmutableItem(id = 3, value = 3),
+                            DemoImmutableItem(id = 4, value = 4),
+                            DemoImmutableItem(id = 5, value = 5),
+                        ),
+                    )
                 }
             }
         }
@@ -207,8 +221,8 @@ private fun ListOperationsExample() {
                 LazyColumn(
                     modifier = Modifier.height(200.dp).padding(8.dp),
                 ) {
-                    items(immutableList) {
-                        RandomItem(it)
+                    items(immutableList, key = { item -> item.id }) { item ->
+                        RandomItem(item)
                     }
                 }
             }
@@ -290,15 +304,20 @@ private fun ListReduceExample() {
 /**
  * A list item with random background color
  */
+private data class DemoImmutableItem(
+    val id: Int,
+    val value: Int,
+)
+
 @Composable
-private fun RandomItem(content: Int) {
+private fun RandomItem(item: DemoImmutableItem) {
     Row(
         modifier = Modifier.fillMaxWidth()
             .padding(vertical = 4.dp, horizontal = 8.dp)
             .randomBackground(),
     ) {
         Text(
-            text = "Item value: $content",
+            text = "Item value: ${item.value}",
             modifier = Modifier.padding(8.dp),
             style = MaterialTheme.typography.bodyMedium,
         )

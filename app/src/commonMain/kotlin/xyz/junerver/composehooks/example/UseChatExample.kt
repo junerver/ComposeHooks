@@ -429,11 +429,11 @@ private fun ProviderSelector(selectedType: ProviderType, onTypeChange: (Provider
 }
 
 @Composable
-private fun ChatMessageBubble(message: ChatMessage) {
+private fun ChatMessageBubble(message: ChatMessage, modifier: Modifier = Modifier) {
     val isUser = message is UserMessage
 
     Row(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .animateContentSize(),
         horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start,

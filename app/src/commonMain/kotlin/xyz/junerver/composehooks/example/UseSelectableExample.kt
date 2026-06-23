@@ -72,7 +72,7 @@ fun UseSelectableExample() {
 
     Box(Modifier.fillMaxSize()) {
         LazyColumn {
-            items(DEMO_LIST) { demo ->
+            items(DEMO_LIST, key = { demo -> demo.userId }) { demo ->
                 Column(Modifier.height(50.dp)) {
                     Row(Modifier.padding(10.dp)) {
                         Text(modifier = Modifier.align(Alignment.CenterVertically), text = demo.userName)

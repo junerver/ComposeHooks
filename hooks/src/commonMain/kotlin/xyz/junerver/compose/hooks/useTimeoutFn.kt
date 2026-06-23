@@ -9,7 +9,6 @@ import kotlin.properties.Delegates
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -66,7 +65,7 @@ typealias StopFn = () -> Unit
  * @property options The timeout options
  */
 @Stable
-private class TimeoutFn(private val options: UseTimeoutFnOptions) {
+private class TimeoutFn(var options: UseTimeoutFnOptions) {
     var scope: CoroutineScope by Delegates.notNull()
     var isPendingState: MutableState<Boolean>? = null
     lateinit var timeoutFn: Ref<SuspendAsyncFn>
@@ -80,7 +79,7 @@ private class TimeoutFn(private val options: UseTimeoutFnOptions) {
             stop()
         }
 
-        scope.launch(Dispatchers.Default) {
+        scope.launch {
             isPendingState?.value = true
             try {
                 if (options.immediateCallback) {
@@ -151,6 +150,11 @@ fun useTimeoutFn(fn: SuspendAsyncFn, interval: Duration = 1.seconds, optionsOf: 
             this.scope = scope
             this.interval = interval
         }
+    }.apply {
+        this.options = options
+        this.timeoutFn = latestFn
+        this.scope = scope
+        this.interval = interval
     }
 
     // Start immediately if configured

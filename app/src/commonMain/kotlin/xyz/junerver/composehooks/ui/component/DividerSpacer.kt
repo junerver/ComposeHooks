@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 
 /*
   Description:
@@ -17,6 +18,12 @@ import androidx.compose.ui.unit.dp
 */
 
 @Composable
-fun DividerSpacer(top: Dp = 20.dp, bottom: Dp = 20.dp) {
-    HorizontalDivider(modifier = Modifier.fillMaxWidth().padding(top = 20.dp, bottom = 20.dp))
+fun DividerSpacer(modifier: Modifier = Modifier, top: Dp = 20.dp, bottom: Dp = 20.dp) {
+    HorizontalDivider(modifier = modifier.fillMaxWidth().padding(top = top, bottom = bottom))
+}
+
+@Preview
+@Composable
+private fun DividerSpacerPreview() {
+    DividerSpacer()
 }

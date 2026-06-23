@@ -442,9 +442,9 @@ private fun ObjectProviderSelector(
 }
 
 @Composable
-private fun RecipeCard(recipe: Recipe) {
+private fun RecipeCard(recipe: Recipe, modifier: Modifier = Modifier) {
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(vertical = 8.dp)
             .animateContentSize(),

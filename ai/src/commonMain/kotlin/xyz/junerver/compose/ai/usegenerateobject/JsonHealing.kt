@@ -13,6 +13,13 @@ package xyz.junerver.compose.ai.usegenerateobject
   3. Repair structure (balance brackets)
 */
 
+private val TRAILING_OBJECT_COMMA_REGEX = Regex(",\\s*}")
+private val TRAILING_ARRAY_COMMA_REGEX = Regex(",\\s*]")
+private val LINE_COMMENT_WITH_NEWLINE_REGEX = Regex("//[^\n]*\n")
+private val LINE_COMMENT_AT_END_REGEX = Regex("//[^\n]*$")
+private val BLOCK_COMMENT_REGEX = Regex("/\\*[\\s\\S]*?\\*/")
+private val SINGLE_QUOTED_PROPERTY_REGEX = Regex("'([^']*?)':")
+
 /**
  * Main entry point for JSON healing.
  *
@@ -55,8 +62,8 @@ internal fun cleanJsonResponse(raw: String): String {
         .trim()
 
     // Remove trailing commas
-    result = result.replace(Regex(",\\s*}"), "}")
-    result = result.replace(Regex(",\\s*]"), "]")
+    result = result.replace(TRAILING_OBJECT_COMMA_REGEX, "}")
+    result = result.replace(TRAILING_ARRAY_COMMA_REGEX, "]")
 
     return result
 }
@@ -150,11 +157,11 @@ private fun cleanJsonFormat(json: String): String {
 private fun removeComments(json: String): String {
     var result = json
     // Remove single-line comments // and the newline after them
-    result = result.replace(Regex("//[^\n]*\n"), "")
+    result = result.replace(LINE_COMMENT_WITH_NEWLINE_REGEX, "")
     // Remove single-line comments at end of string (no newline after)
-    result = result.replace(Regex("//[^\n]*$"), "")
+    result = result.replace(LINE_COMMENT_AT_END_REGEX, "")
     // Remove multi-line comments /* */ (use [\s\S] for KMP compatibility instead of DOT_MATCHES_ALL)
-    result = result.replace(Regex("/\\*[\\s\\S]*?\\*/"), "")
+    result = result.replace(BLOCK_COMMENT_REGEX, "")
     return result
 }
 
@@ -172,7 +179,7 @@ private fun removeComments(json: String): String {
  */
 private fun fixQuotes(json: String): String {
     // Replace single quotes in property names: 'key': -> "key":
-    return json.replace(Regex("'([^']*?)':"), "\"$1\":")
+    return json.replace(SINGLE_QUOTED_PROPERTY_REGEX, "\"$1\":")
 }
 
 /**
@@ -188,9 +195,9 @@ private fun fixQuotes(json: String): String {
 private fun removeTrailingCommas(json: String): String {
     var result = json
     // Remove trailing commas before }
-    result = result.replace(Regex(",\\s*}"), "}")
+    result = result.replace(TRAILING_OBJECT_COMMA_REGEX, "}")
     // Remove trailing commas before ]
-    result = result.replace(Regex(",\\s*]"), "]")
+    result = result.replace(TRAILING_ARRAY_COMMA_REGEX, "]")
     return result
 }
 

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import arrow.core.left
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.Dispatchers
@@ -207,6 +208,7 @@ fun useAsr(optionsOf: AsrOptionsConfig.() -> Unit = {}): AsrHolder {
                                 // Final text already accumulated
                             }
                             is StreamEvent.Error -> {
+                                if (event.error is CancellationException) throw event.error
                                 withContext(Dispatchers.Main) {
                                     setError(event.error)
                                 }
@@ -218,6 +220,7 @@ fun useAsr(optionsOf: AsrOptionsConfig.() -> Unit = {}): AsrHolder {
 
                     setIsLoading(false)
                 } catch (e: Throwable) {
+                    if (e is CancellationException) throw e
                     withContext(Dispatchers.Main) {
                         setError(e)
                     }

@@ -425,13 +425,14 @@ private fun TtsProviderSelector(selectedType: TtsProviderType, onTypeChange: (Tt
 }
 
 @Composable
-private fun VoiceSelector(selected: String, onSelect: (String) -> Unit) {
+private fun VoiceSelector(selected: String, onSelect: (String) -> Unit, modifier: Modifier = Modifier) {
     var expanded by remember { mutableStateOf(false) }
     val displayText = mimoVoiceOptions.firstOrNull { it.id == selected }
         ?.let { "${it.displayName} (${it.gender})" }
         ?: selected
 
     Row(
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {

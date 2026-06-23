@@ -20,6 +20,7 @@ import io.ktor.http.isSuccess
 import io.ktor.http.withCharset
 import io.ktor.utils.io.charsets.Charsets
 import io.ktor.utils.io.readLine
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -107,6 +108,7 @@ class KtorHttpEngine(
                 emit(SseEvent.Complete)
             }
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             emit(SseEvent.Error(e))
         }
     }

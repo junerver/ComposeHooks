@@ -150,8 +150,10 @@ data class Required(override val message: String = REQUIRED_MESSAGE) : Validator
  * ```
  */
 data class Regex(override val message: String = REGEX_MESSAGE, val regex: String) : Validator {
+    private val compiledRegex = regex.toRegex()
+
     override val validator: (field: Any?) -> Boolean =
-        { field -> !field.asBoolean() || (field is String && field.matches(regex.toRegex())) }
+        { field -> !field.asBoolean() || (field is String && field.matches(compiledRegex)) }
 }
 
 /**

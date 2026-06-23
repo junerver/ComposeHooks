@@ -69,7 +69,7 @@ data class UseThrottleOptions internal constructor(
 internal class Throttle<TParams>(
     var fn: VoidFunction<TParams>,
     private val scope: CoroutineScope,
-    private val options: UseThrottleOptions = UseThrottleOptions(),
+    var options: UseThrottleOptions = UseThrottleOptions(),
     private val now: () -> Instant = { currentInstant },
 ) {
     private var timeoutJob: Job? = null
@@ -250,7 +250,10 @@ private fun <TParams> useThrottleFn(fn: VoidFunction<TParams>, options: UseThrot
     val scope = rememberCoroutineScope()
     val throttled = remember {
         Throttle(latestFn, scope, options)
-    }.apply { this.fn = latestFn }
+    }.apply {
+        this.fn = latestFn
+        this.options = options
+    }
     return remember { { p1: TParams -> throttled.invoke(p1) } }
 }
 

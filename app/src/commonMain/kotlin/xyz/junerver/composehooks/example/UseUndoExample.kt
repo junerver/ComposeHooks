@@ -30,6 +30,10 @@ import xyz.junerver.composehooks.ui.component.TButton
   Version: v1.0
 */
 
+private val wordSplitRegex = Regex("\\s+")
+
+private fun countWords(text: String): Int = text.split(wordSplitRegex).count { it.isNotBlank() }
+
 /**
  * Example component demonstrating the useUndo hook
  */
@@ -224,7 +228,7 @@ private fun TextEditorExample() {
             value = text.value.present,
             onValueChange = { newText ->
                 setText(newText)
-                wordCount = newText.split("\\s+".toRegex()).filter { it.isNotBlank() }.size
+                wordCount = countWords(newText)
             },
             label = { Text("Document content") },
             modifier = Modifier.fillMaxWidth().height(120.dp).padding(bottom = 16.dp),
@@ -240,7 +244,7 @@ private fun TextEditorExample() {
                 modifier = Modifier.weight(1f),
             ) {
                 undoText()
-                wordCount = text.value.present.split("\\s+".toRegex()).filter { it.isNotBlank() }.size
+                wordCount = countWords(text.value.present)
             }
             TButton(
                 text = "Redo",
@@ -248,7 +252,7 @@ private fun TextEditorExample() {
                 modifier = Modifier.weight(1f),
             ) {
                 redoText()
-                wordCount = text.value.present.split("\\s+".toRegex()).filter { it.isNotBlank() }.size
+                wordCount = countWords(text.value.present)
             }
             TButton(
                 text = "Clear",

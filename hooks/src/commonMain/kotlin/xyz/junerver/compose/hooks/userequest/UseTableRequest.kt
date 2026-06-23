@@ -2,8 +2,7 @@ package xyz.junerver.compose.hooks.userequest
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import xyz.junerver.compose.hooks._useState
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
@@ -283,17 +282,9 @@ fun <T> useTableRequest(
     }
 
     // 6. Extract rows and total from TableResult (now plain data, wrap in State at Holder level)
-    val rows = remember(requestHolder.data.value) {
-        derivedStateOf {
-            requestHolder.data.value?.rows ?: emptyList()
-        }
-    }
+    val rows = rememberUpdatedState(requestHolder.data.value?.rows ?: emptyList())
 
-    val total = remember(requestHolder.data.value) {
-        derivedStateOf {
-            requestHolder.data.value?.total ?: 0
-        }
-    }
+    val total = rememberUpdatedState(requestHolder.data.value?.total ?: 0)
 
     // 7. Pagination controls
     val onPageChange: (Int, Int) -> Unit = { newPage, newSize ->

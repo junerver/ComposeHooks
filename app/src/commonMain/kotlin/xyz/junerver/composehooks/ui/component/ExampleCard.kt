@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 
 /*
   Description:
@@ -21,9 +22,9 @@ import androidx.compose.ui.unit.dp
 */
 
 @Composable
-fun ExampleCard(title: String, content: @Composable () -> Unit) {
+fun ExampleCard(title: String, modifier: Modifier = Modifier, content: @Composable () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
@@ -38,5 +39,13 @@ fun ExampleCard(title: String, content: @Composable () -> Unit) {
             )
             content()
         }
+    }
+}
+
+@Preview
+@Composable
+private fun ExampleCardPreview() {
+    ExampleCard(title = "Basic Usage") {
+        Text("Current value: 3")
     }
 }

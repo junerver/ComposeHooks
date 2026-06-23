@@ -2,7 +2,6 @@ package xyz.junerver.compose.ai
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
@@ -12,7 +11,7 @@ import xyz.junerver.compose.hooks.createContext
 import xyz.junerver.compose.hooks.useContext
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
-import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useState
 
 /*
   Description: Token Usage Statistics System
@@ -139,7 +138,6 @@ class TokenUsageTracker {
  * Uses a sentinel value to detect if context was explicitly provided.
  */
 private val DefaultTokenUsageTracker = TokenUsageTracker()
-private var isTokenUsageContextProvided = false
 
 val TokenUsageContext by lazy { createContext(DefaultTokenUsageTracker) }
 
@@ -182,9 +180,9 @@ fun useWindowTokens(
     messages: List<Any>, // Accept any message type with textContent
     maxContextTokens: Int? = null,
 ): WindowTokenUsage {
-    val windowUsageRef = useRef(WindowTokenUsage())
+    val windowUsageState = useState(WindowTokenUsage())
 
-    useEffect(messages) {
+    useEffect(messages, maxContextTokens) {
         val totalChars = messages.sumOf { msg ->
             // Try to get text content via reflection or common interface
             when (msg) {
@@ -196,7 +194,7 @@ fun useWindowTokens(
         val estimatedTokens = totalChars / 3
         val remaining = maxContextTokens?.let { it - estimatedTokens }
 
-        windowUsageRef.current = WindowTokenUsage(
+        windowUsageState.value = WindowTokenUsage(
             messageCount = messages.size,
             estimatedTokens = estimatedTokens,
             maxTokens = maxContextTokens,
@@ -204,7 +202,7 @@ fun useWindowTokens(
         )
     }
 
-    return windowUsageRef.current
+    return windowUsageState.value
 }
 
 /**
@@ -227,7 +225,6 @@ fun useWindowTokens(
 @Composable
 fun TokenUsageProvider(content: @Composable () -> Unit) {
     val tracker = useCreation { TokenUsageTracker() }.current
-    isTokenUsageContextProvided = true
     TokenUsageContext.Provider(tracker) {
         content()
     }
@@ -243,8 +240,6 @@ fun TokenUsageProvider(content: @Composable () -> Unit) {
  */
 @Composable
 fun rememberTokenTracker(): TokenUsageTracker? {
-    // Only return tracker if TokenUsageProvider is active
-    if (!isTokenUsageContextProvided) return null
     val tracker = useContext(TokenUsageContext)
     // Check if it's the default tracker (not explicitly provided)
     return if (tracker === DefaultTokenUsageTracker) null else tracker

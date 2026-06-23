@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import arrow.core.left
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.Dispatchers
@@ -463,6 +464,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                         )
                     }
                 } catch (e: Exception) {
+                    if (e is CancellationException) throw e
                     withContext(Dispatchers.Main) {
                         setError(e)
                     }

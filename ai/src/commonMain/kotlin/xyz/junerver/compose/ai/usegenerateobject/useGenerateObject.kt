@@ -3,6 +3,7 @@ package xyz.junerver.compose.ai.usegenerateobject
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
+import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
@@ -247,6 +248,7 @@ fun <T : Any> useGenerateObject(
                 parseError.value = null
                 optionsRef.current.onFinish?.invoke(obj, usage)
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 parsedObject.value = null
                 parseError.value = e
                 optionsRef.current.onError?.invoke(e)

@@ -1,5 +1,6 @@
 package xyz.junerver.compose.ai.multiprovider
 
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.random.Random
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -24,6 +25,8 @@ import xyz.junerver.compose.ai.usechat.StreamEvent
   Email: junerver@gmail.com
   Version: v1.0
 */
+
+private val HTTP_STATUS_CODE_REGEX = Regex("""HTTP\s+(\d{3})|^(\d{3})""")
 
 /**
  * Chat client that supports multiple providers with automatic failover and load balancing.
@@ -150,8 +153,7 @@ internal class MultiProviderChatClient(
     private fun extractStatusCode(error: Throwable): Int? {
         val message = error.message ?: return null
         // Try to extract "HTTP 429" or "429" from error message
-        val regex = Regex("""HTTP\s+(\d{3})|^(\d{3})""")
-        val match = regex.find(message)
+        val match = HTTP_STATUS_CODE_REGEX.find(message)
         return match?.groupValues?.firstOrNull { it.toIntOrNull() != null }?.toIntOrNull()
     }
 
@@ -183,6 +185,7 @@ internal class MultiProviderChatClient(
                 recordMetrics(provider.name, success = true, responseTime)
                 return result
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 val responseTime = Clock.System.now().toEpochMilliseconds() - startTime
                 errors[provider.name] = e
 
@@ -238,6 +241,7 @@ internal class MultiProviderChatClient(
                 client.streamChat(messages).collect { event ->
                     when (event) {
                         is StreamEvent.Error -> {
+                            if (event.error is CancellationException) throw event.error
                             streamError = event.error
                             errors[provider.name] = event.error
 
@@ -272,6 +276,7 @@ internal class MultiProviderChatClient(
                     completed = true
                 }
             } catch (e: Exception) {
+                if (e is CancellationException) throw e
                 val responseTime = Clock.System.now().toEpochMilliseconds() - startTime
                 errors[provider.name] = e
                 recordMetrics(provider.name, success = false, responseTime)

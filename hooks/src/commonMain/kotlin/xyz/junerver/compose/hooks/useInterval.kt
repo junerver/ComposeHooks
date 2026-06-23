@@ -9,7 +9,6 @@ import kotlin.properties.Delegates
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -51,7 +50,7 @@ data class UseIntervalOptions internal constructor(
  * @property intervalJob The job managing the interval execution
  */
 @Stable
-private class Interval(private val options: UseIntervalOptions) {
+private class Interval(var options: UseIntervalOptions) {
     var ready = true
     var scope: CoroutineScope by Delegates.notNull()
     var isActiveState: MutableState<Boolean>? = null
@@ -63,7 +62,7 @@ private class Interval(private val options: UseIntervalOptions) {
     fun resume() {
         if (ready) {
             if (isRunning()) return
-            scope.launch(Dispatchers.Default) {
+            scope.launch {
                 delay(options.initialDelay)
                 while (isActive) {
                     intervalFn.current(this)
@@ -188,6 +187,13 @@ private fun useInterval(options: UseIntervalOptions, block: SuspendAsyncFn): Int
             this.intervalFn = latestFn
             this.scope = scope
         }
+    }.apply {
+        this.options = options
+        this.intervalFn = latestFn
+        this.scope = scope
+    }
+    useUnmount {
+        interval.pause()
     }
     return remember {
         IntervalHolder(
@@ -215,6 +221,9 @@ private fun useInterval(options: UseIntervalOptions, ready: Boolean, block: Susp
             this.scope = scope
         }
     }.apply {
+        this.options = options
+        this.intervalFn = latestFn
+        this.scope = scope
         this.ready = ready
     }
     useEffect(ready) {
@@ -224,5 +233,8 @@ private fun useInterval(options: UseIntervalOptions, ready: Boolean, block: Susp
         if (!ready && interval.isRunning()) {
             interval.pause()
         }
+    }
+    useUnmount {
+        interval.pause()
     }
 }

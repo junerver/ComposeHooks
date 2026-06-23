@@ -3,6 +3,7 @@ package xyz.junerver.composehooks.example
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -192,11 +193,10 @@ fun UseTableRequestExample() {
 
         // Table Body
         LazyColumn(modifier = Modifier.weight(1f)) {
-            items(rowModel.rows.size) { index ->
-                val row = rowModel.rows[index]
+            items(rowModel.rows, key = { row -> row.original.id }) { row ->
 
                 Surface(
-                    color = if (index % 2 == 0) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
+                    color = if (row.index % 2 == 0) MaterialTheme.colorScheme.surface else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Row(

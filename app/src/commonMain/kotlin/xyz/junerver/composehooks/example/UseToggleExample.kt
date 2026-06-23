@@ -187,20 +187,16 @@ fun BasicToggleExample() {
 
             Spacer(modifier = Modifier.weight(1f))
 
-            TButton(text = "Set True") {
-                // Note: useToggle's toggle function doesn't accept parameters
-                // It only toggles between the two predefined values
+            TButton(text = "Set True", enabled = value == false) {
                 toggle()
-                logs.add("Toggled value")
+                logs.add("Set to true")
             }
 
             Spacer(modifier = Modifier.weight(0.2f))
 
-            TButton(text = "Set False") {
-                // Note: useToggle's toggle function doesn't accept parameters
-                // It only toggles between the two predefined values
+            TButton(text = "Set False", enabled = value == true) {
                 toggle()
-                logs.add("Toggled value")
+                logs.add("Set to false")
             }
         }
 

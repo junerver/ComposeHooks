@@ -398,6 +398,14 @@ fun <T> rememberImmutableList(vararg elements: T): ImmutableListHolder<T> = useI
 fun <S, T : S> rememberImmutableListReduce(list: PersistentList<T>, operation: (acc: S, T) -> S): State<S> =
     useImmutableListReduce(list, operation)
 
+@Composable
+fun <S, T : S> rememberImmutableListReduceOrNull(list: PersistentList<T>, operation: (acc: S, T) -> S): State<S?> =
+    useImmutableListReduceOrNull(list, operation)
+
+@Composable
+fun <S, T> rememberImmutableListFold(list: PersistentList<T>, initial: S, operation: (acc: S, T) -> S): State<S> =
+    useImmutableListFold(list, initial, operation)
+
 //region useSorted
 @Composable
 fun <T> rememberSorted(source: List<T>, compareFn: SortedCompareFn<T>): State<List<T>> = useSorted(source, compareFn)

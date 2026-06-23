@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.tooling.preview.Preview
 
 /*
   Description:
@@ -60,4 +61,13 @@ fun LogCard(
             }
         }
     }
+}
+
+@Preview
+@Composable
+private fun LogCardPreview() {
+    LogCard(
+        title = "Activity Log:",
+        logs = listOf("Started request", "Received response", "Updated cache"),
+    )
 }

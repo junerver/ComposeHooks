@@ -57,7 +57,7 @@ data class UseDebounceOptions internal constructor(
 internal class Debounce<TParams>(
     var fn: VoidFunction<TParams>,
     private val scope: CoroutineScope,
-    private val options: UseDebounceOptions = UseDebounceOptions(),
+    var options: UseDebounceOptions = UseDebounceOptions(),
     private val now: () -> Instant = { currentInstant },
 ) {
     private var timeoutJob: Job? = null // Job for tracking delayed tasks
@@ -221,7 +221,10 @@ private fun <TParams> useDebounceFn(fn: VoidFunction<TParams>, options: UseDebou
     val scope = rememberCoroutineScope()
     val debounced = remember {
         Debounce(latestFn, scope, options)
-    }.apply { this.fn = latestFn }
+    }.apply {
+        this.fn = latestFn
+        this.options = options
+    }
     return remember { { p1 -> debounced.invoke(p1) } }
 }
 

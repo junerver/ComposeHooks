@@ -50,8 +50,8 @@ class UseFormInstanceTest {
     @Test
     fun formInstance_getAllFields_returns_all_field_values() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["name"] = mutableStateOf<Any?>("John")
-        formRef.formFieldMap["age"] = mutableStateOf<Any?>(25)
+        formRef.registerField("name", mutableStateOf<Any?>("John"))
+        formRef.registerField("age", mutableStateOf<Any?>(25))
 
         val fields = formInstance.getAllFields()
 
@@ -63,7 +63,7 @@ class UseFormInstanceTest {
     @Test
     fun formInstance_isValidated_returns_formRef_validation_state() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldValidationMap["field1"] = true
+        formRef.setValidation("field1", true)
 
         assertTrue(formInstance.isValidated())
     }
@@ -73,8 +73,8 @@ class UseFormInstanceTest {
         val (formInstance, formRef) = createInitializedFormInstance()
         val nameState = mutableStateOf<Any?>(null)
         val ageState = mutableStateOf<Any?>(null)
-        formRef.formFieldMap["name"] = nameState
-        formRef.formFieldMap["age"] = ageState
+        formRef.registerField("name", nameState)
+        formRef.registerField("age", ageState)
 
         formInstance.setFieldsValue(mapOf("name" to "Alice", "age" to 30))
 
@@ -86,7 +86,7 @@ class UseFormInstanceTest {
     fun formInstance_setFieldsValue_ignores_non_existing_fields() {
         val (formInstance, formRef) = createInitializedFormInstance()
         val nameState = mutableStateOf<Any?>(null)
-        formRef.formFieldMap["name"] = nameState
+        formRef.registerField("name", nameState)
 
         formInstance.setFieldsValue(mapOf("name" to "Bob", "nonExistent" to "value"))
 
@@ -99,8 +99,8 @@ class UseFormInstanceTest {
         val (formInstance, formRef) = createInitializedFormInstance()
         val nameState = mutableStateOf<Any?>(null)
         val emailState = mutableStateOf<Any?>(null)
-        formRef.formFieldMap["name"] = nameState
-        formRef.formFieldMap["email"] = emailState
+        formRef.registerField("name", nameState)
+        formRef.registerField("email", emailState)
 
         formInstance.setFieldsValue("name" to "Charlie", "email" to "charlie@test.com")
 
@@ -112,7 +112,7 @@ class UseFormInstanceTest {
     fun formInstance_setFieldValue_updates_single_field() {
         val (formInstance, formRef) = createInitializedFormInstance()
         val nameState = mutableStateOf<Any?>(null)
-        formRef.formFieldMap["name"] = nameState
+        formRef.registerField("name", nameState)
 
         formInstance.setFieldValue("name", "David")
 
@@ -123,7 +123,7 @@ class UseFormInstanceTest {
     fun formInstance_setFieldValue_with_pair() {
         val (formInstance, formRef) = createInitializedFormInstance()
         val nameState = mutableStateOf<Any?>(null)
-        formRef.formFieldMap["name"] = nameState
+        formRef.registerField("name", nameState)
 
         formInstance.setFieldValue("name" to "Eve")
 
@@ -144,7 +144,7 @@ class UseFormInstanceTest {
     fun formInstance_setFieldValue_allows_null_value() {
         val (formInstance, formRef) = createInitializedFormInstance()
         val nameState = mutableStateOf<Any?>("initial")
-        formRef.formFieldMap["name"] = nameState
+        formRef.registerField("name", nameState)
 
         formInstance.setFieldValue("name", null)
 
@@ -154,7 +154,7 @@ class UseFormInstanceTest {
     @Test
     fun formInstance_getFieldError_returns_errors_for_field() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldErrorMessagesMap["email"] = listOf("Invalid email", "Email required")
+        formRef.setErrorMessages("email", listOf("Invalid email", "Email required"))
 
         val errors = formInstance.getFieldError("email")
 
@@ -175,8 +175,8 @@ class UseFormInstanceTest {
         val (formInstance, formRef) = createInitializedFormInstance()
         val nameState = mutableStateOf<Any?>("John")
         val ageState = mutableStateOf<Any?>(25)
-        formRef.formFieldMap["name"] = nameState
-        formRef.formFieldMap["age"] = ageState
+        formRef.registerField("name", nameState)
+        formRef.registerField("age", ageState)
 
         formInstance.resetFields()
 
@@ -189,8 +189,8 @@ class UseFormInstanceTest {
         val (formInstance, formRef) = createInitializedFormInstance()
         val nameState = mutableStateOf<Any?>("John")
         val ageState = mutableStateOf<Any?>(25)
-        formRef.formFieldMap["name"] = nameState
-        formRef.formFieldMap["age"] = ageState
+        formRef.registerField("name", nameState)
+        formRef.registerField("age", ageState)
 
         formInstance.resetFields(mapOf("name" to "Default"))
 
@@ -203,8 +203,8 @@ class UseFormInstanceTest {
         val (formInstance, formRef) = createInitializedFormInstance()
         val nameState = mutableStateOf<Any?>("John")
         val emailState = mutableStateOf<Any?>("john@test.com")
-        formRef.formFieldMap["name"] = nameState
-        formRef.formFieldMap["email"] = emailState
+        formRef.registerField("name", nameState)
+        formRef.registerField("email", emailState)
 
         formInstance.resetFields("name" to "Reset", "email" to "reset@test.com")
 

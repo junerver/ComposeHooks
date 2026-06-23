@@ -31,10 +31,10 @@ class UseFormSubmitTest {
     @Test
     fun formInstance_submit_calls_onSuccess_when_valid() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["name"] = mutableStateOf<Any?>("John")
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>("john@test.com")
-        formRef.formFieldValidationMap["name"] = true
-        formRef.formFieldValidationMap["email"] = true
+        formRef.registerField("name", mutableStateOf<Any?>("John"))
+        formRef.registerField("email", mutableStateOf<Any?>("john@test.com"))
+        formRef.setValidation("name", true)
+        formRef.setValidation("email", true)
 
         var successCalled = false
         var receivedValues: Map<String, Any?>? = null
@@ -54,8 +54,8 @@ class UseFormSubmitTest {
     @Test
     fun formInstance_submit_does_not_call_onSuccess_when_invalid() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>("invalid")
-        formRef.formFieldValidationMap["email"] = false
+        formRef.registerField("email", mutableStateOf<Any?>("invalid"))
+        formRef.setValidation("email", false)
 
         var successCalled = false
 
@@ -69,9 +69,9 @@ class UseFormSubmitTest {
     @Test
     fun formInstance_submit_calls_onError_when_invalid() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>("invalid")
-        formRef.formFieldValidationMap["email"] = false
-        formRef.formFieldErrorMessagesMap["email"] = listOf("Invalid email")
+        formRef.registerField("email", mutableStateOf<Any?>("invalid"))
+        formRef.setValidation("email", false)
+        formRef.setErrorMessages("email", listOf("Invalid email"))
 
         var errorCalled = false
         var receivedErrors: Map<String, List<String>>? = null
@@ -91,8 +91,8 @@ class UseFormSubmitTest {
     @Test
     fun formInstance_submit_does_not_call_onError_when_valid() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>("test@example.com")
-        formRef.formFieldValidationMap["email"] = true
+        formRef.registerField("email", mutableStateOf<Any?>("test@example.com"))
+        formRef.setValidation("email", true)
 
         var errorCalled = false
 
@@ -107,10 +107,10 @@ class UseFormSubmitTest {
     @Test
     fun formInstance_submit_marks_all_fields_as_touched() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["name"] = mutableStateOf<Any?>("John")
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>("john@test.com")
-        formRef.formFieldValidationMap["name"] = true
-        formRef.formFieldValidationMap["email"] = true
+        formRef.registerField("name", mutableStateOf<Any?>("John"))
+        formRef.registerField("email", mutableStateOf<Any?>("john@test.com"))
+        formRef.setValidation("name", true)
+        formRef.setValidation("email", true)
 
         formInstance.submit(onSuccess = { })
 
@@ -121,8 +121,8 @@ class UseFormSubmitTest {
     @Test
     fun formInstance_submit_with_null_onError_does_not_throw() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>("invalid")
-        formRef.formFieldValidationMap["email"] = false
+        formRef.registerField("email", mutableStateOf<Any?>("invalid"))
+        formRef.setValidation("email", false)
 
         // Should not throw
         formInstance.submit(
@@ -136,8 +136,8 @@ class UseFormSubmitTest {
     @Test
     fun formInstance_getAllFieldsErrors_returns_all_errors() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldErrorMessagesMap["name"] = listOf("Name required")
-        formRef.formFieldErrorMessagesMap["email"] = listOf("Invalid email", "Email required")
+        formRef.setErrorMessages("name", listOf("Name required"))
+        formRef.setErrorMessages("email", listOf("Invalid email", "Email required"))
 
         val errors = formInstance.getAllFieldsErrors()
 
@@ -157,8 +157,8 @@ class UseFormSubmitTest {
     @Test
     fun formInstance_getAllFieldsErrors_excludes_empty_error_lists() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldErrorMessagesMap["name"] = emptyList()
-        formRef.formFieldErrorMessagesMap["email"] = listOf("Invalid email")
+        formRef.setErrorMessages("name", emptyList())
+        formRef.setErrorMessages("email", listOf("Invalid email"))
 
         val errors = formInstance.getAllFieldsErrors()
 
@@ -171,15 +171,20 @@ class UseFormSubmitTest {
     @Test
     fun formRef_onSubmitCallback_initializes_null() {
         val formRef = FormRef()
-        assertEquals(null, formRef.onSubmitCallback)
+        assertFalse(formRef.hasSubmitCallback)
     }
 
     @Test
     fun formRef_onSubmitCallback_can_be_set() {
         val formRef = FormRef()
-        val callback: (Map<String, Any?>) -> Unit = { }
-        formRef.onSubmitCallback = callback
-        assertEquals(callback, formRef.onSubmitCallback)
+        var callbackTriggered = false
+        formRef.setOnSubmitCallback { callbackTriggered = true }
+
+        assertTrue(formRef.hasSubmitCallback)
+
+        formRef.invokeSubmitCallback(emptyMap())
+
+        assertTrue(callbackTriggered)
     }
 
     // ==================== FormInstance submit() no-arg Tests ====================
@@ -187,11 +192,11 @@ class UseFormSubmitTest {
     @Test
     fun formInstance_submit_no_arg_triggers_onSubmitCallback_when_valid() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["name"] = mutableStateOf<Any?>("John")
-        formRef.formFieldValidationMap["name"] = true
+        formRef.registerField("name", mutableStateOf<Any?>("John"))
+        formRef.setValidation("name", true)
 
         var callbackTriggered = false
-        formRef.onSubmitCallback = { callbackTriggered = true }
+        formRef.setOnSubmitCallback({ callbackTriggered = true })
 
         formInstance.submit()
 
@@ -201,11 +206,11 @@ class UseFormSubmitTest {
     @Test
     fun formInstance_submit_no_arg_does_not_trigger_callback_when_invalid() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["name"] = mutableStateOf<Any?>(null)
-        formRef.formFieldValidationMap["name"] = false
+        formRef.registerField("name", mutableStateOf<Any?>(null))
+        formRef.setValidation("name", false)
 
         var callbackTriggered = false
-        formRef.onSubmitCallback = { callbackTriggered = true }
+        formRef.setOnSubmitCallback({ callbackTriggered = true })
 
         formInstance.submit()
 
@@ -215,8 +220,8 @@ class UseFormSubmitTest {
     @Test
     fun formInstance_submit_no_arg_does_nothing_when_no_callback() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["name"] = mutableStateOf<Any?>("John")
-        formRef.formFieldValidationMap["name"] = true
+        formRef.registerField("name", mutableStateOf<Any?>("John"))
+        formRef.setValidation("name", true)
 
         // Should not throw
         formInstance.submit()

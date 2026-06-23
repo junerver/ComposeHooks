@@ -97,17 +97,17 @@ private fun BasicFormExample() {
 
     Form(form) {
         // Name field - no validation
-        FormItem<String>(name = "name") { (state, validate, msgs) ->
-            var string by state
+        FormItemWithState<String>(name = "name") { field ->
+            val string by field.state
             FormField(
                 title = "Name",
                 isRequired = false,
-                isValid = validate,
-                errorMessages = msgs,
+                isValid = field.isValid,
+                errorMessages = field.errors,
             ) {
                 OutlinedTextField(
                     value = string ?: "",
-                    onValueChange = { string = it },
+                    onValueChange = field.onValueChange,
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                 )
@@ -117,13 +117,13 @@ private fun BasicFormExample() {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Age field - required validation
-        FormItem<Int>(name = "age", Required()) { (state, validate, msgs) ->
-            var age by state
+        FormItemWithState<Int>(name = "age", Required()) { field ->
+            val age by field.state
             FormField(
                 title = "Age",
                 isRequired = true,
-                isValid = validate,
-                errorMessages = msgs,
+                isValid = field.isValid,
+                errorMessages = field.errors,
             ) {
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     TButton(text = "1", enabled = age != 1) {
@@ -145,21 +145,21 @@ private fun BasicFormExample() {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Mobile field - mobile format validation + required validation
-        FormItem<String>(
+        FormItemWithState<String>(
             name = "mobile",
             Mobile(),
             Required(),
-        ) { (state, validate, msgs) ->
-            var string by state
+        ) { field ->
+            val string by field.state
             FormField(
                 title = "Mobile",
                 isRequired = true,
-                isValid = validate,
-                errorMessages = msgs,
+                isValid = field.isValid,
+                errorMessages = field.errors,
             ) {
                 OutlinedTextField(
                     value = string ?: "",
-                    onValueChange = { string = it },
+                    onValueChange = field.onValueChange,
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                 )
@@ -169,20 +169,20 @@ private fun BasicFormExample() {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Phone field - phone format validation
-        FormItem<String>(
+        FormItemWithState<String>(
             name = "phone",
             Phone(),
-        ) { (state, validate, msgs) ->
-            var string by state
+        ) { field ->
+            val string by field.state
             FormField(
                 title = "Phone",
                 isRequired = false,
-                isValid = validate,
-                errorMessages = msgs,
+                isValid = field.isValid,
+                errorMessages = field.errors,
             ) {
                 OutlinedTextField(
                     value = string ?: "",
-                    onValueChange = { string = it },
+                    onValueChange = field.onValueChange,
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                 )
@@ -192,21 +192,21 @@ private fun BasicFormExample() {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Email field - email format validation + required validation
-        FormItem<String>(
+        FormItemWithState<String>(
             name = "email",
             Email(),
             Required(),
-        ) { (state, validate, msgs) ->
-            var string by state
+        ) { field ->
+            val string by field.state
             FormField(
                 title = "Email",
                 isRequired = true,
-                isValid = validate,
-                errorMessages = msgs,
+                isValid = field.isValid,
+                errorMessages = field.errors,
             ) {
                 OutlinedTextField(
                     value = string ?: "",
-                    onValueChange = { string = it },
+                    onValueChange = field.onValueChange,
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                 )
@@ -216,7 +216,7 @@ private fun BasicFormExample() {
         Spacer(modifier = Modifier.height(16.dp))
 
         // ID number field - custom validator
-        FormItem<String>(
+        FormItemWithState<String>(
             name = "id",
             object : CustomValidator(
                 "Invalid ID number format",
@@ -224,17 +224,17 @@ private fun BasicFormExample() {
                     !it.asBoolean() || (it is String && it.matches(Regex(CHINA_ID_REGEX)))
                 },
             ) {},
-        ) { (state, validate, msgs) ->
-            var string by state
+        ) { field ->
+            val string by field.state
             FormField(
                 title = "ID Number",
                 isRequired = false,
-                isValid = validate,
-                errorMessages = msgs,
+                isValid = field.isValid,
+                errorMessages = field.errors,
             ) {
                 OutlinedTextField(
                     value = string ?: "",
-                    onValueChange = { string = it },
+                    onValueChange = field.onValueChange,
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     placeholder = { Text("Enter Chinese ID number") },
@@ -336,17 +336,17 @@ private fun FormOperationsExample() {
 
     Form(form) {
         // Name field
-        FormItem<String>(name = "name") { (state, validate, msgs) ->
-            var string by state
+        FormItemWithState<String>(name = "name") { field ->
+            val string by field.state
             FormField(
                 title = "Name",
                 isRequired = false,
-                isValid = validate,
-                errorMessages = msgs,
+                isValid = field.isValid,
+                errorMessages = field.errors,
             ) {
                 OutlinedTextField(
                     value = string ?: "",
-                    onValueChange = { string = it },
+                    onValueChange = field.onValueChange,
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                 )
@@ -356,23 +356,25 @@ private fun FormOperationsExample() {
         Spacer(modifier = Modifier.height(16.dp))
 
         // Age field - required validation
-        FormItem<Int>(name = "age", Required()) { (state, validate, msgs) ->
-            var age by state
+        FormItemWithState<Int>(name = "age", Required()) { field ->
+            val age by field.state
             FormField(
                 title = "Age",
                 isRequired = true,
-                isValid = validate,
-                errorMessages = msgs,
+                isValid = field.isValid,
+                errorMessages = field.errors,
             ) {
                 OutlinedTextField(
                     value = age?.toString() ?: "",
                     onValueChange = {
                         try {
-                            age = if (it.isEmpty()) {
-                                null
-                            } else {
-                                it.toInt()
-                            }
+                            field.onValueChange(
+                                if (it.isEmpty()) {
+                                    null
+                                } else {
+                                    it.toInt()
+                                },
+                            )
                         } catch (_: NumberFormatException) {
                             // Ignore non-numeric input
                         }
@@ -445,17 +447,17 @@ private fun FieldWatchingExample() {
     Column {
         Form(form) {
             // Name field
-            FormItem<String>(name = "name") { (state, validate, msgs) ->
-                var string by state
+            FormItemWithState<String>(name = "name") { field ->
+                val string by field.state
                 FormField(
                     title = "Name",
                     isRequired = false,
-                    isValid = validate,
-                    errorMessages = msgs,
+                    isValid = field.isValid,
+                    errorMessages = field.errors,
                 ) {
                     OutlinedTextField(
                         value = string ?: "",
-                        onValueChange = { string = it },
+                        onValueChange = field.onValueChange,
                         modifier = Modifier.fillMaxWidth(),
                         singleLine = true,
                     )
@@ -465,13 +467,13 @@ private fun FieldWatchingExample() {
             Spacer(modifier = Modifier.height(16.dp))
 
             // Age field
-            FormItem<Int>(name = "age") { (state, validate, msgs) ->
-                var age by state
+            FormItemWithState<Int>(name = "age") { field ->
+                val age by field.state
                 FormField(
                     title = "Age",
                     isRequired = false,
-                    isValid = validate,
-                    errorMessages = msgs,
+                    isValid = field.isValid,
+                    errorMessages = field.errors,
                 ) {
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         TButton(text = "1", enabled = age != 1) {

@@ -3,6 +3,7 @@ package xyz.junerver.composehooks.example
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
@@ -177,8 +178,7 @@ fun UseTableExample() {
             // 2. Body (Custom UI Logic)
             TableBody { rows ->
                 LazyColumn(modifier = Modifier.weight(1f)) {
-                    items(rows.size) { index ->
-                        val row = rows[index]
+                    items(rows, key = { row -> row.id }) { row ->
                         val isSelected = tableState.rowSelection.selectedRowIds.contains(row.id)
 
                         Surface(
@@ -335,4 +335,3 @@ fun UseTableExample() {
         }
     }
 }
-

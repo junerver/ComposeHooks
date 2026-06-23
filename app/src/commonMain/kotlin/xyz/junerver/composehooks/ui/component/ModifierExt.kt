@@ -2,8 +2,8 @@ package xyz.junerver.composehooks.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.graphics.Color
 import kotlin.random.Random
 
@@ -35,6 +35,7 @@ val colors = arrayOf(
 )
 
 @Composable
-fun Modifier.randomBackground(): Modifier = composed {
-    this.background(Color(colors[Random.nextInt(colors.size)]))
+fun Modifier.randomBackground(): Modifier {
+    val color = remember { Color(colors[Random.nextInt(colors.size)]) }
+    return background(color)
 }

@@ -62,7 +62,7 @@ class UseFormValidationTriggerTest {
     @Test
     fun formRef_validationTriggerMap_can_store_trigger() {
         val formRef = FormRef()
-        formRef.formFieldValidationTriggerMap["email"] = ValidationTrigger.OnBlur
+        formRef.setValidationTrigger("email", ValidationTrigger.OnBlur)
         assertEquals(ValidationTrigger.OnBlur, formRef.formFieldValidationTriggerMap["email"])
     }
 
@@ -77,8 +77,8 @@ class UseFormValidationTriggerTest {
     @Test
     fun formInstance_validateField_returns_true_for_valid_field() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>("test@example.com")
-        formRef.formFieldValidationMap["email"] = true
+        formRef.registerField("email", mutableStateOf<Any?>("test@example.com"))
+        formRef.setValidation("email", true)
 
         val result = formInstance.validateField("email")
 
@@ -88,8 +88,8 @@ class UseFormValidationTriggerTest {
     @Test
     fun formInstance_validateField_returns_false_for_invalid_field() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>("invalid")
-        formRef.formFieldValidationMap["email"] = false
+        formRef.registerField("email", mutableStateOf<Any?>("invalid"))
+        formRef.setValidation("email", false)
 
         val result = formInstance.validateField("email")
 
@@ -108,8 +108,8 @@ class UseFormValidationTriggerTest {
     @Test
     fun formInstance_validateField_triggers_pending_validation() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>("test")
-        formRef.formFieldPendingValidationMap["email"] = true
+        formRef.registerField("email", mutableStateOf<Any?>("test"))
+        formRef.setPendingValidation("email", true)
 
         formInstance.validateField("email")
 
@@ -122,10 +122,10 @@ class UseFormValidationTriggerTest {
     @Test
     fun formInstance_validateFields_returns_true_when_all_valid() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["name"] = mutableStateOf<Any?>("John")
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>("john@test.com")
-        formRef.formFieldValidationMap["name"] = true
-        formRef.formFieldValidationMap["email"] = true
+        formRef.registerField("name", mutableStateOf<Any?>("John"))
+        formRef.registerField("email", mutableStateOf<Any?>("john@test.com"))
+        formRef.setValidation("name", true)
+        formRef.setValidation("email", true)
 
         val result = formInstance.validateFields()
 
@@ -135,10 +135,10 @@ class UseFormValidationTriggerTest {
     @Test
     fun formInstance_validateFields_returns_false_when_any_invalid() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["name"] = mutableStateOf<Any?>("John")
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>("invalid")
-        formRef.formFieldValidationMap["name"] = true
-        formRef.formFieldValidationMap["email"] = false
+        formRef.registerField("name", mutableStateOf<Any?>("John"))
+        formRef.registerField("email", mutableStateOf<Any?>("invalid"))
+        formRef.setValidation("name", true)
+        formRef.setValidation("email", false)
 
         val result = formInstance.validateFields()
 
@@ -157,10 +157,10 @@ class UseFormValidationTriggerTest {
     @Test
     fun formInstance_validateFields_marks_all_as_touched() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["name"] = mutableStateOf<Any?>("John")
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>("john@test.com")
-        formRef.formFieldValidationMap["name"] = true
-        formRef.formFieldValidationMap["email"] = true
+        formRef.registerField("name", mutableStateOf<Any?>("John"))
+        formRef.registerField("email", mutableStateOf<Any?>("john@test.com"))
+        formRef.setValidation("name", true)
+        formRef.setValidation("email", true)
 
         formInstance.validateFields()
 
@@ -173,7 +173,7 @@ class UseFormValidationTriggerTest {
     @Test
     fun formInstance_getFieldValidationTrigger_returns_onChange_by_default() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>(null)
+        formRef.registerField("email", mutableStateOf<Any?>(null))
 
         val trigger = formInstance.getFieldValidationTrigger("email")
 
@@ -183,8 +183,8 @@ class UseFormValidationTriggerTest {
     @Test
     fun formInstance_getFieldValidationTrigger_returns_stored_trigger() {
         val (formInstance, formRef) = createInitializedFormInstance()
-        formRef.formFieldMap["email"] = mutableStateOf<Any?>(null)
-        formRef.formFieldValidationTriggerMap["email"] = ValidationTrigger.OnBlur
+        formRef.registerField("email", mutableStateOf<Any?>(null))
+        formRef.setValidationTrigger("email", ValidationTrigger.OnBlur)
 
         val trigger = formInstance.getFieldValidationTrigger("email")
 

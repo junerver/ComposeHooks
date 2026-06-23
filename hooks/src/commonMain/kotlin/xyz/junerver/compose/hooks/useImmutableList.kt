@@ -76,3 +76,19 @@ data class ImmutableListHolder<T>(
 fun <S, T : S> useImmutableListReduce(list: PersistentList<T>, operation: (acc: S, T) -> S): State<S> = useState(list) {
     list.reduce(operation)
 }
+
+/**
+ * Reactive List.reduce that returns null for empty lists.
+ */
+@Composable
+fun <S, T : S> useImmutableListReduceOrNull(list: PersistentList<T>, operation: (acc: S, T) -> S): State<S?> = useState(list) {
+    list.takeIf { it.isNotEmpty() }?.reduce(operation)
+}
+
+/**
+ * Reactive List.fold with an explicit initial value.
+ */
+@Composable
+fun <S, T> useImmutableListFold(list: PersistentList<T>, initial: S, operation: (acc: S, T) -> S): State<S> = useState(list, initial) {
+    list.fold(initial, operation)
+}
