@@ -1,4 +1,4 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.usedateformat
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -14,6 +14,10 @@ import kotlinx.datetime.offsetAt
 import xyz.junerver.compose.hooks.utils.currentInstant
 import xyz.junerver.compose.hooks.utils.currentLocalDateTime
 import xyz.junerver.compose.hooks.utils.toLocalDateTime
+import xyz.junerver.compose.hooks.Options
+import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.useDynamicOptions
+import xyz.junerver.compose.hooks.uselatest.useLatestStateImpl
 
 /*
   Description: Format date according to the string of tokens passed in, inspired by dayjs
@@ -291,14 +295,14 @@ data class UseDateFormatOptions internal constructor(
  * - "YYYY年MM月DD日 HH:mm:ss" → "2023年12月25日 14:30:00"
  */
 @Composable
-private fun useDateFormatImpl(
+private fun useDateFormatCore(
     date: DateLike,
     formatStr: String = "HH:mm:ss",
     optionsOf: UseDateFormatOptions.() -> Unit = {},
 ): State<String> {
     val options = useDynamicOptions(optionsOf)
-    val dateState = useLatestState(date)
-    val formatStrState = useLatestState(formatStr)
+    val dateState = useLatestStateImpl(date)
+    val formatStrState = useLatestStateImpl(formatStr)
 
     // Create a derived state that updates when date or format changes
     return useState {
@@ -560,14 +564,14 @@ private fun getTimezoneString(timeZone: TimeZone, longFormat: Boolean): String {
  * @param optionsOf Configuration options for formatting behavior
  * @return A [State] containing the formatted date string that updates reactively
  *
- * @see useDateFormatImpl for detailed format token documentation
+ * @see useDateFormatCore for detailed format token documentation
  */
 @Composable
-fun useDateFormat(
+fun useDateFormatImpl(
     date: Instant = currentInstant,
     formatStr: String = "HH:mm:ss",
     optionsOf: UseDateFormatOptions.() -> Unit = {},
-): State<String> = useDateFormatImpl(date, formatStr, optionsOf)
+): State<String> = useDateFormatCore(date, formatStr, optionsOf)
 
 /**
  * A hook for formatting dates using LocalDateTime objects.
@@ -584,10 +588,10 @@ fun useDateFormat(
  * @param optionsOf Configuration options for formatting behavior
  * @return A [State] containing the formatted date string that updates reactively
  *
- * @see useDateFormatImpl for detailed format token documentation
+ * @see useDateFormatCore for detailed format token documentation
  */
 @Composable
-fun useDateFormat(date: LocalDateTime, formatStr: String = "HH:mm:ss", optionsOf: UseDateFormatOptions.() -> Unit = {}): State<String> =
+fun useDateFormatImpl(date: LocalDateTime, formatStr: String = "HH:mm:ss", optionsOf: UseDateFormatOptions.() -> Unit = {}): State<String> =
     useDateFormatImpl(date, formatStr, optionsOf)
 
 /**
@@ -606,10 +610,10 @@ fun useDateFormat(date: LocalDateTime, formatStr: String = "HH:mm:ss", optionsOf
  * @param optionsOf Configuration options for formatting behavior
  * @return A [State] containing the formatted date string that updates reactively
  *
- * @see useDateFormatImpl for detailed format token documentation
+ * @see useDateFormatCore for detailed format token documentation
  */
 @Composable
-fun useDateFormat(date: String, formatStr: String = "HH:mm:ss", optionsOf: UseDateFormatOptions.() -> Unit = {}): State<String> =
+fun useDateFormatImpl(date: String, formatStr: String = "HH:mm:ss", optionsOf: UseDateFormatOptions.() -> Unit = {}): State<String> =
     useDateFormatImpl(date, formatStr, optionsOf)
 
 /**
@@ -629,8 +633,8 @@ fun useDateFormat(date: String, formatStr: String = "HH:mm:ss", optionsOf: UseDa
  * @param optionsOf Configuration options for formatting behavior
  * @return A [State] containing the formatted date string that updates reactively
  *
- * @see useDateFormatImpl for detailed format token documentation
+ * @see useDateFormatCore for detailed format token documentation
  */
 @Composable
-fun useDateFormat(date: Long, formatStr: String = "HH:mm:ss", optionsOf: UseDateFormatOptions.() -> Unit = {}): State<String> =
+fun useDateFormatImpl(date: Long, formatStr: String = "HH:mm:ss", optionsOf: UseDateFormatOptions.() -> Unit = {}): State<String> =
     useDateFormatImpl(date, formatStr, optionsOf)

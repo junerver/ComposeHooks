@@ -1,4 +1,4 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.usetimeoutpoll
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -6,6 +6,18 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CoroutineScope
+import xyz.junerver.compose.hooks.Options
+import xyz.junerver.compose.hooks.SuspendAsyncFn
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.usemount.useMountImpl
+import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
+import xyz.junerver.compose.hooks.useAsync
+import xyz.junerver.compose.hooks.useDynamicOptions
+import xyz.junerver.compose.hooks.useLatestRef
+import xyz.junerver.compose.hooks.usetimeoutfn.useTimeoutFnImpl
+import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useState
 
 /*
   Description: Use timeout to poll for content. Triggers the callback after the last task is completed.
@@ -19,30 +31,14 @@ import kotlin.time.Duration.Companion.seconds
   Description: base on useTimeoutFn
 */
 
-/**
- * UseTimeoutPoll options interface
- */
 @Stable
 data class UseTimeoutPollOptions internal constructor(
-    /**
-     * Start the timer immediately
-     *
-     * @default true
-     */
     var immediate: Boolean = true,
-    /**
-     * Execute the callback immediately after calling `resume`
-     *
-     * @default false
-     */
     var immediateCallback: Boolean = false,
 ) {
     companion object : Options<UseTimeoutPollOptions>(::UseTimeoutPollOptions)
 }
 
-/**
- * TimeoutPoll holder, provides control functions
- */
 @Stable
 data class TimeoutPollHolder(
     val isActive: MutableState<Boolean>,
@@ -50,16 +46,12 @@ data class TimeoutPollHolder(
     val resume: () -> Unit,
 )
 
-/**
- * Use timeout to poll for content. Triggers the callback after the last task is completed.
- *
- * @param fn Function to execute
- * @param interval Time interval
- * @param optionsOf Options configuration
- * @return TimeoutPollHolder containing isActive, pause, resume
- */
 @Composable
-fun useTimeoutPoll(fn: SuspendAsyncFn, interval: Duration = 1.seconds, optionsOf: UseTimeoutPollOptions.() -> Unit): TimeoutPollHolder {
+fun useTimeoutPollImpl(
+    fn: SuspendAsyncFn,
+    interval: Duration = 1.seconds,
+    optionsOf: UseTimeoutPollOptions.() -> Unit,
+): TimeoutPollHolder {
     val options = useDynamicOptions(optionsOf)
     val latestFn = useLatestRef(value = fn)
     val isActiveState = useState(default = false)
@@ -76,7 +68,7 @@ fun useTimeoutPoll(fn: SuspendAsyncFn, interval: Duration = 1.seconds, optionsOf
         startRef.current()
     }
 
-    val (_, startTimeoutFn, stopTimeoutFn) = useTimeoutFn(
+    val (_, startTimeoutFn, stopTimeoutFn) = useTimeoutFnImpl(
         fn = internalLoop,
         interval = interval,
         optionsOf = {
@@ -103,14 +95,12 @@ fun useTimeoutPoll(fn: SuspendAsyncFn, interval: Duration = 1.seconds, optionsOf
         }
     }
 
-    // If configured to start immediately, start when component is mounted
-    useMount {
+    useMountImpl {
         if (options.immediate) {
             resume()
         }
     }
-    useUnmount {
-        // Clean up when component is unmounted
+    useUnmountImpl {
         pause()
     }
 
@@ -123,15 +113,8 @@ fun useTimeoutPoll(fn: SuspendAsyncFn, interval: Duration = 1.seconds, optionsOf
     }
 }
 
-/**
- * Use timeout to poll for content, simplified version, does not return control functions.
- *
- * @param fn Function to execute
- * @param interval Time interval
- * @param immediate Whether to start immediately
- */
 @Composable
-fun useTimeoutPoll(fn: SuspendAsyncFn, interval: Duration = 1.seconds, immediate: Boolean = true) = useTimeoutPoll(
+fun useTimeoutPollImpl(fn: SuspendAsyncFn, interval: Duration = 1.seconds, immediate: Boolean = true) = useTimeoutPollImpl(
     fn = fn,
     interval = interval,
     optionsOf = { this.immediate = immediate },

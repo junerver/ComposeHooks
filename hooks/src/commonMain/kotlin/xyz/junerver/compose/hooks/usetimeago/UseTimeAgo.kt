@@ -1,4 +1,4 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.usetimeago
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -13,6 +13,12 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import xyz.junerver.compose.hooks.utils.currentInstant
 import xyz.junerver.compose.hooks.utils.toLocalDateTime
+import xyz.junerver.compose.hooks.Options
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.usetimestamp.useTimestampImpl
+import xyz.junerver.compose.hooks.uselatest.useLatestStateImpl
+import xyz.junerver.compose.hooks.useDynamicOptions
+import xyz.junerver.compose.hooks.useState
 
 /*
   Description: Reactive time ago. Automatically update the time ago string when the time changes.
@@ -249,7 +255,7 @@ fun formatTimeAgo(from: Instant, options: FormatTimeAgoOptions = FormatTimeAgoOp
  * ```
  */
 @Composable
-fun useTimeAgo(time: Instant, optionsOf: UseTimeAgoOptions.() -> Unit = {}): State<String> = useTimeAgo(time, useDynamicOptions(optionsOf))
+fun useTimeAgoImpl(time: Instant, optionsOf: UseTimeAgoOptions.() -> Unit = {}): State<String> = useTimeAgo(time, useDynamicOptions(optionsOf))
 
 /**
  * Internal implementation of the time difference hook
@@ -260,10 +266,10 @@ fun useTimeAgo(time: Instant, optionsOf: UseTimeAgoOptions.() -> Unit = {}): Sta
  */
 @Composable
 private fun useTimeAgo(time: Instant, options: UseTimeAgoOptions): State<String> {
-    val latestTime by useLatestState(time)
+    val latestTime by useLatestStateImpl(time)
     val updateInterval = options.updateInterval
     val timestamp: State<Long> = if (updateInterval > Duration.ZERO) {
-        val timestampHolder = useTimestamp({ interval = updateInterval }, updateInterval > Duration.ZERO)
+        val timestampHolder = useTimestampImpl({ interval = updateInterval }, updateInterval > Duration.ZERO)
         timestampHolder.state
     } else {
         useState(currentInstant.toEpochMilliseconds())

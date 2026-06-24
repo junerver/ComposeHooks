@@ -1,4 +1,4 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.usetimestamp
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -7,6 +7,17 @@ import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import xyz.junerver.compose.hooks.utils.currentInstant
+import xyz.junerver.compose.hooks.IsActive
+import xyz.junerver.compose.hooks.Options
+import xyz.junerver.compose.hooks.PauseFn
+import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.ResumeFn
+import xyz.junerver.compose.hooks.tuple
+import xyz.junerver.compose.hooks.useinterval.useIntervalImpl
+import xyz.junerver.compose.hooks.usemount.useMountImpl
+import xyz.junerver.compose.hooks.useDynamicOptions
+import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useState
 
 /*
   Description:
@@ -76,7 +87,7 @@ data class UseTimestampOptions internal constructor(
  * ```
  */
 @Composable
-fun useTimestamp(optionsOf: UseTimestampOptions.() -> Unit = {}, autoResume: Boolean = true): TimestampHolder =
+fun useTimestampImpl(optionsOf: UseTimestampOptions.() -> Unit = {}, autoResume: Boolean = true): TimestampHolder =
     useTimestamp(useDynamicOptions(optionsOf), autoResume)
 
 /**
@@ -108,7 +119,7 @@ fun useTimestamp(optionsOf: UseTimestampOptions.() -> Unit = {}, autoResume: Boo
  * ```
  */
 @Composable
-fun useTimestampRef(optionsOf: UseTimestampOptions.() -> Unit = {}, autoResume: Boolean = true): TimestampRefHolder = useTimestampRef(
+fun useTimestampRefImpl(optionsOf: UseTimestampOptions.() -> Unit = {}, autoResume: Boolean = true): TimestampRefHolder = useTimestampRef(
     useDynamicOptions(optionsOf),
     autoResume,
 )
@@ -162,7 +173,7 @@ data class TimestampRefHolder(
 private fun useTimestamp(options: UseTimestampOptions, autoResume: Boolean = true): TimestampHolder {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
     val timestamp = useState(default = currentInstant)
-    val (resume, pause, isActive) = useInterval(
+    val (resume, pause, isActive) = useIntervalImpl(
         optionsOf = {
             period = interval
         },
@@ -170,7 +181,7 @@ private fun useTimestamp(options: UseTimestampOptions, autoResume: Boolean = tru
         timestamp.value = currentInstant + offset
         callback?.invoke(timestamp.value.toEpochMilliseconds())
     }
-    useMount {
+    useMountImpl {
         if (autoResume) resume()
     }
     val timestampState = useState { timestamp.value.toEpochMilliseconds() }
@@ -188,7 +199,7 @@ private fun useTimestamp(options: UseTimestampOptions, autoResume: Boolean = tru
 private fun useTimestampRef(options: UseTimestampOptions, autoResume: Boolean = true): TimestampRefHolder {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
     val timestampRef = useRef(default = currentInstant.toEpochMilliseconds())
-    val (resume, pause, isActive) = useInterval(
+    val (resume, pause, isActive) = useIntervalImpl(
         optionsOf = {
             period = interval
         },
@@ -196,7 +207,7 @@ private fun useTimestampRef(options: UseTimestampOptions, autoResume: Boolean = 
         timestampRef.current = (currentInstant + offset).toEpochMilliseconds()
         callback?.invoke(timestampRef.current)
     }
-    useMount {
+    useMountImpl {
         if (autoResume) resume()
     }
     return remember { TimestampRefHolder(timestampRef, pause, resume, isActive) }

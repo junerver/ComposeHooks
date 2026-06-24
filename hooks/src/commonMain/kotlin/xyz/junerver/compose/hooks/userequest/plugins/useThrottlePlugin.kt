@@ -3,7 +3,7 @@ package xyz.junerver.compose.hooks.userequest.plugins
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlin.time.Duration
-import xyz.junerver.compose.hooks.Throttle
+import xyz.junerver.compose.hooks.usethrottle.Throttle
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
 import xyz.junerver.compose.hooks.userequest.Plugin

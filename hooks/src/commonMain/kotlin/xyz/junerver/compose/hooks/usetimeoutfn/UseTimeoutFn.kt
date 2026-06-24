@@ -1,4 +1,4 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.usetimeoutfn
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -12,6 +12,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import xyz.junerver.compose.hooks.IsActive
+import xyz.junerver.compose.hooks.NoParamsVoidFunction
+import xyz.junerver.compose.hooks.Options
+import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.SuspendAsyncFn
+import xyz.junerver.compose.hooks.useDynamicOptions
+import xyz.junerver.compose.hooks.useLatestRef
+import xyz.junerver.compose.hooks.usemount.useMountImpl
+import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
+import xyz.junerver.compose.hooks.useState
 
 /*
   Description: A wrapper for delayed function execution with controls.
@@ -21,12 +31,6 @@ import kotlinx.coroutines.launch
   Version: v1.0
 */
 
-/**
- * Options for configuring the timeout function behavior.
- *
- * @property immediate Whether to start the timer immediately
- * @property immediateCallback Whether to execute the callback immediately after calling start
- */
 @Stable
 data class UseTimeoutFnOptions internal constructor(
     var immediate: Boolean = true,
@@ -35,13 +39,6 @@ data class UseTimeoutFnOptions internal constructor(
     companion object : Options<UseTimeoutFnOptions>(::UseTimeoutFnOptions)
 }
 
-/**
- * Holder class for timeout function control functions and state.
- *
- * @property isPending State indicating whether the timeout is currently pending
- * @property start Function to start or restart the timeout
- * @property stop Function to stop the timeout
- */
 @Stable
 data class TimeoutFnHolder(
     val isPending: IsActive,
@@ -49,21 +46,10 @@ data class TimeoutFnHolder(
     val stop: StopFn,
 )
 
-/**
- * Function type for starting a timeout with optional parameters.
- */
 typealias StartFn = NoParamsVoidFunction
 
-/**
- * Function type for stopping a timeout.
- */
 typealias StopFn = () -> Unit
 
-/**
- * Internal class to manage timeout execution.
- *
- * @property options The timeout options
- */
 @Stable
 private class TimeoutFn(var options: UseTimeoutFnOptions) {
     var scope: CoroutineScope by Delegates.notNull()
@@ -101,43 +87,12 @@ private class TimeoutFn(var options: UseTimeoutFnOptions) {
     }
 }
 
-/**
- * A hook for executing a function after a specified delay with controls.
- *
- * This hook provides a way to create and manage a delayed function execution,
- * similar to setTimeout in JavaScript. It supports configurable options and
- * provides control functions to start, stop, and check the status of the timeout.
- *
- * @param fn The function to be executed after the delay
- * @param interval The delay before executing the function
- * @param optionsOf A lambda to configure the timeout options
- * @return A [TimeoutFnHolder] containing control functions and state for the timeout
- *
- * @example
- * ```kotlin
- * val (isPending, start, stop) = useTimeoutFn(
- *     fn = { println("Timeout executed!") },
- *     interval = 2.seconds,
- *     optionsOf = {
- *         immediate = true
- *         immediateCallback = false
- *     }
- * )
- *
- * // Start the timeout
- * start()
- *
- * // Stop the timeout
- * stop()
- *
- * // Check if timeout is pending
- * if (isPending.value) {
- *     // Timeout is currently pending
- * }
- * ```
- */
 @Composable
-fun useTimeoutFn(fn: SuspendAsyncFn, interval: Duration = 1.seconds, optionsOf: UseTimeoutFnOptions.() -> Unit = {}): TimeoutFnHolder {
+fun useTimeoutFnImpl(
+    fn: SuspendAsyncFn,
+    interval: Duration = 1.seconds,
+    optionsOf: UseTimeoutFnOptions.() -> Unit = {},
+): TimeoutFnHolder {
     val options = useDynamicOptions(optionsOf)
     val latestFn = useLatestRef(value = fn)
     val isPendingState = useState(default = false)
@@ -157,14 +112,13 @@ fun useTimeoutFn(fn: SuspendAsyncFn, interval: Duration = 1.seconds, optionsOf: 
         this.interval = interval
     }
 
-    // Start immediately if configured
-    useMount {
+    useMountImpl {
         if (options.immediate) {
             timeoutFn.start()
         }
     }
 
-    useUnmount {
+    useUnmountImpl {
         timeoutFn.stop()
     }
 

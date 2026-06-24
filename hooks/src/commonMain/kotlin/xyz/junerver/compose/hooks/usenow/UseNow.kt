@@ -1,4 +1,4 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.usenow
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -10,6 +10,13 @@ import kotlinx.datetime.format
 import kotlinx.datetime.format.FormatStringsInDatetimeFormats
 import kotlinx.datetime.format.byUnicodePattern
 import xyz.junerver.compose.hooks.utils.toLocalDateTime
+import xyz.junerver.compose.hooks.Options
+import xyz.junerver.compose.hooks.tuple
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.usecreation.useCreationImpl
+import xyz.junerver.compose.hooks.usetimestamp.useTimestampImpl
+import xyz.junerver.compose.hooks.useDynamicOptions
+import xyz.junerver.compose.hooks.useState
 
 /*
   Description:
@@ -79,7 +86,7 @@ data class UseNowOptions internal constructor(
  * ```
  */
 @Composable
-fun useNow(optionsOf: UseNowOptions.() -> Unit = {}) = useNow(useDynamicOptions(optionsOf))
+fun useNowImpl(optionsOf: UseNowOptions.() -> Unit = {}) = useNow(useDynamicOptions(optionsOf))
 
 /**
  * Internal implementation of the useNow hook.
@@ -91,12 +98,12 @@ fun useNow(optionsOf: UseNowOptions.() -> Unit = {}) = useNow(useDynamicOptions(
 @Composable
 private fun useNow(options: UseNowOptions): State<String> {
     val (interval, format, formatPattern) = with(options) { tuple(interval, format, formatPattern) }
-    val sdfRef by useCreation {
+    val sdfRef by useCreationImpl {
         LocalDateTime.Format {
             byUnicodePattern(formatPattern)
         }
     }
-    val (time) = useTimestamp(
+    val (time) = useTimestampImpl(
         optionsOf = {
             this.interval = interval
         },

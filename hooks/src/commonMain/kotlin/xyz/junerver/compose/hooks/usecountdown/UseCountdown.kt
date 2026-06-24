@@ -1,4 +1,4 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.usecountdown
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -10,6 +10,18 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
 import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.compose.hooks.utils.currentInstant
+import xyz.junerver.compose.hooks.Options
+import xyz.junerver.compose.hooks.OnEndCallback
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.invoke
+import xyz.junerver.compose.hooks.setValue
+import xyz.junerver.compose.hooks.useeffect.useEffectImpl
+import xyz.junerver.compose.hooks.useinterval.useIntervalImpl
+import xyz.junerver.compose.hooks.useLatestRef
+import xyz.junerver.compose.hooks.useDynamicOptions
+import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
+import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useState
 
 /*
   Description: A hook for manage countdown.
@@ -50,11 +62,11 @@ private fun useCountdown(options: UseCountdownOptions): CountdownHolder {
         "'leftTime' or 'targetDate' must be set"
     }
     val targetRef = useRef<Instant?>(null)
-    val (timeLeft, setTimeLeft) = useGetState(Duration.ZERO)
+    val (timeLeft, setTimeLeft) = useGetStateImpl(Duration.ZERO)
 
     val onEndRef by useLatestRef(value = onEnd)
     var pauseRef by useRef(default = {})
-    val (resume, pause) = useInterval(
+    val (resume, pause) = useIntervalImpl(
         optionsOf = {
             period = interval
         },
@@ -67,7 +79,7 @@ private fun useCountdown(options: UseCountdownOptions): CountdownHolder {
         }
     }
     pauseRef = pause
-    useEffect(leftTime, targetDate, interval) {
+    useEffectImpl(leftTime, targetDate, interval) {
         targetRef.current = if (leftTime.asBoolean()) {
             currentInstant + leftTime
         } else {
@@ -75,7 +87,7 @@ private fun useCountdown(options: UseCountdownOptions): CountdownHolder {
         }
         if (!targetRef.current.asBoolean()) {
             setTimeLeft(Duration.ZERO)
-            return@useEffect
+            return@useEffectImpl
         }
         setTimeLeft(calcLeft(targetRef.current))
         resume()
@@ -109,7 +121,7 @@ private fun useCountdown(options: UseCountdownOptions): CountdownHolder {
  * ```
  */
 @Composable
-fun useCountdown(optionsOf: UseCountdownOptions.() -> Unit): CountdownHolder = useCountdown(useDynamicOptions(optionsOf))
+fun useCountdownImpl(optionsOf: UseCountdownOptions.() -> Unit): CountdownHolder = useCountdown(useDynamicOptions(optionsOf))
 
 /**
  * Calculates the remaining time until the target date.
