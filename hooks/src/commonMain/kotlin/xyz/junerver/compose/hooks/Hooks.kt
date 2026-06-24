@@ -10,36 +10,177 @@ import kotlin.time.Instant
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.datetime.LocalDateTime
 import xyz.junerver.compose.hooks.annotation.ExperimentalComputed
-import xyz.junerver.compose.hooks.useform.Form
-import xyz.junerver.compose.hooks.useform.FormInstance
+import xyz.junerver.compose.hooks.useform.Form as FormImpl
+import xyz.junerver.compose.hooks.useform.FormInstance as FormInstanceImpl
+import xyz.junerver.compose.hooks.useform.FormItemState as FormItemStateImpl
+import xyz.junerver.compose.hooks.useform.FormScope as FormScopeImpl
+import xyz.junerver.compose.hooks.useform.ValidationTrigger as ValidationTriggerImpl
+import xyz.junerver.compose.hooks.useform.Validator as ValidatorImpl
 import xyz.junerver.compose.hooks.useform.useForm
 import xyz.junerver.compose.hooks.useform.useFormInstance
 import xyz.junerver.compose.hooks.useform.useWatch
+import xyz.junerver.compose.hooks.useredux.ReduxProvider
+import xyz.junerver.compose.hooks.useredux.Store as StoreImpl
+import xyz.junerver.compose.hooks.useredux.StoreRecord as StoreRecordImpl
+import xyz.junerver.compose.hooks.useredux.StoreScope as StoreScopeImpl
+import xyz.junerver.compose.hooks.useredux.createStore
+import xyz.junerver.compose.hooks.useredux.plus
 import xyz.junerver.compose.hooks.useredux.useDispatch
 import xyz.junerver.compose.hooks.useredux.useDispatchAsync
 import xyz.junerver.compose.hooks.useredux.useSelector
-import xyz.junerver.compose.hooks.userequest.Plugin
-import xyz.junerver.compose.hooks.userequest.TableRequestHolder
-import xyz.junerver.compose.hooks.userequest.TableRequestParams
-import xyz.junerver.compose.hooks.userequest.TableResult
-import xyz.junerver.compose.hooks.userequest.UseRequestOptions
-import xyz.junerver.compose.hooks.userequest.UseTableRequestOptions
+import xyz.junerver.compose.hooks.userequest.CancelFn as CancelFnImpl
+import xyz.junerver.compose.hooks.userequest.ComposablePluginGenFn as ComposablePluginGenFnImpl
+import xyz.junerver.compose.hooks.userequest.Fetch as FetchImpl
+import xyz.junerver.compose.hooks.userequest.FetchState as FetchStateImpl
+import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn as GenPluginLifecycleFnImpl
+import xyz.junerver.compose.hooks.userequest.MutateFn as MutateFnImpl
+import xyz.junerver.compose.hooks.userequest.OnBeforeReturn as OnBeforeReturnImpl
+import xyz.junerver.compose.hooks.userequest.OnRequestReturn as OnRequestReturnImpl
+import xyz.junerver.compose.hooks.userequest.Plugin as PluginImpl
+import xyz.junerver.compose.hooks.userequest.PluginLifecycle as PluginLifecycleImpl
+import xyz.junerver.compose.hooks.userequest.PluginOnBefore as PluginOnBeforeImpl
+import xyz.junerver.compose.hooks.userequest.PluginOnCancel as PluginOnCancelImpl
+import xyz.junerver.compose.hooks.userequest.PluginOnError as PluginOnErrorImpl
+import xyz.junerver.compose.hooks.userequest.PluginOnFinally as PluginOnFinallyImpl
+import xyz.junerver.compose.hooks.userequest.PluginOnMutate as PluginOnMutateImpl
+import xyz.junerver.compose.hooks.userequest.PluginOnRequest as PluginOnRequestImpl
+import xyz.junerver.compose.hooks.userequest.PluginOnSuccess as PluginOnSuccessImpl
+import xyz.junerver.compose.hooks.userequest.RefreshFn as RefreshFnImpl
+import xyz.junerver.compose.hooks.userequest.ReqFn as ReqFnImpl
+import xyz.junerver.compose.hooks.userequest.RequestHolder as RequestHolderImpl
+import xyz.junerver.compose.hooks.userequest.TableRequestHolder as TableRequestHolderImpl
+import xyz.junerver.compose.hooks.userequest.TableRequestParams as TableRequestParamsImpl
+import xyz.junerver.compose.hooks.userequest.TableResult as TableResultImpl
+import xyz.junerver.compose.hooks.userequest.UseRequestOptions as UseRequestOptionsImpl
+import xyz.junerver.compose.hooks.userequest.UseTableRequestOptions as UseTableRequestOptionsImpl
+import xyz.junerver.compose.hooks.userequest.noneParams
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 import xyz.junerver.compose.hooks.userequest.useRequest
 import xyz.junerver.compose.hooks.userequest.useTableRequest
-import xyz.junerver.compose.hooks.usses.SseHolder
-import xyz.junerver.compose.hooks.usses.SseStreamFn
-import xyz.junerver.compose.hooks.usses.UseSseOptions
+import xyz.junerver.compose.hooks.userequest.utils.CachedData as CachedDataImpl
+import xyz.junerver.compose.hooks.userequest.utils.clearCache
+import xyz.junerver.compose.hooks.usses.OnEventFn as OnEventFnImpl
+import xyz.junerver.compose.hooks.usses.SendFn as SendFnImpl
+import xyz.junerver.compose.hooks.usses.SseHolder as SseHolderImpl
+import xyz.junerver.compose.hooks.usses.SseStreamFn as SseStreamFnImpl
+import xyz.junerver.compose.hooks.usses.UseSseOptions as UseSseOptionsImpl
 import xyz.junerver.compose.hooks.usses.useSse
-import xyz.junerver.compose.hooks.usetable.Table
-import xyz.junerver.compose.hooks.usetable.TableHolder
-import xyz.junerver.compose.hooks.usetable.TableOptions
-import xyz.junerver.compose.hooks.usetable.core.ColumnDef
-import xyz.junerver.compose.hooks.usetable.core.TableInstance
+import xyz.junerver.compose.hooks.usetable.PaginationScope as PaginationScopeImpl
+import xyz.junerver.compose.hooks.usetable.Table as TableImpl
+import xyz.junerver.compose.hooks.usetable.TableHolder as TableHolderImpl
+import xyz.junerver.compose.hooks.usetable.TableOptions as TableOptionsImpl
+import xyz.junerver.compose.hooks.usetable.TableScope as TableScopeImpl
+import xyz.junerver.compose.hooks.usetable.core.ColumnDef as ColumnDefImpl
+import xyz.junerver.compose.hooks.usetable.core.Row as RowImpl
+import xyz.junerver.compose.hooks.usetable.core.RowModel as RowModelImpl
+import xyz.junerver.compose.hooks.usetable.core.TableInstance as TableInstanceImpl
+import xyz.junerver.compose.hooks.usetable.core.column
+import xyz.junerver.compose.hooks.usetable.state.PaginationState as PaginationStateImpl
+import xyz.junerver.compose.hooks.usetable.state.SortDescriptor as SortDescriptorImpl
+import xyz.junerver.compose.hooks.usetable.state.SortingState as SortingStateImpl
+import xyz.junerver.compose.hooks.usetable.state.TableState as TableStateImpl
 import xyz.junerver.compose.hooks.usetable.useTable
 import xyz.junerver.compose.hooks.utils.currentInstant
 
-/** 更符合 Compose 的函数命名方式 */
+/**
+ * Public API facade for ComposeHooks.
+ *
+ * This file re-exports the library's public surface so consumers can import
+ * everything from the root package `xyz.junerver.compose.hooks` instead of
+ * digging into subpackages. It mirrors the "barrel/facade" pattern used by
+ * the Palette design system.
+ *
+ * Re-exports come in three forms (same approach as Palette):
+ *  - `typealias` for public **types** declared in subpackages (Holders,
+ *    Options, interfaces, state classes, function types). Each is imported
+ *    under an `...Impl` alias and re-aliased to its public name, so the
+ *    declaration is not self-referential.
+ *  - `@Composable fun rememberXxx(...)` wrappers for the **Compose-style
+ *    aliases** of every `useXxx` hook. These are kept as full function
+ *    declarations (rather than `val x = ::useX` references) because Kotlin
+ *    function references drop default arguments, and most hooks rely on
+ *    default parameters.
+ *  - `inline fun <reified ...>` wrappers for hooks that capture reified type
+ *    parameters (`useDispatch`, `useSelector`, `useEvent*`); these cannot be
+ *    expressed as function references at all.
+ *
+ * Note: types already declared in the root package (e.g. [ReducerHolder],
+ * [BooleanHolder], [Reducer], [Dispatch], [UseDebounceOptions], ...) are
+ * intentionally NOT re-aliased here.
+ */
+
+//region 类型集中导出 — useRequest
+typealias RequestHolder<TParams, TData> = RequestHolderImpl<TParams, TData>
+typealias TableRequestHolder<T> = TableRequestHolderImpl<T>
+typealias TableRequestParams = TableRequestParamsImpl
+typealias TableResult<T> = TableResultImpl<T>
+typealias UseRequestOptions<TParams, TData> = UseRequestOptionsImpl<TParams, TData>
+typealias UseTableRequestOptions<TData> = UseTableRequestOptionsImpl<TData>
+typealias FetchState<TParams, TData> = FetchStateImpl<TParams, TData>
+typealias OnBeforeReturn<TParams, TData> = OnBeforeReturnImpl<TParams, TData>
+typealias OnRequestReturn<TData> = OnRequestReturnImpl<TData>
+typealias PluginOnBefore<TParams, TData> = PluginOnBeforeImpl<TParams, TData>
+typealias PluginOnRequest<TParams, TData> = PluginOnRequestImpl<TParams, TData>
+typealias PluginOnSuccess<TParams, TData> = PluginOnSuccessImpl<TParams, TData>
+typealias PluginOnError<TParams> = PluginOnErrorImpl<TParams>
+typealias PluginOnFinally<TParams, TData> = PluginOnFinallyImpl<TParams, TData>
+typealias PluginOnCancel = PluginOnCancelImpl
+typealias PluginOnMutate<TData> = PluginOnMutateImpl<TData>
+typealias GenPluginLifecycleFn<TParams, TData> = GenPluginLifecycleFnImpl<TParams, TData>
+typealias ComposablePluginGenFn<TParams, TData> = ComposablePluginGenFnImpl<TParams, TData>
+typealias ReqFn<TParams> = ReqFnImpl<TParams>
+typealias MutateFn<TData> = MutateFnImpl<TData>
+typealias RefreshFn = RefreshFnImpl
+typealias CancelFn = CancelFnImpl
+typealias Plugin<TParams, TData> = PluginImpl<TParams, TData>
+typealias PluginLifecycle<TParams, TData> = PluginLifecycleImpl<TParams, TData>
+typealias CachedData<TData> = CachedDataImpl<TData>
+//endregion
+
+//region 类型集中导出 — useSse (usses)
+typealias SseHolder<TParams, TEvent> = SseHolderImpl<TParams, TEvent>
+typealias UseSseOptions<TParams, TEvent> = UseSseOptionsImpl<TParams, TEvent>
+typealias SseStreamFn<TParams, TEvent> = SseStreamFnImpl<TParams, TEvent>
+typealias SendFn<TParams> = SendFnImpl<TParams>
+typealias OnEventFn<TEvent> = OnEventFnImpl<TEvent>
+//endregion
+
+//region 类型集中导出 — useTable
+typealias Table = TableImpl
+typealias TableHolder<T> = TableHolderImpl<T>
+typealias TableInstance<T> = TableInstanceImpl<T>
+typealias TableOptions<T> = TableOptionsImpl<T>
+typealias TableScope<T> = TableScopeImpl<T>
+typealias PaginationScope = PaginationScopeImpl
+typealias ColumnDef<T, V> = ColumnDefImpl<T, V>
+typealias Row<T> = RowImpl<T>
+typealias RowModel<T> = RowModelImpl<T>
+typealias TableState<T> = TableStateImpl<T>
+typealias PaginationState = PaginationStateImpl
+typealias SortDescriptor = SortDescriptorImpl
+typealias SortingState = SortingStateImpl
+//endregion
+
+//region 类型集中导出 — useForm
+typealias Form = FormImpl
+typealias FormInstance = FormInstanceImpl
+typealias FormItemState<T> = FormItemStateImpl<T>
+typealias ValidationTrigger = ValidationTriggerImpl
+typealias Validator = ValidatorImpl
+//endregion
+
+//region 类型集中导出 — useRedux
+typealias Store = StoreImpl
+typealias StoreRecord = StoreRecordImpl
+typealias StoreScope = StoreScopeImpl
+//endregion
+
+/**
+ * Compose-style aliases for every hook.
+ *
+ * Prefer these `rememberXxx` names when writing idiomatic Compose; the
+ * underlying `useXxx` functions remain available for React-style usage.
+ */
 
 //region useRedux
 @Composable

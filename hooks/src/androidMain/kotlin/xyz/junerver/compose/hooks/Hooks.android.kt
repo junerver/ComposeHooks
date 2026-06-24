@@ -7,7 +7,11 @@ import android.hardware.SensorEvent
 import androidx.compose.runtime.Composable
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.usedeviceinfo.*
+import xyz.junerver.compose.hooks.usedeviceinfo.BuildInfo
+import xyz.junerver.compose.hooks.usedeviceinfo.ScreenInfo
+import xyz.junerver.compose.hooks.usedeviceinfo.useBatteryInfo
+import xyz.junerver.compose.hooks.usedeviceinfo.useBuildInfo
+import xyz.junerver.compose.hooks.usedeviceinfo.useScreenInfo
 import xyz.junerver.compose.hooks.useidle.useIdle
 import xyz.junerver.compose.hooks.usenetwork.NetworkContext
 import xyz.junerver.compose.hooks.usevibrate.useVibrate
