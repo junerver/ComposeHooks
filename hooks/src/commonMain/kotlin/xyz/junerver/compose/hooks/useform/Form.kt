@@ -15,7 +15,7 @@ import xyz.junerver.compose.hooks.internal.genFormFieldKey
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
-import xyz.junerver.compose.hooks.useEventPublish
+import xyz.junerver.compose.hooks.useevent.useEventPublishImpl
 import xyz.junerver.compose.hooks.useMap
 
 /*
@@ -228,7 +228,7 @@ class FormScope private constructor(
         val onValueChange = remember(fieldState) {
             { nextValue: T? -> fieldState.value = nextValue }
         }
-        val publish = useEventPublish<T?>(name.genFormFieldKey(formInstance))
+        val publish = useEventPublishImpl<T?>(name.genFormFieldKey(formInstance))
         useEffect(fieldState) {
             currentFormRef.incrementOperationCount()
             publish(fieldState.value as? T)

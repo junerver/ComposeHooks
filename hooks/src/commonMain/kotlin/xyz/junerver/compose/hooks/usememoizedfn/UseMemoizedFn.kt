@@ -1,7 +1,8 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.usememoizedfn
 
 import androidx.compose.runtime.Composable
 import arrow.core.MemoizedDeepRecursiveFunction
+import xyz.junerver.compose.hooks.usecreation.useCreationImpl
 
 /*
   Description:
@@ -22,6 +23,6 @@ import arrow.core.MemoizedDeepRecursiveFunction
  * to the declared function.
  */
 @Composable
-fun <T, R> useMemoizedFn(fn: suspend DeepRecursiveScope<T, R>.(T) -> R): DeepRecursiveFunction<T, R> = useCreation {
+fun <T, R> useMemoizedFnImpl(fn: suspend DeepRecursiveScope<T, R>.(T) -> R): DeepRecursiveFunction<T, R> = useCreationImpl {
     MemoizedDeepRecursiveFunction(block = fn)
 }.current

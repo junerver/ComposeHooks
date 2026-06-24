@@ -8,7 +8,7 @@ import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks._useState
 import xyz.junerver.compose.hooks.internal.genFormFieldKey
 import xyz.junerver.compose.hooks.useContext
-import xyz.junerver.compose.hooks.useEventSubscribe
+import xyz.junerver.compose.hooks.useevent.useEventSubscribeImpl
 
 /*
   Description:
@@ -132,7 +132,7 @@ private fun useForm(): FormInstance = Form.useForm()
 @Composable
 fun <T> Form.useWatch(fieldName: String, formInstance: FormInstance): State<T?> {
     val state = _useState<T?>(null)
-    useEventSubscribe<T?>(fieldName.genFormFieldKey(formInstance)) { value ->
+    useEventSubscribeImpl<T?>(fieldName.genFormFieldKey(formInstance)) { value ->
         state.value = value
     }
     return state

@@ -12,6 +12,48 @@ import kotlinx.datetime.LocalDateTime
 import xyz.junerver.compose.hooks.annotation.ExperimentalComputed
 import xyz.junerver.compose.hooks.useboolean.BooleanHolder as BooleanHolderImpl
 import xyz.junerver.compose.hooks.useboolean.useBooleanImpl
+import xyz.junerver.compose.hooks.usecreation.useCreationImpl
+import xyz.junerver.compose.hooks.useeffect.useEffectImpl
+import xyz.junerver.compose.hooks.usemap.useMapImpl
+import xyz.junerver.compose.hooks.usemount.useMountImpl
+import xyz.junerver.compose.hooks.usenumber.useDoubleImpl
+import xyz.junerver.compose.hooks.usenumber.useFloatImpl
+import xyz.junerver.compose.hooks.usenumber.useIntImpl
+import xyz.junerver.compose.hooks.usenumber.useLongImpl
+import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
+import xyz.junerver.compose.hooks.useclipboard.CopyPasteHolder as CopyPasteHolderImpl
+import xyz.junerver.compose.hooks.useclipboard.useClipboardImpl
+import xyz.junerver.compose.hooks.usecontext.useContextImpl
+import xyz.junerver.compose.hooks.useevent.useEventPublishImpl
+import xyz.junerver.compose.hooks.useevent.useEventSubscribeImpl
+import xyz.junerver.compose.hooks.usegetstate.GetStateHolder as GetStateHolderImpl
+import xyz.junerver.compose.hooks.usegetstate._useGetStateImpl
+import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
+import xyz.junerver.compose.hooks.useimmutablelist.ImmutableListHolder as ImmutableListHolderImpl
+import xyz.junerver.compose.hooks.useimmutablelist.useImmutableListFoldImpl
+import xyz.junerver.compose.hooks.useimmutablelist.useImmutableListImpl
+import xyz.junerver.compose.hooks.useimmutablelist.useImmutableListReduceImpl
+import xyz.junerver.compose.hooks.useimmutablelist.useImmutableListReduceOrNullImpl
+import xyz.junerver.compose.hooks.usekeyboard.KeyboardHolder as KeyboardHolderImpl
+import xyz.junerver.compose.hooks.usekeyboard.useKeyboardImpl
+import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
+import xyz.junerver.compose.hooks.uselatest.useLatestStateImpl
+import xyz.junerver.compose.hooks.uselist.useListImpl
+import xyz.junerver.compose.hooks.uselist.useListReduceImpl
+import xyz.junerver.compose.hooks.usemath.useAbsImpl
+import xyz.junerver.compose.hooks.usemath.useCeilImpl
+import xyz.junerver.compose.hooks.usemath.useFloorImpl
+import xyz.junerver.compose.hooks.usemath.useMaxImpl
+import xyz.junerver.compose.hooks.usemath.useMinImpl
+import xyz.junerver.compose.hooks.usemath.usePowImpl
+import xyz.junerver.compose.hooks.usemath.useRoundImpl
+import xyz.junerver.compose.hooks.usemath.useSqrtImpl
+import xyz.junerver.compose.hooks.usemath.useTruncImpl
+import xyz.junerver.compose.hooks.usememoizedfn.useMemoizedFnImpl
+import xyz.junerver.compose.hooks.useprevious.usePreviousImpl
+import xyz.junerver.compose.hooks.useunmountedref.useUnmountedRefImpl
+import xyz.junerver.compose.hooks.useupdate.useUpdateImpl
+import xyz.junerver.compose.hooks.useupdateeffect.useUpdateEffectImpl
 import xyz.junerver.compose.hooks.useform.Form as FormImpl
 import xyz.junerver.compose.hooks.useform.FormInstance as FormInstanceImpl
 import xyz.junerver.compose.hooks.useform.FormItemState as FormItemStateImpl
@@ -177,6 +219,13 @@ typealias StoreRecord = StoreRecordImpl
 typealias StoreScope = StoreScopeImpl
 //endregion
 
+//region 类型集中导出 — 第二批 hook 的 Holder 类型
+typealias GetStateHolder<T> = GetStateHolderImpl<T>
+typealias ImmutableListHolder<T> = ImmutableListHolderImpl<T>
+typealias KeyboardHolder = KeyboardHolderImpl
+typealias CopyPasteHolder = CopyPasteHolderImpl
+//endregion
+
 /**
  * Compose-style aliases for every hook.
  *
@@ -247,8 +296,13 @@ fun <T> rememberAutoReset(default: T & Any, interval: Duration) = useAutoReset(d
 @Composable
 fun rememberBackToFrontEffect(vararg keys: Any?, effect: () -> Unit) = useBackToFrontEffect(*keys, effect = effect)
 
+//region useEffect
 @Composable
-fun rememberEffect(vararg deps: Any?, block: SuspendAsyncFn) = useEffect(*deps, block = block)
+fun useEffect(vararg deps: Any?, block: SuspendAsyncFn) = useEffectImpl(*deps, block = block)
+
+@Composable
+fun rememberEffect(vararg deps: Any?, block: SuspendAsyncFn) = useEffectImpl(*deps, block = block)
+//endregion
 
 @Composable
 fun rememberFrontToBackEffect(vararg keys: Any?, effect: () -> Unit) = useFrontToBackEffect(*keys, effect = effect)
@@ -263,8 +317,13 @@ typealias BooleanHolder = BooleanHolderImpl
 fun rememberBoolean(default: Boolean = false): BooleanHolder = useBooleanImpl(default)
 //endregion
 
+//region useClipboard
 @Composable
-fun rememberClipboard() = useClipboard()
+fun useClipboard(): CopyPasteHolder = useClipboardImpl()
+
+@Composable
+fun rememberClipboard(): CopyPasteHolder = useClipboardImpl()
+//endregion
 
 @Composable
 fun <T> rememberControllable(default: T & Any) = useControllable(default)
@@ -272,8 +331,13 @@ fun <T> rememberControllable(default: T & Any) = useControllable(default)
 @Composable
 fun <T> _rememberControllable(default: T) = _useControllable(default)
 
+//region useContext
 @Composable
-fun <T> rememberContext(context: ReactContext<T>) = useContext(context)
+fun <T> useContext(context: ReactContext<T>) = useContextImpl(context)
+
+@Composable
+fun <T> rememberContext(context: ReactContext<T>) = useContextImpl(context)
+//endregion
 
 @Composable
 fun rememberCountdown(optionsOf: UseCountdownOptions.() -> Unit) = useCountdown(optionsOf)
@@ -281,8 +345,13 @@ fun rememberCountdown(optionsOf: UseCountdownOptions.() -> Unit) = useCountdown(
 @Composable
 fun rememberCounter(initialValue: Int = 0, optionsOf: UseCounterOptions.() -> Unit) = useCounter(initialValue, optionsOf)
 
+//region useCreation
 @Composable
-fun <T> rememberCreation(vararg keys: Any?, factory: () -> T) = useCreation(*keys, factory = factory)
+fun <T> useCreation(vararg keys: Any?, factory: () -> T) = useCreationImpl(*keys, factory = factory)
+
+@Composable
+fun <T> rememberCreation(vararg keys: Any?, factory: () -> T) = useCreationImpl(*keys, factory = factory)
+//endregion
 
 @Composable
 fun <T> rememberCycleList(list: PersistentList<T>, optionsOf: UseCycleListOptions<T>.() -> Unit = {}) =
@@ -327,54 +396,86 @@ fun LaunchedDebounceEffect(vararg keys: Any?, optionsOf: UseDebounceOptions.() -
 
 //region useEvent
 @Composable
-inline fun <reified T : Any> rememberEventSubscribe(noinline subscriber: (T) -> Unit) = useEventSubscribe(subscriber)
+inline fun <reified T : Any> useEventSubscribe(noinline subscriber: (T) -> Unit) = useEventSubscribeImpl(subscriber)
 
 @Composable
-inline fun <reified T : Any> rememberEventPublish(): (T) -> Unit = useEventPublish()
+inline fun <reified T : Any> useEventPublish(): (T) -> Unit = useEventPublishImpl()
+
+@Composable
+inline fun <reified T : Any> rememberEventSubscribe(noinline subscriber: (T) -> Unit) = useEventSubscribeImpl(subscriber)
+
+@Composable
+inline fun <reified T : Any> rememberEventPublish(): (T) -> Unit = useEventPublishImpl()
 //endregion
 
+//region useKeyboard
 @Composable
-fun rememberKeyboard() = useKeyboard()
+fun useKeyboard(): KeyboardHolder = useKeyboardImpl()
+
+@Composable
+fun rememberKeyboard(): KeyboardHolder = useKeyboardImpl()
+//endregion
 
 //region useGetState
 @Composable
-fun <T> rememberGetState(default: T & Any) = useGetState(default = default)
+fun <T> useGetState(default: T & Any): GetStateHolder<T & Any> = useGetStateImpl(default = default)
 
 @Composable
-fun <T> _rememberGetState(default: T) = _useGetState(default = default)
+fun <T> _useGetState(default: T): GetStateHolder<T> = _useGetStateImpl(default = default)
 
+@Composable
+fun <T> rememberGetState(default: T & Any) = useGetStateImpl(default = default)
+
+@Composable
+fun <T> _rememberGetState(default: T) = _useGetStateImpl(default = default)
 //endregion
 
+//region useLatest
 @Composable
-fun rememberInterval(optionsOf: UseIntervalOptions.() -> Unit = {}, block: SuspendAsyncFn) = useInterval(optionsOf, block)
+fun <T> useLatestRef(value: T) = useLatestRefImpl(value)
 
 @Composable
-fun rememberInterval(optionsOf: UseIntervalOptions.() -> Unit = {}, ready: Boolean, block: SuspendAsyncFn) =
-    useInterval(optionsOf, ready, block)
+fun <T> useLatestState(value: T) = useLatestStateImpl(value)
 
 @Composable
-fun <T> rememberLatestRef(value: T) = useLatestRef(value)
+fun <T> rememberLatestRef(value: T) = useLatestRefImpl(value)
 
 @Composable
-fun <T> rememberLatestState(value: T) = useLatestState(value)
+fun <T> rememberLatestState(value: T) = useLatestStateImpl(value)
+//endregion
 
 //region useList
 @Composable
-fun <T> rememberList(elements: Collection<T>) = useList(elements)
+fun <T> useList(elements: Collection<T>) = useListImpl(elements)
 
 @Composable
-fun <T> rememberList(vararg elements: T) = useList(*elements)
+fun <T> useList(vararg elements: T) = useListImpl(*elements)
 
 @Composable
-fun <S, T : S> rememberListReduce(list: List<T>, operation: (acc: S, T) -> S): State<S?> = useListReduce(list, operation)
+fun <S, T : S> useListReduce(list: List<T>, operation: (acc: S, T) -> S): State<S?> = useListReduceImpl(list, operation)
+
+@Composable
+fun <T> rememberList(elements: Collection<T>) = useListImpl(elements)
+
+@Composable
+fun <T> rememberList(vararg elements: T) = useListImpl(*elements)
+
+@Composable
+fun <S, T : S> rememberListReduce(list: List<T>, operation: (acc: S, T) -> S): State<S?> = useListReduceImpl(list, operation)
 //endregion
 
 //region useMap
 @Composable
-fun <K, V> rememberMap(vararg pairs: Pair<K, V>) = useMap(*pairs)
+fun <K, V> useMap(vararg pairs: Pair<K, V>) = useMapImpl(*pairs)
 
 @Composable
-fun <K, V> rememberMap(pairs: Iterable<Pair<K, V>>) = useMap(pairs)
+fun <K, V> useMap(pairs: Iterable<Pair<K, V>>) = useMapImpl(pairs)
+
+@Composable
+fun <K, V> rememberMap(vararg pairs: Pair<K, V>) = useMapImpl(*pairs)
+
+@Composable
+fun <K, V> rememberMap(pairs: Iterable<Pair<K, V>>) = useMapImpl(pairs)
 //endregion
 
 //region useForm
@@ -389,34 +490,61 @@ fun <T> Form.rememberWatch(fieldName: String, formInstance: FormInstance): State
 fun Form.rememberFormInstance(): FormInstance = useFormInstance()
 //endregion
 
+//region useMount
 @Composable
-fun rememberMount(block: SuspendAsyncFn) = useMount(block)
+fun useMount(block: SuspendAsyncFn) = useMountImpl(block)
 
 @Composable
-fun <T, R> rememberMemoizedFn(fn: suspend DeepRecursiveScope<T, R>.(T) -> R): DeepRecursiveFunction<T, R> = useMemoizedFn(fn)
+fun rememberMount(block: SuspendAsyncFn) = useMountImpl(block)
+//endregion
+
+//region useMemoizedFn
+@Composable
+fun <T, R> useMemoizedFn(fn: suspend DeepRecursiveScope<T, R>.(T) -> R): DeepRecursiveFunction<T, R> = useMemoizedFnImpl(fn)
+
+@Composable
+fun <T, R> rememberMemoizedFn(fn: suspend DeepRecursiveScope<T, R>.(T) -> R): DeepRecursiveFunction<T, R> = useMemoizedFnImpl(fn)
+//endregion
 
 @Composable
 fun rememberNow(optionsOf: UseNowOptions.() -> Unit = {}) = useNow(optionsOf)
 
 //region useNumber
 @Composable
-fun rememberDouble(default: Double = 0.0) = useDouble(default)
+fun useDouble(default: Double = 0.0) = useDoubleImpl(default)
 
 @Composable
-fun rememberFloat(default: Float = 0f) = useFloat(default)
+fun useFloat(default: Float = 0f) = useFloatImpl(default)
 
 @Composable
-fun rememberInt(default: Int = 0) = useInt(default)
+fun useInt(default: Int = 0) = useIntImpl(default)
 
 @Composable
-fun rememberLong(default: Long = 0L) = useLong(default)
+fun useLong(default: Long = 0L) = useLongImpl(default)
+
+@Composable
+fun rememberDouble(default: Double = 0.0) = useDoubleImpl(default)
+
+@Composable
+fun rememberFloat(default: Float = 0f) = useFloatImpl(default)
+
+@Composable
+fun rememberInt(default: Int = 0) = useIntImpl(default)
+
+@Composable
+fun rememberLong(default: Long = 0L) = useLongImpl(default)
 //endregion
 
 @Composable
 fun <T> rememberPersistent(key: String, defaultValue: T, forceUseMemory: Boolean = false) = usePersistent(key, defaultValue, forceUseMemory)
 
+//region usePrevious
 @Composable
-fun <T> rememberPrevious(present: T) = usePrevious(present)
+fun <T> usePrevious(present: T) = usePreviousImpl(present)
+
+@Composable
+fun <T> rememberPrevious(present: T) = usePreviousImpl(present)
+//endregion
 
 @Composable
 fun rememberPausableEffect(vararg deps: Any?, block: SuspendAsyncFn): PausableEffectHolder =
@@ -500,17 +628,37 @@ fun rememberToggleVisible(isFirst: Boolean = true, content1: @Composable () -> U
 @Composable
 fun <T> rememberUndo(initialPresent: T) = useUndo(initialPresent)
 
+//region useUnmount
 @Composable
-fun rememberUnmount(block: () -> Unit) = useUnmount(block)
+fun useUnmount(block: () -> Unit) = useUnmountImpl(block)
 
 @Composable
-fun rememberUnmountedRef() = useUnmountedRef()
+fun rememberUnmount(block: () -> Unit) = useUnmountImpl(block)
+//endregion
+
+//region useUnmountedRef
+@Composable
+fun useUnmountedRef() = useUnmountedRefImpl()
 
 @Composable
-fun rememberUpdate(): () -> Unit = useUpdate()
+fun rememberUnmountedRef() = useUnmountedRefImpl()
+//endregion
+
+//region useUpdate
+@Composable
+fun useUpdate(): () -> Unit = useUpdateImpl()
 
 @Composable
-fun rememberUpdateEffect(vararg keys: Any?, block: SuspendAsyncFn) = useUpdateEffect(*keys, block = block)
+fun rememberUpdate(): () -> Unit = useUpdateImpl()
+//endregion
+
+//region useUpdateEffect
+@Composable
+fun useUpdateEffect(vararg keys: Any?, block: SuspendAsyncFn) = useUpdateEffectImpl(*keys, block = block)
+
+@Composable
+fun rememberUpdateEffect(vararg keys: Any?, block: SuspendAsyncFn) = useUpdateEffectImpl(*keys, block = block)
+//endregion
 
 @Composable
 fun rememberLastChanged(source: Any?): State<Instant> = useLastChanged(source)
@@ -541,20 +689,37 @@ fun rememberTimeoutPoll(
 fun rememberTimeoutPoll(fn: SuspendAsyncFn, interval: Duration = 1.seconds, immediate: Boolean = true) =
     useTimeoutPoll(fn, interval, immediate)
 
+//region useImmutableList
 @Composable
-fun <T> rememberImmutableList(vararg elements: T): ImmutableListHolder<T> = useImmutableList(*elements)
+fun <T> useImmutableList(vararg elements: T): ImmutableListHolder<T> = useImmutableListImpl(*elements)
+
+@Composable
+fun <S, T : S> useImmutableListReduce(list: PersistentList<T>, operation: (acc: S, T) -> S): State<S> =
+    useImmutableListReduceImpl(list, operation)
+
+@Composable
+fun <S, T : S> useImmutableListReduceOrNull(list: PersistentList<T>, operation: (acc: S, T) -> S): State<S?> =
+    useImmutableListReduceOrNullImpl(list, operation)
+
+@Composable
+fun <S, T> useImmutableListFold(list: PersistentList<T>, initial: S, operation: (acc: S, T) -> S): State<S> =
+    useImmutableListFoldImpl(list, initial, operation)
+
+@Composable
+fun <T> rememberImmutableList(vararg elements: T): ImmutableListHolder<T> = useImmutableListImpl(*elements)
 
 @Composable
 fun <S, T : S> rememberImmutableListReduce(list: PersistentList<T>, operation: (acc: S, T) -> S): State<S> =
-    useImmutableListReduce(list, operation)
+    useImmutableListReduceImpl(list, operation)
 
 @Composable
 fun <S, T : S> rememberImmutableListReduceOrNull(list: PersistentList<T>, operation: (acc: S, T) -> S): State<S?> =
-    useImmutableListReduceOrNull(list, operation)
+    useImmutableListReduceOrNullImpl(list, operation)
 
 @Composable
 fun <S, T> rememberImmutableListFold(list: PersistentList<T>, initial: S, operation: (acc: S, T) -> S): State<S> =
-    useImmutableListFold(list, initial, operation)
+    useImmutableListFoldImpl(list, initial, operation)
+//endregion
 
 //region useSorted
 @Composable
@@ -581,158 +746,314 @@ fun <T> Table.rememberTableInstance(): TableInstance<T> = useTableInstance()
 
 //region useMath
 @Composable
-fun rememberAbs(number: Int): State<Int> = useAbs(number)
+fun useAbs(number: Int): State<Int> = useAbsImpl(number)
 
 @Composable
-fun rememberAbs(number: Double): State<Double> = useAbs(number)
+fun useAbs(number: Double): State<Double> = useAbsImpl(number)
 
 @Composable
-fun rememberAbs(number: Float): State<Float> = useAbs(number)
+fun useAbs(number: Float): State<Float> = useAbsImpl(number)
 
 @Composable
-fun rememberAbs(number: Long): State<Long> = useAbs(number)
+fun useAbs(number: Long): State<Long> = useAbsImpl(number)
 
 @Composable
-fun rememberCeil(number: Double): State<Double> = useCeil(number)
+fun useCeil(number: Double): State<Double> = useCeilImpl(number)
 
 @Composable
-fun rememberCeil(number: Float): State<Float> = useCeil(number)
+fun useCeil(number: Float): State<Float> = useCeilImpl(number)
 
 @Composable
-fun rememberCeil(number: Int): State<Int> = useCeil(number)
+fun useCeil(number: Int): State<Int> = useCeilImpl(number)
 
 @Composable
-fun rememberCeil(number: Long): State<Long> = useCeil(number)
+fun useCeil(number: Long): State<Long> = useCeilImpl(number)
 
 @Composable
-fun rememberFloor(number: Double): State<Double> = useFloor(number)
+fun useFloor(number: Double): State<Double> = useFloorImpl(number)
 
 @Composable
-fun rememberFloor(number: Float): State<Float> = useFloor(number)
+fun useFloor(number: Float): State<Float> = useFloorImpl(number)
 
 @Composable
-fun rememberFloor(number: Int): State<Int> = useFloor(number)
+fun useFloor(number: Int): State<Int> = useFloorImpl(number)
 
 @Composable
-fun rememberFloor(number: Long): State<Long> = useFloor(number)
+fun useFloor(number: Long): State<Long> = useFloorImpl(number)
 
 @Composable
-fun rememberRound(number: Double): State<Double> = useRound(number)
+fun useRound(number: Double): State<Double> = useRoundImpl(number)
 
 @Composable
-fun rememberRound(number: Float): State<Float> = useRound(number)
+fun useRound(number: Float): State<Float> = useRoundImpl(number)
 
 @Composable
-fun rememberRound(number: Int): State<Int> = useRound(number)
+fun useRound(number: Int): State<Int> = useRoundImpl(number)
 
 @Composable
-fun rememberRound(number: Long): State<Long> = useRound(number)
+fun useRound(number: Long): State<Long> = useRoundImpl(number)
 
 @Composable
-fun rememberTrunc(number: Double): State<Double> = useTrunc(number)
+fun useTrunc(number: Double): State<Double> = useTruncImpl(number)
 
 @Composable
-fun rememberTrunc(number: Float): State<Float> = useTrunc(number)
+fun useTrunc(number: Float): State<Float> = useTruncImpl(number)
 
 @Composable
-fun rememberTrunc(number: Int): State<Int> = useTrunc(number)
+fun useTrunc(number: Int): State<Int> = useTruncImpl(number)
 
 @Composable
-fun rememberTrunc(number: Long): State<Long> = useTrunc(number)
+fun useTrunc(number: Long): State<Long> = useTruncImpl(number)
 
 @Composable
-fun rememberMin(a: Int, b: Int): State<Int> = useMin(a, b)
+fun useMin(a: Int, b: Int): State<Int> = useMinImpl(a, b)
 
 @Composable
-fun rememberMin(a: Long, b: Long): State<Long> = useMin(a, b)
+fun useMin(a: Long, b: Long): State<Long> = useMinImpl(a, b)
 
 @Composable
-fun rememberMin(a: Float, b: Float): State<Float> = useMin(a, b)
+fun useMin(a: Float, b: Float): State<Float> = useMinImpl(a, b)
 
 @Composable
-fun rememberMin(a: Double, b: Double): State<Double> = useMin(a, b)
+fun useMin(a: Double, b: Double): State<Double> = useMinImpl(a, b)
 
 @Composable
-fun rememberMin(a: Int, b: Long): State<Long> = useMin(a, b)
+fun useMin(a: Int, b: Long): State<Long> = useMinImpl(a, b)
 
 @Composable
-fun rememberMin(a: Long, b: Int): State<Long> = useMin(a, b)
+fun useMin(a: Long, b: Int): State<Long> = useMinImpl(a, b)
 
 @Composable
-fun rememberMin(a: Float, b: Double): State<Double> = useMin(a, b)
+fun useMin(a: Float, b: Double): State<Double> = useMinImpl(a, b)
 
 @Composable
-fun rememberMin(a: Double, b: Float): State<Double> = useMin(a, b)
+fun useMin(a: Double, b: Float): State<Double> = useMinImpl(a, b)
 
 @Composable
-fun rememberMax(a: Int, b: Int): State<Int> = useMax(a, b)
+fun useMax(a: Int, b: Int): State<Int> = useMaxImpl(a, b)
 
 @Composable
-fun rememberMax(a: Long, b: Long): State<Long> = useMax(a, b)
+fun useMax(a: Long, b: Long): State<Long> = useMaxImpl(a, b)
 
 @Composable
-fun rememberMax(a: Float, b: Float): State<Float> = useMax(a, b)
+fun useMax(a: Float, b: Float): State<Float> = useMaxImpl(a, b)
 
 @Composable
-fun rememberMax(a: Double, b: Double): State<Double> = useMax(a, b)
+fun useMax(a: Double, b: Double): State<Double> = useMaxImpl(a, b)
 
 @Composable
-fun rememberMax(a: Int, b: Long): State<Long> = useMax(a, b)
+fun useMax(a: Int, b: Long): State<Long> = useMaxImpl(a, b)
 
 @Composable
-fun rememberMax(a: Long, b: Int): State<Long> = useMax(a, b)
+fun useMax(a: Long, b: Int): State<Long> = useMaxImpl(a, b)
 
 @Composable
-fun rememberMax(a: Float, b: Double): State<Double> = useMax(a, b)
+fun useMax(a: Float, b: Double): State<Double> = useMaxImpl(a, b)
 
 @Composable
-fun rememberMax(a: Double, b: Float): State<Double> = useMax(a, b)
+fun useMax(a: Double, b: Float): State<Double> = useMaxImpl(a, b)
 
 @Composable
-fun rememberPow(base: Double, exponent: Double): State<Double> = usePow(base, exponent)
+fun usePow(base: Double, exponent: Double): State<Double> = usePowImpl(base, exponent)
 
 @Composable
-fun rememberPow(base: Double, exponent: Int): State<Double> = usePow(base, exponent)
+fun usePow(base: Double, exponent: Int): State<Double> = usePowImpl(base, exponent)
 
 @Composable
-fun rememberPow(base: Double, exponent: Float): State<Double> = usePow(base, exponent)
+fun usePow(base: Double, exponent: Float): State<Double> = usePowImpl(base, exponent)
 
 @Composable
-fun rememberPow(base: Float, exponent: Float): State<Float> = usePow(base, exponent)
+fun usePow(base: Float, exponent: Float): State<Float> = usePowImpl(base, exponent)
 
 @Composable
-fun rememberPow(base: Float, exponent: Int): State<Float> = usePow(base, exponent)
+fun usePow(base: Float, exponent: Int): State<Float> = usePowImpl(base, exponent)
 
 @Composable
-fun rememberPow(base: Float, exponent: Double): State<Double> = usePow(base, exponent)
+fun usePow(base: Float, exponent: Double): State<Double> = usePowImpl(base, exponent)
 
 @Composable
-fun rememberPow(base: Int, exponent: Int): State<Double> = usePow(base, exponent)
+fun usePow(base: Int, exponent: Int): State<Double> = usePowImpl(base, exponent)
 
 @Composable
-fun rememberPow(base: Int, exponent: Double): State<Double> = usePow(base, exponent)
+fun usePow(base: Int, exponent: Double): State<Double> = usePowImpl(base, exponent)
 
 @Composable
-fun rememberPow(base: Int, exponent: Float): State<Double> = usePow(base, exponent)
+fun usePow(base: Int, exponent: Float): State<Double> = usePowImpl(base, exponent)
 
 @Composable
-fun rememberPow(base: Long, exponent: Int): State<Double> = usePow(base, exponent)
+fun usePow(base: Long, exponent: Int): State<Double> = usePowImpl(base, exponent)
 
 @Composable
-fun rememberPow(base: Long, exponent: Double): State<Double> = usePow(base, exponent)
+fun usePow(base: Long, exponent: Double): State<Double> = usePowImpl(base, exponent)
 
 @Composable
-fun rememberPow(base: Long, exponent: Float): State<Double> = usePow(base, exponent)
+fun usePow(base: Long, exponent: Float): State<Double> = usePowImpl(base, exponent)
 
 @Composable
-fun rememberSqrt(number: Double): State<Double> = useSqrt(number)
+fun useSqrt(number: Double): State<Double> = useSqrtImpl(number)
 
 @Composable
-fun rememberSqrt(number: Float): State<Float> = useSqrt(number)
+fun useSqrt(number: Float): State<Float> = useSqrtImpl(number)
 
 @Composable
-fun rememberSqrt(number: Int): State<Double> = useSqrt(number)
+fun useSqrt(number: Int): State<Double> = useSqrtImpl(number)
 
 @Composable
-fun rememberSqrt(number: Long): State<Double> = useSqrt(number)
+fun useSqrt(number: Long): State<Double> = useSqrtImpl(number)
+
+@Composable
+fun rememberAbs(number: Int): State<Int> = useAbsImpl(number)
+
+@Composable
+fun rememberAbs(number: Double): State<Double> = useAbsImpl(number)
+
+@Composable
+fun rememberAbs(number: Float): State<Float> = useAbsImpl(number)
+
+@Composable
+fun rememberAbs(number: Long): State<Long> = useAbsImpl(number)
+
+@Composable
+fun rememberCeil(number: Double): State<Double> = useCeilImpl(number)
+
+@Composable
+fun rememberCeil(number: Float): State<Float> = useCeilImpl(number)
+
+@Composable
+fun rememberCeil(number: Int): State<Int> = useCeilImpl(number)
+
+@Composable
+fun rememberCeil(number: Long): State<Long> = useCeilImpl(number)
+
+@Composable
+fun rememberFloor(number: Double): State<Double> = useFloorImpl(number)
+
+@Composable
+fun rememberFloor(number: Float): State<Float> = useFloorImpl(number)
+
+@Composable
+fun rememberFloor(number: Int): State<Int> = useFloorImpl(number)
+
+@Composable
+fun rememberFloor(number: Long): State<Long> = useFloorImpl(number)
+
+@Composable
+fun rememberRound(number: Double): State<Double> = useRoundImpl(number)
+
+@Composable
+fun rememberRound(number: Float): State<Float> = useRoundImpl(number)
+
+@Composable
+fun rememberRound(number: Int): State<Int> = useRoundImpl(number)
+
+@Composable
+fun rememberRound(number: Long): State<Long> = useRoundImpl(number)
+
+@Composable
+fun rememberTrunc(number: Double): State<Double> = useTruncImpl(number)
+
+@Composable
+fun rememberTrunc(number: Float): State<Float> = useTruncImpl(number)
+
+@Composable
+fun rememberTrunc(number: Int): State<Int> = useTruncImpl(number)
+
+@Composable
+fun rememberTrunc(number: Long): State<Long> = useTruncImpl(number)
+
+@Composable
+fun rememberMin(a: Int, b: Int): State<Int> = useMinImpl(a, b)
+
+@Composable
+fun rememberMin(a: Long, b: Long): State<Long> = useMinImpl(a, b)
+
+@Composable
+fun rememberMin(a: Float, b: Float): State<Float> = useMinImpl(a, b)
+
+@Composable
+fun rememberMin(a: Double, b: Double): State<Double> = useMinImpl(a, b)
+
+@Composable
+fun rememberMin(a: Int, b: Long): State<Long> = useMinImpl(a, b)
+
+@Composable
+fun rememberMin(a: Long, b: Int): State<Long> = useMinImpl(a, b)
+
+@Composable
+fun rememberMin(a: Float, b: Double): State<Double> = useMinImpl(a, b)
+
+@Composable
+fun rememberMin(a: Double, b: Float): State<Double> = useMinImpl(a, b)
+
+@Composable
+fun rememberMax(a: Int, b: Int): State<Int> = useMaxImpl(a, b)
+
+@Composable
+fun rememberMax(a: Long, b: Long): State<Long> = useMaxImpl(a, b)
+
+@Composable
+fun rememberMax(a: Float, b: Float): State<Float> = useMaxImpl(a, b)
+
+@Composable
+fun rememberMax(a: Double, b: Double): State<Double> = useMaxImpl(a, b)
+
+@Composable
+fun rememberMax(a: Int, b: Long): State<Long> = useMaxImpl(a, b)
+
+@Composable
+fun rememberMax(a: Long, b: Int): State<Long> = useMaxImpl(a, b)
+
+@Composable
+fun rememberMax(a: Float, b: Double): State<Double> = useMaxImpl(a, b)
+
+@Composable
+fun rememberMax(a: Double, b: Float): State<Double> = useMaxImpl(a, b)
+
+@Composable
+fun rememberPow(base: Double, exponent: Double): State<Double> = usePowImpl(base, exponent)
+
+@Composable
+fun rememberPow(base: Double, exponent: Int): State<Double> = usePowImpl(base, exponent)
+
+@Composable
+fun rememberPow(base: Double, exponent: Float): State<Double> = usePowImpl(base, exponent)
+
+@Composable
+fun rememberPow(base: Float, exponent: Float): State<Float> = usePowImpl(base, exponent)
+
+@Composable
+fun rememberPow(base: Float, exponent: Int): State<Float> = usePowImpl(base, exponent)
+
+@Composable
+fun rememberPow(base: Float, exponent: Double): State<Double> = usePowImpl(base, exponent)
+
+@Composable
+fun rememberPow(base: Int, exponent: Int): State<Double> = usePowImpl(base, exponent)
+
+@Composable
+fun rememberPow(base: Int, exponent: Double): State<Double> = usePowImpl(base, exponent)
+
+@Composable
+fun rememberPow(base: Int, exponent: Float): State<Double> = usePowImpl(base, exponent)
+
+@Composable
+fun rememberPow(base: Long, exponent: Int): State<Double> = usePowImpl(base, exponent)
+
+@Composable
+fun rememberPow(base: Long, exponent: Double): State<Double> = usePowImpl(base, exponent)
+
+@Composable
+fun rememberPow(base: Long, exponent: Float): State<Double> = usePowImpl(base, exponent)
+
+@Composable
+fun rememberSqrt(number: Double): State<Double> = useSqrtImpl(number)
+
+@Composable
+fun rememberSqrt(number: Float): State<Float> = useSqrtImpl(number)
+
+@Composable
+fun rememberSqrt(number: Int): State<Double> = useSqrtImpl(number)
+
+@Composable
+fun rememberSqrt(number: Long): State<Double> = useSqrtImpl(number)
 //endregion

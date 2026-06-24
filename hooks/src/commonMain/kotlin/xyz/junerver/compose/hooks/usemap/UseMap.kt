@@ -1,0 +1,25 @@
+package xyz.junerver.compose.hooks.usemap
+
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateMapOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshots.SnapshotStateMap
+import androidx.compose.runtime.toMutableStateMap
+
+/*
+  Description: More convenient to use dynamic Map state
+  Author: Junerver
+  Date: 2024/3/7-15:02
+  Email: junerver@gmail.com
+  Version: v1.0
+*/
+
+@Composable
+fun <K, V> useMapImpl(vararg pairs: Pair<K, V>): SnapshotStateMap<K, V> = remember {
+    mutableStateMapOf(*pairs)
+}
+
+@Composable
+fun <K, V> useMapImpl(pairs: Iterable<Pair<K, V>>): SnapshotStateMap<K, V> = remember {
+    pairs.toMutableStateMap()
+}
