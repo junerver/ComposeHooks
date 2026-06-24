@@ -260,7 +260,7 @@ fun useBoolean(default: Boolean = false): BooleanHolder = useBooleanImpl(default
 typealias BooleanHolder = BooleanHolderImpl
 
 @Composable
-fun rememberBoolean(default: Boolean = false) = useBoolean(default)
+fun rememberBoolean(default: Boolean = false): BooleanHolder = useBooleanImpl(default)
 //endregion
 
 @Composable
