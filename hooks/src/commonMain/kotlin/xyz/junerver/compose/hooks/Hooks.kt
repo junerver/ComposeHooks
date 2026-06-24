@@ -10,6 +10,8 @@ import kotlin.time.Instant
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.datetime.LocalDateTime
 import xyz.junerver.compose.hooks.annotation.ExperimentalComputed
+import xyz.junerver.compose.hooks.useboolean.BooleanHolder as BooleanHolderImpl
+import xyz.junerver.compose.hooks.useboolean.useBooleanImpl
 import xyz.junerver.compose.hooks.useform.Form as FormImpl
 import xyz.junerver.compose.hooks.useform.FormInstance as FormInstanceImpl
 import xyz.junerver.compose.hooks.useform.FormItemState as FormItemStateImpl
@@ -251,8 +253,15 @@ fun rememberEffect(vararg deps: Any?, block: SuspendAsyncFn) = useEffect(*deps, 
 @Composable
 fun rememberFrontToBackEffect(vararg keys: Any?, effect: () -> Unit) = useFrontToBackEffect(*keys, effect = effect)
 
+//region useBoolean
+@Composable
+fun useBoolean(default: Boolean = false): BooleanHolder = useBooleanImpl(default)
+
+typealias BooleanHolder = BooleanHolderImpl
+
 @Composable
 fun rememberBoolean(default: Boolean = false) = useBoolean(default)
+//endregion
 
 @Composable
 fun rememberClipboard() = useClipboard()
