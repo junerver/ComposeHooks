@@ -1,4 +1,14 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.usereducer
+import xyz.junerver.compose.hooks._useState
+import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
+import xyz.junerver.compose.hooks.useasync.useAsyncImpl
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.Reducer
+import xyz.junerver.compose.hooks.Middleware
+import xyz.junerver.compose.hooks.DispatchCallback
+import xyz.junerver.compose.hooks.DispatchAsync
+import xyz.junerver.compose.hooks.Dispatch
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -63,12 +73,12 @@ import androidx.compose.runtime.remember
  * ```
  */
 @Composable
-fun <S, A> useReducer(reducer: Reducer<S, A>, initialState: S, middlewares: Array<Middleware<S, A>> = emptyArray()): ReducerHolder<S, A> {
-    val asyncRun = useAsync()
+fun <S, A> useReducerImpl(reducer: Reducer<S, A>, initialState: S, middlewares: Array<Middleware<S, A>> = emptyArray()): ReducerHolder<S, A> {
+    val asyncRun = useAsyncImpl()
     val state = _useState(initialState)
 
-    val reducerRef = useLatestRef(reducer)
-    val middlewaresRef = useLatestRef(middlewares)
+    val reducerRef = useLatestRefImpl(reducer)
+    val middlewaresRef = useLatestRefImpl(middlewares)
 
     val baseDispatch: Dispatch<A> = remember(state, reducerRef) {
         { action ->
@@ -92,7 +102,7 @@ fun <S, A> useReducer(reducer: Reducer<S, A>, initialState: S, middlewares: Arra
         }
     }
 
-    val enhancedDispatchRef = useLatestRef(enhancedDispatch)
+    val enhancedDispatchRef = useLatestRefImpl(enhancedDispatch)
 
     val enhancedDispatchAsync: DispatchAsync<A> = remember(asyncRun, enhancedDispatchRef) {
         { block ->

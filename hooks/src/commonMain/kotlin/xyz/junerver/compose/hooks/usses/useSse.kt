@@ -1,4 +1,6 @@
 package xyz.junerver.compose.hooks.usses
+import xyz.junerver.compose.hooks.useDynamicOptions
+import xyz.junerver.compose.hooks.usecontrollable._useControllableImpl
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -66,7 +68,7 @@ fun <TParams, TEvent> useSse(
         as UseSseOptions<TParams, TEvent>
 
     val (dataState, setData) = _useControllable<TEvent?>(null)
-    val (streamingState, setStreaming) = _useControllable(false)
+    val (streamingState, setStreaming) = _useControllableImpl(false)
     val (errorState, setError) = _useControllable<Throwable?>(null)
     val scope = rememberCoroutineScope()
 

@@ -1,4 +1,5 @@
 package xyz.junerver.compose.hooks.usecountdown
+import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -17,7 +18,7 @@ import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.setValue
 import xyz.junerver.compose.hooks.useeffect.useEffectImpl
 import xyz.junerver.compose.hooks.useinterval.useIntervalImpl
-import xyz.junerver.compose.hooks.useLatestRef
+import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
 import xyz.junerver.compose.hooks.useRef
@@ -64,7 +65,7 @@ private fun useCountdown(options: UseCountdownOptions): CountdownHolder {
     val targetRef = useRef<Instant?>(null)
     val (timeLeft, setTimeLeft) = useGetStateImpl(Duration.ZERO)
 
-    val onEndRef by useLatestRef(value = onEnd)
+    val onEndRef by useLatestRefImpl(value = onEnd)
     var pauseRef by useRef(default = {})
     val (resume, pause) = useIntervalImpl(
         optionsOf = {

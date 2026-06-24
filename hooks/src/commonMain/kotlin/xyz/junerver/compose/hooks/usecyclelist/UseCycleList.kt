@@ -1,4 +1,11 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.usecyclelist
+import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.useDynamicOptions
+import xyz.junerver.compose.hooks.usegetstate._useGetStateImpl
+import xyz.junerver.compose.hooks.setValue
+import xyz.junerver.compose.hooks.invoke
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.Options
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -58,11 +65,11 @@ data class UseCycleListOptions<T> internal constructor(
  * ```
  */
 @Composable
-fun <T> useCycleList(list: PersistentList<T>, optionsOf: UseCycleListOptions<T>.() -> Unit = {}): CycleListHolder<T> {
+fun <T> useCycleListImpl(list: PersistentList<T>, optionsOf: UseCycleListOptions<T>.() -> Unit = {}): CycleListHolder<T> {
     // Initialize options with remember and apply user-provided configuration
     val options = useDynamicOptions(optionsOf)
     // Create a mutable reference with useRef, initialized with the configured initial value or the first item in the list
-    val (state, setState) = _useGetState(getInitialValue(list, options))
+    val (state, setState) = _useGetStateImpl(getInitialValue(list, options))
 
     // Create a function to set the state to a specific index
     fun set(i: Int) {

@@ -1,4 +1,14 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.usecounter
+import xyz.junerver.compose.hooks.invoke
+import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
+import xyz.junerver.compose.hooks.useDynamicOptions
+import xyz.junerver.compose.hooks.SetValueFn
+import xyz.junerver.compose.hooks.SetterEither
+import xyz.junerver.compose.hooks.Options
+import xyz.junerver.compose.hooks.ResetFn
+import xyz.junerver.compose.hooks.DecFn
+import xyz.junerver.compose.hooks.IncFn
+import xyz.junerver.compose.hooks.GetValueFn
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -55,7 +65,7 @@ data class UseCounterOptions internal constructor(
  */
 @Composable
 private fun useCounter(initialValue: Int = 0, options: UseCounterOptions): CounterHolder {
-    val (current, setCurrent, getCurrent) = useGetState(getTargetValue(initialValue, options))
+    val (current, setCurrent, getCurrent) = useGetStateImpl(getTargetValue(initialValue, options))
     val setValue: SetValueFn<Either<Int, (Int) -> Int>> = { value: Either<Int, (Int) -> Int> ->
         val target = value.fold(
             ifLeft = { it },
@@ -126,7 +136,7 @@ private fun useCounter(initialValue: Int = 0, options: UseCounterOptions): Count
  * ```
  */
 @Composable
-fun useCounter(initialValue: Int = 0, optionsOf: UseCounterOptions.() -> Unit) = useCounter(initialValue, useDynamicOptions(optionsOf))
+fun useCounterImpl(initialValue: Int = 0, optionsOf: UseCounterOptions.() -> Unit) = useCounter(initialValue, useDynamicOptions(optionsOf))
 
 /**
  * Ensures the value is within the specified min/max bounds.

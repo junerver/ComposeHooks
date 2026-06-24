@@ -1,10 +1,10 @@
 package xyz.junerver.compose.hooks.useredux
+import xyz.junerver.compose.hooks.useasync.useAsyncImpl
 
 import androidx.compose.runtime.Composable
 import xyz.junerver.compose.hooks.Dispatch
 import xyz.junerver.compose.hooks.DispatchAsync
 import xyz.junerver.compose.hooks.DispatchCallback
-import xyz.junerver.compose.hooks.useAsync
 import xyz.junerver.compose.hooks.useContext
 
 /**
@@ -37,7 +37,7 @@ inline fun <reified A> useDispatchAsync(
     noinline onFinally: DispatchCallback<A>? = null,
 ): DispatchAsync<A> {
     val dispatch: Dispatch<A> = useDispatch(alias)
-    val asyncRun = useAsync()
+    val asyncRun = useAsyncImpl()
     return { block ->
         onBefore?.invoke(dispatch)
         asyncRun {

@@ -1,4 +1,7 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.useselectable
+import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usemap.useMapImpl
+import xyz.junerver.compose.hooks.usecreation.useCreationImpl
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -13,15 +16,15 @@ import androidx.compose.runtime.remember
   Version: v1.0
 */
 @Composable
-fun <KEY, ITEM> useSelectable(
+fun <KEY, ITEM> useSelectableImpl(
     selectionMode: SelectionMode<KEY>,
     items: List<ITEM>,
     keyProvider: (ITEM) -> KEY,
 ): SelectableHolder<KEY, ITEM> {
-    val initialMap = useCreation {
+    val initialMap = useCreationImpl {
         items.map { keyProvider(it) to selectionMode.getInitialSelected(keyProvider(it)) }
     }
-    val selectedMap = useMap(pairs = initialMap.current)
+    val selectedMap = useMapImpl(pairs = initialMap.current)
 
     val selectedKeys = useState { selectedMap.filterValues { it }.keys }
     val selectedItems = useState {

@@ -18,7 +18,7 @@ import xyz.junerver.compose.hooks.Options
 import xyz.junerver.compose.hooks.Ref
 import xyz.junerver.compose.hooks.SuspendAsyncFn
 import xyz.junerver.compose.hooks.useDynamicOptions
-import xyz.junerver.compose.hooks.useLatestRef
+import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 import xyz.junerver.compose.hooks.usemount.useMountImpl
 import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
 import xyz.junerver.compose.hooks.useState
@@ -94,7 +94,7 @@ fun useTimeoutFnImpl(
     optionsOf: UseTimeoutFnOptions.() -> Unit = {},
 ): TimeoutFnHolder {
     val options = useDynamicOptions(optionsOf)
-    val latestFn = useLatestRef(value = fn)
+    val latestFn = useLatestRefImpl(value = fn)
     val isPendingState = useState(default = false)
     val scope = rememberCoroutineScope()
 

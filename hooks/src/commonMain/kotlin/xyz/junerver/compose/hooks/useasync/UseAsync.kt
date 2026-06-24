@@ -1,4 +1,14 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.useasync
+
+import xyz.junerver.compose.hooks.IsActive
+import xyz.junerver.compose.hooks.AsyncRunFn
+import xyz.junerver.compose.hooks.SuspendAsyncFn
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.setValue
+import xyz.junerver.compose.hooks.invoke
+import xyz.junerver.compose.hooks.uselatest.useLatestStateImpl
+import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
+import xyz.junerver.compose.hooks.useRef
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -28,9 +38,9 @@ import kotlinx.coroutines.launch
  * @return A function that, when called, executes the provided suspend function in a coroutine scope
  */
 @Composable
-fun useAsync(block: SuspendAsyncFn): () -> Unit {
-    val latestFn by useLatestState(value = block)
-    val asyncRunFn = useAsync()
+fun useAsyncImpl(block: SuspendAsyncFn): () -> Unit {
+    val latestFn by useLatestStateImpl(value = block)
+    val asyncRunFn = useAsyncImpl()
     return fun() {
         asyncRunFn {
             latestFn()
@@ -45,7 +55,7 @@ fun useAsync(block: SuspendAsyncFn): () -> Unit {
  * to execute suspend functions.
  *
  * ```kotlin
- * val asyncRun = useAsync()
+ * val asyncRun = useAsyncImpl()
  * asyncRun {
  *   // Do something asynchronously
  *   delay(1.seconds)
@@ -56,7 +66,7 @@ fun useAsync(block: SuspendAsyncFn): () -> Unit {
  * @return A function that takes a suspend function and executes it in a coroutine scope
  */
 @Composable
-fun useAsync(): AsyncRunFn {
+fun useAsyncImpl(): AsyncRunFn {
     val scope = rememberCoroutineScope()
     return fun(fn) {
         scope.launch { fn() }
@@ -91,10 +101,10 @@ fun useAsync(): AsyncRunFn {
  *         and a state to track the running status
  */
 @Composable
-fun useCancelableAsync(): CancelableAsyncHolder {
+fun useCancelableAsyncImpl(): CancelableAsyncHolder {
     val scope = rememberCoroutineScope()
     var job by useRef<Job?>(null)
-    val (isActive, setIsActive) = useGetState(false)
+    val (isActive, setIsActive) = useGetStateImpl(false)
 
     val asyncRun = { fn: SuspendAsyncFn ->
         job?.cancel()

@@ -1,8 +1,12 @@
 @file:Suppress("unused", "ComposableNaming")
 
 package xyz.junerver.compose.hooks
+import xyz.junerver.compose.hooks.useselectable.SelectionMode as SelectionModeImpl
+import xyz.junerver.compose.hooks.useresetstate.useResetStateImpl
+import xyz.junerver.compose.hooks.useresetstate.ResetStateHolder as ResetStateHolderImpl
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.State
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -54,6 +58,46 @@ import xyz.junerver.compose.hooks.useprevious.usePreviousImpl
 import xyz.junerver.compose.hooks.useunmountedref.useUnmountedRefImpl
 import xyz.junerver.compose.hooks.useupdate.useUpdateImpl
 import xyz.junerver.compose.hooks.useupdateeffect.useUpdateEffectImpl
+import xyz.junerver.compose.hooks.useasync.CancelableAsyncHolder as CancelableAsyncHolderImpl
+import xyz.junerver.compose.hooks.useasync.useAsyncImpl
+import xyz.junerver.compose.hooks.useasync.useCancelableAsyncImpl
+import xyz.junerver.compose.hooks.useautoreset.useAutoResetImpl
+import xyz.junerver.compose.hooks.usebackfront.useBackToFrontEffectImpl
+import xyz.junerver.compose.hooks.usebackfront.useFrontToBackEffectImpl
+import xyz.junerver.compose.hooks.usecontrollable.ControllableHolder as ControllableHolderImpl
+import xyz.junerver.compose.hooks.usecontrollable._useControllableImpl
+import xyz.junerver.compose.hooks.usecontrollable.useControllableImpl
+import xyz.junerver.compose.hooks.usecounter.CounterHolder as CounterHolderImpl
+import xyz.junerver.compose.hooks.usecounter.UseCounterOptions as UseCounterOptionsImpl
+import xyz.junerver.compose.hooks.usecounter.useCounterImpl
+import xyz.junerver.compose.hooks.usecyclelist.CycleListHolder as CycleListHolderImpl
+import xyz.junerver.compose.hooks.usecyclelist.UseCycleListOptions as UseCycleListOptionsImpl
+import xyz.junerver.compose.hooks.usecyclelist.useCycleListImpl
+import xyz.junerver.compose.hooks.uselastchanged.useLastChangedImpl
+import xyz.junerver.compose.hooks.usepausableeffect.PausableEffectHolder as PausableEffectHolderImpl
+import xyz.junerver.compose.hooks.usepausableeffect.usePausableEffectImpl
+import xyz.junerver.compose.hooks.usepersistent.PersistentHolder as PersistentHolderImpl
+import xyz.junerver.compose.hooks.usepersistent.PersistentContext as PersistentContextImpl
+import xyz.junerver.compose.hooks.usepersistent.notifyDefaultPersistentObserver as notifyDefaultPersistentObserverImpl
+import xyz.junerver.compose.hooks.usepersistent.usePersistentImpl
+import xyz.junerver.compose.hooks.usereducer.ReducerHolder as ReducerHolderImpl
+import xyz.junerver.compose.hooks.usereducer.useReducerImpl
+import xyz.junerver.compose.hooks.useselectable.IsSelected as IsSelectedImpl
+import xyz.junerver.compose.hooks.useselectable.SelectAction as SelectActionImpl
+import xyz.junerver.compose.hooks.useselectable.SelectableHolder as SelectableHolderImpl
+import xyz.junerver.compose.hooks.useselectable.ToggleSelected as ToggleSelectedImpl
+import xyz.junerver.compose.hooks.useselectable.useSelectableImpl
+import xyz.junerver.compose.hooks.usesorted.SortedCompareFn as SortedCompareFnImpl
+import xyz.junerver.compose.hooks.usesorted.SortedFn as SortedFnImpl
+import xyz.junerver.compose.hooks.usesorted.UseSortedOptions as UseSortedOptionsImpl
+import xyz.junerver.compose.hooks.usesorted.useSortedImpl
+import xyz.junerver.compose.hooks.usestatemachine.MachineGraph as MachineGraphImpl
+import xyz.junerver.compose.hooks.usestatemachine.StateMachineHolder as StateMachineHolderImpl
+import xyz.junerver.compose.hooks.usestatemachine.StateMachineGraphScope as StateMachineGraphScopeImpl
+import xyz.junerver.compose.hooks.usestatemachine.createMachineImpl
+import xyz.junerver.compose.hooks.usestatemachine.useStateMachineImpl
+import xyz.junerver.compose.hooks.useundo.UndoHolder as UndoHolderImpl
+import xyz.junerver.compose.hooks.useundo.useUndoImpl
 import xyz.junerver.compose.hooks.usecountdown.CountdownHolder as CountdownHolderImpl
 import xyz.junerver.compose.hooks.usecountdown.FormattedRes as FormattedResImpl
 import xyz.junerver.compose.hooks.usecountdown.UseCountdownOptions as UseCountdownOptionsImpl
@@ -303,6 +347,35 @@ val DefaultChineseTimeAgoMessages: TimeAgoMessages = DefaultChineseTimeAgoMessag
 val DefaultEnglishTimeAgoMessages: TimeAgoMessages = DefaultEnglishTimeAgoMessagesImpl
 //endregion
 
+//region 类型集中导出 — 状态/其余 hook 的 Options 与 Holder
+typealias CancelableAsyncHolder = CancelableAsyncHolderImpl
+typealias ControllableHolder<T> = ControllableHolderImpl<T>
+typealias UseCounterOptions = UseCounterOptionsImpl
+typealias CounterHolder = CounterHolderImpl
+typealias UseCycleListOptions<T> = UseCycleListOptionsImpl<T>
+typealias CycleListHolder<T> = CycleListHolderImpl<T>
+typealias PausableEffectHolder = PausableEffectHolderImpl
+typealias PersistentHolder<T> = PersistentHolderImpl<T>
+
+val PersistentContext = PersistentContextImpl
+typealias ReducerHolder<S, A> = ReducerHolderImpl<S, A>
+typealias IsSelected<KEY> = IsSelectedImpl<KEY>
+typealias ToggleSelected<KEY> = ToggleSelectedImpl<KEY>
+typealias SelectAction = SelectActionImpl
+typealias SelectableHolder<KEY, ITEM> = SelectableHolderImpl<KEY, ITEM>
+typealias SelectionMode<KEY> = SelectionModeImpl<KEY>
+typealias SingleSelect<KEY> = SelectionModeImpl.SingleSelect<KEY>
+typealias MultiSelect<KEY> = SelectionModeImpl.MultiSelect<KEY>
+typealias SortedCompareFn<T> = SortedCompareFnImpl<T>
+typealias SortedFn<T> = SortedFnImpl<T>
+typealias UseSortedOptions<T> = UseSortedOptionsImpl<T>
+typealias MachineGraph<S, E, CTX> = MachineGraphImpl<S, E, CTX>
+typealias StateMachineHolder<S, E, CTX> = StateMachineHolderImpl<S, E, CTX>
+typealias StateMachineGraphScope<S, E, CTX> = StateMachineGraphScopeImpl<S, E, CTX>
+typealias UndoHolder<T> = UndoHolderImpl<T>
+typealias ResetStateHolder<T> = ResetStateHolderImpl<T>
+//endregion
+
 /**
  * Compose-style aliases for every hook.
  *
@@ -358,20 +431,20 @@ fun <TParams, TEvent> rememberSse(
 
 //region useAsync
 @Composable
-fun rememberAsync(block: SuspendAsyncFn) = useAsync(block)
+fun rememberAsync(block: SuspendAsyncFn) = useAsyncImpl(block)
 
 @Composable
-fun rememberAsync(): AsyncRunFn = useAsync()
+fun rememberAsync(): AsyncRunFn = useAsyncImpl()
 
 @Composable
-fun rememberCancelableAsync(): CancelableAsyncHolder = useCancelableAsync()
+fun rememberCancelableAsync(): CancelableAsyncHolder = useCancelableAsyncImpl()
 //endregion
 
 @Composable
-fun <T> rememberAutoReset(default: T & Any, interval: Duration) = useAutoReset(default, interval)
+fun <T> rememberAutoReset(default: T & Any, interval: Duration) = useAutoResetImpl(default, interval)
 
 @Composable
-fun rememberBackToFrontEffect(vararg keys: Any?, effect: () -> Unit) = useBackToFrontEffect(*keys, effect = effect)
+fun rememberBackToFrontEffect(vararg keys: Any?, effect: () -> Unit) = useBackToFrontEffectImpl(*keys, effect = effect)
 
 //region useEffect
 @Composable
@@ -382,7 +455,7 @@ fun rememberEffect(vararg deps: Any?, block: SuspendAsyncFn) = useEffectImpl(*de
 //endregion
 
 @Composable
-fun rememberFrontToBackEffect(vararg keys: Any?, effect: () -> Unit) = useFrontToBackEffect(*keys, effect = effect)
+fun rememberFrontToBackEffect(vararg keys: Any?, effect: () -> Unit) = useFrontToBackEffectImpl(*keys, effect = effect)
 
 //region useBoolean
 @Composable
@@ -403,10 +476,10 @@ fun rememberClipboard(): CopyPasteHolder = useClipboardImpl()
 //endregion
 
 @Composable
-fun <T> rememberControllable(default: T & Any) = useControllable(default)
+fun <T> rememberControllable(default: T & Any) = useControllableImpl(default)
 
 @Composable
-fun <T> _rememberControllable(default: T) = _useControllable(default)
+fun <T> _rememberControllable(default: T) = _useControllableImpl(default)
 
 //region useContext
 @Composable
@@ -420,7 +493,7 @@ fun <T> rememberContext(context: ReactContext<T>) = useContextImpl(context)
 fun rememberCountdown(optionsOf: UseCountdownOptions.() -> Unit) = useCountdownImpl(optionsOf)
 
 @Composable
-fun rememberCounter(initialValue: Int = 0, optionsOf: UseCounterOptions.() -> Unit) = useCounter(initialValue, optionsOf)
+fun rememberCounter(initialValue: Int = 0, optionsOf: UseCounterOptions.() -> Unit) = useCounterImpl(initialValue, optionsOf)
 
 //region useCreation
 @Composable
@@ -613,7 +686,7 @@ fun rememberLong(default: Long = 0L) = useLongImpl(default)
 //endregion
 
 @Composable
-fun <T> rememberPersistent(key: String, defaultValue: T, forceUseMemory: Boolean = false) = usePersistent(key, defaultValue, forceUseMemory)
+fun <T> rememberPersistent(key: String, defaultValue: T, forceUseMemory: Boolean = false) = usePersistentImpl(key, defaultValue, forceUseMemory)
 
 //region usePrevious
 @Composable
@@ -635,7 +708,7 @@ fun <S, A> rememberReducer(reducer: Reducer<S, A>, initialState: S, middlewares:
 fun <T> rememberRef(default: T) = useRef(default)
 
 @Composable
-fun <T> rememberResetState(default: T & Any) = useResetState(default)
+fun <T> rememberResetState(default: T & Any) = useResetStateImpl(default)
 
 @Composable
 fun <T> rememberState(default: T & Any) = useState(default)
@@ -703,7 +776,7 @@ fun rememberToggleVisible(isFirst: Boolean = true, content1: @Composable () -> U
 //endregion
 
 @Composable
-fun <T> rememberUndo(initialPresent: T) = useUndo(initialPresent)
+fun <T> rememberUndo(initialPresent: T) = useUndoImpl(initialPresent)
 
 //region useUnmount
 @Composable
@@ -738,14 +811,14 @@ fun rememberUpdateEffect(vararg keys: Any?, block: SuspendAsyncFn) = useUpdateEf
 //endregion
 
 @Composable
-fun rememberLastChanged(source: Any?): State<Instant> = useLastChanged(source)
+fun rememberLastChanged(source: Any?): State<Instant> = useLastChangedImpl(source)
 
 @Composable
 fun <KEY, ITEM> rememberSelectable(
     selectionMode: SelectionMode<KEY>,
     items: List<ITEM>,
     keyProvider: (ITEM) -> KEY,
-): SelectableHolder<KEY, ITEM> = useSelectable(selectionMode, items, keyProvider)
+): SelectableHolder<KEY, ITEM> = useSelectableImpl(selectionMode, items, keyProvider)
 
 @Composable
 fun <S : Any, E, CTX> rememberStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>): StateMachineHolder<S, E, CTX> =
@@ -800,10 +873,10 @@ fun <S, T> rememberImmutableListFold(list: PersistentList<T>, initial: S, operat
 
 //region useSorted
 @Composable
-fun <T> rememberSorted(source: List<T>, compareFn: SortedCompareFn<T>): State<List<T>> = useSorted(source, compareFn)
+fun <T> rememberSorted(source: List<T>, compareFn: SortedCompareFn<T>): State<List<T>> = useSortedImpl(source, compareFn)
 
 @Composable
-fun <T> rememberSorted(source: List<T>, optionsOf: UseSortedOptions<T>.() -> Unit = {}): State<List<T>> = useSorted(source, optionsOf)
+fun <T> rememberSorted(source: List<T>, optionsOf: UseSortedOptions<T>.() -> Unit = {}): State<List<T>> = useSortedImpl(source, optionsOf)
 //endregion
 
 //region useTable
@@ -1221,4 +1294,88 @@ fun useTimeAgo(time: Instant, optionsOf: UseTimeAgoOptions.() -> Unit = {}): Sta
 fun useTimeout(delay: Duration = 1.seconds, block: () -> Unit) {
     useTimeoutFnImpl(fn = { block() }, interval = delay)
 }
+//endregion
+
+//region 状态/其余 hook 的 useXxx 根包重导出
+@Composable
+fun useAsync(block: SuspendAsyncFn): () -> Unit = useAsyncImpl(block)
+
+@Composable
+fun useAsync(): AsyncRunFn = useAsyncImpl()
+
+@Composable
+fun useCancelableAsync(): CancelableAsyncHolder = useCancelableAsyncImpl()
+
+@Composable
+fun <T> useAutoReset(default: T & Any, interval: Duration): MutableState<T & Any> = useAutoResetImpl(default, interval)
+
+@Composable
+fun useBackToFrontEffect(vararg deps: Any?, effect: () -> Unit) = useBackToFrontEffectImpl(*deps, effect = effect)
+
+@Composable
+fun useFrontToBackEffect(vararg deps: Any?, effect: () -> Unit) = useFrontToBackEffectImpl(*deps, effect = effect)
+
+@Composable
+fun <T> useControllable(default: T & Any): ControllableHolder<T & Any> = useControllableImpl(default)
+
+@Composable
+fun <T> _useControllable(default: T): ControllableHolder<T> = _useControllableImpl(default)
+
+@Composable
+fun <T> useResetState(default: T & Any): ResetStateHolder<T & Any> = useResetStateImpl(default)
+
+@Composable
+fun useCounter(initialValue: Int = 0, optionsOf: UseCounterOptions.() -> Unit): CounterHolder =
+    useCounterImpl(initialValue, optionsOf)
+
+@Composable
+fun <T> useUndo(initialPresent: T): UndoHolder<T> = useUndoImpl(initialPresent)
+
+@Composable
+fun <S, A> useReducer(
+    reducer: Reducer<S, A>,
+    initialState: S,
+    middlewares: Array<Middleware<S, A>> = emptyArray(),
+): ReducerHolder<S, A> = useReducerImpl(reducer, initialState, middlewares)
+
+@Composable
+fun <T> usePersistent(key: String, defaultValue: T, forceUseMemory: Boolean = false): PersistentHolder<T> =
+    usePersistentImpl(key, defaultValue, forceUseMemory)
+
+@Composable
+fun usePausableEffect(vararg deps: Any?, block: SuspendAsyncFn): PausableEffectHolder =
+    usePausableEffectImpl(*deps, block = block)
+
+@Composable
+fun <KEY, ITEM> useSelectable(
+    selectionMode: SelectionMode<KEY>,
+    items: List<ITEM>,
+    keyProvider: (ITEM) -> KEY,
+): SelectableHolder<KEY, ITEM> = useSelectableImpl(selectionMode, items, keyProvider)
+
+@Composable
+fun <S : Any, E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>): StateMachineHolder<S, E, CTX> =
+    useStateMachineImpl(machineGraph)
+
+@Composable
+fun <S : Any, E, CTX> createMachine(init: StateMachineGraphScope<S, E, CTX>.() -> Unit): Ref<MachineGraph<S, E, CTX>> =
+    createMachineImpl(init)
+
+@Composable
+fun <T> useCycleList(list: PersistentList<T>, optionsOf: UseCycleListOptions<T>.() -> Unit = {}): CycleListHolder<T> =
+    useCycleListImpl(list, optionsOf)
+
+@Composable
+fun useLastChanged(source: Any?): State<Instant> = useLastChangedImpl(source)
+
+@Composable
+fun <T> useSorted(source: List<T>, compareFn: SortedCompareFn<T>): State<List<T>> = useSortedImpl(source, compareFn)
+
+@Composable
+fun <T> useSorted(source: List<T>, optionsOf: UseSortedOptions<T>.() -> Unit = {}): State<List<T>> =
+    useSortedImpl(source, optionsOf)
+//endregion
+
+//region 函数型根包重导出
+fun notifyDefaultPersistentObserver(key: String) = notifyDefaultPersistentObserverImpl(key)
 //endregion

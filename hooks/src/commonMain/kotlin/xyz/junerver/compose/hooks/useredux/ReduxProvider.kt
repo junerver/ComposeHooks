@@ -1,4 +1,5 @@
 package xyz.junerver.compose.hooks.useredux
+import xyz.junerver.compose.hooks.usereducer.useReducerImpl
 
 import androidx.compose.runtime.Composable
 import kotlin.reflect.KClass
@@ -96,7 +97,7 @@ fun ReduxProvider(store: Store, content: ComposeComponent) {
     val aliasMap: MutableMap<String, Pair<Any, Dispatch<Any>>> = useMap()
 
     store.records.forEach { entry ->
-        val (state, dispatch) = useReducer(
+        val (state, dispatch) = useReducerImpl(
             reducer = entry.reducer,
             initialState = entry.initialState,
             store.middlewares,

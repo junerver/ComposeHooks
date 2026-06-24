@@ -1,4 +1,12 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.useundo
+import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usereducer.useReducerImpl
+import xyz.junerver.compose.hooks.UndoFn
+import xyz.junerver.compose.hooks.SetValueFn
+import xyz.junerver.compose.hooks.ResetValueFn
+import xyz.junerver.compose.hooks.RedoFn
+import xyz.junerver.compose.hooks.CanUndo
+import xyz.junerver.compose.hooks.CanRedo
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -138,8 +146,8 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
  * ```
  */
 @Composable
-fun <T> useUndo(initialPresent: T): UndoHolder<T> {
-    val (state, dispatch) = useReducer(::undoReducer, UndoState(present = initialPresent))
+fun <T> useUndoImpl(initialPresent: T): UndoHolder<T> {
+    val (state, dispatch) = useReducerImpl(::undoReducer, UndoState(present = initialPresent))
     val canUndo = useState { state.value.past.isNotEmpty() }
     val canRedo = useState { state.value.future.isNotEmpty() }
     val undo = { dispatch(Undo) }

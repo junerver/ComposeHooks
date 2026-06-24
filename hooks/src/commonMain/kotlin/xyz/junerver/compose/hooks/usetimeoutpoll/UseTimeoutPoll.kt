@@ -1,4 +1,5 @@
 package xyz.junerver.compose.hooks.usetimeoutpoll
+import xyz.junerver.compose.hooks.useasync.useAsyncImpl
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -12,9 +13,8 @@ import xyz.junerver.compose.hooks.SuspendAsyncFn
 import xyz.junerver.compose.hooks.getValue
 import xyz.junerver.compose.hooks.usemount.useMountImpl
 import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
-import xyz.junerver.compose.hooks.useAsync
 import xyz.junerver.compose.hooks.useDynamicOptions
-import xyz.junerver.compose.hooks.useLatestRef
+import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 import xyz.junerver.compose.hooks.usetimeoutfn.useTimeoutFnImpl
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useState
@@ -53,9 +53,9 @@ fun useTimeoutPollImpl(
     optionsOf: UseTimeoutPollOptions.() -> Unit,
 ): TimeoutPollHolder {
     val options = useDynamicOptions(optionsOf)
-    val latestFn = useLatestRef(value = fn)
+    val latestFn = useLatestRefImpl(value = fn)
     val isActiveState = useState(default = false)
-    val asyncRun = useAsync()
+    val asyncRun = useAsyncImpl()
 
     val startRef = useRef(default = {})
     val stopRef = useRef(default = {})

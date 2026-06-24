@@ -1,8 +1,17 @@
 @file:Suppress("unused")
 
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.usestatemachine
+import xyz.junerver.compose.hooks.invoke
 
 import androidx.compose.runtime.Composable
+import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.useasync.useCancelableAsyncImpl
+import xyz.junerver.compose.hooks.usecreation.useCreationImpl
+import xyz.junerver.compose.hooks.usegetstate._useGetStateImpl
+import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
+import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.useundo.useUndoImpl
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
@@ -118,15 +127,15 @@ typealias SuspendAction<CTX, E> = suspend CoroutineScope.(prevContext: CTX?, eve
  * ```
  */
 @Composable
-fun <S : Any, E, CTX> useStateMachine(machineGraph: Ref<MachineGraph<S, E, CTX>>): StateMachineHolder<S, E, CTX> {
+fun <S : Any, E, CTX> useStateMachineImpl(machineGraph: Ref<MachineGraph<S, E, CTX>>): StateMachineHolder<S, E, CTX> {
     requireNotNull(machineGraph.current.initialState) {
         "must call `createMachine` first, and must call `initial`"
     }
-    val (contextState, setContextState) = _useGetState(machineGraph.current.context)
-    val (currentState, setState) = useGetState(machineGraph.current.initialState)
-    val (undoState, setUndoState, resetUndoState, undo, _, canUndo, _) = useUndo(machineGraph.current.initialState)
+    val (contextState, setContextState) = _useGetStateImpl(machineGraph.current.context)
+    val (currentState, setState) = useGetStateImpl(machineGraph.current.initialState)
+    val (undoState, setUndoState, resetUndoState, undo, _, canUndo, _) = useUndoImpl(machineGraph.current.initialState)
 
-    val (runAction, cancelAction, _) = useCancelableAsync()
+    val (runAction, cancelAction, _) = useCancelableAsyncImpl()
     val transitionVersionRef = useRef(0L)
 
     val canTransition = { event: E ->
@@ -299,7 +308,7 @@ data class MachineGraph<S : Any, E, CTX> internal constructor(
  * ```
  */
 @Composable
-fun <S : Any, E, CTX> createMachine(init: StateMachineGraphScope<S, E, CTX>.() -> Unit): Ref<MachineGraph<S, E, CTX>> = useCreation {
+fun <S : Any, E, CTX> createMachineImpl(init: StateMachineGraphScope<S, E, CTX>.() -> Unit): Ref<MachineGraph<S, E, CTX>> = useCreationImpl {
     buildStateMachineGraph(init)
 }
 

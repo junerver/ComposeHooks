@@ -19,7 +19,7 @@ import xyz.junerver.compose.hooks.SuspendAsyncFn
 import xyz.junerver.compose.hooks.VoidFunction
 import xyz.junerver.compose.hooks.useeffect.useEffectImpl
 import xyz.junerver.compose.hooks.useDynamicOptions
-import xyz.junerver.compose.hooks.useLatestState
+import xyz.junerver.compose.hooks.uselatest.useLatestStateImpl
 import xyz.junerver.compose.hooks.usegetstate._useGetStateImpl
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.utils.currentInstant
@@ -151,7 +151,7 @@ private fun <S> useDebounceImpl(value: S, options: UseDebounceOptions): State<S>
 
 @Composable
 private fun <TParams> useDebounceFnImpl(fn: VoidFunction<TParams>, options: UseDebounceOptions): VoidFunction<TParams> {
-    val latestFn by useLatestState(value = fn)
+    val latestFn by useLatestStateImpl(value = fn)
     val scope = rememberCoroutineScope()
     val debounced = remember {
         Debounce(latestFn, scope, options)

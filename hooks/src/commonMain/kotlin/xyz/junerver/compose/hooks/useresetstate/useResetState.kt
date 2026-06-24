@@ -1,4 +1,11 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.useresetstate
+import xyz.junerver.compose.hooks.invoke
+import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
+import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
+import xyz.junerver.compose.hooks.SetValueFn
+import xyz.junerver.compose.hooks.SetterEither
+import xyz.junerver.compose.hooks.ResetFn
+import xyz.junerver.compose.hooks.GetValueFn
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -50,8 +57,8 @@ import androidx.compose.runtime.remember
  * ```
  */
 @Composable
-fun <T> useResetState(default: T & Any): ResetStateHolder<T & Any> {
-    val (state, setState, getState) = useGetState(default)
+fun <T> useResetStateImpl(default: T & Any): ResetStateHolder<T & Any> {
+    val (state, setState, getState) = useGetStateImpl(default)
 
     fun reset() {
         setState(default)

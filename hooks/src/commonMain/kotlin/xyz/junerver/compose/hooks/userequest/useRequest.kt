@@ -1,4 +1,6 @@
 package xyz.junerver.compose.hooks.userequest
+import xyz.junerver.compose.hooks.useDynamicOptions
+import xyz.junerver.compose.hooks.usecontrollable._useControllableImpl
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -13,7 +15,6 @@ import xyz.junerver.compose.hooks._useControllable
 import xyz.junerver.compose.hooks.getValue
 import xyz.junerver.compose.hooks.setValue
 import xyz.junerver.compose.hooks.useCreation
-import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useUnmount
 import xyz.junerver.compose.hooks.userequest.plugins.useAutoRunPlugin
@@ -182,7 +183,7 @@ private fun <TParams, TData : Any> useRequestPluginsImpl(
     plugins: Array<Plugin<TParams, TData>> = emptyArray(),
 ): Fetch<TParams, TData> {
     val (dataState, setData) = _useControllable<TData?>(null)
-    val (loadingState, setLoading) = _useControllable(false)
+    val (loadingState, setLoading) = _useControllableImpl(false)
     val (errorState, setError) = _useControllable<Throwable?>(null)
 
     val fetch = remember {

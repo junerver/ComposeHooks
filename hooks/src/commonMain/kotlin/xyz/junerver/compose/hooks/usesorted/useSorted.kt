@@ -1,4 +1,11 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.usesorted
+import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.uselatest.useLatestStateImpl
+import xyz.junerver.compose.hooks.useeffect.useEffectImpl
+import xyz.junerver.compose.hooks.useDynamicOptions
+import xyz.junerver.compose.hooks.usecreation.useCreationImpl
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.Options
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -112,7 +119,7 @@ private fun <T> defaultCompare(): SortedCompareFn<T> = { a, b ->
  * ```
  */
 @Composable
-fun <T> useSorted(source: List<T>, compareFn: SortedCompareFn<T>): State<List<T>> = useSorted(
+fun <T> useSortedImpl(source: List<T>, compareFn: SortedCompareFn<T>): State<List<T>> = useSortedImpl(
     source,
     optionsOf = {
         this.compareFn = compareFn
@@ -140,23 +147,23 @@ fun <T> useSorted(source: List<T>, compareFn: SortedCompareFn<T>): State<List<T>
  * ```
  */
 @Composable
-fun <T> useSorted(source: List<T>, optionsOf: UseSortedOptions<T>.() -> Unit = {}): State<List<T>> {
+fun <T> useSortedImpl(source: List<T>, optionsOf: UseSortedOptions<T>.() -> Unit = {}): State<List<T>> {
     // Create options only once and track them for changes
     val options = useDynamicOptions(optionsOf)
 
     // Create updated state for the source list
-    val sourceState = useLatestState(source)
+    val sourceState = useLatestStateImpl(source)
 
     // Extract options with defaults, using remember to avoid recreating functions on each recomposition
-    val sortFn by useCreation(options.sortFn) { options.sortFn ?: defaultSortFn() }
-    val compareFn by useCreation(options.compareFn) { options.compareFn ?: defaultCompare() }
+    val sortFn by useCreationImpl(options.sortFn) { options.sortFn ?: defaultSortFn() }
+    val compareFn by useCreationImpl(options.compareFn) { options.compareFn ?: defaultCompare() }
 
     val dirty = options.dirty
     val sortedState = useState {
         val sorted = sortFn(sourceState.value, compareFn)
         sorted
     }
-    useEffect(sortedState.value, dirty) {
+    useEffectImpl(sortedState.value, dirty) {
         // Keep dirty-mode mutation out of the derived state read path.
         if (dirty && source is MutableList<T> && source != sortedState.value) {
             source.clear()

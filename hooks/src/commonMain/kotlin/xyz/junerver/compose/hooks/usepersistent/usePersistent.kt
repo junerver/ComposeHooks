@@ -1,4 +1,16 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.usepersistent
+import xyz.junerver.compose.hooks.createContext
+import xyz.junerver.compose.hooks._useState
+import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
+import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.usemount.useMountImpl
+import xyz.junerver.compose.hooks.usecontext.useContextImpl
+import xyz.junerver.compose.hooks.setValue
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.SaveToPersistent
+import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.PersistentContextValue
+import xyz.junerver.compose.hooks.HookClear
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -117,8 +129,8 @@ internal val InternalMemoryPersistentContext by lazy {
  */
 @Suppress("UNCHECKED_CAST")
 @Composable
-fun <T> usePersistent(key: String, defaultValue: T, forceUseMemory: Boolean = false): PersistentHolder<T> {
-    val (get, set, clear) = useContext(context = if (forceUseMemory) InternalMemoryPersistentContext else PersistentContext)
+fun <T> usePersistentImpl(key: String, defaultValue: T, forceUseMemory: Boolean = false): PersistentHolder<T> {
+    val (get, set, clear) = useContextImpl(context = if (forceUseMemory) InternalMemoryPersistentContext else PersistentContext)
     val getValue = { get(key, defaultValue as Any) as T }
     val state = _useState(getValue())
 
@@ -127,12 +139,12 @@ fun <T> usePersistent(key: String, defaultValue: T, forceUseMemory: Boolean = fa
      * and notify the update component when this storage changes;
      */
     var unObserver by useRef(default = {})
-    useMount {
+    useMountImpl {
         unObserver = memoryAddObserver(key) {
             state.value = getValue()
         }
     }
-    useUnmount {
+    useUnmountImpl {
         unObserver()
     }
     return remember {
