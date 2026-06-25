@@ -81,6 +81,7 @@ class FetchEdgeCaseTest {
         // 使用 run() 而不是 _runAsync()
         fetch.run("test")
         advanceUntilIdle()
+        delay(100)
         assertNotNull(fetch.errorState.value)
 
         fetch.cancel()
@@ -115,6 +116,7 @@ class FetchEdgeCaseTest {
             // 使用 run() 而不是 _runAsync()
             fetch.run("test")
             advanceUntilIdle()
+        delay(100)
             assertEquals(42, dataBundle.state.value)
         } catch (e: Exception) {
             // 如果抛出异常，说明没有正确处理插件错误
@@ -156,6 +158,7 @@ class FetchEdgeCaseTest {
         // 使用 run() 而不是 _runAsync()
         fetch.run("test")
         advanceUntilIdle()
+        delay(100)
 
         // 预期：plugin1 和 plugin3 应该都执行
         // 实际：faultyPlugin 的异常会中断后续插件
@@ -192,6 +195,7 @@ class FetchEdgeCaseTest {
         // 使用 run() 而不是 _runAsync()
         fetch.run(null)
         advanceUntilIdle()
+        delay(100)
 
         // 预期：插件的 onError 和 onFinally 应该被调用
         // 实际：当前实现不调用插件回调
@@ -215,11 +219,13 @@ class FetchEdgeCaseTest {
         // 使用 run() 而不是 _runAsync()
         fetch.run("test")
         advanceUntilIdle()
+        delay(100)
         assertEquals(42, dataBundle.state.value)
 
         // 然后用 null 参数请求
         fetch.run(null)
         advanceUntilIdle()
+        delay(100)
 
         // 预期：data 应该被清空
         // 实际：data 保留旧值
@@ -244,6 +250,7 @@ class FetchEdgeCaseTest {
         // 使用 run() 而不是 _runAsync()
         fetch.run("test")
         advanceUntilIdle()
+        delay(100)
 
         // 预期：errorState 应该包含原始错误
         // 实际：回调异常可能覆盖原始错误
@@ -281,6 +288,7 @@ class FetchEdgeCaseTest {
         // 使用 run() 而不是 _runAsync()
         fetch.run("test")
         advanceUntilIdle()
+        delay(100)
         assertEquals(42, dataBundle.state.value)
 
         // mutate 函数抛出异常
@@ -326,6 +334,7 @@ class FetchEdgeCaseTest {
         // 使用 run() 而不是 _runAsync()
         fetch.run("test")
         advanceUntilIdle()
+        delay(100)
 
         // 预期：状态应该保持一致
         assertEquals(42, dataBundle.state.value)

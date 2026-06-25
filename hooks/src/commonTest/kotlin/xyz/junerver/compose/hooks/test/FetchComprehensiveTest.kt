@@ -122,6 +122,7 @@ class FetchComprehensiveTest {
         // 使用 run() 而不是 _runAsync()，这样会通过 scope.launch 来执行
         fetch.run("p")
         advanceUntilIdle()
+        delay(100)
 
         assertEquals(listOf(true, false), loadingTransitions)
         assertFalse(fetch.loadingState.value)
@@ -183,6 +184,9 @@ class FetchComprehensiveTest {
         // 使用 run() 而不是 _runAsync()
         fetch.run("p")
         advanceUntilIdle()
+        delay(100)
+        // 等待协程完成
+        delay(100)
 
         assertFalse(fetch.loadingState.value)
         assertNull(fetch.dataState.value)
@@ -219,11 +223,13 @@ class FetchComprehensiveTest {
         // 使用 run() 而不是 _runAsync()
         fetch.run("a")
         advanceUntilIdle()
+        delay(100)
         assertEquals(listOf("a"), receivedParams)
         assertEquals(1, fetch.dataState.value)
 
         fetch.refresh()
         advanceUntilIdle()
+        delay(100)
         assertEquals(listOf("a", "a"), receivedParams)
         assertEquals(2, fetch.dataState.value)
     }
@@ -251,6 +257,7 @@ class FetchComprehensiveTest {
         // 使用 run() 而不是 _runAsync()
         fetch.run("p")
         advanceUntilIdle()
+        delay(100)
         assertEquals(40, fetch.dataState.value)
 
         fetch.mutate { current ->
@@ -300,6 +307,7 @@ class FetchComprehensiveTest {
         // 使用 run() 而不是 _runAsync()
         fetch.run("p")
         advanceUntilIdle()
+        delay(100)
 
         assertEquals(0, requestCount)
         assertFalse(fetch.loadingState.value)
@@ -326,6 +334,7 @@ class FetchComprehensiveTest {
         // 使用 run() 而不是 _runAsync()
         fetch.run(null)
         advanceUntilIdle()
+        delay(100)
 
         assertFalse(fetch.loadingState.value)
         assertNull(fetch.dataState.value)
