@@ -39,6 +39,7 @@ class FetchEdgeCaseTest {
         )
     }
 
+    context(runTest)
     private fun createFetch(
         options: UseRequestOptions<String, Int>,
         requestFn: suspend (String) -> Int,
@@ -58,6 +59,7 @@ class FetchEdgeCaseTest {
             this.setError = errorBundle.set
             this.requestFn = requestFn
             this.pluginImpls = pluginImpls
+            this.scope = this@runTest
         }
 
         return Triple(fetch, dataBundle, loadingBundle)
@@ -293,6 +295,7 @@ class FetchEdgeCaseTest {
             this.setError = errorBundle.set
             this.requestFn = { 42 }
             this.pluginImpls = emptyArray()
+            this.scope = this@runTest
         }
 
         fetch._runAsync("test")

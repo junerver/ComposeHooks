@@ -38,6 +38,7 @@ class FetchComprehensiveTest {
         )
     }
 
+    context(runTest)
     private fun createFetch(
         options: UseRequestOptions<String, Int>,
         requestFn: suspend (String) -> Int,
@@ -57,6 +58,7 @@ class FetchComprehensiveTest {
             this.setError = errorBundle.set
             this.requestFn = requestFn
             this.pluginImpls = pluginImpls
+            this.scope = this@runTest
         }
 
         return Triple(fetch, dataBundle, loadingBundle)
