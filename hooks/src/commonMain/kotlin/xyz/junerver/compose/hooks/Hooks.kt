@@ -178,9 +178,9 @@ import xyz.junerver.compose.hooks.useredux.StoreRecord as StoreRecordImpl
 import xyz.junerver.compose.hooks.useredux.StoreScope as StoreScopeImpl
 import xyz.junerver.compose.hooks.useredux.createStore
 import xyz.junerver.compose.hooks.useredux.plus
-import xyz.junerver.compose.hooks.useredux.useDispatch
-import xyz.junerver.compose.hooks.useredux.useDispatchAsync
-import xyz.junerver.compose.hooks.useredux.useSelector
+import xyz.junerver.compose.hooks.useredux.useDispatch as useDispatchImpl
+import xyz.junerver.compose.hooks.useredux.useDispatchAsync as useDispatchAsyncImpl
+import xyz.junerver.compose.hooks.useredux.useSelector as useSelectorImpl
 import xyz.junerver.compose.hooks.userequest.CancelFn as CancelFnImpl
 import xyz.junerver.compose.hooks.userequest.ComposablePluginGenFn as ComposablePluginGenFnImpl
 import xyz.junerver.compose.hooks.userequest.Fetch as FetchImpl
@@ -207,9 +207,9 @@ import xyz.junerver.compose.hooks.userequest.TableResult as TableResultImpl
 import xyz.junerver.compose.hooks.userequest.UseRequestOptions as UseRequestOptionsImpl
 import xyz.junerver.compose.hooks.userequest.UseTableRequestOptions as UseTableRequestOptionsImpl
 import xyz.junerver.compose.hooks.userequest.noneParams
-import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
-import xyz.junerver.compose.hooks.userequest.useRequest
-import xyz.junerver.compose.hooks.userequest.useTableRequest
+import xyz.junerver.compose.hooks.userequest.useEmptyPlugin as useEmptyPluginImpl
+import xyz.junerver.compose.hooks.userequest.useRequest as useRequestImpl
+import xyz.junerver.compose.hooks.userequest.useTableRequest as useTableRequestImpl
 import xyz.junerver.compose.hooks.userequest.utils.CachedData as CachedDataImpl
 import xyz.junerver.compose.hooks.userequest.utils.clearCache
 import xyz.junerver.compose.hooks.usses.OnEventFn as OnEventFnImpl
@@ -217,7 +217,7 @@ import xyz.junerver.compose.hooks.usses.SendFn as SendFnImpl
 import xyz.junerver.compose.hooks.usses.SseHolder as SseHolderImpl
 import xyz.junerver.compose.hooks.usses.SseStreamFn as SseStreamFnImpl
 import xyz.junerver.compose.hooks.usses.UseSseOptions as UseSseOptionsImpl
-import xyz.junerver.compose.hooks.usses.useSse
+import xyz.junerver.compose.hooks.usses.useSse as useSseImpl
 import xyz.junerver.compose.hooks.usetable.PaginationScope as PaginationScopeImpl
 import xyz.junerver.compose.hooks.usetable.Table as TableImpl
 import xyz.junerver.compose.hooks.usetable.TableHolder as TableHolderImpl
@@ -232,7 +232,7 @@ import xyz.junerver.compose.hooks.usetable.state.PaginationState as PaginationSt
 import xyz.junerver.compose.hooks.usetable.state.SortDescriptor as SortDescriptorImpl
 import xyz.junerver.compose.hooks.usetable.state.SortingState as SortingStateImpl
 import xyz.junerver.compose.hooks.usetable.state.TableState as TableStateImpl
-import xyz.junerver.compose.hooks.usetable.useTable
+import xyz.junerver.compose.hooks.usetable.useTable as useTableImpl
 import xyz.junerver.compose.hooks.utils.currentInstant
 
 /**
@@ -403,22 +403,68 @@ typealias UseStateAsyncOptions = UseStateAsyncOptionsImpl
  * underlying `useXxx` functions remain available for React-style usage.
  */
 
+//region useRequest/useSse standalone 根包重导出
+@Composable
+fun <TParams, TData : Any> useRequest(
+    requestFn: SuspendNormalFunction<TParams?, TData>,
+    optionsOf: UseRequestOptions<TParams, TData>.() -> Unit = {},
+    plugins: Array<@Composable (UseRequestOptions<TParams, TData>) -> Plugin<TParams, TData>> = emptyArray(),
+) = useRequestImpl(requestFn, optionsOf, plugins)
+
+@Composable
+fun <T> useTableRequest(
+    requestFn: suspend (params: TableRequestParams) -> TableResult<T>,
+    optionsOf: UseTableRequestOptions<TableResult<T>>.() -> Unit = {},
+): TableRequestHolder<T> = useTableRequestImpl(requestFn, optionsOf)
+
+@Composable
+fun <T> useTableRequest(
+    requestFn: suspend (page: Int, pageSize: Int) -> TableResult<T>,
+    optionsOf: UseTableRequestOptions<TableResult<T>>.() -> Unit = {},
+): TableRequestHolder<T> = useTableRequestImpl(requestFn, optionsOf)
+
+@Composable
+fun <TParams, TData : Any> useEmptyPlugin(): Plugin<TParams, TData> = useEmptyPluginImpl()
+
+@Composable
+fun <TParams, TEvent> useSse(
+    streamFn: SseStreamFn<TParams, TEvent>,
+    optionsOf: UseSseOptions<TParams, TEvent>.() -> Unit = {},
+): SseHolder<TParams, TEvent> = useSseImpl(streamFn, optionsOf)
+//endregion
+
 //region useRedux
 @Composable
-inline fun <reified A> rememberDispatch(alias: String? = null): Dispatch<A> = useDispatch(alias)
+inline fun <reified A> useDispatch(alias: String? = null): Dispatch<A> = useDispatchImpl(alias)
+
+@Composable
+inline fun <reified A> useDispatchAsync(
+    alias: String? = null,
+    noinline onBefore: DispatchCallback<A>? = null,
+    noinline onFinally: DispatchCallback<A>? = null,
+): DispatchAsync<A> = useDispatchAsyncImpl(alias, onBefore, onFinally)
+
+@Composable
+inline fun <reified T> useSelector(alias: String? = null): State<T> = useSelectorImpl(alias)
+
+@Composable
+inline fun <reified T, R> useSelector(alias: String? = null, crossinline block: T.() -> R) = useSelectorImpl(alias, block)
+
+@Composable
+inline fun <reified A> rememberDispatch(alias: String? = null): Dispatch<A> = useDispatchImpl(alias)
 
 @Composable
 inline fun <reified A> rememberDispatchAsync(
     alias: String? = null,
     noinline onBefore: DispatchCallback<A>? = null,
     noinline onFinally: DispatchCallback<A>? = null,
-): DispatchAsync<A> = useDispatchAsync(alias, onBefore, onFinally)
+): DispatchAsync<A> = useDispatchAsyncImpl(alias, onBefore, onFinally)
 
 @Composable
-inline fun <reified T> rememberSelector(alias: String? = null): State<T> = useSelector(alias)
+inline fun <reified T> rememberSelector(alias: String? = null): State<T> = useSelectorImpl(alias)
 
 @Composable
-inline fun <reified T, R> rememberSelector(alias: String? = null, crossinline block: T.() -> R) = useSelector(alias, block)
+inline fun <reified T, R> rememberSelector(alias: String? = null, crossinline block: T.() -> R) = useSelectorImpl(alias, block)
 //endregion
 
 @Composable
@@ -426,28 +472,28 @@ fun <TParams, TData : Any> rememberRequest(
     requestFn: SuspendNormalFunction<TParams?, TData>,
     optionsOf: UseRequestOptions<TParams, TData>.() -> Unit = {},
     plugins: Array<@Composable (UseRequestOptions<TParams, TData>) -> Plugin<TParams, TData>> = emptyArray(),
-) = useRequest(requestFn, optionsOf, plugins)
+) = useRequestImpl(requestFn, optionsOf, plugins)
 
 @Composable
-fun <TParams, TData : Any> rememberEmptyPlugin(): Plugin<TParams, TData> = useEmptyPlugin()
+fun <TParams, TData : Any> rememberEmptyPlugin(): Plugin<TParams, TData> = useEmptyPluginImpl()
 
 @Composable
 fun <T> rememberTableRequest(
     requestFn: suspend (params: TableRequestParams) -> TableResult<T>,
     optionsOf: UseTableRequestOptions<TableResult<T>>.() -> Unit = {},
-): TableRequestHolder<T> = useTableRequest(requestFn, optionsOf)
+): TableRequestHolder<T> = useTableRequestImpl(requestFn, optionsOf)
 
 @Composable
 fun <T> rememberTableRequest(
     requestFn: suspend (page: Int, pageSize: Int) -> TableResult<T>,
     optionsOf: UseTableRequestOptions<TableResult<T>>.() -> Unit = {},
-): TableRequestHolder<T> = useTableRequest(requestFn, optionsOf)
+): TableRequestHolder<T> = useTableRequestImpl(requestFn, optionsOf)
 
 @Composable
 fun <TParams, TEvent> rememberSse(
     streamFn: SseStreamFn<TParams, TEvent>,
     optionsOf: UseSseOptions<TParams, TEvent>.() -> Unit = {},
-): SseHolder<TParams, TEvent> = useSse(streamFn, optionsOf)
+): SseHolder<TParams, TEvent> = useSseImpl(streamFn, optionsOf)
 
 //region useAsync
 @Composable
@@ -901,17 +947,26 @@ fun <T> rememberSorted(source: List<T>, optionsOf: UseSortedOptions<T>.() -> Uni
 
 //region useTable
 @Composable
+fun <T> useTable(
+    data: List<T>,
+    columns: List<ColumnDef<T, *>>,
+    optionsOf: TableOptions<T>.() -> Unit = {},
+): TableHolder<T> = useTableImpl(data, columns, optionsOf)
+
+@Composable
 fun <T> rememberTable(
     data: List<T>,
     columns: List<ColumnDef<T, *>>,
     optionsOf: TableOptions<T>.() -> Unit = {},
-): TableHolder<T> = useTable(data, columns, optionsOf)
+): TableHolder<T> = useTableImpl(data, columns, optionsOf)
 
+@Deprecated("Use useTable(data, columns) with explicit data and columns instead.")
 @Composable
-fun <T> Table.rememberTable(): TableInstance<T> = useTable()
+fun <T> Table.rememberTable(): TableInstance<T> = error("Table.useTable() is deprecated. Use useTable(data, columns) instead.")
 
+@Deprecated("Use useTable(data, columns) with explicit data and columns instead.")
 @Composable
-fun <T> Table.rememberTableInstance(): TableInstance<T> = useTableInstance()
+fun <T> Table.rememberTableInstance(): TableInstance<T> = error("Table.useTable() is deprecated. Use useTable(data, columns) instead.")
 //endregion
 
 //region useMath
