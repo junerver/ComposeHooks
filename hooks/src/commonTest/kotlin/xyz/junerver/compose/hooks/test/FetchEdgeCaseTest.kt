@@ -329,7 +329,7 @@ class FetchEdgeCaseTest {
             this.setError = errorBundle.set
             this.requestFn = { 42 }
             this.pluginImpls = emptyArray()
-            this.scope = this@runTest
+            this.scope = backgroundScope
         }
 
         // 使用 run() 而不是 _runAsync()
