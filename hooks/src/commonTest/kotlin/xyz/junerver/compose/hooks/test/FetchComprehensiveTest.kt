@@ -8,6 +8,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.runTest
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.userequest.Fetch
@@ -38,8 +39,8 @@ class FetchComprehensiveTest {
         )
     }
 
-    context(runTest)
     private fun createFetch(
+        scope: CoroutineScope,
         options: UseRequestOptions<String, Int>,
         requestFn: suspend (String) -> Int,
         pluginImpls: Array<PluginLifecycle<String, Int>> = emptyArray(),
@@ -58,7 +59,7 @@ class FetchComprehensiveTest {
             this.setError = errorBundle.set
             this.requestFn = requestFn
             this.pluginImpls = pluginImpls
-            this.scope = this@runTest
+            this.scope = scope
         }
 
         return Triple(fetch, dataBundle, loadingBundle)
@@ -100,6 +101,7 @@ class FetchComprehensiveTest {
         }
 
         val (fetch, _, loadingBundle) = createFetch(
+            scope = this,
             options = options,
             requestFn = { params ->
                 assertEquals("p", params)
@@ -168,6 +170,7 @@ class FetchComprehensiveTest {
 
         val failure = IllegalArgumentException("boom")
         val (fetch, _, _) = createFetch(
+            scope = this,
             options = options,
             requestFn = { throw failure },
             pluginImpls = arrayOf(plugin),
@@ -199,6 +202,7 @@ class FetchComprehensiveTest {
         }
         val receivedParams = mutableListOf<String>()
         val (fetch, _, _) = createFetch(
+            scope = this,
             options = options,
             requestFn = { params ->
                 receivedParams += params
@@ -229,6 +233,7 @@ class FetchComprehensiveTest {
         }
 
         val (fetch, _, _) = createFetch(
+            scope = this,
             options = options,
             requestFn = { 40 },
             pluginImpls = arrayOf(plugin),
@@ -272,6 +277,7 @@ class FetchComprehensiveTest {
         }
 
         val (fetch, _, _) = createFetch(
+            scope = this,
             options = options,
             requestFn = {
                 requestCount += 1
@@ -299,6 +305,7 @@ class FetchComprehensiveTest {
         }
 
         val (fetch, _, _) = createFetch(
+            scope = this,
             options = options,
             requestFn = { error("should not be called") },
         )

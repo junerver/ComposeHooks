@@ -8,6 +8,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.test.runTest
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.FetchState
@@ -39,8 +40,8 @@ class FetchEdgeCaseTest {
         )
     }
 
-    context(runTest)
     private fun createFetch(
+        scope: CoroutineScope,
         options: UseRequestOptions<String, Int>,
         requestFn: suspend (String) -> Int,
         pluginImpls: Array<PluginLifecycle<String, Int>> = emptyArray(),
@@ -59,7 +60,7 @@ class FetchEdgeCaseTest {
             this.setError = errorBundle.set
             this.requestFn = requestFn
             this.pluginImpls = pluginImpls
-            this.scope = this@runTest
+            this.scope = scope
         }
 
         return Triple(fetch, dataBundle, loadingBundle)
@@ -71,6 +72,7 @@ class FetchEdgeCaseTest {
     fun cancel_should_clear_error_state() = runTest {
         val options = UseRequestOptions.optionOf<String, Int> {}
         val (fetch, _, _) = createFetch(
+            scope = this,
             options = options,
             requestFn = { throw IllegalStateException("error") },
         )
@@ -98,6 +100,7 @@ class FetchEdgeCaseTest {
         }
 
         val (fetch, dataBundle, _) = createFetch(
+            scope = this,
             options = options,
             requestFn = { 42 },
             pluginImpls = arrayOf(faultyPlugin),
@@ -139,6 +142,7 @@ class FetchEdgeCaseTest {
         }
 
         val (fetch, _, _) = createFetch(
+            scope = this,
             options = options,
             requestFn = { 42 },
             pluginImpls = arrayOf(plugin1, faultyPlugin, plugin3),
@@ -172,6 +176,7 @@ class FetchEdgeCaseTest {
         }
 
         val (fetch, _, _) = createFetch(
+            scope = this,
             options = options,
             requestFn = { error("should not be called") },
             pluginImpls = arrayOf(plugin),
@@ -192,6 +197,7 @@ class FetchEdgeCaseTest {
         }
 
         val (fetch, dataBundle, _) = createFetch(
+            scope = this,
             options = options,
             requestFn = { 42 },
         )
@@ -218,6 +224,7 @@ class FetchEdgeCaseTest {
         }
 
         val (fetch, _, _) = createFetch(
+            scope = this,
             options = options,
             requestFn = { throw originalError },
         )
@@ -235,6 +242,7 @@ class FetchEdgeCaseTest {
     fun refresh_without_previous_request_should_fail_gracefully() = runTest {
         val options = UseRequestOptions.optionOf<String, Int> {}
         val (fetch, dataBundle, _) = createFetch(
+            scope = this,
             options = options,
             requestFn = { 42 },
         )
@@ -251,6 +259,7 @@ class FetchEdgeCaseTest {
     fun mutate_with_exception_should_not_corrupt_state() = runTest {
         val options = UseRequestOptions.optionOf<String, Int> {}
         val (fetch, dataBundle, _) = createFetch(
+            scope = this,
             options = options,
             requestFn = { 42 },
         )
