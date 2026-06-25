@@ -11,6 +11,7 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import xyz.junerver.compose.hooks.SuspendNormalFunction
@@ -209,7 +210,7 @@ class FetchComprehensiveTest {
             },
         )
 
-        val job = launch {
+        launch {
             fetch._runAsync("p")
         }
         runCurrent()
@@ -218,9 +219,7 @@ class FetchComprehensiveTest {
         fetch.cancel()
         assertFalse(fetch.loadingState.value)
 
-        advanceTimeBy(1_000)
-        runCurrent()
-        job.join()
+        advanceUntilIdle()
 
         assertEquals(1, requestCount)
         assertNull(fetch.dataState.value)
