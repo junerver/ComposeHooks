@@ -9,6 +9,8 @@ import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.userequest.Fetch
@@ -117,7 +119,9 @@ class FetchComprehensiveTest {
             originalSetLoading(loading)
         }
 
-        fetch._runAsync("p")
+        // 使用 run() 而不是 _runAsync()，这样会通过 scope.launch 来执行
+        fetch.run("p")
+        advanceUntilIdle()
 
         assertEquals(listOf(true, false), loadingTransitions)
         assertFalse(fetch.loadingState.value)
@@ -176,7 +180,9 @@ class FetchComprehensiveTest {
             pluginImpls = arrayOf(plugin),
         )
 
-        fetch._runAsync("p")
+        // 使用 run() 而不是 _runAsync()
+        fetch.run("p")
+        advanceUntilIdle()
 
         assertFalse(fetch.loadingState.value)
         assertNull(fetch.dataState.value)
@@ -210,11 +216,14 @@ class FetchComprehensiveTest {
             },
         )
 
-        fetch._runAsync("a")
+        // 使用 run() 而不是 _runAsync()
+        fetch.run("a")
+        advanceUntilIdle()
         assertEquals(listOf("a"), receivedParams)
         assertEquals(1, fetch.dataState.value)
 
-        fetch.refreshAsync()
+        fetch.refresh()
+        advanceUntilIdle()
         assertEquals(listOf("a", "a"), receivedParams)
         assertEquals(2, fetch.dataState.value)
     }
@@ -239,7 +248,9 @@ class FetchComprehensiveTest {
             pluginImpls = arrayOf(plugin),
         )
 
-        fetch._runAsync("p")
+        // 使用 run() 而不是 _runAsync()
+        fetch.run("p")
+        advanceUntilIdle()
         assertEquals(40, fetch.dataState.value)
 
         fetch.mutate { current ->
@@ -286,7 +297,9 @@ class FetchComprehensiveTest {
             pluginImpls = arrayOf(plugin),
         )
 
-        fetch._runAsync("p")
+        // 使用 run() 而不是 _runAsync()
+        fetch.run("p")
+        advanceUntilIdle()
 
         assertEquals(0, requestCount)
         assertFalse(fetch.loadingState.value)
@@ -310,7 +323,9 @@ class FetchComprehensiveTest {
             requestFn = { error("should not be called") },
         )
 
-        fetch._runAsync(null)
+        // 使用 run() 而不是 _runAsync()
+        fetch.run(null)
+        advanceUntilIdle()
 
         assertFalse(fetch.loadingState.value)
         assertNull(fetch.dataState.value)

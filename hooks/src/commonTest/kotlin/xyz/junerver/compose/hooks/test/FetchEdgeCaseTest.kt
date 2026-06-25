@@ -9,6 +9,7 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.FetchState
@@ -77,7 +78,9 @@ class FetchEdgeCaseTest {
             requestFn = { throw IllegalStateException("error") },
         )
 
-        fetch._runAsync("test")
+        // 使用 run() 而不是 _runAsync()
+        fetch.run("test")
+        advanceUntilIdle()
         assertNotNull(fetch.errorState.value)
 
         fetch.cancel()
@@ -109,7 +112,9 @@ class FetchEdgeCaseTest {
         // 预期：插件异常应该被捕获，请求继续执行
         // 实际：插件异常会导致整个请求失败
         try {
-            fetch._runAsync("test")
+            // 使用 run() 而不是 _runAsync()
+            fetch.run("test")
+            advanceUntilIdle()
             assertEquals(42, dataBundle.state.value)
         } catch (e: Exception) {
             // 如果抛出异常，说明没有正确处理插件错误
@@ -148,7 +153,9 @@ class FetchEdgeCaseTest {
             pluginImpls = arrayOf(plugin1, faultyPlugin, plugin3),
         )
 
-        fetch._runAsync("test")
+        // 使用 run() 而不是 _runAsync()
+        fetch.run("test")
+        advanceUntilIdle()
 
         // 预期：plugin1 和 plugin3 应该都执行
         // 实际：faultyPlugin 的异常会中断后续插件
@@ -182,7 +189,9 @@ class FetchEdgeCaseTest {
             pluginImpls = arrayOf(plugin),
         )
 
-        fetch._runAsync(null)
+        // 使用 run() 而不是 _runAsync()
+        fetch.run(null)
+        advanceUntilIdle()
 
         // 预期：插件的 onError 和 onFinally 应该被调用
         // 实际：当前实现不调用插件回调
@@ -203,11 +212,14 @@ class FetchEdgeCaseTest {
         )
 
         // 先成功请求一次
-        fetch._runAsync("test")
+        // 使用 run() 而不是 _runAsync()
+        fetch.run("test")
+        advanceUntilIdle()
         assertEquals(42, dataBundle.state.value)
 
         // 然后用 null 参数请求
-        fetch._runAsync(null)
+        fetch.run(null)
+        advanceUntilIdle()
 
         // 预期：data 应该被清空
         // 实际：data 保留旧值
@@ -229,7 +241,9 @@ class FetchEdgeCaseTest {
             requestFn = { throw originalError },
         )
 
-        fetch._runAsync("test")
+        // 使用 run() 而不是 _runAsync()
+        fetch.run("test")
+        advanceUntilIdle()
 
         // 预期：errorState 应该包含原始错误
         // 实际：回调异常可能覆盖原始错误
@@ -264,7 +278,9 @@ class FetchEdgeCaseTest {
             requestFn = { 42 },
         )
 
-        fetch._runAsync("test")
+        // 使用 run() 而不是 _runAsync()
+        fetch.run("test")
+        advanceUntilIdle()
         assertEquals(42, dataBundle.state.value)
 
         // mutate 函数抛出异常
@@ -307,7 +323,9 @@ class FetchEdgeCaseTest {
             this.scope = this@runTest
         }
 
-        fetch._runAsync("test")
+        // 使用 run() 而不是 _runAsync()
+        fetch.run("test")
+        advanceUntilIdle()
 
         // 预期：状态应该保持一致
         assertEquals(42, dataBundle.state.value)
