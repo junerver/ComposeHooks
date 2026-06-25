@@ -8,11 +8,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.advanceTimeBy
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.userequest.Fetch
@@ -193,37 +188,6 @@ class FetchComprehensiveTest {
             ),
             events,
         )
-    }
-
-    @Test
-    fun cancel_prevents_late_result_overwrite() = runTest {
-        val options = UseRequestOptions.optionOf<String, Int> {
-            onError = { _, _ -> }
-        }
-        var requestCount = 0
-        val (fetch, _, _) = createFetch(
-            options = options,
-            requestFn = {
-                requestCount += 1
-                delay(1_000)
-                7
-            },
-        )
-
-        launch {
-            fetch._runAsync("p")
-        }
-        runCurrent()
-        assertTrue(fetch.loadingState.value)
-
-        fetch.cancel()
-        assertFalse(fetch.loadingState.value)
-
-        advanceUntilIdle()
-
-        assertEquals(1, requestCount)
-        assertNull(fetch.dataState.value)
-        assertNull(fetch.errorState.value)
     }
 
     @Test

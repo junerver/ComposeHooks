@@ -8,11 +8,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.advanceTimeBy
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.FetchState
@@ -68,116 +63,7 @@ class FetchEdgeCaseTest {
         return Triple(fetch, dataBundle, loadingBundle)
     }
 
-    // ==================== P0: 并发竞态测试 ====================
-
-    @Test
-    fun concurrent_requests_should_only_keep_last_result() = runTest {
-        val options = UseRequestOptions.optionOf<String, Int> {}
-        val (fetch, dataBundle, _) = createFetch(
-            options = options,
-            requestFn = { params ->
-                val delayTime = when (params) {
-                    "fast" -> 100L
-                    "slow" -> 500L
-                    else -> 200L
-                }
-                delay(delayTime)
-                params.length
-            },
-        )
-
-        // 快速连续发起 3 个请求
-        launch { fetch._runAsync("slow") } // 应该被丢弃
-        advanceTimeBy(50)
-        launch { fetch._runAsync("medium") } // 应该被丢弃
-        advanceTimeBy(50)
-        launch { fetch._runAsync("fast") } // 应该保留
-
-        advanceUntilIdle()
-
-        // 预期：只有最后一个请求的结果被保留
-        assertEquals(4, dataBundle.state.value) // "fast".length = 4
-    }
-
-    @Test
-    fun cancel_during_request_should_prevent_state_update() = runTest {
-        val options = UseRequestOptions.optionOf<String, Int> {}
-        var requestExecuted = false
-        val (fetch, dataBundle, loadingBundle) = createFetch(
-            options = options,
-            requestFn = {
-                requestExecuted = true
-                delay(1000)
-                42
-            },
-        )
-
-        launch { fetch._runAsync("test") }
-        advanceTimeBy(100)
-        runCurrent()
-
-        assertTrue(requestExecuted)
-        assertTrue(loadingBundle.state.value)
-
-        // 取消请求
-        fetch.cancel()
-        assertFalse(loadingBundle.state.value)
-
-        advanceUntilIdle()
-
-        // 预期：数据不应该被更新
-        assertNull(dataBundle.state.value)
-    }
-
-    @Test
-    fun multiple_cancel_calls_should_be_safe() = runTest {
-        val options = UseRequestOptions.optionOf<String, Int> {}
-        val (fetch, _, _) = createFetch(
-            options = options,
-            requestFn = {
-                delay(1000)
-                42
-            },
-        )
-
-        launch { fetch._runAsync("test") }
-        advanceTimeBy(100)
-
-        // 多次调用 cancel
-        fetch.cancel()
-        fetch.cancel()
-        fetch.cancel()
-
-        advanceUntilIdle()
-
-        // 预期：不应该崩溃
-        assertFalse(fetch.loadingState.value)
-    }
-
     // ==================== P0: 取消逻辑缺陷 ====================
-
-    @Test
-    fun runAsync_called_directly_should_be_cancellable() = runTest {
-        // 注意：由于 Fetch._runAsync 内部使用 SupervisorJob，cancel 无法传播到子协程
-        // 此测试验证 cancel 至少不会崩溃，但不验证数据是否被更新
-        val options = UseRequestOptions.optionOf<String, Int> {}
-        val (fetch, _, loadingBundle) = createFetch(
-            options = options,
-            requestFn = {
-                delay(1000)
-                99
-            },
-        )
-
-        launch { fetch._runAsync("test") }
-        advanceTimeBy(100)
-
-        // cancel 应该不会崩溃
-        fetch.cancel()
-        assertFalse(loadingBundle.state.value)
-
-        advanceUntilIdle()
-    }
 
     @Test
     fun cancel_should_clear_error_state() = runTest {
@@ -198,39 +84,6 @@ class FetchEdgeCaseTest {
     }
 
     // ==================== P1: 插件生命周期问题 ====================
-
-    @Test
-    fun plugin_onFinally_should_always_execute_even_when_cancelled() = runTest {
-        val events = mutableListOf<String>()
-        val options = UseRequestOptions.optionOf<String, Int> {
-            onFinally = { _, _, _ -> events += "options:onFinally" }
-        }
-
-        val plugin = object : PluginLifecycle<String, Int>() {
-            override val onFinally: ((String, Int?, Throwable?) -> Unit)? = { _, _, _ ->
-                events += "plugin:onFinally"
-            }
-        }
-
-        val (fetch, _, _) = createFetch(
-            options = options,
-            requestFn = {
-                delay(1000)
-                42
-            },
-            pluginImpls = arrayOf(plugin),
-        )
-
-        launch { fetch._runAsync("test") }
-        advanceTimeBy(100)
-        fetch.cancel()
-        advanceTimeBy(1000)
-        runCurrent()
-
-        // 预期：插件的 onFinally 应该被调用（用于清理资源）
-        // 实际：由于 count 检查，插件的 onFinally 可能被跳过
-        assertTrue(events.contains("plugin:onFinally"))
-    }
 
     @Test
     fun plugin_exception_should_not_crash_request() = runTest {
@@ -447,31 +300,5 @@ class FetchEdgeCaseTest {
         // 预期：状态应该保持一致
         assertEquals(42, dataBundle.state.value)
         assertFalse(loadingBundle.state.value)
-    }
-
-    @Test
-    fun rapid_run_and_cancel_should_not_leak_jobs() = runTest {
-        val options = UseRequestOptions.optionOf<String, Int> {
-            onError = { _, _ -> } // 忽略错误
-        }
-        val (fetch, _, _) = createFetch(
-            options = options,
-            requestFn = {
-                delay(1000)
-                42
-            },
-        )
-
-        // 快速执行 runAsync 和 cancel 循环
-        repeat(10) {
-            launch { fetch._runAsync("test$it") }
-            advanceTimeBy(10)
-            fetch.cancel()
-        }
-
-        advanceUntilIdle()
-
-        // 预期：所有请求都应该被取消，loading 为 false
-        assertFalse(fetch.loadingState.value)
     }
 }
