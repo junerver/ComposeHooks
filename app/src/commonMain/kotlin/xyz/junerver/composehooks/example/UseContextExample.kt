@@ -22,7 +22,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import xyz.junerver.compose.hooks.usecontext.createContextImpl
+import xyz.junerver.compose.hooks.createContext
 import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.useContext
 import xyz.junerver.compose.hooks.useControllable
@@ -46,7 +46,7 @@ val initialState: State<SimpleData> = mutableStateOf(SimpleData("default", 18))
 /**
  * 上下文的初始值并没有限定，但是我推荐使用[tuple]来传递一个元组
  */
-val SimpleContext = createContextImpl(
+val SimpleContext = createContext(
     tuple(
         initialState,
         { _: String -> },
@@ -218,7 +218,7 @@ private fun BasicUsageExample() {
         Spacer(modifier = Modifier.height(8.dp))
 
         Text(
-            text = "1. Create a context with createContextImpl()",
+            text = "1. Create a context with createContext()",
             style = MaterialTheme.typography.bodyMedium,
         )
 
@@ -289,7 +289,7 @@ private fun NestedComponentsExample() {
 }
 
 // 主题上下文
-private val ThemeContext = createContextImpl(tuple(false, {}))
+private val ThemeContext = createContext(tuple(false, {}))
 
 @Composable
 private fun ThemeSwitchingExample() {

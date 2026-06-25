@@ -22,7 +22,7 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.DefaultChineseTimeAgoMessages
 import xyz.junerver.compose.hooks.DefaultEnglishTimeAgoMessages
-import xyz.junerver.compose.hooks.useref.getValue
+import xyz.junerver.compose.hooks.getValue
 import xyz.junerver.compose.hooks.useControllable
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useLastChanged

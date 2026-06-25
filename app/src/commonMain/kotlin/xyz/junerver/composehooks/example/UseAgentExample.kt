@@ -61,7 +61,7 @@ import xyz.junerver.compose.ai.usechat.Providers
 import xyz.junerver.compose.ai.usechat.ToolMessage
 import xyz.junerver.compose.ai.usechat.UserMessage
 import xyz.junerver.compose.ai.useTokenStats
-import xyz.junerver.compose.hooks.useref.getValue
+import xyz.junerver.compose.hooks.getValue
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useState

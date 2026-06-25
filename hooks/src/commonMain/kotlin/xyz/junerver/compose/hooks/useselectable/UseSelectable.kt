@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks.useselectable
 import xyz.junerver.compose.hooks.usestate.useStateImpl
 import xyz.junerver.compose.hooks.usemap.useMapImpl
 import xyz.junerver.compose.hooks.usecreation.useCreationImpl
+import xyz.junerver.compose.hooks.SelectionMode
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -94,15 +95,3 @@ data class SelectableHolder<KEY, ITEM>(
 typealias IsSelected<KEY> = (KEY) -> Boolean
 typealias ToggleSelected<KEY> = (KEY) -> Unit
 typealias SelectAction = () -> Unit
-
-sealed class SelectionMode<KEY> {
-    class SingleSelect<KEY>(private val defaultSelectKey: KEY? = null) : SelectionMode<KEY>() {
-        override fun getInitialSelected(key: KEY): Boolean = defaultSelectKey == key
-    }
-
-    class MultiSelect<KEY>(private val defaultSelectKeys: Set<KEY>? = null) : SelectionMode<KEY>() {
-        override fun getInitialSelected(key: KEY): Boolean = defaultSelectKeys?.contains(key) ?: false
-    }
-
-    abstract fun getInitialSelected(key: KEY): Boolean
-}

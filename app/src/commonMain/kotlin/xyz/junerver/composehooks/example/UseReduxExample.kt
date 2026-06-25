@@ -26,9 +26,9 @@ import kotlinx.coroutines.delay
 import xyz.junerver.compose.hooks.ArrayParams
 import xyz.junerver.compose.hooks.Reducer
 import xyz.junerver.compose.hooks.Tuple2
-import xyz.junerver.compose.hooks.useref.getValue
+import xyz.junerver.compose.hooks.getValue
 import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.useref.setValue
+import xyz.junerver.compose.hooks.setValue
 import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.useControllable
 import xyz.junerver.compose.hooks.useList

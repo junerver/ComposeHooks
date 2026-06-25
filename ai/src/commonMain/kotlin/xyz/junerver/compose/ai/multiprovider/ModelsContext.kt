@@ -1,7 +1,7 @@
 package xyz.junerver.compose.ai.multiprovider
 
 import xyz.junerver.compose.ai.usechat.ChatProvider
-import xyz.junerver.compose.hooks.usecontext.createContextImpl
+import xyz.junerver.compose.hooks.createContext
 
 /*
   Description: Context for multi-provider configuration
@@ -37,7 +37,7 @@ data class ModelsContextValue(
  */
 @PublishedApi
 internal val ModelsContext by lazy {
-    createContextImpl(
+    createContext(
         ModelsContextValue(
             providers = emptyList(),
             strategy = LoadBalanceStrategy.RoundRobin,

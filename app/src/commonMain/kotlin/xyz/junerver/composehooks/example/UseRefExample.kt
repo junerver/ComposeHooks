@@ -15,8 +15,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import xyz.junerver.compose.hooks.useref.Ref
-import xyz.junerver.compose.hooks.useref.observeAsStateImpl
+import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.observeAsState
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useList
 import xyz.junerver.compose.hooks.useRef
@@ -232,7 +232,7 @@ private fun NonReactivityExample() {
 @Composable
 private fun ObservedRefDemo(ref: Ref<Int>) {
     // Convert ref to state using observeAsState
-    val refState by ref.observeAsStateImpl()
+    val refState by ref.observeAsState()
 
     Column(
         modifier = Modifier
@@ -246,7 +246,7 @@ private fun ObservedRefDemo(ref: Ref<Int>) {
         )
 
         Text(
-            text = "This component automatically updates when the ref changes because it uses observeAsStateImpl()",
+            text = "This component automatically updates when the ref changes because it uses observeAsState()",
             style = MaterialTheme.typography.bodySmall,
         )
     }
@@ -265,11 +265,11 @@ private fun RefToStateExample() {
     val logs = useList<String>()
 
     // Convert the ref to a state
-    val counterState by counterRef.observeAsStateImpl()
+    val counterState by counterRef.observeAsState()
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(
-            text = "This example demonstrates how to make refs reactive using observeAsStateImpl()",
+            text = "This example demonstrates how to make refs reactive using observeAsState()",
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.padding(bottom = 8.dp),
         )
@@ -283,7 +283,7 @@ private fun RefToStateExample() {
         )
 
         Text(
-            text = "The background color changes on each update, showing that observeAsStateImpl() makes the UI reactive to ref changes.",
+            text = "The background color changes on each update, showing that observeAsState() makes the UI reactive to ref changes.",
             style = MaterialTheme.typography.bodySmall,
         )
 
@@ -349,7 +349,7 @@ private fun RefToStateExample() {
 @Composable
 private fun RefObserver(ref: Ref<Int>, label: String, modifier: Modifier = Modifier) {
     // Convert ref to state
-    val value by ref.observeAsStateImpl()
+    val value by ref.observeAsState()
 
     Column(
         modifier = modifier

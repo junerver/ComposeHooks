@@ -27,9 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import xyz.junerver.compose.hooks.MultiSelect
 import xyz.junerver.compose.hooks.SelectionMode
-import xyz.junerver.compose.hooks.SingleSelect
 import xyz.junerver.compose.hooks.useSelectable
 import xyz.junerver.compose.hooks.useToggle
 
@@ -60,7 +58,7 @@ private val DEMO_LIST = listOf(
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun UseSelectableExample() {
-    val (selectionMode, toggleFn) = useToggle(MultiSelect<String>(null), SingleSelect<String>(null))
+    val (selectionMode, toggleFn) = useToggle(SelectionMode.MultiSelect<String>(null), SelectionMode.SingleSelect<String>(null))
 
     val (selectedItems, isSelected, toggleSelected, selectAll, invertSelection, revertAll) = useSelectable(
         selectionMode!!,
@@ -96,7 +94,7 @@ fun UseSelectableExample() {
             Row {
                 Text(modifier = Modifier.align(Alignment.CenterVertically), text = "enable multi select")
                 Spacer(modifier = Modifier.width(10.dp))
-                Switch(checked = selectionMode is MultiSelect, onCheckedChange = {
+                Switch(checked = selectionMode is SelectionMode.MultiSelect, onCheckedChange = {
                     toggleFn()
                     revertAll()
                 })
@@ -108,17 +106,17 @@ fun UseSelectableExample() {
             }) {
                 Text("get selected items")
             }
-            Button(enabled = selectionMode is MultiSelect, onClick = {
+            Button(enabled = selectionMode is SelectionMode.MultiSelect, onClick = {
                 selectAll()
             }) {
                 Text("select all")
             }
-            Button(enabled = selectionMode is MultiSelect, onClick = {
+            Button(enabled = selectionMode is SelectionMode.MultiSelect, onClick = {
                 invertSelection()
             }) {
                 Text("invert selection")
             }
-            Button(enabled = selectionMode is MultiSelect, onClick = {
+            Button(enabled = selectionMode is SelectionMode.MultiSelect, onClick = {
                 revertAll()
             }) {
                 Text("revert all")

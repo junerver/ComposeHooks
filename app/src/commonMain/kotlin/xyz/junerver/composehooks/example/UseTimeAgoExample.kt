@@ -27,7 +27,7 @@ import xyz.junerver.compose.hooks.DefaultEnglishTimeAgoMessages
 import xyz.junerver.compose.hooks.TimeAgoMessageFormatter
 import xyz.junerver.compose.hooks.TimeAgoMessages
 import xyz.junerver.compose.hooks.TimeUnitMessageFormatter
-import xyz.junerver.compose.hooks.useref.getValue
+import xyz.junerver.compose.hooks.getValue
 import xyz.junerver.compose.hooks.useControllable
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useState

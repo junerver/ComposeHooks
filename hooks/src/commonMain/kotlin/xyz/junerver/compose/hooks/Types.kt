@@ -8,6 +8,10 @@ import arrow.core.Either
 import arrow.core.left
 import arrow.core.right
 import kotlinx.coroutines.CoroutineScope
+import kotlin.reflect.KProperty
+import xyz.junerver.compose.hooks.useref.Ref as RefImpl
+import xyz.junerver.compose.hooks.useref.MutableRef as MutableRefImpl
+import xyz.junerver.compose.hooks.useref.observeAsStateImpl
 
 /*
   Description: Types
@@ -236,3 +240,35 @@ fun <T> toValue(state: State<T>) = state.value
 fun <T> toValue(value: T) = value
 
 fun <T> toValue(ref: Ref<T>) = ref.current
+
+//region Ref 委托运算符的根包重导出（forwarding wrappers）
+// 这些扩展必须存在于根包，以便消费者可以继续 `import xyz.junerver.compose.hooks.getValue/setValue`。
+
+/** Root-package re-export of the [Ref] property-delegate getter. */
+operator fun <T> Ref<T>.getValue(thisObj: Any?, property: KProperty<*>): T = current
+
+/** Root-package re-export of the [MutableRef] property-delegate setter. */
+operator fun <T> MutableRef<T>.setValue(thisObj: Any?, property: KProperty<*>, value: T) {
+    this.current = value
+}
+
+/** Root-package re-export of [Ref.observeAsState]. */
+@Composable
+fun <T> Ref<T>.observeAsState(): State<T> = observeAsStateImpl()
+//endregion
+
+//region SelectionMode — sealed class 留在根包，因为消费者通过 SelectionMode.MultiSelect 嵌套类访问，
+// typealias 无法跨模块转发 sealed class 的嵌套类。
+@Suppress("PropertyName")
+sealed class SelectionMode<KEY> {
+    class SingleSelect<KEY>(private val defaultSelectKey: KEY? = null) : SelectionMode<KEY>() {
+        override fun getInitialSelected(key: KEY): Boolean = defaultSelectKey == key
+    }
+
+    class MultiSelect<KEY>(private val defaultSelectKeys: Set<KEY>? = null) : SelectionMode<KEY>() {
+        override fun getInitialSelected(key: KEY): Boolean = defaultSelectKeys?.contains(key) ?: false
+    }
+
+    abstract fun getInitialSelected(key: KEY): Boolean
+}
+//endregion

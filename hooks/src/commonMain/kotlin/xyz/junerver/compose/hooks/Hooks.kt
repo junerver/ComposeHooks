@@ -1,11 +1,12 @@
 @file:Suppress("unused", "ComposableNaming")
 
 package xyz.junerver.compose.hooks
-import xyz.junerver.compose.hooks.useselectable.SelectionMode as SelectionModeImpl
 import xyz.junerver.compose.hooks.useresetstate.useResetStateImpl
 import xyz.junerver.compose.hooks.useresetstate.ResetStateHolder as ResetStateHolderImpl
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.MutableState
 import arrow.core.Either
 import androidx.compose.runtime.State
@@ -381,9 +382,6 @@ typealias IsSelected<KEY> = IsSelectedImpl<KEY>
 typealias ToggleSelected<KEY> = ToggleSelectedImpl<KEY>
 typealias SelectAction = SelectActionImpl
 typealias SelectableHolder<KEY, ITEM> = SelectableHolderImpl<KEY, ITEM>
-typealias SelectionMode<KEY> = SelectionModeImpl<KEY>
-typealias SingleSelect<KEY> = SelectionModeImpl.SingleSelect<KEY>
-typealias MultiSelect<KEY> = SelectionModeImpl.MultiSelect<KEY>
 typealias SortedCompareFn<T> = SortedCompareFnImpl<T>
 typealias SortedFn<T> = SortedFnImpl<T>
 typealias UseSortedOptions<T> = UseSortedOptionsImpl<T>
@@ -1440,6 +1438,22 @@ fun useToggleVisible(isVisible: Boolean = false, content: ComposeComponent): Pai
 fun useToggleVisible(isFirst: Boolean = true, content1: ComposeComponent, content2: ComposeComponent): Pair<ComposeComponent, ToggleFn> =
     useToggleVisibleImpl(isFirst, content1, content2)
 
-@Composable
-fun <T> createContext(initialValue: T): ReactContext<T> = createContextImpl(initialValue)
+/**
+ * Create a context object. Implemented directly in the root package so that
+ * cross-module consumers calling it in non-@Composable scopes (e.g. `by lazy`)
+ * are not flagged by the Compose compiler — the anonymous object with a
+ * @Composable [ReactContext.Provider] member must be created in the same
+ * compilation unit the consumer sees.
+ */
+fun <T> createContext(initialValue: T): ReactContext<T> = object : ReactContext<T> {
+    override val LocalCtx = compositionLocalOf { initialValue }
+
+    @Composable
+    override fun Provider(value: T, content: ComposeComponent) {
+        CompositionLocalProvider(
+            LocalCtx provides value,
+            content = content,
+        )
+    }
+}
 //endregion

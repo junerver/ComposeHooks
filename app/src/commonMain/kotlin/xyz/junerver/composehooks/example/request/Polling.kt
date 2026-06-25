@@ -11,8 +11,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.useref.getValue
-import xyz.junerver.compose.hooks.useref.setValue
+import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.setValue
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useEventPublish
 import xyz.junerver.compose.hooks.useEventSubscribe
