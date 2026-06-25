@@ -2,6 +2,7 @@
 agp = "8.13.2"
 kotlin = "2.3.21"
 ksp = "2.3.9"
+kover = "0.9.2"
 
 arrowCore = "2.1.2"
 kotlin-multiplatform-appdirs = "1.1.1"
@@ -94,6 +95,7 @@ jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin"
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
 compose-hot-reload = { id = "org.jetbrains.compose.hot-reload", version.ref = "compose-hot-reload" }
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 
 [bundles]
 ktor = [

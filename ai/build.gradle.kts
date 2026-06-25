@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.maven.publish)
+    alias(libs.plugins.kover)
 }
 
 kotlin {
@@ -121,4 +122,64 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+}
+
+tasks.register("verifyCoverageBaseline") {
+    group = "verification"
+    description = "Verify minimum line coverage from Kover XML report."
+    dependsOn("koverXmlReport")
+
+    doLast {
+        val candidates =
+            listOf(
+                layout.buildDirectory.file("reports/kover/report.xml").get().asFile,
+                layout.buildDirectory.file("reports/kover/xml/report.xml").get().asFile,
+                layout.buildDirectory.file("reports/kover/xmlReport.xml").get().asFile,
+            )
+        val reportFile =
+            candidates.firstOrNull { it.exists() }
+                ?: error("Cannot find Kover XML report. Tried: ${candidates.joinToString()}")
+
+        val documentBuilderFactory = javax.xml.parsers.DocumentBuilderFactory.newInstance()
+        val document = documentBuilderFactory.newDocumentBuilder().parse(reportFile)
+        val report = document.documentElement
+        require(report.nodeName == "report") { "Unexpected Kover XML root: ${report.nodeName}" }
+
+        var lineCounter: org.w3c.dom.Element? = null
+        val children = report.childNodes
+        for (index in 0 until children.length) {
+            val node = children.item(index) as? org.w3c.dom.Element ?: continue
+            if (node.tagName != "counter") continue
+            if (node.getAttribute("type") != "LINE") continue
+            lineCounter = node
+            break
+        }
+        val counter =
+            lineCounter
+                ?: error("Cannot find LINE counter in Kover report root: $reportFile")
+
+        val covered = counter.getAttribute("covered").toLong()
+        val missed = counter.getAttribute("missed").toLong()
+
+        val total = covered + missed
+        require(total > 0) { "Line coverage is empty in report: $reportFile" }
+        val coveragePercent = covered * 100.0 / total
+        val minimumPercent = 80.0
+        if (coveragePercent < minimumPercent) {
+            error(
+                "Line coverage %.2f%% is below required %.2f%%."
+                    .format(coveragePercent, minimumPercent),
+            )
+        }
+        logger.lifecycle(
+            "Line coverage %.2f%% (threshold %.2f%%)"
+                .format(coveragePercent, minimumPercent),
+        )
+    }
+}
+
+tasks.register("runCoverageChecks") {
+    group = "verification"
+    description = "Run tests and validate minimum code coverage baseline."
+    dependsOn("allTests", "koverXmlReport", "verifyCoverageBaseline")
 }

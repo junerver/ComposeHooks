@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin.jvm) apply false
     alias(libs.plugins.compose.hot.reload) apply false
     alias(libs.plugins.ksp) apply false
+    alias(libs.plugins.kover) apply false
 }
 
 allprojects {
