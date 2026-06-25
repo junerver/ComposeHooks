@@ -103,7 +103,7 @@ class FetchComprehensiveTest {
         }
 
         val (fetch, _, loadingBundle) = createFetch(
-            scope = this,
+            scope = backgroundScope,
             options = options,
             requestFn = { params ->
                 assertEquals("p", params)
@@ -174,7 +174,7 @@ class FetchComprehensiveTest {
 
         val failure = IllegalArgumentException("boom")
         val (fetch, _, _) = createFetch(
-            scope = this,
+            scope = backgroundScope,
             options = options,
             requestFn = { throw failure },
             pluginImpls = arrayOf(plugin),
@@ -208,7 +208,7 @@ class FetchComprehensiveTest {
         }
         val receivedParams = mutableListOf<String>()
         val (fetch, _, _) = createFetch(
-            scope = this,
+            scope = backgroundScope,
             options = options,
             requestFn = { params ->
                 receivedParams += params
@@ -242,7 +242,7 @@ class FetchComprehensiveTest {
         }
 
         val (fetch, _, _) = createFetch(
-            scope = this,
+            scope = backgroundScope,
             options = options,
             requestFn = { 40 },
             pluginImpls = arrayOf(plugin),
@@ -288,7 +288,7 @@ class FetchComprehensiveTest {
         }
 
         val (fetch, _, _) = createFetch(
-            scope = this,
+            scope = backgroundScope,
             options = options,
             requestFn = {
                 requestCount += 1
@@ -318,7 +318,7 @@ class FetchComprehensiveTest {
         }
 
         val (fetch, _, _) = createFetch(
-            scope = this,
+            scope = backgroundScope,
             options = options,
             requestFn = { error("should not be called") },
         )

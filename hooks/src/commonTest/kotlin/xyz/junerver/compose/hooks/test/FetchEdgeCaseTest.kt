@@ -73,7 +73,7 @@ class FetchEdgeCaseTest {
     fun cancel_should_clear_error_state() = runTest {
         val options = UseRequestOptions.optionOf<String, Int> {}
         val (fetch, _, _) = createFetch(
-            scope = this,
+            scope = backgroundScope,
             options = options,
             requestFn = { throw IllegalStateException("error") },
         )
@@ -103,7 +103,7 @@ class FetchEdgeCaseTest {
         }
 
         val (fetch, dataBundle, _) = createFetch(
-            scope = this,
+            scope = backgroundScope,
             options = options,
             requestFn = { 42 },
             pluginImpls = arrayOf(faultyPlugin),
@@ -147,7 +147,7 @@ class FetchEdgeCaseTest {
         }
 
         val (fetch, _, _) = createFetch(
-            scope = this,
+            scope = backgroundScope,
             options = options,
             requestFn = { 42 },
             pluginImpls = arrayOf(plugin1, faultyPlugin, plugin3),
@@ -183,7 +183,7 @@ class FetchEdgeCaseTest {
         }
 
         val (fetch, _, _) = createFetch(
-            scope = this,
+            scope = backgroundScope,
             options = options,
             requestFn = { error("should not be called") },
             pluginImpls = arrayOf(plugin),
@@ -206,7 +206,7 @@ class FetchEdgeCaseTest {
         }
 
         val (fetch, dataBundle, _) = createFetch(
-            scope = this,
+            scope = backgroundScope,
             options = options,
             requestFn = { 42 },
         )
@@ -236,7 +236,7 @@ class FetchEdgeCaseTest {
         }
 
         val (fetch, _, _) = createFetch(
-            scope = this,
+            scope = backgroundScope,
             options = options,
             requestFn = { throw originalError },
         )
@@ -256,7 +256,7 @@ class FetchEdgeCaseTest {
     fun refresh_without_previous_request_should_fail_gracefully() = runTest {
         val options = UseRequestOptions.optionOf<String, Int> {}
         val (fetch, dataBundle, _) = createFetch(
-            scope = this,
+            scope = backgroundScope,
             options = options,
             requestFn = { 42 },
         )
@@ -273,7 +273,7 @@ class FetchEdgeCaseTest {
     fun mutate_with_exception_should_not_corrupt_state() = runTest {
         val options = UseRequestOptions.optionOf<String, Int> {}
         val (fetch, dataBundle, _) = createFetch(
-            scope = this,
+            scope = backgroundScope,
             options = options,
             requestFn = { 42 },
         )
