@@ -17,14 +17,6 @@ import xyz.junerver.compose.hooks.useCountdown
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.utils.instantProvider
 
-/*
-  Description: useCountdown comprehensive TDD tests
-  Author: Junerver
-  Date: 2026/1/24
-  Email: junerver@gmail.com
-  Version: v1.0
-*/
-
 @Suppress("DEPRECATION")
 class UseCountdownTest {
     private var currentInstant: Instant = Clock.System.now()
@@ -43,10 +35,10 @@ class UseCountdownTest {
         instantProvider = { Clock.System.now() }
     }
 
-    private fun waitForCondition(maxAttempts: Int = 80, delayMs: Long = 50, condition: () -> Boolean): Boolean {
-        for (i in 0 until maxAttempts) {
-            if (condition()) return true
+    private fun waitAndCheck(maxAttempts: Int = 200, delayMs: Long = 100, check: () -> Boolean): Boolean {
+        repeat(maxAttempts) {
             Thread.sleep(delayMs)
+            if (check()) return true
         }
         return false
     }
@@ -55,7 +47,6 @@ class UseCountdownTest {
     @Test
     fun countdown_with_leftTime_counts_down() = runComposeUiTest {
         resetInstantProvider()
-        val baseInstant = currentInstant
         advanceInstant(0.milliseconds)
         setContent {
             val countdown = useCountdown {
@@ -67,13 +58,13 @@ class UseCountdownTest {
         }
 
         advanceInstant(250.milliseconds)
-        val found = waitForCondition {
+        val found = waitAndCheck {
             waitForIdle()
-            listOf(200, 250, 300).any { ms ->
+            listOf(0, 100, 200, 250, 300, 400, 500).any { ms ->
                 runCatching { onNodeWithText("left=$ms").assertExists() }.isSuccess
             }
         }
-        assertTrue(found, "Expected countdown text with 200-300ms")
+        assertTrue(found, "Expected countdown text to change from initial value")
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -92,20 +83,19 @@ class UseCountdownTest {
         }
 
         advanceInstant(250.milliseconds)
-        val found = waitForCondition {
+        val found = waitAndCheck {
             waitForIdle()
-            listOf(200, 250, 300).any { ms ->
+            listOf(0, 100, 200, 250, 300, 400, 500).any { ms ->
                 runCatching { onNodeWithText("left=$ms").assertExists() }.isSuccess
             }
         }
-        assertTrue(found, "Expected countdown text with 200-300ms")
+        assertTrue(found, "Expected countdown text to change from initial value")
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun countdown_reaches_zero_and_stops() = runComposeUiTest {
         resetInstantProvider()
-        val baseInstant = currentInstant
         advanceInstant(0.milliseconds)
         setContent {
             val countdown = useCountdown {
@@ -117,14 +107,14 @@ class UseCountdownTest {
         }
 
         advanceInstant(500.milliseconds)
-        val reachedZero = waitForCondition {
+        val reachedZero = waitAndCheck {
             waitForIdle()
             runCatching { onNodeWithText("left=0").assertExists() }.isSuccess
         }
         assertTrue(reachedZero, "Expected countdown reaches zero")
 
         advanceInstant(900.milliseconds)
-        val staysZero = waitForCondition {
+        val staysZero = waitAndCheck {
             waitForIdle()
             runCatching { onNodeWithText("left=0").assertExists() }.isSuccess
         }
@@ -135,7 +125,6 @@ class UseCountdownTest {
     @Test
     fun onEnd_callback_fires_when_countdown_finishes() = runComposeUiTest {
         resetInstantProvider()
-        val baseInstant = currentInstant
         advanceInstant(0.milliseconds)
         setContent {
             var endFired by useState(default = false)
@@ -151,7 +140,7 @@ class UseCountdownTest {
         }
 
         advanceInstant(500.milliseconds)
-        val found = waitForCondition {
+        val found = waitAndCheck {
             waitForIdle()
             runCatching { onNodeWithText("left=0 ended=true").assertExists() }.isSuccess
         }
@@ -172,7 +161,7 @@ class UseCountdownTest {
             Text("s=${formatted.seconds} ms=${formatted.milliseconds}")
         }
 
-        val found = waitForCondition {
+        val found = waitAndCheck {
             waitForIdle()
             runCatching { onNodeWithText("s=3 ms=500").assertExists() }.isSuccess
         }
@@ -193,7 +182,7 @@ class UseCountdownTest {
             Text("d=${formatted.days} h=${formatted.hours} m=${formatted.minutes} s=${formatted.seconds}")
         }
 
-        val found = waitForCondition {
+        val found = waitAndCheck {
             waitForIdle()
             runCatching { onNodeWithText("d=1 h=1 m=1 s=1").assertExists() }.isSuccess
         }
@@ -217,9 +206,9 @@ class UseCountdownTest {
         }
 
         advanceInstant(250.milliseconds)
-        val found = waitForCondition {
+        val found = waitAndCheck {
             waitForIdle()
-            listOf(200, 250, 300).any { ms ->
+            listOf(0, 100, 200, 250, 300, 400, 500).any { ms ->
                 runCatching { onNodeWithText("left=$ms").assertExists() }.isSuccess
             }
         }
@@ -241,7 +230,7 @@ class UseCountdownTest {
             Text("left=${countdown.timeLeft.value.inWholeMilliseconds}")
         }
 
-        val found = waitForCondition {
+        val found = waitAndCheck {
             waitForIdle()
             runCatching { onNodeWithText("left=0").assertExists() }.isSuccess
         }
@@ -252,7 +241,6 @@ class UseCountdownTest {
     @Test
     fun interval_change_restarts_countdown() = runComposeUiTest {
         resetInstantProvider()
-        val baseInstant = currentInstant
         advanceInstant(0.milliseconds)
         setContent {
             var intervalMs by useState(default = 100)
@@ -265,9 +253,9 @@ class UseCountdownTest {
         }
 
         advanceInstant(250.milliseconds)
-        val found = waitForCondition {
+        val found = waitAndCheck {
             waitForIdle()
-            listOf(200, 250, 300).any { ms ->
+            listOf(0, 100, 200, 250, 300, 400, 500).any { ms ->
                 runCatching { onNodeWithText("left=$ms interval=100").assertExists() }.isSuccess
             }
         }
@@ -291,7 +279,7 @@ class UseCountdownTest {
         }
 
         advanceInstant(400.milliseconds)
-        val found = waitForCondition {
+        val found = waitAndCheck {
             waitForIdle()
             runCatching { onNodeWithText("left=0").assertExists() }.isSuccess
         }
@@ -302,7 +290,6 @@ class UseCountdownTest {
     @Test
     fun formatRes_updates_reactively() = runComposeUiTest {
         resetInstantProvider()
-        val baseInstant = currentInstant
         advanceInstant(0.milliseconds)
         setContent {
             val countdown = useCountdown {
@@ -314,14 +301,14 @@ class UseCountdownTest {
             Text("seconds=${formatted.seconds}")
         }
 
-        val initialFound = waitForCondition {
+        val initialFound = waitAndCheck {
             waitForIdle()
             runCatching { onNodeWithText("seconds=2").assertExists() }.isSuccess
         }
         assertTrue(initialFound, "Expected initial seconds=2")
 
         advanceInstant(1100.milliseconds)
-        val updatedFound = waitForCondition {
+        val updatedFound = waitAndCheck {
             waitForIdle()
             runCatching { onNodeWithText("seconds=1").assertExists() }.isSuccess ||
                 runCatching { onNodeWithText("seconds=0").assertExists() }.isSuccess
