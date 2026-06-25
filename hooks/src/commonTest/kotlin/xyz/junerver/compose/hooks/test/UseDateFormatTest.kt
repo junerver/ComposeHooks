@@ -11,13 +11,13 @@ import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import xyz.junerver.compose.hooks.UseDateFormatOptions
-import xyz.junerver.compose.hooks.formatDate
-import xyz.junerver.compose.hooks.normalizeDate
+import xyz.junerver.compose.hooks.usedateformat.formatDate
+import xyz.junerver.compose.hooks.usedateformat.normalizeDate
 
 class UseDateFormatTest {
     // Test date: Monday, July 14, 2025, 13:45:30.123
     private val testDate = LocalDateTime(2025, 7, 14, 13, 45, 30, 123_000_000)
-    private val options = UseDateFormatOptions.Companion.optionOf {}
+    private val options = UseDateFormatOptions.optionOf {}
 
     @Test
     fun testYearFormats() {
@@ -102,7 +102,7 @@ class UseDateFormatTest {
     fun testTimezoneFormats() {
         // Using SystemDefault for now, as specific timezone IDs might not be available consistently across platforms
         val systemTimeZone = TimeZone.Companion.currentSystemDefault()
-        val systemTimezoneOptions = UseDateFormatOptions.Companion.optionOf {
+        val systemTimezoneOptions = UseDateFormatOptions.optionOf {
             timeZone = systemTimeZone
         }
 
@@ -176,7 +176,7 @@ class UseDateFormatTest {
 
     @Test
     fun testCustomMeridiem() {
-        val customOptions = UseDateFormatOptions.Companion.optionOf {
+        val customOptions = UseDateFormatOptions.optionOf {
             customMeridiem = { hours, _, isLowercase, hasPeriod ->
                 val base = if (hours >= 12) "afternoon" else "morning"
                 if (isLowercase) base else base.uppercase()
@@ -293,8 +293,8 @@ class UseDateFormatTest {
 
     @Test
     fun testLocaleSpecificFormats() {
-        val chineseOptions = UseDateFormatOptions.Companion.optionOf { locale = "zh-CN" }
-        val englishOptions = UseDateFormatOptions.Companion.optionOf { locale = "en-US" } // Explicitly set for clarity
+        val chineseOptions = UseDateFormatOptions.optionOf { locale = "zh-CN" }
+        val englishOptions = UseDateFormatOptions.optionOf { locale = "en-US" } // Explicitly set for clarity
 
         // Test Month names
         assertEquals("七月", formatDate(testDate, "MMMM", chineseOptions))

@@ -9,7 +9,7 @@ import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import xyz.junerver.compose.hooks.Debounce
+import xyz.junerver.compose.hooks.usedebounce.Debounce
 import xyz.junerver.compose.hooks.UseDebounceOptions
 
 /*
