@@ -23,8 +23,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import xyz.junerver.compose.hooks.getValue
-import xyz.junerver.compose.hooks.setValue
+import xyz.junerver.compose.hooks.useref.getValue
+import xyz.junerver.compose.hooks.useref.setValue
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useMount

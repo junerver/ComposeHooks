@@ -3,10 +3,10 @@ package xyz.junerver.compose.hooks.userequest.plugins
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks.Tuple5
-import xyz.junerver.compose.hooks.getValue
-import xyz.junerver.compose.hooks.setValue
+import xyz.junerver.compose.hooks.useref.getValue
+import xyz.junerver.compose.hooks.useref.setValue
 import xyz.junerver.compose.hooks.useEffect
-import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useref.useRefImpl
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.FetchState
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
@@ -78,7 +78,7 @@ internal fun <TParams, TData : Any> useAutoRunPlugin(options: UseRequestOptions<
     val (manual, ready, defaultParams, refreshDeps, refreshDepsAction) = with(options) {
         Tuple5(manual, ready, defaultParams, refreshDeps, refreshDepsAction)
     }
-    var hasAutoRun by useRef(default = false)
+    var hasAutoRun by useRefImpl(default = false)
     hasAutoRun = false
     val autoRunPlugin = remember {
         AutoRunPlugin<TParams, TData>()

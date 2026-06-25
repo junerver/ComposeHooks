@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 
 /*
   Description: More convenient to use dynamic List state
@@ -32,7 +32,7 @@ fun <T> useListImpl(vararg elements: T): SnapshotStateList<T> = remember {
 @Composable
 fun <S, T : S> useListReduceImpl(list: List<T>, operation: (acc: S, T) -> S): State<S?> {
     val state = remember { mutableStateOf<S?>(null) }
-    useState(list) {
+    useStateImpl(list) {
         state.value = if (list.isEmpty()) null else list.reduce(operation)
     }
     return state

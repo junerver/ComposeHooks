@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import xyz.junerver.compose.hooks.Tuple1
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 
 /*
   Description:
@@ -17,7 +17,7 @@ import xyz.junerver.compose.hooks.useState
 @Suppress("UNUSED_VARIABLE")
 @Composable
 fun useUpdateImpl(): () -> Unit {
-    var state by useState(0.0)
+    var state by useStateImpl(0.0)
     val (single) = Tuple1(state) // core logic
     return {
         state += 1

@@ -16,8 +16,8 @@ import kotlinx.datetime.format
 import kotlinx.datetime.format.FormatStringsInDatetimeFormats
 import kotlinx.datetime.format.byUnicodePattern
 import kotlinx.datetime.toLocalDateTime
-import xyz.junerver.compose.hooks.Ref
-import xyz.junerver.compose.hooks.observeAsState
+import xyz.junerver.compose.hooks.useref.Ref
+import xyz.junerver.compose.hooks.useref.observeAsStateImpl
 import xyz.junerver.compose.hooks.useEffect
 
 /*
@@ -109,7 +109,7 @@ internal fun LocalDateTime.format(formatPattern: String): String = this.format(L
 internal fun unwrap(deps: Array<out Any?>) = deps.map {
     when (it) {
         is State<*> -> it.value
-        is Ref<*> -> it.observeAsState().value
+        is Ref<*> -> it.observeAsStateImpl().value
         is SnapshotStateList<*> -> it.toList()
         is SnapshotStateMap<*, *> -> it.toMap()
         else -> it

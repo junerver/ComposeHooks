@@ -1,13 +1,15 @@
 package xyz.junerver.compose.hooks.useredux
 import xyz.junerver.compose.hooks.usereducer.useReducerImpl
+import xyz.junerver.compose.hooks.useref.getValue
+import xyz.junerver.compose.hooks.useref.setValue
+import xyz.junerver.compose.hooks.useref.useRefImpl
 
 import androidx.compose.runtime.Composable
 import kotlin.reflect.KClass
 import xyz.junerver.compose.hooks.ComposeComponent
 import xyz.junerver.compose.hooks.Dispatch
-import xyz.junerver.compose.hooks.createContext
+import xyz.junerver.compose.hooks.usecontext.createContextImpl
 import xyz.junerver.compose.hooks.useMap
-import xyz.junerver.compose.hooks.useReducer
 
 /**
  * Internal data class that holds the Redux context values.
@@ -34,7 +36,7 @@ internal data class ReduxContextValue(
  */
 @PublishedApi
 internal val ReduxContext by lazy {
-    createContext(ReduxContextValue(mapOf(), mapOf(), mapOf()))
+    createContextImpl(ReduxContextValue(mapOf(), mapOf(), mapOf()))
 }
 
 /**

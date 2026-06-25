@@ -16,14 +16,14 @@ import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.IsActive
 import xyz.junerver.compose.hooks.Options
 import xyz.junerver.compose.hooks.PauseFn
-import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.useref.Ref
 import xyz.junerver.compose.hooks.ResumeFn
 import xyz.junerver.compose.hooks.SuspendAsyncFn
 import xyz.junerver.compose.hooks.useeffect.useEffectImpl
 import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 
 /*
   Description: 一个间隔固定时间执行的interval函数。
@@ -101,7 +101,7 @@ fun useIntervalImpl(optionsOf: UseIntervalOptions.() -> Unit = {}, ready: Boolea
 @Composable
 private fun useIntervalImpl(options: UseIntervalOptions, block: SuspendAsyncFn): IntervalHolder {
     val latestFn = useLatestRefImpl(value = block)
-    val isActiveState = useState(default = false)
+    val isActiveState = useStateImpl(default = false)
     val scope = rememberCoroutineScope()
     val interval = remember {
         Interval(options).apply {

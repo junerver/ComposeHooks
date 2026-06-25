@@ -1,6 +1,18 @@
 @file:Suppress("unused")
 
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.usestate
+import xyz.junerver.compose.hooks.Options
+import xyz.junerver.compose.hooks.useref.Ref
+import xyz.junerver.compose.hooks.useasync.useCancelableAsyncImpl
+import xyz.junerver.compose.hooks.useeffect.useEffectImpl
+import xyz.junerver.compose.hooks.usegetstate._useGetStateImpl
+import xyz.junerver.compose.hooks.invoke
+import xyz.junerver.compose.hooks.usenumber.useDoubleImpl
+import xyz.junerver.compose.hooks.usenumber.useFloatImpl
+import xyz.junerver.compose.hooks.usenumber.useIntImpl
+import xyz.junerver.compose.hooks.usenumber.useLongImpl
+import xyz.junerver.compose.hooks.useref.useRefImpl
+import xyz.junerver.compose.hooks.useDynamicOptions
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -55,12 +67,12 @@ import xyz.junerver.compose.hooks.annotation.ExperimentalComputed
  */
 @Suppress("UNCHECKED_CAST")
 @Composable
-fun <T> useState(default: T & Any): MutableState<T & Any> = when (default) {
-    is Int -> useInt(default)
-    is Float -> useFloat(default)
-    is Double -> useDouble(default)
-    is Long -> useLong(default)
-    else -> _useState(default)
+fun <T> useStateImpl(default: T & Any): MutableState<T & Any> = when (default) {
+    is Int -> useIntImpl(default)
+    is Float -> useFloatImpl(default)
+    is Double -> useDoubleImpl(default)
+    is Long -> useLongImpl(default)
+    else -> _useStateImpl(default)
 } as MutableState<T & Any>
 
 /**
@@ -78,7 +90,7 @@ fun <T> useState(default: T & Any): MutableState<T & Any> = when (default) {
  * @receiver
  */
 @Composable
-fun <T> useState(vararg keys: Any?, factory: () -> T): State<T> = remember(keys = keys) {
+fun <T> useStateImpl(vararg keys: Any?, factory: () -> T): State<T> = remember(keys = keys) {
     derivedStateOf(factory)
 }
 
@@ -130,16 +142,16 @@ data class UseStateAsyncOptions internal constructor(
  */
 @ExperimentalComputed
 @Composable
-fun <T> useStateAsync(
+fun <T> useStateAsyncImpl(
     vararg keys: Any?,
     initValue: T? = null,
     optionsOf: UseStateAsyncOptions.() -> Unit = {},
     factory: suspend () -> T,
 ): State<T?> {
     val (lazy, onError) = useDynamicOptions(optionsOf)
-    val (asyncRun) = useCancelableAsync()
-    val (state, setState) = _useGetState(initValue)
-    val calcFnRef = useRef {
+    val (asyncRun) = useCancelableAsyncImpl()
+    val (state, setState) = _useGetStateImpl(initValue)
+    val calcFnRef = useRefImpl {
         asyncRun {
             try {
                 setState(factory())
@@ -154,7 +166,7 @@ fun <T> useStateAsync(
     if (lazy) {
         return remember { AsyncCalcState(calcFnRef, state) }
     } else {
-        useEffect(deps = arrayOf(*keys, factory)) {
+        useEffectImpl(deps = arrayOf(*keys, factory)) {
             calcFnRef.current()
         }
         return state
@@ -175,6 +187,6 @@ internal class AsyncCalcState<T>(val calcFn: Ref<() -> Unit>, val state: State<T
  * This is a nullable [useState] and should be used if the object's state may be null.
  */
 @Composable
-fun <T> _useState(default: T): MutableState<T> = remember {
+fun <T> _useStateImpl(default: T): MutableState<T> = remember {
     mutableStateOf(default)
 }

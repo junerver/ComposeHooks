@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisallowComposableCalls
 import androidx.compose.runtime.State
 import xyz.junerver.compose.hooks.useContext
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 
 /**
  * Use selector
@@ -43,5 +43,5 @@ inline fun <reified T> useSelector(alias: String? = null): State<T> = alias?.let
 @Composable
 inline fun <reified T, R> useSelector(alias: String? = null, crossinline block: @DisallowComposableCalls T.() -> R): State<R> {
     val state = useSelector<T>(alias)
-    return useState { state.value.block() }
+    return useStateImpl { state.value.block() }
 }

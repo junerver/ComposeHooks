@@ -15,7 +15,7 @@ import xyz.junerver.compose.hooks.utils.currentInstant
 import xyz.junerver.compose.hooks.utils.currentLocalDateTime
 import xyz.junerver.compose.hooks.utils.toLocalDateTime
 import xyz.junerver.compose.hooks.Options
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.uselatest.useLatestStateImpl
 
@@ -305,7 +305,7 @@ private fun useDateFormatCore(
     val formatStrState = useLatestStateImpl(formatStr)
 
     // Create a derived state that updates when date or format changes
-    return useState {
+    return useStateImpl {
         formatDate(normalizeDate(dateState.value), formatStrState.value, options)
     }
 }

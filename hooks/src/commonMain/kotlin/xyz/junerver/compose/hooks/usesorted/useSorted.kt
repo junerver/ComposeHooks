@@ -1,10 +1,10 @@
 package xyz.junerver.compose.hooks.usesorted
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 import xyz.junerver.compose.hooks.uselatest.useLatestStateImpl
 import xyz.junerver.compose.hooks.useeffect.useEffectImpl
 import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.usecreation.useCreationImpl
-import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.useref.getValue
 import xyz.junerver.compose.hooks.Options
 
 import androidx.compose.runtime.Composable
@@ -159,7 +159,7 @@ fun <T> useSortedImpl(source: List<T>, optionsOf: UseSortedOptions<T>.() -> Unit
     val compareFn by useCreationImpl(options.compareFn) { options.compareFn ?: defaultCompare() }
 
     val dirty = options.dirty
-    val sortedState = useState {
+    val sortedState = useStateImpl {
         val sorted = sortFn(sourceState.value, compareFn)
         sorted
     }

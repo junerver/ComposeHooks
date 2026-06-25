@@ -2,9 +2,9 @@ package xyz.junerver.compose.hooks.useprevious
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
-import xyz.junerver.compose.hooks._useState
+import xyz.junerver.compose.hooks.usestate._useStateImpl
 import xyz.junerver.compose.hooks.useeffect.useEffectImpl
-import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useref.useRefImpl
 
 /*
   Description: Hook that saves the previous state.
@@ -16,8 +16,8 @@ import xyz.junerver.compose.hooks.useRef
 
 @Composable
 fun <T> usePreviousImpl(present: T): State<T?> {
-    val previousRef = useRef<T?>(default = null)
-    val previousState = _useState<T?>(default = null)
+    val previousRef = useRefImpl<T?>(default = null)
+    val previousState = _useStateImpl<T?>(default = null)
     useEffectImpl(present) {
         previousState.value = previousRef.current
         previousRef.current = present

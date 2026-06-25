@@ -1,7 +1,7 @@
 package xyz.junerver.compose.hooks.usetable.core
 
 import androidx.compose.runtime.MutableState
-import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.useref.Ref
 import xyz.junerver.compose.hooks.usetable.state.SortDescriptor
 import xyz.junerver.compose.hooks.usetable.state.TableState
 

@@ -14,11 +14,11 @@ import kotlin.time.Instant
 import xyz.junerver.compose.hooks.utils.currentInstant
 import xyz.junerver.compose.hooks.utils.toLocalDateTime
 import xyz.junerver.compose.hooks.Options
-import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.useref.getValue
 import xyz.junerver.compose.hooks.usetimestamp.useTimestampImpl
 import xyz.junerver.compose.hooks.uselatest.useLatestStateImpl
 import xyz.junerver.compose.hooks.useDynamicOptions
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 
 /*
   Description: Reactive time ago. Automatically update the time ago string when the time changes.
@@ -272,9 +272,9 @@ private fun useTimeAgo(time: Instant, options: UseTimeAgoOptions): State<String>
         val timestampHolder = useTimestampImpl({ interval = updateInterval }, updateInterval > Duration.ZERO)
         timestampHolder.state
     } else {
-        useState(currentInstant.toEpochMilliseconds())
+        useStateImpl(currentInstant.toEpochMilliseconds())
     }
-    return useState {
+    return useStateImpl {
         formatTimeAgo(latestTime, options, Instant.fromEpochMilliseconds(timestamp.value))
     }
 }

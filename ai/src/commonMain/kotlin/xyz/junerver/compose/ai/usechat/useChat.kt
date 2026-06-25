@@ -25,7 +25,7 @@ import xyz.junerver.compose.ai.TokenUsageTracker
 import xyz.junerver.compose.ai.multiprovider.ModelsContext
 import xyz.junerver.compose.ai.rememberTokenTracker
 import xyz.junerver.compose.ai.multiprovider.MultiProviderChatClient
-import xyz.junerver.compose.hooks.MutableRef
+import xyz.junerver.compose.hooks.useref.MutableRef
 import xyz.junerver.compose.hooks._useGetState
 import xyz.junerver.compose.hooks._useState
 import xyz.junerver.compose.hooks.useCancelableAsync

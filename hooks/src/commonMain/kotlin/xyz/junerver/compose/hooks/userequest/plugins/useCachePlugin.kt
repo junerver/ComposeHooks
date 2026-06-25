@@ -8,10 +8,10 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import xyz.junerver.compose.hooks.MutableRef
+import xyz.junerver.compose.hooks.useref.MutableRef
 import xyz.junerver.compose.hooks.Tuple4
 import xyz.junerver.compose.hooks.tuple
-import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useref.useRefImpl
 import xyz.junerver.compose.hooks.useUnmount
 import xyz.junerver.compose.hooks.useUpdateEffect
 import xyz.junerver.compose.hooks.userequest.Fetch
@@ -215,8 +215,8 @@ internal fun <TParams, TData : Any> useCachePlugin(options: UseRequestOptions<TP
     }
 
     // 反订阅函数
-    val unSubscribeRef = useRef<(() -> Unit)?>(null)
-    val currentPromiseRef = useRef<Deferred<*>?>(null)
+    val unSubscribeRef = useRefImpl<(() -> Unit)?>(null)
+    val currentPromiseRef = useRefImpl<Deferred<*>?>(null)
 
     val cachePlugin = remember {
         CachePlugin<TParams, TData>().apply {

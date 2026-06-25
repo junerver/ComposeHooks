@@ -1,9 +1,9 @@
 package xyz.junerver.compose.hooks.usereducer
-import xyz.junerver.compose.hooks._useState
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usestate._useStateImpl
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 import xyz.junerver.compose.hooks.useasync.useAsyncImpl
-import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.useref.getValue
 import xyz.junerver.compose.hooks.Reducer
 import xyz.junerver.compose.hooks.Middleware
 import xyz.junerver.compose.hooks.DispatchCallback
@@ -60,7 +60,7 @@ import androidx.compose.runtime.remember
  * }
  *
  * // Use the hook
- * val (state, dispatch, dispatchAsync) = useReducer(counterReducer, 0)
+ * val (state, dispatch, dispatchAsync) = useReducerImpl(counterReducer, 0)
  *
  * // Dispatch actions
  * dispatch(CounterAction.Increment)
@@ -75,7 +75,7 @@ import androidx.compose.runtime.remember
 @Composable
 fun <S, A> useReducerImpl(reducer: Reducer<S, A>, initialState: S, middlewares: Array<Middleware<S, A>> = emptyArray()): ReducerHolder<S, A> {
     val asyncRun = useAsyncImpl()
-    val state = _useState(initialState)
+    val state = _useStateImpl(initialState)
 
     val reducerRef = useLatestRefImpl(reducer)
     val middlewaresRef = useLatestRefImpl(middlewares)
@@ -130,7 +130,7 @@ fun <S, A> useReducerImpl(reducer: Reducer<S, A>, initialState: S, middlewares: 
  *
  * @example
  * ```kotlin
- * val (state, dispatch, dispatchAsync) = useReducer(reducer, initialState)
+ * val (state, dispatch, dispatchAsync) = useReducerImpl(reducer, initialState)
  *
  * // Access state
  * val currentValue = state.value

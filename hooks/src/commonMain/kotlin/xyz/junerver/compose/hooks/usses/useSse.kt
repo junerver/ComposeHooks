@@ -8,11 +8,11 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks._useControllable
-import xyz.junerver.compose.hooks.getValue
-import xyz.junerver.compose.hooks.setValue
+import xyz.junerver.compose.hooks.useref.getValue
+import xyz.junerver.compose.hooks.useref.setValue
 import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.useEffect
-import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useref.useRefImpl
 import xyz.junerver.compose.hooks.useUnmount
 
 /*
@@ -73,15 +73,15 @@ fun <TParams, TEvent> useSse(
     val scope = rememberCoroutineScope()
 
     // Track the current active stream job and a monotonic id to prevent stale finally blocks
-    var currentJob by useRef<Job?>(null)
-    var streamId by useRef(0L)
+    var currentJob by useRefImpl<Job?>(null)
+    var streamId by useRefImpl(0L)
 
     // Hold latest streamFn reference to avoid stale closures
-    var latestStreamFn by useRef(streamFn)
+    var latestStreamFn by useRefImpl(streamFn)
     latestStreamFn = streamFn
 
     // Track the last used params for refresh capability
-    var latestParams by useRef<TParams?>(null)
+    var latestParams by useRefImpl<TParams?>(null)
 
     // Core send function — launches a coroutine to call the suspend streamFn
     val sendFn: SendFn<TParams> = { params ->

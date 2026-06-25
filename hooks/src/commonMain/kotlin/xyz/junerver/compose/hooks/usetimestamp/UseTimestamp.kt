@@ -10,14 +10,14 @@ import xyz.junerver.compose.hooks.utils.currentInstant
 import xyz.junerver.compose.hooks.IsActive
 import xyz.junerver.compose.hooks.Options
 import xyz.junerver.compose.hooks.PauseFn
-import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.useref.Ref
 import xyz.junerver.compose.hooks.ResumeFn
 import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.useinterval.useIntervalImpl
 import xyz.junerver.compose.hooks.usemount.useMountImpl
 import xyz.junerver.compose.hooks.useDynamicOptions
-import xyz.junerver.compose.hooks.useRef
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.useref.useRefImpl
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 
 /*
   Description:
@@ -172,7 +172,7 @@ data class TimestampRefHolder(
 @Composable
 private fun useTimestamp(options: UseTimestampOptions, autoResume: Boolean = true): TimestampHolder {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
-    val timestamp = useState(default = currentInstant)
+    val timestamp = useStateImpl(default = currentInstant)
     val (resume, pause, isActive) = useIntervalImpl(
         optionsOf = {
             period = interval
@@ -184,7 +184,7 @@ private fun useTimestamp(options: UseTimestampOptions, autoResume: Boolean = tru
     useMountImpl {
         if (autoResume) resume()
     }
-    val timestampState = useState { timestamp.value.toEpochMilliseconds() }
+    val timestampState = useStateImpl { timestamp.value.toEpochMilliseconds() }
     return remember { TimestampHolder(timestampState, pause, resume, isActive) }
 }
 
@@ -198,7 +198,7 @@ private fun useTimestamp(options: UseTimestampOptions, autoResume: Boolean = tru
 @Composable
 private fun useTimestampRef(options: UseTimestampOptions, autoResume: Boolean = true): TimestampRefHolder {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
-    val timestampRef = useRef(default = currentInstant.toEpochMilliseconds())
+    val timestampRef = useRefImpl(default = currentInstant.toEpochMilliseconds())
     val (resume, pause, isActive) = useIntervalImpl(
         optionsOf = {
             period = interval

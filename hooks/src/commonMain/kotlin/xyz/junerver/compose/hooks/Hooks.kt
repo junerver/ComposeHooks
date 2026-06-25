@@ -7,6 +7,7 @@ import xyz.junerver.compose.hooks.useresetstate.ResetStateHolder as ResetStateHo
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import arrow.core.Either
 import androidx.compose.runtime.State
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
@@ -14,6 +15,8 @@ import kotlin.time.Instant
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.datetime.LocalDateTime
 import xyz.junerver.compose.hooks.annotation.ExperimentalComputed
+import xyz.junerver.compose.hooks.ComposeComponent
+import xyz.junerver.compose.hooks.ToggleFn
 import xyz.junerver.compose.hooks.useboolean.BooleanHolder as BooleanHolderImpl
 import xyz.junerver.compose.hooks.useboolean.useBooleanImpl
 import xyz.junerver.compose.hooks.usecreation.useCreationImpl
@@ -95,6 +98,21 @@ import xyz.junerver.compose.hooks.usestatemachine.MachineGraph as MachineGraphIm
 import xyz.junerver.compose.hooks.usestatemachine.StateMachineHolder as StateMachineHolderImpl
 import xyz.junerver.compose.hooks.usestatemachine.StateMachineGraphScope as StateMachineGraphScopeImpl
 import xyz.junerver.compose.hooks.usestatemachine.createMachineImpl
+import xyz.junerver.compose.hooks.usecontext.ReactContext as ReactContextImpl
+import xyz.junerver.compose.hooks.usecontext.createContextImpl
+import xyz.junerver.compose.hooks.usecontext.useContextImpl
+import xyz.junerver.compose.hooks.useref.MutableRef as MutableRefImpl
+import xyz.junerver.compose.hooks.useref.Ref as RefImpl
+import xyz.junerver.compose.hooks.useref.getValue as refGetValue
+import xyz.junerver.compose.hooks.useref.setValue as refSetValue
+import xyz.junerver.compose.hooks.useref.useRefImpl
+import xyz.junerver.compose.hooks.usestate.UseStateAsyncOptions as UseStateAsyncOptionsImpl
+import xyz.junerver.compose.hooks.usestate._useStateImpl
+import xyz.junerver.compose.hooks.usestate.useStateAsyncImpl
+import xyz.junerver.compose.hooks.usestate.useStateImpl
+import xyz.junerver.compose.hooks.usetoggle.useToggleEitherImpl
+import xyz.junerver.compose.hooks.usetoggle.useToggleImpl
+import xyz.junerver.compose.hooks.usetoggle.useToggleVisibleImpl
 import xyz.junerver.compose.hooks.usestatemachine.useStateMachineImpl
 import xyz.junerver.compose.hooks.useundo.UndoHolder as UndoHolderImpl
 import xyz.junerver.compose.hooks.useundo.useUndoImpl
@@ -374,6 +392,10 @@ typealias StateMachineHolder<S, E, CTX> = StateMachineHolderImpl<S, E, CTX>
 typealias StateMachineGraphScope<S, E, CTX> = StateMachineGraphScopeImpl<S, E, CTX>
 typealias UndoHolder<T> = UndoHolderImpl<T>
 typealias ResetStateHolder<T> = ResetStateHolderImpl<T>
+typealias Ref<T> = RefImpl<T>
+typealias MutableRef<T> = MutableRefImpl<T>
+typealias ReactContext<T> = ReactContextImpl<T>
+typealias UseStateAsyncOptions = UseStateAsyncOptionsImpl
 //endregion
 
 /**
@@ -1378,4 +1400,46 @@ fun <T> useSorted(source: List<T>, optionsOf: UseSortedOptions<T>.() -> Unit = {
 
 //region 函数型根包重导出
 fun notifyDefaultPersistentObserver(key: String) = notifyDefaultPersistentObserverImpl(key)
+//endregion
+
+//region 基础 hook 的 useXxx 根包重导出（useState/useRef/useToggle/useContext）
+@Composable
+fun <T> useState(default: T & Any): MutableState<T & Any> = useStateImpl(default)
+
+@Composable
+fun <T> useState(vararg keys: Any?, factory: () -> T): State<T> = useStateImpl(*keys, factory = factory)
+
+@ExperimentalComputed
+@Composable
+fun <T> useStateAsync(
+    vararg keys: Any?,
+    initValue: T? = null,
+    optionsOf: UseStateAsyncOptions.() -> Unit = {},
+    factory: suspend () -> T,
+): State<T?> = useStateAsyncImpl(*keys, initValue = initValue, optionsOf = optionsOf, factory = factory)
+
+@Composable
+fun <T> _useState(default: T): MutableState<T> = _useStateImpl(default)
+
+@Composable
+fun <T> useRef(default: T): MutableRef<T> = useRefImpl(default)
+
+@Composable
+fun <T> useToggle(defaultValue: T? = null, reverseValue: T? = null): Pair<T?, ToggleFn> =
+    useToggleImpl(defaultValue, reverseValue)
+
+@Composable
+fun <L, R> useToggleEither(defaultValue: L? = null, reverseValue: R? = null): Pair<Either<L?, R?>, ToggleFn> =
+    useToggleEitherImpl(defaultValue, reverseValue)
+
+@Composable
+fun useToggleVisible(isVisible: Boolean = false, content: ComposeComponent): Pair<ComposeComponent, ToggleFn> =
+    useToggleVisibleImpl(isVisible, content)
+
+@Composable
+fun useToggleVisible(isFirst: Boolean = true, content1: ComposeComponent, content2: ComposeComponent): Pair<ComposeComponent, ToggleFn> =
+    useToggleVisibleImpl(isFirst, content1, content2)
+
+@Composable
+fun <T> createContext(initialValue: T): ReactContext<T> = createContextImpl(initialValue)
 //endregion

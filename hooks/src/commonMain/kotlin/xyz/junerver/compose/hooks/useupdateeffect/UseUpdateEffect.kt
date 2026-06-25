@@ -1,11 +1,11 @@
 package xyz.junerver.compose.hooks.useupdateeffect
 
 import androidx.compose.runtime.Composable
-import xyz.junerver.compose.hooks.getValue
-import xyz.junerver.compose.hooks.setValue
+import xyz.junerver.compose.hooks.useref.getValue
+import xyz.junerver.compose.hooks.useref.setValue
 import xyz.junerver.compose.hooks.SuspendAsyncFn
 import xyz.junerver.compose.hooks.useeffect.useEffectImpl
-import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useref.useRefImpl
 
 /*
   Description: [useUpdateEffect] 用法等同于 [useEffect]，但是会忽略首次执行，只在依赖更新时执行。
@@ -17,7 +17,7 @@ import xyz.junerver.compose.hooks.useRef
 
 @Composable
 fun useUpdateEffectImpl(vararg deps: Any?, block: SuspendAsyncFn) {
-    var isMounted by useRef(false)
+    var isMounted by useRefImpl(false)
     useEffectImpl(*deps) {
         if (!isMounted) {
             isMounted = true

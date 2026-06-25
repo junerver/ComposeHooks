@@ -1,4 +1,5 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.useref
+import xyz.junerver.compose.hooks.usestate._useStateImpl
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -144,7 +145,7 @@ operator fun <T> MutableRef<T>.setValue(thisObj: Any?, property: KProperty<*>, v
  * ```
  */
 @Composable
-fun <T> useRef(default: T): MutableRef<T> = remember {
+fun <T> useRefImpl(default: T): MutableRef<T> = remember {
     MutableRef(default)
 }
 
@@ -166,8 +167,8 @@ fun <T> useRef(default: T): MutableRef<T> = remember {
  * ```
  */
 @Composable
-fun <T> Ref<T>.observeAsState(): State<T> {
-    val state = _useState(default = this.current)
+fun <T> Ref<T>.observeAsStateImpl(): State<T> {
+    val state = _useStateImpl(default = this.current)
     DisposableEffect(Unit) {
         val observer = { it: T -> state.value = it }
         observe(observer)

@@ -10,14 +10,14 @@ import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineScope
 import xyz.junerver.compose.hooks.Options
 import xyz.junerver.compose.hooks.SuspendAsyncFn
-import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.useref.getValue
 import xyz.junerver.compose.hooks.usemount.useMountImpl
 import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
 import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 import xyz.junerver.compose.hooks.usetimeoutfn.useTimeoutFnImpl
-import xyz.junerver.compose.hooks.useRef
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.useref.useRefImpl
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 
 /*
   Description: Use timeout to poll for content. Triggers the callback after the last task is completed.
@@ -54,11 +54,11 @@ fun useTimeoutPollImpl(
 ): TimeoutPollHolder {
     val options = useDynamicOptions(optionsOf)
     val latestFn = useLatestRefImpl(value = fn)
-    val isActiveState = useState(default = false)
+    val isActiveState = useStateImpl(default = false)
     val asyncRun = useAsyncImpl()
 
-    val startRef = useRef(default = {})
-    val stopRef = useRef(default = {})
+    val startRef = useRefImpl(default = {})
+    val stopRef = useRefImpl(default = {})
 
     val internalLoop: SuspendAsyncFn = internalLoop@{
         if (!isActiveState.value) {

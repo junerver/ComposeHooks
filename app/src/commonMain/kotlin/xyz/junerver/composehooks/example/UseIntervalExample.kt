@@ -34,9 +34,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlin.time.Duration.Companion.seconds
-import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.useref.getValue
 import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.setValue
+import xyz.junerver.compose.hooks.useref.setValue
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useGetState

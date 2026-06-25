@@ -1,8 +1,8 @@
 package xyz.junerver.compose.hooks.usebackfront
-import xyz.junerver.compose.hooks.useRef
-import xyz.junerver.compose.hooks.setValue
-import xyz.junerver.compose.hooks.getValue
-import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.useref.useRefImpl
+import xyz.junerver.compose.hooks.useref.setValue
+import xyz.junerver.compose.hooks.useref.getValue
+import xyz.junerver.compose.hooks.useref.Ref
 
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.compose.LifecycleResumeEffect
@@ -30,7 +30,7 @@ import xyz.junerver.compose.hooks.utils.unwrap
 
 @Composable
 fun useBackToFrontEffectImpl(vararg deps: Any?, effect: () -> Unit) {
-    var inBackgroundRef by useRef(default = false)
+    var inBackgroundRef by useRefImpl(default = false)
     LifecycleResumeEffect(keys = unwrap(deps)) {
         if (inBackgroundRef) {
             effect()
@@ -50,7 +50,7 @@ fun useBackToFrontEffectImpl(vararg deps: Any?, effect: () -> Unit) {
  */
 @Composable
 fun useFrontToBackEffectImpl(vararg deps: Any?, effect: () -> Unit) {
-    var inBackgroundRef by useRef(default = false)
+    var inBackgroundRef by useRefImpl(default = false)
     LifecycleResumeEffect(keys = unwrap(deps)) {
         if (inBackgroundRef) {
             inBackgroundRef = false

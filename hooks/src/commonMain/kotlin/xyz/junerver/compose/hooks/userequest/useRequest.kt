@@ -12,10 +12,10 @@ import kotlin.reflect.KFunction1
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.VoidFunction
 import xyz.junerver.compose.hooks._useControllable
-import xyz.junerver.compose.hooks.getValue
-import xyz.junerver.compose.hooks.setValue
+import xyz.junerver.compose.hooks.useref.getValue
+import xyz.junerver.compose.hooks.useref.setValue
 import xyz.junerver.compose.hooks.useCreation
-import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useref.useRefImpl
 import xyz.junerver.compose.hooks.useUnmount
 import xyz.junerver.compose.hooks.userequest.plugins.useAutoRunPlugin
 import xyz.junerver.compose.hooks.userequest.plugins.useCachePlugin
@@ -121,8 +121,8 @@ private fun <TParams, TData : Any> useRequestPrivate(
     options: UseRequestOptions<TParams, TData>,
     plugins: Array<ComposablePluginGenFn<TParams, TData>> = emptyArray(),
 ): RequestHolder<TParams, TData> {
-    var pluginsRef by useRef<Array<ComposablePluginGenFn<TParams, TData>>>(emptyArray())
-    var customPluginsRef by useRef<Array<Plugin<TParams, TData>>>(emptyArray())
+    var pluginsRef by useRefImpl<Array<ComposablePluginGenFn<TParams, TData>>>(emptyArray())
+    var customPluginsRef by useRefImpl<Array<Plugin<TParams, TData>>>(emptyArray())
     if (!pluginsRef.contentEquals(plugins)) {
         pluginsRef = plugins.copyOf()
         customPluginsRef = plugins.map {
@@ -202,7 +202,7 @@ private fun <TParams, TData : Any> useRequestPluginsImpl(
 
     fetch.requestFn = requestFn
 
-    var pluginsRef by useRef<Array<Plugin<TParams, TData>>>(emptyArray())
+    var pluginsRef by useRefImpl<Array<Plugin<TParams, TData>>>(emptyArray())
     if (!pluginsRef.contentEquals(plugins)) {
         pluginsRef = plugins.copyOf()
         fetch.run = fetch::_run

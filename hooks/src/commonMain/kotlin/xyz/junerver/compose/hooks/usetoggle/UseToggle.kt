@@ -1,4 +1,9 @@
-package xyz.junerver.compose.hooks
+package xyz.junerver.compose.hooks.usetoggle
+import xyz.junerver.compose.hooks.ComposeComponent
+import xyz.junerver.compose.hooks.ToggleFn
+import xyz.junerver.compose.hooks.useboolean.useBooleanImpl
+import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
+import xyz.junerver.compose.hooks.useref.getValue
 
 import androidx.compose.runtime.Composable
 import arrow.core.Either
@@ -30,8 +35,8 @@ import arrow.core.right
  * ```
  */
 @Composable
-fun <T> useToggle(defaultValue: T? = null, reverseValue: T? = null): Pair<T?, ToggleFn> {
-    val (isLeft, toggle) = useBoolean(true)
+fun <T> useToggleImpl(defaultValue: T? = null, reverseValue: T? = null): Pair<T?, ToggleFn> {
+    val (isLeft, toggle) = useBooleanImpl(true)
     return (if (isLeft.value) defaultValue else reverseValue) to toggle
 }
 
@@ -59,10 +64,10 @@ fun <T> useToggle(defaultValue: T? = null, reverseValue: T? = null): Pair<T?, To
  * ```
  */
 @Composable
-fun <L, R> useToggleEither(defaultValue: L? = null, reverseValue: R? = null): Pair<Either<L?, R?>, ToggleFn> {
-    val (isLeft, toggle) = useBoolean(true)
-    val leftEither by useLatestRef(defaultValue.left())
-    val rightEither by useLatestRef(reverseValue.right())
+fun <L, R> useToggleEitherImpl(defaultValue: L? = null, reverseValue: R? = null): Pair<Either<L?, R?>, ToggleFn> {
+    val (isLeft, toggle) = useBooleanImpl(true)
+    val leftEither by useLatestRefImpl(defaultValue.left())
+    val rightEither by useLatestRefImpl(reverseValue.right())
     return (if (isLeft.value) leftEither else rightEither) to toggle
 }
 
@@ -91,9 +96,9 @@ fun <L, R> useToggleEither(defaultValue: L? = null, reverseValue: R? = null): Pa
  * ```
  */
 @Composable
-fun useToggleVisible(isVisible: Boolean = false, content: ComposeComponent): Pair<ComposeComponent, ToggleFn> {
+fun useToggleVisibleImpl(isVisible: Boolean = false, content: ComposeComponent): Pair<ComposeComponent, ToggleFn> {
     val empty: ComposeComponent = {}
-    return useToggleVisible(isVisible, content, empty)
+    return useToggleVisibleImpl(isVisible, content, empty)
 }
 
 /**
@@ -124,7 +129,7 @@ fun useToggleVisible(isVisible: Boolean = false, content: ComposeComponent): Pai
  * ```
  */
 @Composable
-fun useToggleVisible(isFirst: Boolean = true, content1: ComposeComponent, content2: ComposeComponent): Pair<ComposeComponent, ToggleFn> {
-    val (visible, toggle) = useBoolean(isFirst)
+fun useToggleVisibleImpl(isFirst: Boolean = true, content1: ComposeComponent, content2: ComposeComponent): Pair<ComposeComponent, ToggleFn> {
+    val (visible, toggle) = useBooleanImpl(isFirst)
     return (if (visible.value) content1 else content2) to toggle
 }

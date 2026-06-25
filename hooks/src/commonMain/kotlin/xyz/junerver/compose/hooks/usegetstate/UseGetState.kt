@@ -7,8 +7,8 @@ import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks.GetValueFn
 import xyz.junerver.compose.hooks.SetterEither
 import xyz.junerver.compose.hooks.SetValueFn
-import xyz.junerver.compose.hooks._useState
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usestate._useStateImpl
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 
 /*
   Description: You can get the latest state in the callback
@@ -20,7 +20,7 @@ import xyz.junerver.compose.hooks.useState
 
 @Composable
 fun <T> useGetStateImpl(default: T & Any): GetStateHolder<T & Any> {
-    val state = useState(default)
+    val state = useStateImpl(default)
     return remember {
         GetStateHolder(
             state = state,
@@ -35,7 +35,7 @@ fun <T> useGetStateImpl(default: T & Any): GetStateHolder<T & Any> {
 
 @Composable
 fun <T> _useGetStateImpl(default: T): GetStateHolder<T> {
-    val state = _useState(default)
+    val state = _useStateImpl(default)
     return remember {
         GetStateHolder(
             state = state,

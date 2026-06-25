@@ -31,7 +31,7 @@ import xyz.junerver.compose.ai.usechat.FinishReason
 import xyz.junerver.compose.ai.usechat.ToolCallPart
 import xyz.junerver.compose.ai.usechat.UserContentPart
 import xyz.junerver.compose.ai.usechat.userMessage
-import xyz.junerver.compose.hooks.MutableRef
+import xyz.junerver.compose.hooks.useref.MutableRef
 import xyz.junerver.compose.hooks.Options
 import xyz.junerver.compose.hooks._useGetState
 import xyz.junerver.compose.hooks._useState

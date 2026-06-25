@@ -1,5 +1,5 @@
 package xyz.junerver.compose.hooks.useselectable
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 import xyz.junerver.compose.hooks.usemap.useMapImpl
 import xyz.junerver.compose.hooks.usecreation.useCreationImpl
 
@@ -26,8 +26,8 @@ fun <KEY, ITEM> useSelectableImpl(
     }
     val selectedMap = useMapImpl(pairs = initialMap.current)
 
-    val selectedKeys = useState { selectedMap.filterValues { it }.keys }
-    val selectedItems = useState {
+    val selectedKeys = useStateImpl { selectedMap.filterValues { it }.keys }
+    val selectedItems = useStateImpl {
         items.filter { selectedKeys.value.contains(keyProvider(it)) }
     }
 

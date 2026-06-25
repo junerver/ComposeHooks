@@ -3,14 +3,17 @@
 package xyz.junerver.compose.hooks.useform
 
 import androidx.compose.runtime.Composable
+import xyz.junerver.compose.hooks.useref.getValue
+import xyz.junerver.compose.hooks.useref.setValue
+import xyz.junerver.compose.hooks.useref.useRefImpl
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import kotlin.reflect.KClass
-import xyz.junerver.compose.hooks.Ref
-import xyz.junerver.compose.hooks._useState
-import xyz.junerver.compose.hooks.createContext
+import xyz.junerver.compose.hooks.useref.Ref
+import xyz.junerver.compose.hooks.usestate._useStateImpl
+import xyz.junerver.compose.hooks.usecontext.createContextImpl
 import xyz.junerver.compose.hooks.internal.genFormFieldKey
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useCreation
@@ -30,7 +33,7 @@ import xyz.junerver.compose.hooks.useMap
  * Internal form context for managing form state across components.
  * This context provides access to the form instance throughout the component tree.
  */
-internal val FormContext by lazy { createContext(FormInstance()) }
+internal val FormContext by lazy { createContextImpl(FormInstance()) }
 
 /**
  * Data class representing the complete state of a form field.
@@ -217,7 +220,7 @@ class FormScope private constructor(
      */
     @Composable
     fun <T : Any> FormItemWithState(name: String, vararg validators: Validator, content: @Composable (FormItemState<T>) -> Unit) {
-        val fieldState = _useState<T?>(default = null)
+        val fieldState = _useStateImpl<T?>(default = null)
         val (validate, _, set) = useBoolean()
         val (touched, _, setTouched) = useBoolean(false)
         val (dirty, _, setDirty) = useBoolean(false)

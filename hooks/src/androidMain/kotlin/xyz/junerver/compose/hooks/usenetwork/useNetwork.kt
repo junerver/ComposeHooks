@@ -10,8 +10,8 @@ import androidx.compose.runtime.produceState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import xyz.junerver.compose.hooks.ComposeComponent
-import xyz.junerver.compose.hooks.ReactContext
-import xyz.junerver.compose.hooks.createContext
+import xyz.junerver.compose.hooks.usecontext.ReactContext
+import xyz.junerver.compose.hooks.usecontext.createContextImpl
 
 /*
   Description:
@@ -27,7 +27,7 @@ data class NetworkState(
     val connectType: ConnectType = ConnectType.None,
 )
 
-internal val NetworkContext: ReactContext<State<NetworkState>> by lazy { createContext(mutableStateOf(NetworkState())) }
+internal val NetworkContext: ReactContext<State<NetworkState>> by lazy { createContextImpl(mutableStateOf(NetworkState())) }
 
 /**
  * 直接到处使用该hook会导致大量的监听器回调创建，虽影响不大，但是更建议使用

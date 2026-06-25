@@ -1,9 +1,9 @@
 package xyz.junerver.compose.hooks.usepausableeffect
 import xyz.junerver.compose.hooks.SuspendAsyncFn
-import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useref.useRefImpl
 import xyz.junerver.compose.hooks.useeffect.useEffectImpl
-import xyz.junerver.compose.hooks.setValue
-import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.useref.setValue
+import xyz.junerver.compose.hooks.useref.getValue
 import xyz.junerver.compose.hooks.StopFn
 import xyz.junerver.compose.hooks.ResumeFn
 import xyz.junerver.compose.hooks.PauseFn
@@ -33,8 +33,8 @@ import androidx.compose.runtime.remember
  * @example
  * ```kotlin
  * // Basic usage
- * val (source, setSource) = useState("")
- * val (log, setLog) = useState("")
+ * val (source, setSource) = useStateImpl("")
+ * val (log, setLog) = useStateImpl("")
  * val (stop, pause, resume) = usePausableEffect(source) {
  *     setLog(log + "Changed to \"${source}\"\n")
  * }
@@ -58,8 +58,8 @@ import androidx.compose.runtime.remember
 @Composable
 fun usePausableEffectImpl(vararg deps: Any?, block: SuspendAsyncFn): PausableEffectHolder {
     // Use useRef to store state, ensuring state persistence during recomposition
-    var isStop by useRef(false) // Controls whether to completely stop the effect
-    var isPause by useRef(false) // Controls whether to pause the effect
+    var isStop by useRefImpl(false) // Controls whether to completely stop the effect
+    var isPause by useRefImpl(false) // Controls whether to pause the effect
 
     // Only create the effect if it's not stopped
     if (!isStop) {

@@ -1,14 +1,14 @@
 package xyz.junerver.compose.hooks.usepersistent
-import xyz.junerver.compose.hooks.createContext
-import xyz.junerver.compose.hooks._useState
+import xyz.junerver.compose.hooks.usecontext.createContextImpl
+import xyz.junerver.compose.hooks.usestate._useStateImpl
 import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
-import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useref.useRefImpl
 import xyz.junerver.compose.hooks.usemount.useMountImpl
 import xyz.junerver.compose.hooks.usecontext.useContextImpl
-import xyz.junerver.compose.hooks.setValue
-import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.useref.setValue
+import xyz.junerver.compose.hooks.useref.getValue
 import xyz.junerver.compose.hooks.SaveToPersistent
-import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.useref.Ref
 import xyz.junerver.compose.hooks.PersistentContextValue
 import xyz.junerver.compose.hooks.HookClear
 
@@ -77,7 +77,7 @@ data class PersistentHolder<T>(
  * solution globally through `PersistentContext.Provider`.
  */
 val PersistentContext by lazy {
-    createContext<PersistentContextValue>(
+    createContextImpl<PersistentContextValue>(
         Triple(
             ::memoryGetPersistent,
             ::memorySavePersistent,
@@ -93,7 +93,7 @@ val PersistentContext by lazy {
  * the `forceUseMemory` parameter in [usePersistent].
  */
 internal val InternalMemoryPersistentContext by lazy {
-    createContext<PersistentContextValue>(
+    createContextImpl<PersistentContextValue>(
         Triple(
             ::memoryGetPersistent,
             ::memorySavePersistent,
@@ -132,13 +132,13 @@ internal val InternalMemoryPersistentContext by lazy {
 fun <T> usePersistentImpl(key: String, defaultValue: T, forceUseMemory: Boolean = false): PersistentHolder<T> {
     val (get, set, clear) = useContextImpl(context = if (forceUseMemory) InternalMemoryPersistentContext else PersistentContext)
     val getValue = { get(key, defaultValue as Any) as T }
-    val state = _useState(getValue())
+    val state = _useStateImpl(getValue())
 
     /**
      * Register an observer callback for each component that uses this state,
      * and notify the update component when this storage changes;
      */
-    var unObserver by useRef(default = {})
+    var unObserver by useRefImpl(default = {})
     useMountImpl {
         unObserver = memoryAddObserver(key) {
             state.value = getValue()

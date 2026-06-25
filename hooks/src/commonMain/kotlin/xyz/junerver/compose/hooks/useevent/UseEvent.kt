@@ -3,12 +3,12 @@ package xyz.junerver.compose.hooks.useevent
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import xyz.junerver.compose.hooks.getValue
-import xyz.junerver.compose.hooks.setValue
+import xyz.junerver.compose.hooks.useref.getValue
+import xyz.junerver.compose.hooks.useref.setValue
 import xyz.junerver.compose.hooks.usemount.useMountImpl
 import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
 import xyz.junerver.compose.hooks.useLatestState
-import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useref.useRefImpl
 import xyz.junerver.compose.hooks.utils.HooksEventManager
 
 /*
@@ -30,7 +30,7 @@ import xyz.junerver.compose.hooks.utils.HooksEventManager
 @Composable
 inline fun <reified T : Any> useEventSubscribeImpl(noinline subscriber: (T) -> Unit) {
     val latest by useLatestState(subscriber)
-    var unSubscribeRef by useRef<(() -> Unit)?>(null)
+    var unSubscribeRef by useRefImpl<(() -> Unit)?>(null)
 
     useMountImpl {
         unSubscribeRef = HooksEventManager.register(T::class, latest)
@@ -63,7 +63,7 @@ inline fun <reified T : Any> useEventPublishImpl(): (T) -> Unit = remember {
 @Composable
 internal fun <T> useEventSubscribeImpl(alias: String, subscriber: (T?) -> Unit) {
     val latest by useLatestState(subscriber)
-    var unSubscribeRef by useRef<(() -> Unit)?>(null)
+    var unSubscribeRef by useRefImpl<(() -> Unit)?>(null)
 
     useMountImpl {
         unSubscribeRef = HooksEventManager.register(alias, latest)

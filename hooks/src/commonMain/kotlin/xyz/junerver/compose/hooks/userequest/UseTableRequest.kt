@@ -3,7 +3,7 @@ package xyz.junerver.compose.hooks.userequest
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberUpdatedState
-import xyz.junerver.compose.hooks._useState
+import xyz.junerver.compose.hooks.usestate._useStateImpl
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 import xyz.junerver.compose.hooks.utils.CacheManager
@@ -186,15 +186,15 @@ fun <T> useTableRequest(
     val options = UseTableRequestOptions<TableResult<T>>().apply(optionsOf)
 
     // 1. Pagination state
-    val pageState = _useState(options.initialPage)
-    val pageSizeState = _useState(options.initialPageSize)
+    val pageState = _useStateImpl(options.initialPage)
+    val pageSizeState = _useStateImpl(options.initialPageSize)
     val currentPage = pageState.value
     val currentPageSize = pageSizeState.value
 
     // 2. Sorting & filtering state
-    val sortingState = _useState(options.initialSorting)
-    val globalFilterState = _useState(options.initialGlobalFilter)
-    val columnFiltersState = _useState(options.initialColumnFilters)
+    val sortingState = _useStateImpl(options.initialSorting)
+    val globalFilterState = _useStateImpl(options.initialGlobalFilter)
+    val columnFiltersState = _useStateImpl(options.initialColumnFilters)
 
     val currentSorting = sortingState.value
     val currentGlobalFilter = globalFilterState.value
@@ -204,7 +204,7 @@ fun <T> useTableRequest(
     val globalFilterDep = if (options.triggerOnFilteringChange) currentGlobalFilter else null
     val columnFiltersDep = if (options.triggerOnFilteringChange) currentColumnFilters else null
 
-    val requestParamsState = _useState(
+    val requestParamsState = _useStateImpl(
         TableRequestParams(
             page = currentPage,
             pageSize = currentPageSize,

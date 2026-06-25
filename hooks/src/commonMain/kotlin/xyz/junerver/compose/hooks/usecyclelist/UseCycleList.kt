@@ -1,10 +1,10 @@
 package xyz.junerver.compose.hooks.usecyclelist
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.usegetstate._useGetStateImpl
-import xyz.junerver.compose.hooks.setValue
+import xyz.junerver.compose.hooks.useref.setValue
 import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.useref.getValue
 import xyz.junerver.compose.hooks.Options
 
 import androidx.compose.runtime.Composable
@@ -99,7 +99,7 @@ fun <T> useCycleListImpl(list: PersistentList<T>, optionsOf: UseCycleListOptions
     fun go(i: Int) = set(i) // Jump directly to index i
 
     // Create a derived state to track the current index
-    val index = useState {
+    val index = useStateImpl {
         getCurrentIndex(state.value, list, options)
     }
 

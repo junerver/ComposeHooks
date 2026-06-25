@@ -12,11 +12,11 @@ import kotlinx.datetime.format.byUnicodePattern
 import xyz.junerver.compose.hooks.utils.toLocalDateTime
 import xyz.junerver.compose.hooks.Options
 import xyz.junerver.compose.hooks.tuple
-import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.useref.getValue
 import xyz.junerver.compose.hooks.usecreation.useCreationImpl
 import xyz.junerver.compose.hooks.usetimestamp.useTimestampImpl
 import xyz.junerver.compose.hooks.useDynamicOptions
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 
 /*
   Description:
@@ -108,7 +108,7 @@ private fun useNow(options: UseNowOptions): State<String> {
             this.interval = interval
         },
     )
-    val date = useState {
+    val date = useStateImpl {
         format?.invoke(time.value) ?: time.value.toLocalDateTime().format(sdfRef)
     }
     return date

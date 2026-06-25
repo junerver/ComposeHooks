@@ -13,16 +13,16 @@ import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.compose.hooks.utils.currentInstant
 import xyz.junerver.compose.hooks.Options
 import xyz.junerver.compose.hooks.OnEndCallback
-import xyz.junerver.compose.hooks.getValue
+import xyz.junerver.compose.hooks.useref.getValue
 import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.setValue
+import xyz.junerver.compose.hooks.useref.setValue
 import xyz.junerver.compose.hooks.useeffect.useEffectImpl
 import xyz.junerver.compose.hooks.useinterval.useIntervalImpl
 import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
-import xyz.junerver.compose.hooks.useRef
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.useref.useRefImpl
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 
 /*
   Description: A hook for manage countdown.
@@ -62,11 +62,11 @@ private fun useCountdown(options: UseCountdownOptions): CountdownHolder {
     require(leftTime.asBoolean() || targetDate.asBoolean()) {
         "'leftTime' or 'targetDate' must be set"
     }
-    val targetRef = useRef<Instant?>(null)
+    val targetRef = useRefImpl<Instant?>(null)
     val (timeLeft, setTimeLeft) = useGetStateImpl(Duration.ZERO)
 
     val onEndRef by useLatestRefImpl(value = onEnd)
-    var pauseRef by useRef(default = {})
+    var pauseRef by useRefImpl(default = {})
     val (resume, pause) = useIntervalImpl(
         optionsOf = {
             period = interval
@@ -93,7 +93,7 @@ private fun useCountdown(options: UseCountdownOptions): CountdownHolder {
         setTimeLeft(calcLeft(targetRef.current))
         resume()
     }
-    val formatResState = useState(timeLeft) { parseDuration(timeLeft.value) }
+    val formatResState = useStateImpl(timeLeft) { parseDuration(timeLeft.value) }
     return remember { CountdownHolder(timeLeft, formatResState) }
 }
 

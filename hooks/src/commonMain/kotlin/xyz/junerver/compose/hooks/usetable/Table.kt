@@ -1,10 +1,13 @@
 package xyz.junerver.compose.hooks.usetable
 
 import androidx.compose.runtime.Composable
+import xyz.junerver.compose.hooks.useref.getValue
+import xyz.junerver.compose.hooks.useref.setValue
+import xyz.junerver.compose.hooks.useref.useRefImpl
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import xyz.junerver.compose.hooks.createContext
+import xyz.junerver.compose.hooks.usecontext.createContextImpl
 import xyz.junerver.compose.hooks.usetable.core.ColumnDef
 import xyz.junerver.compose.hooks.usetable.core.Row
 import xyz.junerver.compose.hooks.usetable.state.TableState
@@ -15,7 +18,7 @@ import xyz.junerver.compose.hooks.usetable.features.pagination.PaginationFeature
  * This context provides access to the table instance throughout the component tree.
  */
 @Suppress("UNCHECKED_CAST")
-internal val TableContext by lazy { createContext<TableHolder<Any>?>(null) }
+internal val TableContext by lazy { createContextImpl<TableHolder<Any>?>(null) }
 
 /**
  * Headless Table Component.

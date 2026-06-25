@@ -1,5 +1,5 @@
 package xyz.junerver.compose.hooks.useundo
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 import xyz.junerver.compose.hooks.usereducer.useReducerImpl
 import xyz.junerver.compose.hooks.UndoFn
 import xyz.junerver.compose.hooks.SetValueFn
@@ -148,8 +148,8 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
 @Composable
 fun <T> useUndoImpl(initialPresent: T): UndoHolder<T> {
     val (state, dispatch) = useReducerImpl(::undoReducer, UndoState(present = initialPresent))
-    val canUndo = useState { state.value.past.isNotEmpty() }
-    val canRedo = useState { state.value.future.isNotEmpty() }
+    val canUndo = useStateImpl { state.value.past.isNotEmpty() }
+    val canRedo = useStateImpl { state.value.future.isNotEmpty() }
     val undo = { dispatch(Undo) }
     val redo = { dispatch(Redo) }
     val set = { newPresent: T -> dispatch(Set(newPresent)) }

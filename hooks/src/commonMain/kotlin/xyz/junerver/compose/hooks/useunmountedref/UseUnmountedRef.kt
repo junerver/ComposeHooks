@@ -1,10 +1,10 @@
 package xyz.junerver.compose.hooks.useunmountedref
 
 import androidx.compose.runtime.Composable
-import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.useref.Ref
 import xyz.junerver.compose.hooks.usemount.useMountImpl
 import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
-import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useref.useRefImpl
 
 /*
   Description: 获取当前组件是否已经卸载的 Hook
@@ -17,7 +17,7 @@ import xyz.junerver.compose.hooks.useRef
 
 @Composable
 fun useUnmountedRefImpl(): Ref<Boolean> {
-    val unmountedRef = useRef(default = false)
+    val unmountedRef = useRefImpl(default = false)
     useMountImpl {
         unmountedRef.current = false
     }

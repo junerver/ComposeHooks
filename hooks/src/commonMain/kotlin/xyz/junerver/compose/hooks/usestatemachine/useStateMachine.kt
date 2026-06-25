@@ -4,13 +4,13 @@ package xyz.junerver.compose.hooks.usestatemachine
 import xyz.junerver.compose.hooks.invoke
 
 import androidx.compose.runtime.Composable
-import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.useref.Ref
 import xyz.junerver.compose.hooks.useasync.useCancelableAsyncImpl
 import xyz.junerver.compose.hooks.usecreation.useCreationImpl
 import xyz.junerver.compose.hooks.usegetstate._useGetStateImpl
 import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
-import xyz.junerver.compose.hooks.useRef
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.useref.useRefImpl
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 import xyz.junerver.compose.hooks.useundo.useUndoImpl
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -136,7 +136,7 @@ fun <S : Any, E, CTX> useStateMachineImpl(machineGraph: Ref<MachineGraph<S, E, C
     val (undoState, setUndoState, resetUndoState, undo, _, canUndo, _) = useUndoImpl(machineGraph.current.initialState)
 
     val (runAction, cancelAction, _) = useCancelableAsyncImpl()
-    val transitionVersionRef = useRef(0L)
+    val transitionVersionRef = useRefImpl(0L)
 
     val canTransition = { event: E ->
         val key = currentState.value to event
@@ -206,7 +206,7 @@ fun <S : Any, E, CTX> useStateMachineImpl(machineGraph: Ref<MachineGraph<S, E, C
         (transitionEvents + actionEvents).distinct().toList()
     }
 
-    val history = useState {
+    val history = useStateImpl {
         undoState.value.past.add(undoState.value.present)
     }
 

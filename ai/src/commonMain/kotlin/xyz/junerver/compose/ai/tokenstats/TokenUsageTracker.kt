@@ -7,7 +7,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import xyz.junerver.compose.ai.usechat.ChatUsage
-import xyz.junerver.compose.hooks.createContext
+import xyz.junerver.compose.hooks.usecontext.createContextImpl
 import xyz.junerver.compose.hooks.useContext
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
@@ -139,7 +139,7 @@ class TokenUsageTracker {
  */
 private val DefaultTokenUsageTracker = TokenUsageTracker()
 
-val TokenUsageContext by lazy { createContext(DefaultTokenUsageTracker) }
+val TokenUsageContext by lazy { createContextImpl(DefaultTokenUsageTracker) }
 
 /**
  * Hook to access the token usage tracker from the current context.

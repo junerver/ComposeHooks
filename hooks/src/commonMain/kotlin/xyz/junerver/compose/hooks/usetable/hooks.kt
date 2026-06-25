@@ -8,7 +8,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import xyz.junerver.compose.hooks.useLatestRef
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 import xyz.junerver.compose.hooks.usetable.core.ColumnDef
 import xyz.junerver.compose.hooks.usetable.core.Row
 import xyz.junerver.compose.hooks.usetable.core.RowModel
@@ -143,7 +143,7 @@ fun <T> useTable(
     val optionsRef = useLatestRef(options)
     
     // Initialize state
-    val (tableState, setTableState) = useState(
+    val (tableState, setTableState) = useStateImpl(
         options.initialState ?: TableState(
             pagination = PaginationState(pageSize = options.pageSize)
         )

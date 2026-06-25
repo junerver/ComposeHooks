@@ -3,12 +3,12 @@ package xyz.junerver.compose.hooks.useasync
 import xyz.junerver.compose.hooks.IsActive
 import xyz.junerver.compose.hooks.AsyncRunFn
 import xyz.junerver.compose.hooks.SuspendAsyncFn
-import xyz.junerver.compose.hooks.getValue
-import xyz.junerver.compose.hooks.setValue
+import xyz.junerver.compose.hooks.useref.getValue
+import xyz.junerver.compose.hooks.useref.setValue
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.uselatest.useLatestStateImpl
 import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
-import xyz.junerver.compose.hooks.useRef
+import xyz.junerver.compose.hooks.useref.useRefImpl
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -103,7 +103,7 @@ fun useAsyncImpl(): AsyncRunFn {
 @Composable
 fun useCancelableAsyncImpl(): CancelableAsyncHolder {
     val scope = rememberCoroutineScope()
-    var job by useRef<Job?>(null)
+    var job by useRefImpl<Job?>(null)
     val (isActive, setIsActive) = useGetStateImpl(false)
 
     val asyncRun = { fn: SuspendAsyncFn ->

@@ -7,8 +7,8 @@ import androidx.compose.runtime.remember
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
-import xyz.junerver.compose.hooks._useState
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usestate._useStateImpl
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 
 /**
  * @Author Junerver
@@ -20,7 +20,7 @@ import xyz.junerver.compose.hooks.useState
 
 @Composable
 fun <T> useImmutableListImpl(vararg elements: T): ImmutableListHolder<T> {
-    val state = _useState(persistentListOf(*elements))
+    val state = _useStateImpl(persistentListOf(*elements))
 
     fun mutate(mutator: (MutableList<T>) -> Unit) {
         state.value = state.value.mutate(mutator)
@@ -38,7 +38,7 @@ data class ImmutableListHolder<T>(
  * Reactive List.reduce.
  */
 @Composable
-fun <S, T : S> useImmutableListReduceImpl(list: PersistentList<T>, operation: (acc: S, T) -> S): State<S> = useState(list) {
+fun <S, T : S> useImmutableListReduceImpl(list: PersistentList<T>, operation: (acc: S, T) -> S): State<S> = useStateImpl(list) {
     list.reduce(operation)
 }
 
@@ -46,7 +46,7 @@ fun <S, T : S> useImmutableListReduceImpl(list: PersistentList<T>, operation: (a
  * Reactive List.reduce that returns null for empty lists.
  */
 @Composable
-fun <S, T : S> useImmutableListReduceOrNullImpl(list: PersistentList<T>, operation: (acc: S, T) -> S): State<S?> = useState(list) {
+fun <S, T : S> useImmutableListReduceOrNullImpl(list: PersistentList<T>, operation: (acc: S, T) -> S): State<S?> = useStateImpl(list) {
     list.takeIf { it.isNotEmpty() }?.reduce(operation)
 }
 
@@ -54,6 +54,6 @@ fun <S, T : S> useImmutableListReduceOrNullImpl(list: PersistentList<T>, operati
  * Reactive List.fold with an explicit initial value.
  */
 @Composable
-fun <S, T> useImmutableListFoldImpl(list: PersistentList<T>, initial: S, operation: (acc: S, T) -> S): State<S> = useState(list, initial) {
+fun <S, T> useImmutableListFoldImpl(list: PersistentList<T>, initial: S, operation: (acc: S, T) -> S): State<S> = useStateImpl(list, initial) {
     list.fold(initial, operation)
 }

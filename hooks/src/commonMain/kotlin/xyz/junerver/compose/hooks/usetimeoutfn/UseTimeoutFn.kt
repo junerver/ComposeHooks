@@ -15,13 +15,13 @@ import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.IsActive
 import xyz.junerver.compose.hooks.NoParamsVoidFunction
 import xyz.junerver.compose.hooks.Options
-import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.useref.Ref
 import xyz.junerver.compose.hooks.SuspendAsyncFn
 import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 import xyz.junerver.compose.hooks.usemount.useMountImpl
 import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
-import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 
 /*
   Description: A wrapper for delayed function execution with controls.
@@ -95,7 +95,7 @@ fun useTimeoutFnImpl(
 ): TimeoutFnHolder {
     val options = useDynamicOptions(optionsOf)
     val latestFn = useLatestRefImpl(value = fn)
-    val isPendingState = useState(default = false)
+    val isPendingState = useStateImpl(default = false)
     val scope = rememberCoroutineScope()
 
     val timeoutFn = remember {
