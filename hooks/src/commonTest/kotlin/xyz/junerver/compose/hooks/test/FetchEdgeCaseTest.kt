@@ -117,7 +117,7 @@ class FetchEdgeCaseTest {
             // 使用 run() 而不是 _runAsync()
             fetch.run("test")
             advanceUntilIdle()
-        delay(100)
+            delay(100)
             assertEquals(42, dataBundle.state.value)
         } catch (e: Exception) {
             // 如果抛出异常，说明没有正确处理插件错误

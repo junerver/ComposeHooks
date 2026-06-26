@@ -29,6 +29,8 @@ app/src/commonMain/          # 示例代码，展示各 hook 用法
 
 ## Build, Test, and Development Commands
 
+> **Windows 平台注意：** 使用 `.\gradlew.bat` 代替 `./gradlew`，例如 `.\gradlew.bat build`、`.\gradlew.bat :hooks:jvmTest` 等。下表以 Linux/macOS 风格为例。
+
 ```bash
 # 构建
 ./gradlew build
