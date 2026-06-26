@@ -193,3 +193,19 @@ tasks.register("runCoverageChecks") {
     description = "Run tests and validate minimum code coverage baseline."
     dependsOn("allTests", "koverXmlReport", "verifyCoverageBaseline")
 }
+
+tasks.register("runQualityChecks") {
+    group = "verification"
+    description = "Run scoped static checks for baseline test/quality tasks."
+    dependsOn(
+        "ktlintCommonTestSourceSetCheck",
+        "ktlintAndroidUnitTestSourceSetCheck",
+        "ktlintAndroidInstrumentedTestSourceSetCheck",
+    )
+}
+
+tasks.register("verifyReleaseReadiness") {
+    group = "verification"
+    description = "Run quality checks and all tests before release."
+    dependsOn("runQualityChecks", "runCoverageChecks")
+}
