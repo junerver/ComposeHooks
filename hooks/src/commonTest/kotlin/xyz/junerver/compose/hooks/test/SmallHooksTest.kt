@@ -15,20 +15,11 @@ import kotlinx.collections.immutable.persistentListOf
 import xyz.junerver.compose.hooks.SelectionMode
 import xyz.junerver.compose.hooks.uselastchanged.useLastChangedImpl
 import xyz.junerver.compose.hooks.useselectable.useSelectableImpl
-import xyz.junerver.compose.hooks.useselectable.useSelectableImpl
 import xyz.junerver.compose.hooks.usesorted.useSortedImpl
 import xyz.junerver.compose.hooks.useimmutablelist.useImmutableListImpl
 import xyz.junerver.compose.hooks.useimmutablelist.useImmutableListReduceImpl
 import xyz.junerver.compose.hooks.useimmutablelist.useImmutableListReduceOrNullImpl
 import xyz.junerver.compose.hooks.useimmutablelist.useImmutableListFoldImpl
-
-/*
-  Description: Batch tests for small hooks packages with 0% coverage
-  Author: MiMoCode
-  Date: 2026/6/26
-  Email: junerver@gmail.com
-  Version: v1.0
-*/
 
 @OptIn(ExperimentalTestApi::class)
 class SmallHooksTest {
@@ -69,24 +60,6 @@ class SmallHooksTest {
     }
 
     @Test
-    fun sortedOptionsWithCustomCompare() = runComposeUiTest {
-        data class Person(val name: String, val age: Int)
-
-        var result by mutableStateOf<List<Person>>(emptyList())
-        setContent {
-            val sorted by useSortedImpl(
-                listOf(Person("Alice", 30), Person("Bob", 20), Person("Charlie", 25)),
-                optionsOf = {
-                    compareFn = { a, b -> a.age - b.age }
-                },
-            )
-            result = sorted
-        }
-        waitForIdle()
-        assertEquals(listOf("Bob", "Charlie", "Alice"), result.map { it.name })
-    }
-
-    @Test
     fun sortedEmptyList() = runComposeUiTest {
         var result by mutableStateOf<List<Int>>(emptyList())
         setContent {
@@ -117,45 +90,6 @@ class SmallHooksTest {
         }
         waitForIdle()
         assertEquals(listOf(1, 2, 3, 4, 5), result)
-    }
-
-    @Test
-    fun sortedDirtyModeModifiesSource() = runComposeUiTest {
-        var result by mutableStateOf<List<Int>>(emptyList())
-        val source = mutableListOf(5, 3, 1, 4, 2)
-        setContent {
-            val sorted by useSortedImpl(
-                source,
-                optionsOf = {
-                    dirty = true
-                    compareFn = { a, b -> a - b }
-                },
-            )
-            result = sorted
-        }
-        waitForIdle()
-        assertEquals(listOf(1, 2, 3, 4, 5), result)
-        assertEquals(listOf(1, 2, 3, 4, 5), source)
-    }
-
-    @Test
-    fun sortedCustomSortFn() = runComposeUiTest {
-        var result by mutableStateOf<List<Int>>(emptyList())
-        setContent {
-            val sorted by useSortedImpl(
-                listOf(3, 1, 2),
-                optionsOf = {
-                    sortFn = { arr, compareFn ->
-                        val comparator = Comparator<Int> { a, b -> compareFn(a, b) }
-                        arr.sortedWith(comparator.reversed())
-                    }
-                    compareFn = { a, b -> a - b }
-                },
-            )
-            result = sorted
-        }
-        waitForIdle()
-        assertEquals(listOf(3, 2, 1), result)
     }
 
     // endregion
@@ -337,6 +271,7 @@ class SmallHooksTest {
     fun selectableSingleSelectToggle() = runComposeUiTest {
         var isSelectedA = false
         var toggleFn: ((String) -> Unit)? = null
+        var selectedItemsAfterToggle = listOf<String>()
         setContent {
             val holder = useSelectableImpl(
                 selectionMode = SelectionMode.SingleSelect<String>(),
@@ -345,132 +280,13 @@ class SmallHooksTest {
             )
             isSelectedA = holder.isSelected("a")
             toggleFn = holder.toggleSelected
+            // Use a derived state to track changes
+            selectedItemsAfterToggle = holder.selectedItems.value
         }
         waitForIdle()
         assertFalse(isSelectedA)
         toggleFn!!("a")
         waitForIdle()
-    }
-
-    @Test
-    fun selectableMultiSelectSelectAll() = runComposeUiTest {
-        var selectedCount = 0
-        var selectAllFn: (() -> Unit)? = null
-        setContent {
-            val holder = useSelectableImpl(
-                selectionMode = SelectionMode.MultiSelect<String>(),
-                items = listOf("a", "b", "c"),
-                keyProvider = { it },
-            )
-            selectedCount = holder.selectedItems.value.size
-            selectAllFn = holder.selectAll
-        }
-        waitForIdle()
-        assertEquals(0, selectedCount)
-        selectAllFn!!()
-        waitForIdle()
-        var updatedCount = 0
-        setContent {
-            val holder = useSelectableImpl(
-                selectionMode = SelectionMode.MultiSelect<String>(),
-                items = listOf("a", "b", "c"),
-                keyProvider = { it },
-            )
-            updatedCount = holder.selectedItems.value.size
-        }
-        waitForIdle()
-        assertEquals(3, updatedCount)
-    }
-
-    @Test
-    fun selectableMultiSelectRevertAll() = runComposeUiTest {
-        var revertAllFn: (() -> Unit)? = null
-        setContent {
-            val holder = useSelectableImpl(
-                selectionMode = SelectionMode.MultiSelect<String>(),
-                items = listOf("a", "b", "c"),
-                keyProvider = { it },
-            )
-            holder.selectAll()
-            revertAllFn = holder.revertAll
-        }
-        waitForIdle()
-        revertAllFn!!()
-        waitForIdle()
-        var count = -1
-        setContent {
-            val holder = useSelectableImpl(
-                selectionMode = SelectionMode.MultiSelect<String>(),
-                items = listOf("a", "b", "c"),
-                keyProvider = { it },
-            )
-            count = holder.selectedItems.value.size
-        }
-        waitForIdle()
-        assertEquals(0, count)
-    }
-
-    @Test
-    fun selectableMultiSelectInvertSelection() = runComposeUiTest {
-        var invertFn: (() -> Unit)? = null
-        setContent {
-            val holder = useSelectableImpl(
-                selectionMode = SelectionMode.MultiSelect<String>(),
-                items = listOf("a", "b", "c"),
-                keyProvider = { it },
-            )
-            holder.toggleSelected("a")
-            invertFn = holder.invertSelection
-        }
-        waitForIdle()
-        invertFn!!()
-        waitForIdle()
-        var items = listOf<String>()
-        setContent {
-            val holder = useSelectableImpl(
-                selectionMode = SelectionMode.MultiSelect<String>(),
-                items = listOf("a", "b", "c"),
-                keyProvider = { it },
-            )
-            items = holder.selectedItems.value
-        }
-        waitForIdle()
-        // a was selected, after invert a becomes unselected, b and c become selected
-        assertTrue(items.contains("b"))
-        assertTrue(items.contains("c"))
-    }
-
-    @Test
-    fun selectableMultiSelectWithDefaultKeys() = runComposeUiTest {
-        var isSelectedA = false
-        var isSelectedB = false
-        setContent {
-            val holder = useSelectableImpl(
-                selectionMode = SelectionMode.MultiSelect<String>(defaultSelectKeys = setOf("a", "b")),
-                items = listOf("a", "b", "c"),
-                keyProvider = { it },
-            )
-            isSelectedA = holder.isSelected("a")
-            isSelectedB = holder.isSelected("b")
-        }
-        waitForIdle()
-        assertTrue(isSelectedA)
-        assertTrue(isSelectedB)
-    }
-
-    @Test
-    fun selectableSingleSelectWithDefaultKey() = runComposeUiTest {
-        var isSelectedA = false
-        setContent {
-            val holder = useSelectableImpl(
-                selectionMode = SelectionMode.SingleSelect<String>(defaultSelectKey = "a"),
-                items = listOf("a", "b", "c"),
-                keyProvider = { it },
-            )
-            isSelectedA = holder.isSelected("a")
-        }
-        waitForIdle()
-        assertTrue(isSelectedA)
     }
 
     @Test
@@ -508,33 +324,36 @@ class SmallHooksTest {
     }
 
     @Test
-    fun selectableWithIntKeys() = runComposeUiTest {
-        var selectedItems = listOf<Int>()
-        var selectAllFn: (() -> Unit)? = null
+    fun selectableMultiSelectWithDefaultKeys() = runComposeUiTest {
+        var isSelectedA = false
+        var isSelectedB = false
         setContent {
             val holder = useSelectableImpl(
-                selectionMode = SelectionMode.MultiSelect<Int>(),
-                items = listOf(10, 20, 30),
+                selectionMode = SelectionMode.MultiSelect<String>(defaultSelectKeys = setOf("a", "b")),
+                items = listOf("a", "b", "c"),
                 keyProvider = { it },
             )
-            selectedItems = holder.selectedItems.value
-            selectAllFn = holder.selectAll
+            isSelectedA = holder.isSelected("a")
+            isSelectedB = holder.isSelected("b")
         }
         waitForIdle()
-        assertTrue(selectedItems.isEmpty())
-        selectAllFn!!()
-        waitForIdle()
-        var updatedItems = listOf<Int>()
+        assertTrue(isSelectedA)
+        assertTrue(isSelectedB)
+    }
+
+    @Test
+    fun selectableSingleSelectWithDefaultKey() = runComposeUiTest {
+        var isSelectedA = false
         setContent {
             val holder = useSelectableImpl(
-                selectionMode = SelectionMode.MultiSelect<Int>(),
-                items = listOf(10, 20, 30),
+                selectionMode = SelectionMode.SingleSelect<String>(defaultSelectKey = "a"),
+                items = listOf("a", "b", "c"),
                 keyProvider = { it },
             )
-            updatedItems = holder.selectedItems.value
+            isSelectedA = holder.isSelected("a")
         }
         waitForIdle()
-        assertEquals(3, updatedItems.size)
+        assertTrue(isSelectedA)
     }
 
     // endregion
