@@ -1,5 +1,5 @@
 @file:Suppress("DEPRECATION")
-@file:OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+@file:OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class, org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
 
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -40,6 +40,12 @@ kotlin {
         }
     }
 
+    // Web target: enables Compose Multiplatform on the browser (WASM).
+    // wasmJs depends directly on commonMain (NOT commonJvmAndroid), so the
+    // JVM-only reflection helpers (asNoopFn/asSuspendNoopFn/checkIsLegalParameters)
+    // are not part of this target by design.
+    wasmJs { browser() }
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()
@@ -62,7 +68,10 @@ kotlin {
 
             implementation(project.dependencies.platform(libs.kotlin.bom))
             api(libs.kotlin.stdlib)
-            implementation(libs.kotlin.reflect)
+            // Note: kotlin-reflect artifact is intentionally NOT in commonMain.
+            // It has no wasmJs klib, and commonMain only uses KClass/KFunction/KProperty
+            // (provided by kotlin-stdlib). Real reflection calls (.call/.callSuspend/
+            // .createType) live in commonJvmAndroid; see the dependency block below.
             api(libs.kotlinx.coroutines)
             api(libs.kotlinx.datetime)
             api(libs.kotlinx.collections.immutable)
@@ -73,6 +82,12 @@ kotlin {
 
         val commonJvmAndroid by creating {
             dependsOn(commonMain.get())
+            dependencies {
+                // The kotlin-reflect artifact is JVM/Android-only (no wasmJs klib).
+                // It backs the reflection-based helpers (asNoopFn, asSuspendNoopFn,
+                // checkIsLegalParameters) that use .call/.callSuspend/.createType.
+                implementation(libs.kotlin.reflect)
+            }
         }
 
         androidMain.get().dependsOn(commonJvmAndroid)

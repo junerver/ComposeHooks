@@ -27,12 +27,13 @@
 implementation("xyz.junerver.compose:hooks2:<latest_release>")
 ```
 
-目前只支持有限的 target：
+支持的 target：
 - android
 - desktop（jvm）
 - iosarm64
 - iosimulatorarm64
 - iosx64
+- wasmJs（browser）—— 在 Web（WASM）上启用 Compose Multiplatform，下游项目可在浏览器中运行可交互预览。自 `2.4.0` 起可用。
 
 ## 简介
 

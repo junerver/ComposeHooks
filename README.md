@@ -27,12 +27,13 @@ English | [简体中文](https://github.com/junerver/ComposeHooks/blob/master/RE
 implementation("xyz.junerver.compose:hooks2:<latest_release>")
 ```
 
-Currently only limited targets are supported:
+Supported targets:
 - android
 - desktop (jvm)
 - iosarm64
 - iosimulatorarm64
 - iosx64
+- wasmJs (browser) — enables Compose Multiplatform on the Web (WASM), so downstream projects can run interactive previews in the browser. Available since `2.4.0`.
 
 
 ## About
