@@ -44,7 +44,20 @@ kotlin {
     // wasmJs depends directly on commonMain (NOT commonJvmAndroid), so the
     // JVM-only reflection helpers (asNoopFn/asSuspendNoopFn/checkIsLegalParameters)
     // are not part of this target by design.
-    wasmJs { browser() }
+    wasmJs {
+        browser {
+            testTask {
+                useKarma {
+                    // Plain ChromeHeadless fails to launch in headless / CI
+                    // shells (no sandbox). useChromeHeadlessNoSandbox is the
+                    // built-in launcher that adds --no-sandbox /
+                    // --disable-dev-shm-usage so wasmJs browser tests run
+                    // reliably in non-interactive environments.
+                    useChromeHeadlessNoSandbox()
+                }
+            }
+        }
+    }
 
     listOf(
         iosArm64(),
