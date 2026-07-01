@@ -7,7 +7,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.tooling.preview.Preview
 
 /*
   Description:
@@ -27,10 +26,4 @@ fun TButton(
     Button(onClick = { onClick() }, enabled = enabled, modifier = modifier.padding(PaddingValues(4.dp))) {
         Text(text = text)
     }
-}
-
-@Preview
-@Composable
-private fun TButtonPreview() {
-    TButton(text = "Refresh") {}
 }

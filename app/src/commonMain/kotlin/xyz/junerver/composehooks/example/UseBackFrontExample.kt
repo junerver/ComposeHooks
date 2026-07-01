@@ -13,6 +13,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import kotlin.time.Clock
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import xyz.junerver.compose.hooks.invoke
@@ -31,6 +34,19 @@ import xyz.junerver.composehooks.ui.component.TButton
   Email: junerver@gmail.com
   Version: v1.0
 */
+
+/**
+ * Returns the current local time as "HH:mm:ss", the cross-platform replacement for the
+ * JVM-only `java.time.LocalTime.now()` previously used here. Uses `kotlin.time.Clock.System`
+ * (stdlib, available on every target including wasmJs) rather than `kotlinx.datetime.Clock`,
+ * whose `System` accessor is not resolvable on wasmJs.
+ */
+private fun nowLocalTimeString(): String {
+    val now = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+    return "${now.hour.toString().padStart(2, '0')}:" +
+        "${now.minute.toString().padStart(2, '0')}:" +
+        "${now.second.toString().padStart(2, '0')}"
+}
 
 /**
  * Example component demonstrating the useBackToFrontEffect and useFrontToBackEffect hooks
@@ -151,7 +167,7 @@ private fun BackToFrontExample() {
 
     useBackToFrontEffect {
         executionCount++
-        setLastExecution("Executed at ${java.time.LocalTime.now()}")
+        setLastExecution("Executed at ${nowLocalTimeString()}")
     }
 
     Column {
@@ -180,7 +196,7 @@ private fun FrontToBackExample() {
 
     useFrontToBackEffect {
         executionCount++
-        setLastExecution("Executed at ${java.time.LocalTime.now()}")
+        setLastExecution("Executed at ${nowLocalTimeString()}")
     }
 
     Column {

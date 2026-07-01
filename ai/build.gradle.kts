@@ -1,5 +1,8 @@
 @file:Suppress("DEPRECATION")
-@file:OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
+@file:OptIn(
+    org.jetbrains.compose.ExperimentalComposeLibrary::class,
+    org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class,
+)
 
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
@@ -48,6 +51,12 @@ kotlin {
             isStatic = true
         }
     }
+
+    // Web target: mirrors hooks2's wasmJs variant so the :app sample (and any
+    // downstream CMP project) can build the AI hooks for the browser. The JS
+    // engine is the only ktor backend that ships a wasmJs klib; it satisfies
+    // HttpClient{} in KtorHttpEngine on this target.
+    wasmJs { browser() }
 
     applyDefaultHierarchyTemplate()
 
@@ -98,6 +107,14 @@ kotlin {
 
         iosMain.dependencies {
             implementation(libs.ktor.client.darwin)
+        }
+
+        val wasmJsMain by getting {
+            dependencies {
+                // ktor-client-js publishes the wasmJs klib variant; it is the
+                // HTTP backend for KtorHttpEngine under the browser target.
+                implementation(libs.ktor.client.js)
+            }
         }
 
         commonTest.dependencies {

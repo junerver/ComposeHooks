@@ -1,4 +1,5 @@
 @file:Suppress("DEPRECATION")
+@file:OptIn(org.jetbrains.kotlin.gradle.ExperimentalWasmDsl::class)
 
 import org.jetbrains.compose.desktop.application.dsl.TargetFormat
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
@@ -12,6 +13,14 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.compose.hot.reload)
     alias(libs.plugins.ksp)
+}
+
+// Compose Resources: bundle the CJK fallback font (Noto Sans SC) consumed by the
+// wasmJs build (see wasmJsMain/WebFonts.kt) so Skiko can render Chinese glyphs in
+// the browser. Custom namespace keeps the generated `Res` accessor in our package.
+compose.resources {
+    publicResClass = true
+    packageOfResClass = "xyz.junerver.composehooks"
 }
 
 kotlin {
@@ -32,6 +41,31 @@ kotlin {
         compilerOptions {
             jvmTarget.set(JvmTarget.JVM_17)
         }
+    }
+
+    // Web target: renders the same `App()` the android/desktop builds use inside a
+    // browser canvas, making :app a four-platform sample (android + desktop + ios + web).
+    // `binaries.executable()` registers the webpack run/distribution tasks
+    // (wasmJsBrowserDevelopmentRun / wasmJsBrowserDistribution); without it only
+    // wasmJsBrowserTest is available.
+    wasmJs {
+        browser {
+            commonWebpackConfig {
+                outputFileName = "composeHooksWasm.js"
+                // Workaround for `node:net` UnhandledSchemeError in the wasmJs bundle.
+                //
+                // kotlinx-datetime pulls in @js-joda/core, whose ESM build imports `node:net`;
+                // webpack 5 rejects the `node:` scheme and aborts wasmJsBrowserDevelopmentWebpack.
+                // Those imports only fire under Node.js (the libs feature-detect the environment
+                // and skip them in a browser), so the snippet under this directory short-circuits
+                // every `node:*` request to an empty module. Kotlin merges any *.js found here
+                // into the generated webpack.config.js.
+                configDirectory = project.layout.projectDirectory
+                    .dir("src/wasmJsMain/webpack.config.d")
+                    .asFile
+            }
+        }
+        binaries.executable()
     }
 
     applyDefaultHierarchyTemplate()

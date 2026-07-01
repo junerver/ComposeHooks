@@ -14,12 +14,29 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Calculate
+import androidx.compose.material.icons.filled.DataObject
+import androidx.compose.material.icons.filled.DesktopWindows
+import androidx.compose.material.icons.filled.Functions
+import androidx.compose.material.icons.filled.HourglassEmpty
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.PlayCircle
+import androidx.compose.material.icons.filled.Public
+import androidx.compose.material.icons.filled.QueryStats
+import androidx.compose.material.icons.filled.SmartToy
+import androidx.compose.material.icons.filled.TableChart
+import androidx.compose.material.icons.filled.ToggleOn
+import androidx.compose.material.icons.filled.Verified
+import androidx.compose.material.icons.outlined.Bolt
+import androidx.compose.material.icons.outlined.Smartphone
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -49,7 +66,7 @@ import xyz.junerver.composehooks.route.useNavigate
 /** Hook category definition */
 private data class HookCategory(
     val name: String,
-    val icon: String,
+    val icon: ImageVector,
     val hooks: List<HookItem>,
 )
 
@@ -63,7 +80,7 @@ private data class HookItem(
 private val hookCategories = listOf(
     HookCategory(
         name = "State",
-        icon = "\uD83D\uDD35",
+        icon = Icons.Default.ToggleOn,
         hooks = listOf(
             HookItem("useState", "useState"),
             HookItem("useGetState", "useGetState"),
@@ -95,7 +112,7 @@ private val hookCategories = listOf(
     ),
     HookCategory(
         name = "Effect",
-        icon = "\uD83D\uDFE1",
+        icon = Icons.Outlined.Bolt,
         hooks = listOf(
             HookItem("useEffect", "useEffect"),
             HookItem("useUpdateEffect", "useUpdateEffect"),
@@ -108,7 +125,7 @@ private val hookCategories = listOf(
     ),
     HookCategory(
         name = "LifeCycle",
-        icon = "\uD83D\uDFE2",
+        icon = Icons.Default.PlayCircle,
         hooks = listOf(
             HookItem("useMount", "useMount"),
             HookItem("useUnmount", "useUnmount"),
@@ -117,7 +134,7 @@ private val hookCategories = listOf(
     ),
     HookCategory(
         name = "Time",
-        icon = "\uD83D\uDD70\uFE0F",
+        icon = Icons.Default.HourglassEmpty,
         hooks = listOf(
             HookItem("useNow", "useNow"),
             HookItem("useTimestamp", "useTimestamp"),
@@ -132,7 +149,7 @@ private val hookCategories = listOf(
     ),
     HookCategory(
         name = "Network",
-        icon = "\uD83C\uDF10",
+        icon = Icons.Default.Public,
         hooks = listOf(
             HookItem("useRequest", "useRequest"),
             HookItem("useAsync", "useAsync"),
@@ -141,7 +158,7 @@ private val hookCategories = listOf(
     ),
     HookCategory(
         name = "Utilities",
-        icon = "\uD83D\uDEE0\uFE0F",
+        icon = Icons.Default.Build,
         hooks = listOf(
             HookItem("useCounter", "useCounter"),
             HookItem("useClipboard", "useClipboard"),
@@ -155,7 +172,7 @@ private val hookCategories = listOf(
     ),
     HookCategory(
         name = "Table",
-        icon = "\uD83D\uDCCA",
+        icon = Icons.Default.TableChart,
         hooks = listOf(
             HookItem("useTable", "useTable"),
             HookItem("useTableRequest", "useTableRequest"),
@@ -163,7 +180,7 @@ private val hookCategories = listOf(
     ),
     HookCategory(
         name = "Math",
-        icon = "\uD83E\uDDEE",
+        icon = Icons.Default.Calculate,
         hooks = listOf(
             HookItem("useAbs", "useMath"),
             HookItem("useCeil", "useMath"),
@@ -178,7 +195,7 @@ private val hookCategories = listOf(
     ),
     HookCategory(
         name = "AI",
-        icon = "\uD83E\uDD16",
+        icon = Icons.Default.SmartToy,
         hooks = listOf(
             HookItem("useChat", "useChat"),
             HookItem("useAgent", "useAgent"),
@@ -189,7 +206,7 @@ private val hookCategories = listOf(
     ),
     HookCategory(
         name = "Android",
-        icon = "\uD83D\uDCF1",
+        icon = Icons.Outlined.Smartphone,
         hooks = listOf(
             HookItem("useBiometric", "useBiometric"),
             HookItem("useDeviceInfo", "useDeviceInfo"),
@@ -202,7 +219,7 @@ private val hookCategories = listOf(
     ),
     HookCategory(
         name = "Desktop",
-        icon = "\uD83D\uDDA5\uFE0F",
+        icon = Icons.Default.DesktopWindows,
         hooks = listOf(
             HookItem("useKeyPress", "useKeyPress"),
         ),
@@ -258,9 +275,11 @@ fun HomeScreen() {
                             .padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(
-                            text = category.icon,
-                            style = MaterialTheme.typography.titleLarge,
+                        Icon(
+                            imageVector = category.icon,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(28.dp),
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
