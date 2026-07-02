@@ -18,6 +18,22 @@ ComposeHooks 是一个为 Jetpack Compose/Compose Multiplatform 设计的 Hooks 
 
 公开的 `useXxx` Hook 均提供对应的 `rememberXxx` 别名，选择你喜欢的命名风格。少数历史 API（如 `Table.useTableInstance`）仅为兼容保留，优先使用顶层 `useXxx`/`rememberXxx`。
 
+## 平台支持
+
+库以 Kotlin Multiplatform 形式发布（artifact id `hooks2`），覆盖四个目标：
+
+| 平台 | target | 说明 |
+|---|---|---|
+| Android | `androidTarget` | 含平台专属 hooks（生物识别、网络、电池、传感器等） |
+| Desktop | `jvm` | 桌面专属 `useKeyPress` |
+| iOS | `iosArm64` / `iosSimulatorArm64` / `iosX64` | 状态/副作用/网络等通用 hooks |
+| Web | `wasmJs` (browser) | 自 `2.4.0` 起可用，用于在浏览器中运行 Compose 组件 |
+
+**wasmJs 注意事项**：
+- `commonMain` 中的 hooks 全部可用；平台强相关 hooks（Android 专属、`usePersistent` 的存储后端等）需在各 target 的 actual 实现中处理或降级。
+- `useRequest`/`useForm`/`useRedux` 使用的 `KClass` 仅作 Map 键，wasmJs 下可用；真正的反射调用（`.call`/`.callSuspend`/`.createType`）已隔离在 `commonJvmAndroid`，不影响 wasmJs 编译。
+- `usePersistent` 采用注入式设计（`SaveToPersistent<T>` 函数类型），wasmJs 下可注入基于 `localStorage` 的实现。
+
 ## 快速参考
 
 ### 状态管理 Hooks

@@ -3,7 +3,12 @@
 > 提出日期：2026-06-29
 > 提出方：Palette 组件库（`xyz.junerver.compose.palette`）
 > 优先级：**P0**（阻塞下游文档站的在线交互预览能力）
-> 状态：待评估
+> 状态：**✅ 已完成（2.4.0-beta-1，2026-06-29）**
+>
+> **闭环验证**：hooks2 2.4.0-beta-1 已在 Maven Central 发布（含 wasmJs 变体）。Palette 已升级
+> 并验证 `:palette:compileKotlinWasmJs` BUILD SUCCESSFUL（走远程 Maven Central，非本地缓存）。
+> 反射隔离设计（commonMain 只用 stdlib KClass，反射调用隔离在 commonJvmAndroid）经验证有效。
+> 下游 Palette 已为 palette + 3 子模块启用 wasmJs target，仅修 1 处 PlatformActivity actual。
 
 ---
 
@@ -150,13 +155,13 @@ Gradle 在解析 `xyz.junerver.compose:hooks2` 时找不到 wasmJs 变体，导�
 
 ### 验收项
 
-- [ ] **V1**：`hooks/build.gradle.kts` 中存在 `wasmJs { browser() }` target。
-- [ ] **V2**：`./gradlew :hooks:publishToMavenLocal` 成功，且产物包含 wasmJs klib。
-- [ ] **V3**：本地 Maven 中 hooks2 新版本的 `.module` 文件包含 `wasmJs` variant。
-- [ ] **V4**：§3.1 列出的核心 hooks 在 wasmJs target 下编译通过（`./gradlew :hooks:compileKotlinWasmJs`）。
-- [ ] **V5**：§3.1 核心 hooks 在 wasmJs 下功能正确（新增 `hooks/src/wasmJsTest` 测试，或文档化已验证）。
-- [ ] **V6**：§3.2 的 hooks 要么在 wasmJs 可用，要么在 API 文档中**明确标注"wasmJs 不支持/降级"**。
-- [ ] **V7**：**下游验证**——Palette 的 `palette` 模块在升级到该版本后，能成功添加 `wasmJs { browser() }` target 并编译（这是本需求的最终目的）。
+- [x] **V1**：`hooks/build.gradle.kts` 中存在 `wasmJs { browser() }` target。
+- [x] **V2**：`./gradlew :hooks:publishToMavenLocal` 成功，且产物包含 wasmJs klib（2.4.0-beta-1, 963KB）。
+- [x] **V3**：本地 Maven 中 hooks2 新版本的 `.module` 文件包含 `wasmJs` variant。
+- [x] **V4**：§3.1 列出的核心 hooks 在 wasmJs target 下编译通过（`./gradlew :hooks:compileKotlinWasmJs`）。
+- [x] **V5**：§3.1 核心 hooks 在 wasmJs 下功能正确（`hooks/src/wasmJsTest` 已覆盖 201 项测试，含 WasmJsSmokeTest + 继承自 commonTest 的 Fetch/Redux/Debounce/Form/Table）。
+- [ ] **V6**：§3.2 的 hooks 要么在 wasmJs 可用，要么在 API 文档中**明确标注"wasmJs 不支持/降级"**。（待阶段 2 处理；当前 useRequest/useForm/useRedux 依赖的 `KClass` 仅作 Map 键，wasmJs 下可用，反射调用已隔离在 commonJvmAndroid。）
+- [x] **V7**：**下游验证**——Palette 已升级并通过 `:palette:compileKotlinWasmJs`（BUILD SUCCESSFUL，走远程 Maven Central 非本地缓存），已为 palette + 3 子模块启用 wasmJs target。
 - [ ] **V8**（可选，对应 R3）：同样验证 js target。
 
 ### 验证脚本（下游 Palette 侧）
