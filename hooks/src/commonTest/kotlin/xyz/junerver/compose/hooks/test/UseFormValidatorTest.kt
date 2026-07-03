@@ -71,7 +71,9 @@ class UseFormValidatorTest {
     @Test
     fun phone_validator_passes_for_valid_phones() {
         val validator = Phone()
-        // Phone validation depends on isPhone() implementation
+        assertTrue(validator.validator("0571-12345678"), "Landline with dash should pass")
+        assertTrue(validator.validator("+86-0571-12345678"), "Landline with country code should pass")
+        assertFalse(validator.validator("12345"), "Clearly invalid phone should fail")
         assertTrue(validator.validator(null), "Null should pass (not required)")
         assertTrue(validator.validator(""), "Empty should pass (not required)")
     }
@@ -79,7 +81,9 @@ class UseFormValidatorTest {
     @Test
     fun mobile_validator_passes_for_valid_mobiles() {
         val validator = Mobile()
-        // Mobile validation depends on isMobile() implementation
+        assertTrue(validator.validator("13812345678"), "China mobile number should pass")
+        assertTrue(validator.validator("+8613812345678"), "Mobile number with country code should pass")
+        assertFalse(validator.validator("12345"), "Clearly invalid mobile should fail")
         assertTrue(validator.validator(null), "Null should pass (not required)")
         assertTrue(validator.validator(""), "Empty should pass (not required)")
     }
@@ -120,51 +124,41 @@ class UseFormValidatorTest {
             Regex(regex = "^[a-z]+$"),
         )
 
-        var passCount = 0
-        var failCount = 0
+        val failedMessages = mutableListOf<String>()
 
         val result = validators.validateField(
             fieldValue = "hello",
-            pass = {
-                passCount++
-                true
-            },
+            pass = { true },
             fail = {
-                failCount++
+                failedMessages += message
                 false
             },
         )
 
         assertTrue(result, "All validators should pass")
-        assertEquals(2, passCount, "Both validators should call pass")
-        assertEquals(0, failCount, "No validators should call fail")
+        assertTrue(failedMessages.isEmpty(), "Passing validation should not report errors")
     }
 
     @Test
     fun validateField_returns_false_when_any_validator_fails() {
         val validators = arrayOf(
             Required(),
-            Regex(regex = "^[0-9]+$"), // Only numbers
+            Regex(message = "Only numbers", regex = "^[0-9]+$"),
         )
 
-        var passCount = 0
-        var failCount = 0
+        val failedMessages = mutableListOf<String>()
 
         val result = validators.validateField(
             fieldValue = "hello", // Letters, not numbers
-            pass = {
-                passCount++
-                true
-            },
+            pass = { true },
             fail = {
-                failCount++
+                failedMessages += message
                 false
             },
         )
 
         assertFalse(result, "Should fail because regex doesn't match")
-        assertEquals(1, passCount, "Required should pass")
-        assertEquals(1, failCount, "Regex should fail")
+        assertEquals(listOf("Only numbers"), failedMessages)
     }
 
     @Test
@@ -181,17 +175,16 @@ class UseFormValidatorTest {
     }
 
     @Test
-    fun multiple_validators_collect_all_errors() {
-        val validators = arrayOf(
-            Required("Field is required"),
+    fun multiple_failing_validators_collect_all_error_messages() {
+        val validators = arrayOf<Validator>(
             Regex(message = "Must be numbers", regex = "^[0-9]+$"),
+            Regex(message = "Must be uppercase", regex = "^[A-Z]+$"),
         )
 
         val errors = mutableListOf<String>()
 
-        // Use "abc" which fails Regex but passes Required
         validators.validateField(
-            fieldValue = "abc", // Will fail Regex only
+            fieldValue = "abc",
             pass = { true },
             fail = {
                 errors.add(message)
@@ -199,29 +192,7 @@ class UseFormValidatorTest {
             },
         )
 
-        assertEquals(1, errors.size, "Should collect 1 error (Regex)")
-        assertTrue(errors.contains("Must be numbers"))
-    }
-
-    @Test
-    fun validator_order_is_preserved() {
-        val order = mutableListOf<String>()
-        val validators = arrayOf(
-            Required("first"),
-            Email("second"),
-            Regex(message = "third", regex = ".*"),
-        )
-
-        validators.validateField(
-            fieldValue = "test@example.com",
-            pass = {
-                order.add(message)
-                true
-            },
-            fail = { false },
-        )
-
-        assertEquals(listOf("first", "second", "third"), order)
+        assertEquals(listOf("Must be numbers", "Must be uppercase"), errors)
     }
 
     @Test

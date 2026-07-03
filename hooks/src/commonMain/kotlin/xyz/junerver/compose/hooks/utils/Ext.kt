@@ -52,7 +52,7 @@ internal val currentLocalDateTime: LocalDateTime
     get() = currentInstant.toLocalDateTime()
 
 private val MOBILE_REGEX = Regex("(\\+\\d+)?1[34578]\\d{9}$")
-private val PHONE_REGEX = Regex("(\\+\\d+)?(\\d{3,4}\\-?)?\\d{7,8}$")
+private val PHONE_REGEX = Regex("(\\+\\d+\\-?)?(\\d{3,4}\\-?)?\\d{7,8}$")
 
 /**
  * Converts an [Instant] to a [LocalDateTime] in the specified timezone.

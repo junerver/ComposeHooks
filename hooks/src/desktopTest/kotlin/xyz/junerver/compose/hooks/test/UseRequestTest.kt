@@ -9,9 +9,14 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import java.util.concurrent.atomic.AtomicInteger
+import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.delay
@@ -19,8 +24,10 @@ import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.PluginLifecycle
+import xyz.junerver.compose.hooks.userequest.RequestHolder
 import xyz.junerver.compose.hooks.userequest.UseRequestOptions
 import xyz.junerver.compose.hooks.userequest.useRequest
+import xyz.junerver.compose.hooks.utils.instantProvider
 
 /*
   Description: useRequest 组合行为桌面测试
@@ -31,12 +38,28 @@ import xyz.junerver.compose.hooks.userequest.useRequest
 */
 @Suppress("DEPRECATION")
 class UseRequestTest {
-    private fun waitForCondition(maxAttempts: Int = 80, delayMs: Long = 50, condition: () -> Boolean): Boolean {
-        for (i in 0 until maxAttempts) {
+    private fun waitForCondition(maxAttempts: Int = 80, delayMs: Long = 20, condition: () -> Boolean): Boolean {
+        repeat(maxAttempts) {
             if (condition()) return true
             Thread.sleep(delayMs)
         }
         return false
+    }
+
+    private var currentInstant: Instant = Clock.System.now()
+
+    private fun resetInstantProvider() {
+        currentInstant = Clock.System.now()
+        instantProvider = { currentInstant }
+    }
+
+    private fun advanceInstant(duration: kotlin.time.Duration) {
+        currentInstant += duration
+    }
+
+    @AfterTest
+    fun tearDown() {
+        instantProvider = { Clock.System.now() }
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -129,7 +152,63 @@ class UseRequestTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun plugins_same_size_should_update_on_recomposition() = runComposeUiTest {
+    fun manual_request_recovers_from_error_and_clears_error_on_success() = runComposeUiTest {
+        val callCount = AtomicInteger(0)
+        lateinit var holder: RequestHolder<String, Int>
+
+        setContent {
+            holder = useRequest(
+                requestFn = { params: String ->
+                    delay(50)
+                    if (callCount.incrementAndGet() == 1) {
+                        throw RuntimeException("boom")
+                    }
+                    params.length
+                },
+                optionsOf = {
+                    manual = true
+                    onError = { _, _ -> }
+                },
+            )
+
+            Text(
+                "data=${holder.data.value} loading=${holder.isLoading.value} " +
+                    "error=${holder.error.value?.message}",
+            )
+        }
+
+        waitForIdle()
+        holder.request("abc")
+        waitForIdle()
+        onNodeWithText("data=null loading=true error=null").assertExists()
+        mainClock.advanceTimeBy(60)
+        waitForIdle()
+
+        val firstFailed =
+            !holder.isLoading.value &&
+                holder.data.value == null &&
+                holder.error.value?.message == "boom"
+        assertTrue(firstFailed, "Expected first manual request to expose error state")
+        onNodeWithText("data=null loading=false error=boom").assertExists()
+
+        holder.request("abcd")
+        waitForIdle()
+        onNodeWithText("data=null loading=true error=boom").assertExists()
+        mainClock.advanceTimeBy(60)
+        waitForIdle()
+
+        val recovered =
+            !holder.isLoading.value &&
+                holder.data.value == 4 &&
+                holder.error.value == null
+        assertTrue(recovered, "Expected successful retry to update data and clear prior error")
+        onNodeWithText("data=4 loading=false error=null").assertExists()
+        assertEquals(2, callCount.get())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun recomposition_applies_latest_custom_plugin_behavior() = runComposeUiTest {
         val callCount = AtomicInteger(0)
         setContent {
             var useNewPlugin by useState(default = false)
@@ -274,11 +353,13 @@ class UseRequestTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun debouncePlugin_multiple_rapid_calls_only_executes_last() = runComposeUiTest {
+        resetInstantProvider()
         val callCount = AtomicInteger(0)
         val receivedParams = mutableListOf<String>()
+        lateinit var holder: RequestHolder<String, Int>
         setContent {
             var phase by useState(default = 0)
-            val holder = useRequest(
+            holder = useRequest(
                 requestFn = { params: String ->
                     receivedParams.add(params)
                     callCount.incrementAndGet()
@@ -306,10 +387,26 @@ class UseRequestTest {
             Text("data=${holder.data.value}")
         }
 
-        val found = waitForCondition { callCount.get() == 1 }
-        assertTrue(found, "Expected debounce to invoke once")
+        waitForIdle()
+        assertEquals(0, callCount.get())
+
+        advanceInstant(100.milliseconds)
+        mainClock.advanceTimeBy(100)
+        waitForIdle()
+
+        val completed = waitForCondition {
+            callCount.get() == 1 &&
+                receivedParams == listOf("abc") &&
+                holder.data.value == 3 &&
+                holder.isLoading.value == false &&
+                holder.error.value == null
+        }
+        assertTrue(completed, "Expected debounce to invoke once with the latest params")
         assertEquals(1, callCount.get())
         assertEquals(listOf("abc"), receivedParams)
+        assertEquals(3, holder.data.value)
+        assertFalse(holder.isLoading.value)
+        assertNull(holder.error.value)
     }
 
     // endregion
@@ -319,11 +416,13 @@ class UseRequestTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun throttlePlugin_multiple_rapid_calls_only_executes_first() = runComposeUiTest {
+        resetInstantProvider()
         val callCount = AtomicInteger(0)
         val receivedParams = mutableListOf<String>()
+        lateinit var holder: RequestHolder<String, Int>
         setContent {
             var phase by useState(default = 0)
-            val holder = useRequest(
+            holder = useRequest(
                 requestFn = { params: String ->
                     receivedParams.add(params)
                     callCount.incrementAndGet()
@@ -354,11 +453,15 @@ class UseRequestTest {
         }
 
         waitForIdle()
-        Thread.sleep(50)
+        advanceInstant(50.milliseconds)
+        mainClock.advanceTimeBy(50)
         waitForIdle()
 
         assertEquals(1, callCount.get())
         assertEquals(listOf("a"), receivedParams)
+        assertEquals(1, holder.data.value)
+        assertFalse(holder.isLoading.value)
+        assertNull(holder.error.value)
     }
 
     // endregion
@@ -369,8 +472,9 @@ class UseRequestTest {
     @Test
     fun retryPlugin_retries_on_error_up_to_retryCount() = runComposeUiTest {
         val callCount = AtomicInteger(0)
+        lateinit var holder: RequestHolder<String, Int>
         setContent {
-            val holder = useRequest(
+            holder = useRequest(
                 requestFn = { _: String ->
                     val count = callCount.incrementAndGet()
                     if (count <= 2) {
@@ -386,23 +490,32 @@ class UseRequestTest {
                 },
             )
 
-            Text("data=${holder.data.value} error=${holder.error.value?.message}")
+            Text("data=${holder.data.value} loading=${holder.isLoading.value} error=${holder.error.value?.message}")
         }
 
         waitForIdle()
-        Thread.sleep(300)
-        waitForIdle()
-
+        val completed = waitForCondition(maxAttempts = 80, delayMs = 30) {
+            waitForIdle()
+            callCount.get() == 3 &&
+                holder.data.value == 3 &&
+                holder.isLoading.value == false &&
+                holder.error.value == null
+        }
+        assertTrue(completed, "Expected retry plugin to eventually succeed within retryCount")
         assertEquals(3, callCount.get())
-        onNodeWithText("data=3 error=null").assertExists()
+        assertEquals(3, holder.data.value)
+        assertFalse(holder.isLoading.value)
+        assertNull(holder.error.value)
+        onNodeWithText("data=3 loading=false error=null").assertExists()
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun retryPlugin_stops_after_retryCount_exceeded() = runComposeUiTest {
         val callCount = AtomicInteger(0)
+        lateinit var holder: RequestHolder<String, Int>
         setContent {
-            val holder = useRequest(
+            holder = useRequest(
                 requestFn = { _: String ->
                     callCount.incrementAndGet()
                     throw RuntimeException("Always fails")
@@ -415,15 +528,23 @@ class UseRequestTest {
                 },
             )
 
-            Text("error=${holder.error.value != null}")
+            Text("data=${holder.data.value} loading=${holder.isLoading.value} error=${holder.error.value?.message}")
         }
 
         waitForIdle()
-        Thread.sleep(300)
-        waitForIdle()
-
+        val completed = waitForCondition(maxAttempts = 80, delayMs = 30) {
+            waitForIdle()
+            callCount.get() == 3 &&
+                holder.data.value == null &&
+                holder.isLoading.value == false &&
+                holder.error.value?.message == "Always fails"
+        }
+        assertTrue(completed, "Expected retry plugin to stop after retryCount is exceeded")
         assertEquals(3, callCount.get())
-        onNodeWithText("error=true").assertExists()
+        assertNull(holder.data.value)
+        assertFalse(holder.isLoading.value)
+        assertEquals("Always fails", holder.error.value?.message)
+        onNodeWithText("data=null loading=false error=Always fails").assertExists()
     }
 
     // endregion
@@ -434,8 +555,9 @@ class UseRequestTest {
     @Test
     fun pollingPlugin_polls_at_specified_interval() = runComposeUiTest {
         val callCount = AtomicInteger(0)
+        lateinit var holder: RequestHolder<String, Unit>
         setContent {
-            useRequest(
+            holder = useRequest(
                 requestFn = { _: String ->
                     callCount.incrementAndGet()
                 },
@@ -446,14 +568,23 @@ class UseRequestTest {
                 },
             )
 
-            Text("count=${callCount.get()}")
+            Text("count=${callCount.get()} loading=${holder.isLoading.value} error=${holder.error.value?.message}")
         }
 
         waitForIdle()
-        Thread.sleep(350)
+        assertEquals(1, callCount.get())
+
+        mainClock.advanceTimeBy(250)
         waitForIdle()
 
-        assertTrue(callCount.get() >= 3)
+        val completed = waitForCondition {
+            callCount.get() >= 3 &&
+                holder.isLoading.value == false &&
+                holder.error.value == null
+        }
+        assertTrue(completed, "Expected polling to trigger repeated refreshes")
+        assertEquals(false, holder.isLoading.value)
+        assertEquals(null, holder.error.value)
     }
 
     // endregion
@@ -467,11 +598,13 @@ class UseRequestTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun cachePlugin_returns_cached_data_on_second_request() = runComposeUiTest {
+        resetInstantProvider()
         val callCount = AtomicInteger(0)
         val cacheKey = "test-cache-${System.currentTimeMillis()}"
+        lateinit var requestAgain: (String) -> Unit
+        lateinit var holder: RequestHolder<String, Int>
         setContent {
-            var phase by useState(default = 0)
-            val holder = useRequest(
+            holder = useRequest(
                 requestFn = { params: String ->
                     delay(50)
                     callCount.incrementAndGet()
@@ -483,41 +616,59 @@ class UseRequestTest {
                     staleTime = 10.seconds
                 },
             )
+            requestAgain = { params -> holder.request(params) }
 
-            SideEffect {
-                when (phase) {
-                    0 -> {
-                        holder.request("abc")
-                        phase = 1
-                    }
-
-                    1 -> {
-                        if (holder.data.value != null) {
-                            holder.request("abc")
-                            phase = 2
-                        }
-                    }
-                }
-            }
-
-            Text("data=${holder.data.value} phase=$phase")
+            Text("data=${holder.data.value} loading=${holder.isLoading.value} error=${holder.error.value?.message}")
         }
 
         waitForIdle()
-        Thread.sleep(200)
+        requestAgain("abc")
+        waitForIdle()
+        mainClock.advanceTimeBy(60)
         waitForIdle()
 
+        val firstLoaded = waitForCondition {
+            callCount.get() == 1 &&
+                holder.data.value == 3 &&
+                holder.isLoading.value == false &&
+                holder.error.value == null
+        }
+        assertTrue(firstLoaded, "Expected first request to complete")
         assertEquals(1, callCount.get())
+        assertEquals(3, holder.data.value)
+        assertEquals(false, holder.isLoading.value)
+        assertEquals(null, holder.error.value)
+        onNodeWithText("data=3 loading=false error=null").assertExists()
+
+        requestAgain("abc")
+        waitForIdle()
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+
+        val cached = waitForCondition {
+            callCount.get() == 1 &&
+                holder.data.value == 3 &&
+                holder.isLoading.value == false &&
+                holder.error.value == null
+        }
+        assertTrue(cached, "Expected cached request to avoid duplicate fetch")
+        assertEquals(1, callCount.get())
+        assertEquals(3, holder.data.value)
+        assertEquals(false, holder.isLoading.value)
+        assertEquals(null, holder.error.value)
+        onNodeWithText("data=3 loading=false error=null").assertExists()
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun cachePlugin_refetches_after_staleTime_expires() = runComposeUiTest {
+        resetInstantProvider()
         val callCount = AtomicInteger(0)
         val cacheKey = "test-cache-stale-${System.currentTimeMillis()}"
+        lateinit var requestAgain: (String) -> Unit
+        lateinit var holder: RequestHolder<String, Int>
         setContent {
-            var phase by useState(default = 0)
-            val holder = useRequest(
+            holder = useRequest(
                 requestFn = { params: String ->
                     callCount.incrementAndGet()
                     params.length
@@ -528,30 +679,44 @@ class UseRequestTest {
                     staleTime = 50.milliseconds
                 },
             )
+            requestAgain = { params -> holder.request(params) }
 
-            SideEffect {
-                when (phase) {
-                    0 -> {
-                        holder.request("abc")
-                        phase = 1
-                    }
-
-                    1 -> {
-                        if (holder.data.value != null) {
-                            phase = 2
-                        }
-                    }
-                }
-            }
-
-            Text("data=${holder.data.value} phase=$phase")
+            Text("data=${holder.data.value} loading=${holder.isLoading.value} error=${holder.error.value?.message}")
         }
 
         waitForIdle()
-        Thread.sleep(100)
+        requestAgain("abc")
         waitForIdle()
 
+        val firstLoaded = waitForCondition {
+            callCount.get() == 1 &&
+                holder.data.value == 3 &&
+                holder.isLoading.value == false &&
+                holder.error.value == null
+        }
+        assertTrue(firstLoaded, "Expected first request to complete")
         assertEquals(1, callCount.get())
+        assertEquals(3, holder.data.value)
+        assertFalse(holder.isLoading.value)
+        assertNull(holder.error.value)
+        onNodeWithText("data=3 loading=false error=null").assertExists()
+
+        advanceInstant(80.milliseconds)
+        requestAgain("abc")
+        waitForIdle()
+
+        val refetched = waitForCondition {
+            callCount.get() == 2 &&
+                holder.data.value == 3 &&
+                holder.isLoading.value == false &&
+                holder.error.value == null
+        }
+        assertTrue(refetched, "Expected stale cache to trigger a second fetch")
+        assertEquals(2, callCount.get())
+        assertEquals(3, holder.data.value)
+        assertFalse(holder.isLoading.value)
+        assertNull(holder.error.value)
+        onNodeWithText("data=3 loading=false error=null").assertExists()
     }
 
     // endregion

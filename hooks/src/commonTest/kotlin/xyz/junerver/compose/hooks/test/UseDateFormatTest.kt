@@ -100,34 +100,21 @@ class UseDateFormatTest {
 
     @Test
     fun testTimezoneFormats() {
-        // Using SystemDefault for now, as specific timezone IDs might not be available consistently across platforms
-        val systemTimeZone = TimeZone.Companion.currentSystemDefault()
-        val systemTimezoneOptions = UseDateFormatOptions.optionOf {
-            timeZone = systemTimeZone
+        val shanghaiOptions = UseDateFormatOptions.optionOf {
+            timeZone = TimeZone.of("Asia/Shanghai")
+        }
+        val newYorkOptions = UseDateFormatOptions.optionOf {
+            timeZone = TimeZone.of("America/New_York")
         }
 
-        // The exact output of GMT offset depends on the system's current default timezone and Kotlinx-datetime's implementation.
-        // For Singapore, it should be GMT+08:00
-        val expectedShortOffset = "+8"
-        val expectedLongOffset = "+08:00"
+        assertEquals("GMT+8", formatDate(testDate, "z", shanghaiOptions))
+        assertEquals("GMT+8", formatDate(testDate, "zz", shanghaiOptions))
+        assertEquals("GMT+8", formatDate(testDate, "zzz", shanghaiOptions))
+        assertEquals("GMT+08:00", formatDate(testDate, "zzzz", shanghaiOptions))
 
-        val zResult = formatDate(testDate, "z", systemTimezoneOptions)
-        val zzResult = formatDate(testDate, "zz", systemTimezoneOptions)
-        val zzzResult = formatDate(testDate, "zzz", systemTimezoneOptions)
-        val zzzzResult = formatDate(testDate, "zzzz", systemTimezoneOptions)
-
-        // All should contain "GMT" and the correct offset for Singapore
-        assertTrue(zResult.contains("GMT$expectedShortOffset"))
-        assertTrue(zzResult.contains("GMT$expectedShortOffset"))
-        assertTrue(zzzResult.contains("GMT$expectedShortOffset"))
-        assertTrue(zzzzResult.contains("GMT$expectedLongOffset"))
-
-        // Test with a known specific timezone (if your environment supports it consistently)
-        // val newYorkTimeZone = TimeZone.of("America/New_York")
-        // val newYorkOptions = UseDateFormatOptions.optionOf { timeZone = newYorkTimeZone }
-        // val newYorkZzz = formatDate(testDate, "zzz", newYorkOptions)
-        // // Expected for America/New_York on July 14, 2025 (EDT, UTC-04:00)
-        // assertTrue(newYorkZzz.contains("GMT-04"))
+        assertEquals("GMT-4", formatDate(testDate, "z", newYorkOptions))
+        assertEquals("GMT-4", formatDate(testDate, "zzz", newYorkOptions))
+        assertEquals("GMT-04:00", formatDate(testDate, "zzzz", newYorkOptions))
     }
 
     @Test

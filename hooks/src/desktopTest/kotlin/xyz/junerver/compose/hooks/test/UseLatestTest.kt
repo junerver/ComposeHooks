@@ -176,7 +176,7 @@ class UseLatestTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun useLatestRef_preserves_reference_identity() = runComposeUiTest {
+    fun useLatestRef_retains_latest_value_across_recompositions() = runComposeUiTest {
         setContent {
             var counter by useState(0)
             val latestRef = useLatestRef("constant")
@@ -187,7 +187,6 @@ class UseLatestTest {
                 }
             }
 
-            // The ref object itself should be stable across recompositions
             Text("value=${latestRef.current} counter=$counter")
         }
         waitForIdle()

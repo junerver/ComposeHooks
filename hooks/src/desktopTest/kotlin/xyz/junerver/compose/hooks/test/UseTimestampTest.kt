@@ -2,176 +2,213 @@ package xyz.junerver.compose.hooks.test
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
+import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.delay
+import kotlin.time.Instant
 import xyz.junerver.compose.hooks.TimestampHolder
 import xyz.junerver.compose.hooks.TimestampRefHolder
+import xyz.junerver.compose.hooks.useTimestamp
+import xyz.junerver.compose.hooks.useTimestampRef
 import xyz.junerver.compose.hooks.usetimestamp.UseTimestampOptions
-import xyz.junerver.compose.hooks.usetimestamp.useTimestampImpl
-import xyz.junerver.compose.hooks.usetimestamp.useTimestampRefImpl
+import xyz.junerver.compose.hooks.utils.instantProvider
 
 /*
   Description: Tests for usetimestamp hooks
   Author: MiMoCode
   Date: 2026/6/26
   Email: junerver@gmail.com
-  Version: v1.0
+  Version: v1.1
 */
 
 @OptIn(ExperimentalTestApi::class)
 class UseTimestampTest {
+    private var currentInstant: Instant = Clock.System.now()
 
-    // region useTimestampImpl
+    private fun resetInstantProvider() {
+        currentInstant = Clock.System.now()
+        instantProvider = { currentInstant }
+    }
+
+    private fun advanceTimeBy(duration: Duration) {
+        currentInstant += duration
+    }
+
+    @AfterTest
+    fun tearDown() {
+        instantProvider = { Clock.System.now() }
+    }
+
+    // region useTimestamp
 
     @Test
     fun defaultTimestampIsReturned() = runComposeUiTest {
+        resetInstantProvider()
         var holder: TimestampHolder? = null
         setContent {
-            holder = useTimestampImpl()
+            holder = useTimestamp(autoResume = false)
         }
-        waitForIdle()
-        assertTrue(holder!!.state.value > 0, "Initial timestamp should be positive")
-    }
 
-    @Test
-    fun timestampUpdatesOverTime() = runComposeUiTest {
-        var holder: TimestampHolder? = null
-        setContent {
-            holder = useTimestampImpl(optionsOf = { interval = 50.milliseconds })
-        }
         waitForIdle()
-        val initial = holder!!.state.value
-        delay(200)
-        waitForIdle()
-        val updated = holder!!.state.value
-        assertTrue(updated >= initial, "Timestamp should update or remain same after delay")
-    }
-
-    @Test
-    fun pauseAndResumeControlsIsActive() = runComposeUiTest {
-        var holder: TimestampHolder? = null
-        setContent {
-            holder = useTimestampImpl(optionsOf = { interval = 100.milliseconds })
-        }
-        waitForIdle()
-        assertTrue(holder!!.isActive.value, "Should be active after mount with autoResume=true")
-
-        holder!!.pause()
-        waitForIdle()
-        assertFalse(holder!!.isActive.value, "Should be inactive after pause")
-
-        holder!!.resume()
-        waitForIdle()
-        assertTrue(holder!!.isActive.value, "Should be active after resume")
-    }
-
-    @Test
-    fun isActiveReturnsFalseWhenPaused() = runComposeUiTest {
-        var holder: TimestampHolder? = null
-        setContent {
-            holder = useTimestampImpl(optionsOf = { interval = 100.milliseconds })
-        }
-        waitForIdle()
-        assertTrue(holder!!.isActive.value)
-
-        holder!!.pause()
-        waitForIdle()
+        assertEquals(currentInstant.toEpochMilliseconds(), holder!!.state.value)
         assertFalse(holder!!.isActive.value)
     }
 
     @Test
-    fun customIntervalIsRespected() = runComposeUiTest {
+    fun timestampUpdatesAfterConfiguredInterval() = runComposeUiTest {
+        resetInstantProvider()
         var holder: TimestampHolder? = null
         setContent {
-            holder = useTimestampImpl(optionsOf = { interval = 200.milliseconds })
+            holder = useTimestamp(
+                optionsOf = { interval = 100.milliseconds },
+                autoResume = true,
+            )
         }
+
         waitForIdle()
-        assertTrue(holder!!.isActive.value, "Should be active with custom interval")
+        val initial = holder!!.state.value
+
+        advanceTimeBy(100.milliseconds)
+        mainClock.advanceTimeBy(100)
+        waitForIdle()
+
+        assertEquals(currentInstant.toEpochMilliseconds(), holder!!.state.value)
+        assertTrue(holder!!.state.value > initial)
     }
 
     @Test
-    fun customOffsetIsApplied() = runComposeUiTest {
+    fun pause_stops_timestamp_updates_until_resumed() = runComposeUiTest {
+        resetInstantProvider()
         var holder: TimestampHolder? = null
         setContent {
-            holder = useTimestampImpl(optionsOf = {
-                interval = 50.milliseconds
-                offset = 1.seconds
-            })
+            holder = useTimestamp(
+                optionsOf = { interval = 100.milliseconds },
+                autoResume = true,
+            )
         }
+
         waitForIdle()
-        assertTrue(holder!!.state.value > 0, "Timestamp with offset should be positive")
+        holder!!.pause()
+        waitForIdle()
+        assertFalse(holder!!.isActive.value)
+
+        val pausedValue = holder!!.state.value
+        advanceTimeBy(300.milliseconds)
+        mainClock.advanceTimeBy(300)
+        waitForIdle()
+        assertEquals(pausedValue, holder!!.state.value)
+
+        holder!!.resume()
+        waitForIdle()
+        assertTrue(holder!!.isActive.value)
+
+        advanceTimeBy(100.milliseconds)
+        mainClock.advanceTimeBy(100)
+        waitForIdle()
+        assertEquals(currentInstant.toEpochMilliseconds(), holder!!.state.value)
     }
 
     @Test
-    fun callbackIsInvoked() = runComposeUiTest {
+    fun customOffset_is_applied_to_exposed_timestamp() = runComposeUiTest {
+        resetInstantProvider()
+        var holder: TimestampHolder? = null
+        setContent {
+            holder = useTimestamp(
+                optionsOf = {
+                    interval = 100.milliseconds
+                    offset = 1.seconds
+                },
+                autoResume = true,
+            )
+        }
+
+        waitForIdle()
+        advanceTimeBy(100.milliseconds)
+        mainClock.advanceTimeBy(100)
+        waitForIdle()
+
+        assertEquals((currentInstant + 1.seconds).toEpochMilliseconds(), holder!!.state.value)
+    }
+
+    @Test
+    fun callback_receives_updated_timestamp_value() = runComposeUiTest {
+        resetInstantProvider()
         val callbackValues = mutableListOf<Long>()
         var holder: TimestampHolder? = null
         setContent {
-            holder = useTimestampImpl(optionsOf = {
-                interval = 50.milliseconds
-                callback = { callbackValues.add(it) }
-            })
+            holder = useTimestamp(
+                optionsOf = {
+                    interval = 100.milliseconds
+                    callback = { callbackValues += it }
+                },
+                autoResume = true,
+            )
         }
+
         waitForIdle()
-        delay(250)
+        advanceTimeBy(100.milliseconds)
+        mainClock.advanceTimeBy(100)
         waitForIdle()
-        assertTrue(callbackValues.isNotEmpty(), "Callback should have been invoked at least once")
-        callbackValues.forEach { value ->
-            assertTrue(value > 0, "Callback timestamp values should be positive")
-        }
+
+        assertTrue(callbackValues.isNotEmpty(), "Expected callback to run after interval elapses")
+        assertEquals(holder!!.state.value, callbackValues.last())
+        assertEquals(currentInstant.toEpochMilliseconds(), callbackValues.last())
     }
 
     @Test
     fun autoResumeFalseDoesNotStartAutomatically() = runComposeUiTest {
+        resetInstantProvider()
         var holder: TimestampHolder? = null
         setContent {
-            holder = useTimestampImpl(
+            holder = useTimestamp(
                 optionsOf = { interval = 100.milliseconds },
                 autoResume = false,
             )
         }
-        waitForIdle()
-        assertFalse(holder!!.isActive.value, "Should not be active when autoResume=false")
-    }
 
-    @Test
-    fun resumeAfterAutoResumeFalseActivates() = runComposeUiTest {
-        var holder: TimestampHolder? = null
-        setContent {
-            holder = useTimestampImpl(
-                optionsOf = { interval = 100.milliseconds },
-                autoResume = false,
-            )
-        }
         waitForIdle()
         assertFalse(holder!!.isActive.value)
 
-        holder!!.resume()
+        val initial = holder!!.state.value
+        advanceTimeBy(200.milliseconds)
+        mainClock.advanceTimeBy(200)
         waitForIdle()
-        assertTrue(holder!!.isActive.value, "Should be active after manual resume")
+        assertEquals(initial, holder!!.state.value)
     }
 
     @Test
-    fun defaultOptionsUseDefaultInterval() = runComposeUiTest {
+    fun resumeAfterAutoResumeFalseActivatesAndUpdatesTimestamp() = runComposeUiTest {
+        resetInstantProvider()
         var holder: TimestampHolder? = null
         setContent {
-            holder = useTimestampImpl()
+            holder = useTimestamp(
+                optionsOf = { interval = 100.milliseconds },
+                autoResume = false,
+            )
         }
+
         waitForIdle()
-        assertTrue(holder!!.isActive.value, "Should be active with default options")
-        assertTrue(holder!!.state.value > 0)
+        holder!!.resume()
+        waitForIdle()
+        assertTrue(holder!!.isActive.value)
+
+        advanceTimeBy(100.milliseconds)
+        mainClock.advanceTimeBy(100)
+        waitForIdle()
+        assertEquals(currentInstant.toEpochMilliseconds(), holder!!.state.value)
     }
 
     @Test
     fun optionsClassHoldsCorrectDefaults() {
         val options = UseTimestampOptions.optionOf {}
         assertEquals(1.0.milliseconds, options.interval)
-        assertEquals(kotlin.time.Duration.ZERO, options.offset)
+        assertEquals(Duration.ZERO, options.offset)
         assertEquals(null, options.callback)
     }
 
@@ -192,146 +229,203 @@ class UseTimestampTest {
 
     @Test
     fun timestampHolderDataClassProperties() = runComposeUiTest {
+        resetInstantProvider()
         var holder: TimestampHolder? = null
         setContent {
-            holder = useTimestampImpl()
+            holder = useTimestamp(autoResume = false)
         }
+
         waitForIdle()
-        val ts = holder!!
-        assertTrue(ts.state.value > 0)
-        assertTrue(ts.isActive.value)
-        ts.pause()
+        val timestamp = holder!!
+        assertEquals(currentInstant.toEpochMilliseconds(), timestamp.state.value)
+        assertFalse(timestamp.isActive.value)
+        timestamp.resume()
         waitForIdle()
-        assertFalse(ts.isActive.value)
-        ts.resume()
+        assertTrue(timestamp.isActive.value)
+        timestamp.pause()
         waitForIdle()
-        assertTrue(ts.isActive.value)
+        assertFalse(timestamp.isActive.value)
     }
 
     // endregion
 
-    // region useTimestampRefImpl
+    // region useTimestampRef
 
     @Test
     fun refDefaultTimestampIsReturned() = runComposeUiTest {
+        resetInstantProvider()
         var holder: TimestampRefHolder? = null
         setContent {
-            holder = useTimestampRefImpl()
+            holder = useTimestampRef(autoResume = false)
         }
+
         waitForIdle()
-        assertTrue(holder!!.ref.current > 0, "Initial ref timestamp should be positive")
+        assertEquals(currentInstant.toEpochMilliseconds(), holder!!.ref.current)
+        assertFalse(holder!!.isActive.value)
     }
 
     @Test
-    fun refTimestampUpdatesOverTime() = runComposeUiTest {
+    fun refTimestampUpdatesAfterConfiguredInterval() = runComposeUiTest {
+        resetInstantProvider()
         var holder: TimestampRefHolder? = null
         setContent {
-            holder = useTimestampRefImpl(optionsOf = { interval = 50.milliseconds })
+            holder = useTimestampRef(
+                optionsOf = { interval = 100.milliseconds },
+                autoResume = true,
+            )
         }
+
         waitForIdle()
         val initial = holder!!.ref.current
-        delay(200)
+
+        advanceTimeBy(100.milliseconds)
+        mainClock.advanceTimeBy(100)
         waitForIdle()
-        val updated = holder!!.ref.current
-        assertTrue(updated >= initial, "Ref timestamp should update or remain same after delay")
+
+        assertEquals(currentInstant.toEpochMilliseconds(), holder!!.ref.current)
+        assertTrue(holder!!.ref.current > initial)
     }
 
     @Test
-    fun refPauseAndResumeControlsIsActive() = runComposeUiTest {
+    fun refPause_stops_updates_until_resumed() = runComposeUiTest {
+        resetInstantProvider()
         var holder: TimestampRefHolder? = null
         setContent {
-            holder = useTimestampRefImpl(optionsOf = { interval = 100.milliseconds })
+            holder = useTimestampRef(
+                optionsOf = { interval = 100.milliseconds },
+                autoResume = true,
+            )
         }
-        waitForIdle()
-        assertTrue(holder!!.isActive.value, "Ref should be active after mount with autoResume=true")
 
+        waitForIdle()
         holder!!.pause()
         waitForIdle()
-        assertFalse(holder!!.isActive.value, "Ref should be inactive after pause")
+        assertFalse(holder!!.isActive.value)
+
+        val pausedValue = holder!!.ref.current
+        advanceTimeBy(300.milliseconds)
+        mainClock.advanceTimeBy(300)
+        waitForIdle()
+        assertEquals(pausedValue, holder!!.ref.current)
 
         holder!!.resume()
         waitForIdle()
-        assertTrue(holder!!.isActive.value, "Ref should be active after resume")
+        assertTrue(holder!!.isActive.value)
+
+        advanceTimeBy(100.milliseconds)
+        mainClock.advanceTimeBy(100)
+        waitForIdle()
+        assertEquals(currentInstant.toEpochMilliseconds(), holder!!.ref.current)
     }
 
     @Test
     fun refAutoResumeFalseDoesNotStartAutomatically() = runComposeUiTest {
+        resetInstantProvider()
         var holder: TimestampRefHolder? = null
         setContent {
-            holder = useTimestampRefImpl(
+            holder = useTimestampRef(
                 optionsOf = { interval = 100.milliseconds },
                 autoResume = false,
             )
         }
-        waitForIdle()
-        assertFalse(holder!!.isActive.value, "Ref should not be active when autoResume=false")
-    }
 
-    @Test
-    fun refResumeAfterAutoResumeFalseActivates() = runComposeUiTest {
-        var holder: TimestampRefHolder? = null
-        setContent {
-            holder = useTimestampRefImpl(
-                optionsOf = { interval = 100.milliseconds },
-                autoResume = false,
-            )
-        }
         waitForIdle()
         assertFalse(holder!!.isActive.value)
 
-        holder!!.resume()
+        val initial = holder!!.ref.current
+        advanceTimeBy(200.milliseconds)
+        mainClock.advanceTimeBy(200)
         waitForIdle()
-        assertTrue(holder!!.isActive.value, "Ref should be active after manual resume")
+        assertEquals(initial, holder!!.ref.current)
     }
 
     @Test
-    fun refCallbackIsInvoked() = runComposeUiTest {
+    fun refResumeAfterAutoResumeFalseActivatesAndUpdatesTimestamp() = runComposeUiTest {
+        resetInstantProvider()
+        var holder: TimestampRefHolder? = null
+        setContent {
+            holder = useTimestampRef(
+                optionsOf = { interval = 100.milliseconds },
+                autoResume = false,
+            )
+        }
+
+        waitForIdle()
+        holder!!.resume()
+        waitForIdle()
+        assertTrue(holder!!.isActive.value)
+
+        advanceTimeBy(100.milliseconds)
+        mainClock.advanceTimeBy(100)
+        waitForIdle()
+        assertEquals(currentInstant.toEpochMilliseconds(), holder!!.ref.current)
+    }
+
+    @Test
+    fun refCallback_receives_updated_timestamp_value() = runComposeUiTest {
+        resetInstantProvider()
         val callbackValues = mutableListOf<Long>()
         var holder: TimestampRefHolder? = null
         setContent {
-            holder = useTimestampRefImpl(optionsOf = {
-                interval = 50.milliseconds
-                callback = { callbackValues.add(it) }
-            })
+            holder = useTimestampRef(
+                optionsOf = {
+                    interval = 100.milliseconds
+                    callback = { callbackValues += it }
+                },
+                autoResume = true,
+            )
         }
+
         waitForIdle()
-        delay(250)
+        advanceTimeBy(100.milliseconds)
+        mainClock.advanceTimeBy(100)
         waitForIdle()
-        assertTrue(callbackValues.isNotEmpty(), "Ref callback should have been invoked at least once")
-        callbackValues.forEach { value ->
-            assertTrue(value > 0, "Ref callback timestamp values should be positive")
-        }
+
+        assertTrue(callbackValues.isNotEmpty(), "Expected callback to run after interval elapses")
+        assertEquals(holder!!.ref.current, callbackValues.last())
+        assertEquals(currentInstant.toEpochMilliseconds(), callbackValues.last())
     }
 
     @Test
-    fun refCustomOffsetIsApplied() = runComposeUiTest {
+    fun refCustomOffset_is_applied_to_exposed_timestamp() = runComposeUiTest {
+        resetInstantProvider()
         var holder: TimestampRefHolder? = null
         setContent {
-            holder = useTimestampRefImpl(optionsOf = {
-                interval = 50.milliseconds
-                offset = 1.seconds
-            })
+            holder = useTimestampRef(
+                optionsOf = {
+                    interval = 100.milliseconds
+                    offset = 1.seconds
+                },
+                autoResume = true,
+            )
         }
+
         waitForIdle()
-        assertTrue(holder!!.ref.current > 0, "Ref timestamp with offset should be positive")
+        advanceTimeBy(100.milliseconds)
+        mainClock.advanceTimeBy(100)
+        waitForIdle()
+
+        assertEquals((currentInstant + 1.seconds).toEpochMilliseconds(), holder!!.ref.current)
     }
 
     @Test
     fun refTimestampHolderDataClassProperties() = runComposeUiTest {
+        resetInstantProvider()
         var holder: TimestampRefHolder? = null
         setContent {
-            holder = useTimestampRefImpl()
+            holder = useTimestampRef(autoResume = false)
         }
+
         waitForIdle()
-        val ts = holder!!
-        assertTrue(ts.ref.current > 0)
-        assertTrue(ts.isActive.value)
-        ts.pause()
+        val timestamp = holder!!
+        assertEquals(currentInstant.toEpochMilliseconds(), timestamp.ref.current)
+        assertFalse(timestamp.isActive.value)
+        timestamp.resume()
         waitForIdle()
-        assertFalse(ts.isActive.value)
-        ts.resume()
+        assertTrue(timestamp.isActive.value)
+        timestamp.pause()
         waitForIdle()
-        assertTrue(ts.isActive.value)
+        assertFalse(timestamp.isActive.value)
     }
 
     // endregion

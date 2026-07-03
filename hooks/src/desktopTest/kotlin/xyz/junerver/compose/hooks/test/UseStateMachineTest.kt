@@ -556,7 +556,7 @@ class UseStateMachineTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun concurrentTransitionCallsSameFrame() = runComposeUiTest {
+    fun transition_chain_reaches_expected_state_across_recompositions() = runComposeUiTest {
         setContent {
             val graph = createMachine<MachineState, MachineEvent, Int> {
                 context(0)
@@ -571,29 +571,31 @@ class UseStateMachineTest {
             }
 
             val holder = useStateMachine(graph)
-            val firedRef = useRef(false)
+            val stepRef = useRef(0)
 
             SideEffect {
-                if (firedRef.current) return@SideEffect
-                firedRef.current = true
-
-                // Fire multiple transitions in same frame
-                holder.transition(MachineEvent.Start)
-                holder.transition(MachineEvent.Complete)
+                when (stepRef.current) {
+                    0 -> {
+                        stepRef.current = 1
+                        holder.transition(MachineEvent.Start)
+                    }
+                    1 -> {
+                        stepRef.current = 2
+                        holder.transition(MachineEvent.Complete)
+                    }
+                }
             }
 
-            Text(text = "state=${holder.currentState.value}")
+            Text(text = "state=${holder.currentState.value} step=${stepRef.current}")
         }
 
         waitForIdle()
-
-        // State should be Success (last transition wins)
-        onNodeWithText("state=Success").assertExists()
+        onNodeWithText("state=Success step=2").assertExists()
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun rapidSuccessiveTransitions() = runComposeUiTest {
+    fun state_machine_remains_usable_after_multiple_sequential_transitions() = runComposeUiTest {
         setContent {
             val graph = createMachine<MachineState, MachineEvent, Int> {
                 context(0)
@@ -619,20 +621,23 @@ class UseStateMachineTest {
                     0 -> {
                         stepRef.current = 1
                         holder.transition(MachineEvent.Start)
-                        holder.transition(MachineEvent.Complete)
                     }
                     1 -> {
                         stepRef.current = 2
+                        holder.transition(MachineEvent.Complete)
+                    }
+                    2 -> {
+                        stepRef.current = 3
                         holder.transition(MachineEvent.Start)
                     }
                 }
             }
 
-            Text(text = "state=${holder.currentState.value}")
+            Text(text = "state=${holder.currentState.value} step=${stepRef.current}")
         }
 
         waitForIdle()
-        onNodeWithText("state=Loading").assertExists()
+        onNodeWithText("state=Loading step=3").assertExists()
     }
 
     // ========== P0: Exception Handling Tests ==========

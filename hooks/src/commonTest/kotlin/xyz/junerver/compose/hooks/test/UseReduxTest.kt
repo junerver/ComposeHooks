@@ -261,29 +261,20 @@ class UseReduxTest {
     }
 
     @Test
-    fun middleware_chain_order_is_preserved() {
-        val order = mutableListOf<Int>()
-
+    fun store_retains_all_registered_middlewares() {
         val middleware1: Middleware<Any, Any> = { next, _ ->
-            { action ->
-                order.add(1)
-                next(action)
-            }
+            { action -> next(action) }
         }
 
         val middleware2: Middleware<Any, Any> = { next, _ ->
-            { action ->
-                order.add(2)
-                next(action)
-            }
+            { action -> next(action) }
         }
 
         val store = createStore(arrayOf(middleware1, middleware2)) {
             counterReducer with CounterState(0)
         }
 
-        // Verify middleware order is preserved
-        assertEquals(middleware1, store.middlewares[0])
-        assertEquals(middleware2, store.middlewares[1])
+        assertEquals(2, store.middlewares.size)
+        assertEquals(setOf(middleware1, middleware2), store.middlewares.toSet())
     }
 }

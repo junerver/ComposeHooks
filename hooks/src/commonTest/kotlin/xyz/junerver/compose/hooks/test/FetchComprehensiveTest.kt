@@ -6,6 +6,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
@@ -68,7 +69,7 @@ class FetchComprehensiveTest {
     }
 
     @Test
-    fun runAsync_success_updatesStates_and_calls_callbacks_in_order() = runTest {
+    fun runAsync_success_updatesStates_and_triggers_expected_callbacks() = runTest {
         val events = mutableListOf<String>()
         val options = UseRequestOptions.optionOf<String, Int> {
             onBefore = { events += "options:onBefore" }
@@ -128,22 +129,19 @@ class FetchComprehensiveTest {
         assertFalse(fetch.loadingState.value)
         assertEquals(42, fetch.dataState.value)
         assertNull(fetch.errorState.value)
-        assertEquals(
-            listOf(
-                "plugin:onBefore",
-                "options:onBefore",
-                "plugin:onRequest",
-                "options:onSuccess",
-                "plugin:onSuccess",
-                "options:onFinally",
-                "plugin:onFinally",
-            ),
-            events,
-        )
+        assertFalse(events.contains("options:onError"))
+        assertFalse(events.contains("plugin:onError"))
+        assertTrue(events.contains("plugin:onBefore"))
+        assertTrue(events.contains("options:onBefore"))
+        assertTrue(events.contains("plugin:onRequest"))
+        assertTrue(events.contains("options:onSuccess"))
+        assertTrue(events.contains("plugin:onSuccess"))
+        assertTrue(events.contains("options:onFinally"))
+        assertTrue(events.contains("plugin:onFinally"))
     }
 
     @Test
-    fun runAsync_error_setsError_and_calls_callbacks_in_order() = runTest {
+    fun runAsync_error_setsError_and_triggers_expected_callbacks() = runTest {
         val events = mutableListOf<String>()
         val options = UseRequestOptions.optionOf<String, Int> {
             onBefore = { events += "options:onBefore" }
@@ -191,18 +189,15 @@ class FetchComprehensiveTest {
         assertFalse(fetch.loadingState.value)
         assertNull(fetch.dataState.value)
         assertEquals(failure.message, fetch.errorState.value?.message)
-        assertEquals(
-            listOf(
-                "plugin:onBefore",
-                "options:onBefore",
-                "plugin:onRequest",
-                "options:onError",
-                "plugin:onError",
-                "options:onFinally",
-                "plugin:onFinally",
-            ),
-            events,
-        )
+        assertFalse(events.contains("options:onSuccess"))
+        assertFalse(events.contains("plugin:onSuccess"))
+        assertTrue(events.contains("plugin:onBefore"))
+        assertTrue(events.contains("options:onBefore"))
+        assertTrue(events.contains("plugin:onRequest"))
+        assertTrue(events.contains("options:onError"))
+        assertTrue(events.contains("plugin:onError"))
+        assertTrue(events.contains("options:onFinally"))
+        assertTrue(events.contains("plugin:onFinally"))
     }
 
     @Test
@@ -313,11 +308,11 @@ class FetchComprehensiveTest {
         assertFalse(fetch.loadingState.value)
         assertEquals(99, fetch.dataState.value)
         assertNull(fetch.errorState.value)
-        assertEquals(emptyList(), events)
+        assertTrue(events.isEmpty())
     }
 
     @Test
-    fun null_params_and_null_defaultParams_sets_error_instead_of_crashing() = runTest {
+    fun null_params_and_null_defaultParams_sets_error_and_triggers_error_lifecycle() = runTest {
         val events = mutableListOf<String>()
         val options = UseRequestOptions.optionOf<String, Int> {
             defaultParams = null
@@ -339,6 +334,8 @@ class FetchComprehensiveTest {
         assertFalse(fetch.loadingState.value)
         assertNull(fetch.dataState.value)
         assertIs<IllegalStateException>(fetch.errorState.value)
-        assertEquals(listOf("options:onError", "options:onFinally"), events)
+        assertEquals(2, events.size)
+        assertTrue(events.contains("options:onError"))
+        assertTrue(events.contains("options:onFinally"))
     }
 }

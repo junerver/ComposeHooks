@@ -1,6 +1,9 @@
 package xyz.junerver.compose.hooks.test
 
 import androidx.compose.runtime.State
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.math.abs
@@ -14,784 +17,232 @@ import kotlin.math.sqrt
 import kotlin.math.truncate
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import xyz.junerver.compose.hooks.usemath.useAbsImpl
-import xyz.junerver.compose.hooks.usemath.useCeilImpl
-import xyz.junerver.compose.hooks.usemath.useFloorImpl
-import xyz.junerver.compose.hooks.usemath.useMaxImpl
-import xyz.junerver.compose.hooks.usemath.useMinImpl
-import xyz.junerver.compose.hooks.usemath.usePowImpl
-import xyz.junerver.compose.hooks.usemath.useRoundImpl
-import xyz.junerver.compose.hooks.usemath.useSqrtImpl
-import xyz.junerver.compose.hooks.usemath.useTruncImpl
+import xyz.junerver.compose.hooks.useAbs
+import xyz.junerver.compose.hooks.useCeil
+import xyz.junerver.compose.hooks.useFloor
+import xyz.junerver.compose.hooks.useMax
+import xyz.junerver.compose.hooks.useMin
+import xyz.junerver.compose.hooks.usePow
+import xyz.junerver.compose.hooks.useRound
+import xyz.junerver.compose.hooks.useSqrt
+import xyz.junerver.compose.hooks.useTrunc
 
-/*
-  Description: Comprehensive tests for usemath hooks
-  Author: MiMoCode
-  Date: 2026/6/26
-  Email: junerver@gmail.com
-  Version: v1.0
-*/
-
+@Suppress("DEPRECATION")
 class UseMathTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun testUseAbsImplInt() = runComposeUiTest {
-        var result1: State<Int>? = null
-        var result2: State<Int>? = null
-        var result3: State<Int>? = null
+    fun abs_recomputes_for_integral_and_fractional_inputs() = runComposeUiTest {
+        var intInput by mutableStateOf(-5)
+        var longInput by mutableStateOf(-100L)
+        var floatInput by mutableStateOf(-1.5f)
+        var doubleInput by mutableStateOf(-3.14)
+
+        lateinit var absInt: State<Int>
+        lateinit var absLong: State<Long>
+        lateinit var absFloat: State<Float>
+        lateinit var absDouble: State<Double>
+
         setContent {
-            result1 = useAbsImpl(-5)
-            result2 = useAbsImpl(5)
-            result3 = useAbsImpl(0)
+            absInt = useAbs(intInput)
+            absLong = useAbs(longInput)
+            absFloat = useAbs(floatInput)
+            absDouble = useAbs(doubleInput)
         }
+
         waitForIdle()
-        assertEquals(abs(-5), result1!!.value)
-        assertEquals(abs(5), result2!!.value)
-        assertEquals(abs(0), result3!!.value)
+        assertEquals(5, absInt.value)
+        assertEquals(100L, absLong.value)
+        assertEquals(1.5f, absFloat.value)
+        assertEquals(3.14, absDouble.value)
+
+        intInput = 0
+        longInput = 42L
+        floatInput = 2.5f
+        doubleInput = 2.71
+        waitForIdle()
+        assertEquals(0, absInt.value)
+        assertEquals(42L, absLong.value)
+        assertEquals(2.5f, absFloat.value)
+        assertEquals(2.71, absDouble.value)
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun testUseAbsImplDouble() = runComposeUiTest {
-        var result1: State<Double>? = null
-        var result2: State<Double>? = null
-        var result3: State<Double>? = null
+    fun ceil_floor_round_and_trunc_follow_input_changes() = runComposeUiTest {
+        var doubleInput by mutableStateOf(2.9)
+        var floatInput by mutableStateOf(-2.5f)
+        var intInput by mutableStateOf(5)
+        var longInput by mutableStateOf(10L)
+
+        lateinit var ceilDouble: State<Double>
+        lateinit var floorDouble: State<Double>
+        lateinit var roundFloat: State<Float>
+        lateinit var truncDouble: State<Double>
+        lateinit var ceilInt: State<Int>
+        lateinit var floorLong: State<Long>
+
         setContent {
-            result1 = useAbsImpl(-3.14)
-            result2 = useAbsImpl(2.71)
-            result3 = useAbsImpl(0.0)
+            ceilDouble = useCeil(doubleInput)
+            floorDouble = useFloor(doubleInput)
+            roundFloat = useRound(floatInput)
+            truncDouble = useTrunc(doubleInput)
+            ceilInt = useCeil(intInput)
+            floorLong = useFloor(longInput)
         }
+
         waitForIdle()
-        assertEquals(abs(-3.14), result1!!.value)
-        assertEquals(abs(2.71), result2!!.value)
-        assertEquals(abs(0.0), result3!!.value)
+        assertEquals(ceil(2.9), ceilDouble.value)
+        assertEquals(floor(2.9), floorDouble.value)
+        assertEquals(round(-2.5f), roundFloat.value)
+        assertEquals(truncate(2.9), truncDouble.value)
+        assertEquals(5, ceilInt.value)
+        assertEquals(10L, floorLong.value)
+
+        doubleInput = -2.1
+        floatInput = 2.5f
+        intInput = 7
+        longInput = 12L
+        waitForIdle()
+        assertEquals(ceil(-2.1), ceilDouble.value)
+        assertEquals(floor(-2.1), floorDouble.value)
+        assertEquals(round(2.5f), roundFloat.value)
+        assertEquals(truncate(-2.1), truncDouble.value)
+        assertEquals(7, ceilInt.value)
+        assertEquals(12L, floorLong.value)
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun testUseAbsImplFloat() = runComposeUiTest {
-        var result1: State<Float>? = null
-        var result2: State<Float>? = null
+    fun min_and_max_recompute_for_same_type_and_mixed_type_inputs() = runComposeUiTest {
+        var intA by mutableStateOf(3)
+        var intB by mutableStateOf(5)
+        var mixedInt by mutableStateOf(3)
+        var mixedLong by mutableStateOf(5L)
+        var mixedFloat by mutableStateOf(3.5f)
+        var mixedDouble by mutableStateOf(5.5)
+
+        lateinit var minInt: State<Int>
+        lateinit var maxInt: State<Int>
+        lateinit var minMixed: State<Long>
+        lateinit var maxMixed: State<Double>
+
         setContent {
-            result1 = useAbsImpl(-1.5f)
-            result2 = useAbsImpl(2.5f)
+            minInt = useMin(intA, intB)
+            maxInt = useMax(intA, intB)
+            minMixed = useMin(mixedInt, mixedLong)
+            maxMixed = useMax(mixedFloat, mixedDouble)
         }
+
         waitForIdle()
-        assertEquals(abs(-1.5f), result1!!.value)
-        assertEquals(abs(2.5f), result2!!.value)
+        assertEquals(min(3, 5), minInt.value)
+        assertEquals(max(3, 5), maxInt.value)
+        assertEquals(min(3L, 5L), minMixed.value)
+        assertEquals(max(3.5, 5.5), maxMixed.value)
+
+        intA = 8
+        intB = 2
+        mixedInt = 9
+        mixedLong = 4L
+        mixedFloat = 8.5f
+        mixedDouble = 2.5
+        waitForIdle()
+        assertEquals(min(8, 2), minInt.value)
+        assertEquals(max(8, 2), maxInt.value)
+        assertEquals(min(9L, 4L), minMixed.value)
+        assertEquals(max(8.5, 2.5), maxMixed.value)
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun testUseAbsImplLong() = runComposeUiTest {
-        var result1: State<Long>? = null
-        var result2: State<Long>? = null
+    fun pow_supports_multiple_overloads_and_special_exponents() = runComposeUiTest {
+        var doubleBase by mutableStateOf(2.0)
+        var doubleExponent by mutableStateOf(3.0)
+        var floatBase by mutableStateOf(2.0f)
+        var intExponent by mutableStateOf(3)
+        var intBase by mutableStateOf(2)
+        var negativeExponent by mutableStateOf(-3.0)
+
+        lateinit var powDouble: State<Double>
+        lateinit var powFloat: State<Float>
+        lateinit var powInt: State<Double>
+        lateinit var powNegative: State<Double>
+
         setContent {
-            result1 = useAbsImpl(-100L)
-            result2 = useAbsImpl(100L)
+            powDouble = usePow(doubleBase, doubleExponent)
+            powFloat = usePow(floatBase, intExponent)
+            powInt = usePow(intBase, intExponent)
+            powNegative = usePow(doubleBase, negativeExponent)
         }
+
         waitForIdle()
-        assertEquals(abs(-100L), result1!!.value)
-        assertEquals(abs(100L), result2!!.value)
+        assertEquals(2.0.pow(3.0), powDouble.value)
+        assertEquals(2.0f.pow(3), powFloat.value)
+        assertEquals(2.0.pow(3), powInt.value)
+        assertEquals(2.0.pow(-3.0), powNegative.value)
+
+        doubleBase = 5.0
+        doubleExponent = 0.0
+        floatBase = 3.0f
+        intExponent = 0
+        intBase = 3
+        negativeExponent = -2.0
+        waitForIdle()
+        assertEquals(1.0, powDouble.value)
+        assertEquals(1.0f, powFloat.value)
+        assertEquals(1.0, powInt.value)
+        assertEquals(5.0.pow(-2.0), powNegative.value)
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun testUseCeilImplDouble() = runComposeUiTest {
-        var result1: State<Double>? = null
-        var result2: State<Double>? = null
-        var result3: State<Double>? = null
+    fun sqrt_recomputes_for_perfect_and_non_perfect_squares() = runComposeUiTest {
+        var intInput by mutableStateOf(16)
+        var longInput by mutableStateOf(9L)
+        var floatInput by mutableStateOf(9.0f)
+        var doubleInput by mutableStateOf(2.0)
+
+        lateinit var sqrtInt: State<Double>
+        lateinit var sqrtLong: State<Double>
+        lateinit var sqrtFloat: State<Float>
+        lateinit var sqrtDouble: State<Double>
+
         setContent {
-            result1 = useCeilImpl(2.1)
-            result2 = useCeilImpl(-2.1)
-            result3 = useCeilImpl(3.0)
+            sqrtInt = useSqrt(intInput)
+            sqrtLong = useSqrt(longInput)
+            sqrtFloat = useSqrt(floatInput)
+            sqrtDouble = useSqrt(doubleInput)
         }
+
         waitForIdle()
-        assertEquals(ceil(2.1), result1!!.value)
-        assertEquals(ceil(-2.1), result2!!.value)
-        assertEquals(ceil(3.0), result3!!.value)
+        assertEquals(4.0, sqrtInt.value)
+        assertEquals(3.0, sqrtLong.value)
+        assertEquals(3.0f, sqrtFloat.value)
+        assertEquals(sqrt(2.0), sqrtDouble.value)
+
+        intInput = 25
+        longInput = 4L
+        floatInput = 16.0f
+        doubleInput = 81.0
+        waitForIdle()
+        assertEquals(5.0, sqrtInt.value)
+        assertEquals(2.0, sqrtLong.value)
+        assertEquals(4.0f, sqrtFloat.value)
+        assertEquals(9.0, sqrtDouble.value)
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun testUseCeilImplFloat() = runComposeUiTest {
-        var result1: State<Float>? = null
-        var result2: State<Float>? = null
-        setContent {
-            result1 = useCeilImpl(2.1f)
-            result2 = useCeilImpl(-2.1f)
-        }
-        waitForIdle()
-        assertEquals(ceil(2.1f), result1!!.value)
-        assertEquals(ceil(-2.1f), result2!!.value)
-    }
+    fun abs_preserves_current_standard_library_behavior_for_min_values() = runComposeUiTest {
+        lateinit var absInt: State<Int>
+        lateinit var absLong: State<Long>
 
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseCeilImplInt() = runComposeUiTest {
-        var result: State<Int>? = null
         setContent {
-            result = useCeilImpl(5)
+            absInt = useAbs(Int.MIN_VALUE)
+            absLong = useAbs(Long.MIN_VALUE)
         }
-        waitForIdle()
-        assertEquals(5, result!!.value)
-    }
 
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseCeilImplLong() = runComposeUiTest {
-        var result: State<Long>? = null
-        setContent {
-            result = useCeilImpl(10L)
-        }
         waitForIdle()
-        assertEquals(10L, result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseFloorImplDouble() = runComposeUiTest {
-        var result1: State<Double>? = null
-        var result2: State<Double>? = null
-        var result3: State<Double>? = null
-        setContent {
-            result1 = useFloorImpl(2.9)
-            result2 = useFloorImpl(-2.1)
-            result3 = useFloorImpl(3.0)
-        }
-        waitForIdle()
-        assertEquals(floor(2.9), result1!!.value)
-        assertEquals(floor(-2.1), result2!!.value)
-        assertEquals(floor(3.0), result3!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseFloorImplFloat() = runComposeUiTest {
-        var result1: State<Float>? = null
-        var result2: State<Float>? = null
-        setContent {
-            result1 = useFloorImpl(2.9f)
-            result2 = useFloorImpl(-2.1f)
-        }
-        waitForIdle()
-        assertEquals(floor(2.9f), result1!!.value)
-        assertEquals(floor(-2.1f), result2!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseFloorImplInt() = runComposeUiTest {
-        var result: State<Int>? = null
-        setContent {
-            result = useFloorImpl(5)
-        }
-        waitForIdle()
-        assertEquals(5, result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseFloorImplLong() = runComposeUiTest {
-        var result: State<Long>? = null
-        setContent {
-            result = useFloorImpl(10L)
-        }
-        waitForIdle()
-        assertEquals(10L, result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseRoundImplDouble() = runComposeUiTest {
-        var result1: State<Double>? = null
-        var result2: State<Double>? = null
-        var result3: State<Double>? = null
-        var result4: State<Double>? = null
-        setContent {
-            result1 = useRoundImpl(2.3)
-            result2 = useRoundImpl(2.5)
-            result3 = useRoundImpl(2.7)
-            result4 = useRoundImpl(-2.5)
-        }
-        waitForIdle()
-        assertEquals(round(2.3), result1!!.value)
-        assertEquals(round(2.5), result2!!.value)
-        assertEquals(round(2.7), result3!!.value)
-        assertEquals(round(-2.5), result4!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseRoundImplFloat() = runComposeUiTest {
-        var result1: State<Float>? = null
-        var result2: State<Float>? = null
-        setContent {
-            result1 = useRoundImpl(2.5f)
-            result2 = useRoundImpl(-2.5f)
-        }
-        waitForIdle()
-        assertEquals(round(2.5f), result1!!.value)
-        assertEquals(round(-2.5f), result2!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseRoundImplInt() = runComposeUiTest {
-        var result: State<Int>? = null
-        setContent {
-            result = useRoundImpl(5)
-        }
-        waitForIdle()
-        assertEquals(5, result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseRoundImplLong() = runComposeUiTest {
-        var result: State<Long>? = null
-        setContent {
-            result = useRoundImpl(10L)
-        }
-        waitForIdle()
-        assertEquals(10L, result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseTruncImplDouble() = runComposeUiTest {
-        var result1: State<Double>? = null
-        var result2: State<Double>? = null
-        var result3: State<Double>? = null
-        setContent {
-            result1 = useTruncImpl(2.9)
-            result2 = useTruncImpl(-2.9)
-            result3 = useTruncImpl(3.0)
-        }
-        waitForIdle()
-        assertEquals(truncate(2.9), result1!!.value)
-        assertEquals(truncate(-2.9), result2!!.value)
-        assertEquals(truncate(3.0), result3!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseTruncImplFloat() = runComposeUiTest {
-        var result1: State<Float>? = null
-        var result2: State<Float>? = null
-        setContent {
-            result1 = useTruncImpl(2.9f)
-            result2 = useTruncImpl(-2.9f)
-        }
-        waitForIdle()
-        assertEquals(truncate(2.9f), result1!!.value)
-        assertEquals(truncate(-2.9f), result2!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseTruncImplInt() = runComposeUiTest {
-        var result: State<Int>? = null
-        setContent {
-            result = useTruncImpl(5)
-        }
-        waitForIdle()
-        assertEquals(5, result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseTruncImplLong() = runComposeUiTest {
-        var result: State<Long>? = null
-        setContent {
-            result = useTruncImpl(10L)
-        }
-        waitForIdle()
-        assertEquals(10L, result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMinImplIntInt() = runComposeUiTest {
-        var result1: State<Int>? = null
-        var result2: State<Int>? = null
-        setContent {
-            result1 = useMinImpl(3, 5)
-            result2 = useMinImpl(5, 3)
-        }
-        waitForIdle()
-        assertEquals(min(3, 5), result1!!.value)
-        assertEquals(min(5, 3), result2!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMinImplLongLong() = runComposeUiTest {
-        var result: State<Long>? = null
-        setContent {
-            result = useMinImpl(3L, 5L)
-        }
-        waitForIdle()
-        assertEquals(min(3L, 5L), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMinImplFloatFloat() = runComposeUiTest {
-        var result: State<Float>? = null
-        setContent {
-            result = useMinImpl(3.5f, 5.5f)
-        }
-        waitForIdle()
-        assertEquals(min(3.5f, 5.5f), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMinImplDoubleDouble() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = useMinImpl(3.5, 5.5)
-        }
-        waitForIdle()
-        assertEquals(min(3.5, 5.5), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMinImplIntLong() = runComposeUiTest {
-        var result: State<Long>? = null
-        setContent {
-            result = useMinImpl(3, 5L)
-        }
-        waitForIdle()
-        assertEquals(min(3L, 5L), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMinImplLongInt() = runComposeUiTest {
-        var result: State<Long>? = null
-        setContent {
-            result = useMinImpl(3L, 5)
-        }
-        waitForIdle()
-        assertEquals(min(3L, 5L), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMinImplFloatDouble() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = useMinImpl(3.5f, 5.5)
-        }
-        waitForIdle()
-        assertEquals(min(3.5, 5.5), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMinImplDoubleFloat() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = useMinImpl(3.5, 5.5f)
-        }
-        waitForIdle()
-        assertEquals(min(3.5, 5.5), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMaxImplIntInt() = runComposeUiTest {
-        var result1: State<Int>? = null
-        var result2: State<Int>? = null
-        setContent {
-            result1 = useMaxImpl(3, 5)
-            result2 = useMaxImpl(5, 3)
-        }
-        waitForIdle()
-        assertEquals(max(3, 5), result1!!.value)
-        assertEquals(max(5, 3), result2!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMaxImplLongLong() = runComposeUiTest {
-        var result: State<Long>? = null
-        setContent {
-            result = useMaxImpl(3L, 5L)
-        }
-        waitForIdle()
-        assertEquals(max(3L, 5L), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMaxImplFloatFloat() = runComposeUiTest {
-        var result: State<Float>? = null
-        setContent {
-            result = useMaxImpl(3.5f, 5.5f)
-        }
-        waitForIdle()
-        assertEquals(max(3.5f, 5.5f), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMaxImplDoubleDouble() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = useMaxImpl(3.5, 5.5)
-        }
-        waitForIdle()
-        assertEquals(max(3.5, 5.5), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMaxImplIntLong() = runComposeUiTest {
-        var result: State<Long>? = null
-        setContent {
-            result = useMaxImpl(3, 5L)
-        }
-        waitForIdle()
-        assertEquals(max(3L, 5L), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMaxImplLongInt() = runComposeUiTest {
-        var result: State<Long>? = null
-        setContent {
-            result = useMaxImpl(3L, 5)
-        }
-        waitForIdle()
-        assertEquals(max(3L, 5L), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMaxImplFloatDouble() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = useMaxImpl(3.5f, 5.5)
-        }
-        waitForIdle()
-        assertEquals(max(3.5, 5.5), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMaxImplDoubleFloat() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = useMaxImpl(3.5, 5.5f)
-        }
-        waitForIdle()
-        assertEquals(max(3.5, 5.5), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUsePowImplDoubleDouble() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = usePowImpl(2.0, 3.0)
-        }
-        waitForIdle()
-        assertEquals(2.0.pow(3.0), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUsePowImplDoubleInt() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = usePowImpl(2.0, 3)
-        }
-        waitForIdle()
-        assertEquals(2.0.pow(3), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUsePowImplDoubleFloat() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = usePowImpl(2.0, 3.0f)
-        }
-        waitForIdle()
-        assertEquals(2.0.pow(3.0), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUsePowImplFloatFloat() = runComposeUiTest {
-        var result: State<Float>? = null
-        setContent {
-            result = usePowImpl(2.0f, 3.0f)
-        }
-        waitForIdle()
-        assertEquals(2.0f.pow(3.0f), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUsePowImplFloatInt() = runComposeUiTest {
-        var result: State<Float>? = null
-        setContent {
-            result = usePowImpl(2.0f, 3)
-        }
-        waitForIdle()
-        assertEquals(2.0f.pow(3), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUsePowImplFloatDouble() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = usePowImpl(2.0f, 3.0)
-        }
-        waitForIdle()
-        assertEquals(2.0.toDouble().pow(3.0), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUsePowImplIntInt() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = usePowImpl(2, 3)
-        }
-        waitForIdle()
-        assertEquals(2.toDouble().pow(3), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUsePowImplIntDouble() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = usePowImpl(2, 3.0)
-        }
-        waitForIdle()
-        assertEquals(2.toDouble().pow(3.0), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUsePowImplIntFloat() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = usePowImpl(2, 3.0f)
-        }
-        waitForIdle()
-        assertEquals(2.toDouble().pow(3.0), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUsePowImplLongInt() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = usePowImpl(2L, 3)
-        }
-        waitForIdle()
-        assertEquals(2L.toDouble().pow(3), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUsePowImplLongDouble() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = usePowImpl(2L, 3.0)
-        }
-        waitForIdle()
-        assertEquals(2L.toDouble().pow(3.0), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUsePowImplLongFloat() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = usePowImpl(2L, 3.0f)
-        }
-        waitForIdle()
-        assertEquals(2L.toDouble().pow(3.0), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUsePowImplZeroExponent() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = usePowImpl(5.0, 0)
-        }
-        waitForIdle()
-        assertEquals(1.0, result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUsePowImplNegativeExponent() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = usePowImpl(2.0, -3.0)
-        }
-        waitForIdle()
-        assertEquals(2.0.pow(-3.0), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseSqrtImplDouble() = runComposeUiTest {
-        var result1: State<Double>? = null
-        var result2: State<Double>? = null
-        setContent {
-            result1 = useSqrtImpl(9.0)
-            result2 = useSqrtImpl(0.0)
-        }
-        waitForIdle()
-        assertEquals(sqrt(9.0), result1!!.value)
-        assertEquals(sqrt(0.0), result2!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseSqrtImplFloat() = runComposeUiTest {
-        var result: State<Float>? = null
-        setContent {
-            result = useSqrtImpl(9.0f)
-        }
-        waitForIdle()
-        assertEquals(sqrt(9.0f), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseSqrtImplInt() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = useSqrtImpl(9)
-        }
-        waitForIdle()
-        assertEquals(sqrt(9.0), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseSqrtImplLong() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = useSqrtImpl(9L)
-        }
-        waitForIdle()
-        assertEquals(sqrt(9.0), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMinImplEqualValues() = runComposeUiTest {
-        var result: State<Int>? = null
-        setContent {
-            result = useMinImpl(5, 5)
-        }
-        waitForIdle()
-        assertEquals(5, result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMaxImplEqualValues() = runComposeUiTest {
-        var result: State<Int>? = null
-        setContent {
-            result = useMaxImpl(5, 5)
-        }
-        waitForIdle()
-        assertEquals(5, result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMinImplNegativeValues() = runComposeUiTest {
-        var result: State<Int>? = null
-        setContent {
-            result = useMinImpl(-3, -5)
-        }
-        waitForIdle()
-        assertEquals(min(-3, -5), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseMaxImplNegativeValues() = runComposeUiTest {
-        var result: State<Int>? = null
-        setContent {
-            result = useMaxImpl(-3, -5)
-        }
-        waitForIdle()
-        assertEquals(max(-3, -5), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseAbsImplLargeValues() = runComposeUiTest {
-        var result1: State<Int>? = null
-        var result2: State<Long>? = null
-        setContent {
-            result1 = useAbsImpl(Int.MIN_VALUE)
-            result2 = useAbsImpl(Long.MIN_VALUE)
-        }
-        waitForIdle()
-        assertEquals(abs(Int.MIN_VALUE), result1!!.value)
-        assertEquals(abs(Long.MIN_VALUE), result2!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseSqrtImplPerfectSquare() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = useSqrtImpl(16)
-        }
-        waitForIdle()
-        assertEquals(4.0, result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUseSqrtImplNonPerfectSquare() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = useSqrtImpl(2)
-        }
-        waitForIdle()
-        assertEquals(sqrt(2.0), result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUsePowImplFloatIntEdge() = runComposeUiTest {
-        var result: State<Float>? = null
-        setContent {
-            result = usePowImpl(3.0f, 0)
-        }
-        waitForIdle()
-        assertEquals(1.0f, result!!.value)
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun testUsePowImplLongIntEdge() = runComposeUiTest {
-        var result: State<Double>? = null
-        setContent {
-            result = usePowImpl(3L, 0)
-        }
-        waitForIdle()
-        assertEquals(1.0, result!!.value)
+        assertEquals(abs(Int.MIN_VALUE), absInt.value)
+        assertEquals(abs(Long.MIN_VALUE), absLong.value)
     }
 }

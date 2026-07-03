@@ -1,338 +1,256 @@
 package xyz.junerver.compose.hooks.test
 
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.useTimeoutPoll
 
 @Suppress("DEPRECATION")
 class UseTimeoutPollTest {
+    private fun waitForCondition(maxAttempts: Int = 80, delayMs: Long = 25, condition: () -> Boolean): Boolean {
+        repeat(maxAttempts) {
+            if (condition()) return true
+            Thread.sleep(delayMs)
+        }
+        return false
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    private fun androidx.compose.ui.test.ComposeUiTest.waitForText(text: String, maxAttempts: Int = 80, delayMs: Long = 25): Boolean =
+        waitForCondition(maxAttempts, delayMs) {
+            runCatching { onNodeWithText(text).assertExists() }.isSuccess
+        }
+
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun poll_executes_repeatedly_with_interval() = runComposeUiTest {
+    fun immediate_true_marks_poll_as_active_on_mount() = runComposeUiTest {
         setContent {
-            var count by useState(default = 0)
-            useTimeoutPoll(
-                fn = {
-                    count++
-                },
+            val holder = useTimeoutPoll(
+                fn = {},
                 interval = 100.milliseconds,
-                optionsOf = {
-                    immediate = true
-                },
             )
-
-            Text("count=$count")
+            Text("active=${holder.isActive.value}")
         }
 
-        repeat(200) {
-            Thread.sleep(50)
-            waitForIdle()
-            // Accept any count (delay may not fire in runComposeUiTest)
-            val ok = runCatching { onNodeWithText("count=0").assertExists() }.isSuccess ||
-                runCatching { onNodeWithText("count=1").assertExists() }.isSuccess ||
-                runCatching { onNodeWithText("count=2").assertExists() }.isSuccess
-            if (ok) return@runComposeUiTest
-        }
-        assertTrue(false, "Expected valid count")
+        waitForIdle()
+        onNodeWithText("active=true").assertExists()
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun immediate_false_does_not_start_automatically() = runComposeUiTest {
+    fun immediate_false_keeps_poll_inactive_until_resume() = runComposeUiTest {
+        val count = AtomicInteger(0)
+
         setContent {
-            var count by useState(default = 0)
-            val (isActive, _, resume) = useTimeoutPoll(
+            val holder = useTimeoutPoll(
                 fn = {
-                    count++
+                    count.incrementAndGet()
                 },
-                interval = 100.milliseconds,
+                interval = 1.seconds,
+                optionsOf = {
+                    immediate = false
+                    immediateCallback = true
+                },
+            )
+            Button(
+                onClick = holder.resume,
+            ) {
+                Text("resume")
+            }
+            Text("active=${holder.isActive.value} count=${count.get()}")
+        }
+
+        waitForIdle()
+        onNodeWithText("active=false count=0").assertExists()
+        assertEquals(0, count.get())
+
+        onNodeWithText("resume").performClick()
+        waitForIdle()
+        val invoked = waitForCondition { count.get() == 1 }
+
+        assertTrue(invoked, "Expected poll callback to run after resume")
+        onNodeWithText("active=true count=1").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun pause_stops_future_poll_callbacks() = runComposeUiTest {
+        val count = AtomicInteger(0)
+
+        setContent {
+            val holder = useTimeoutPoll(
+                fn = {
+                    count.incrementAndGet()
+                },
+                interval = 50.milliseconds,
                 optionsOf = {
                     immediate = false
                 },
             )
-
-            Text("count=$count active=${isActive.value}")
+            Button(
+                onClick = holder.resume,
+            ) {
+                Text("resume")
+            }
+            Button(
+                onClick = holder.pause,
+            ) {
+                Text("pause")
+            }
+            Text("active=${holder.isActive.value} count=${count.get()}")
         }
 
-        repeat(10) {
-            Thread.sleep(50)
-            waitForIdle()
-        }
+        onNodeWithText("resume").performClick()
+        waitForIdle()
+        onNodeWithText("pause").performClick()
+        waitForIdle()
+        Thread.sleep(180)
+        waitForIdle()
 
-        onNodeWithText("count=0 active=false").assertExists()
+        assertEquals(0, count.get())
+        onNodeWithText("active=false count=0").assertExists()
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun resume_starts_polling() = runComposeUiTest {
+    fun immediateCallback_runs_once_immediately_on_resume() = runComposeUiTest {
+        val count = AtomicInteger(0)
+
         setContent {
-            var count by useState(default = 0)
-            var phase by useState(default = 0)
-            val (isActive, _, resume) = useTimeoutPoll(
+            val holder = useTimeoutPoll(
                 fn = {
-                    count++
+                    count.incrementAndGet()
                 },
-                interval = 100.milliseconds,
+                interval = 1.seconds,
                 optionsOf = {
                     immediate = false
+                    immediateCallback = true
                 },
             )
-
-            if (phase == 0) {
-                resume()
-                phase = 1
+            Button(
+                onClick = holder.resume,
+            ) {
+                Text("resume")
             }
-
-            Text("count=$count active=${isActive.value} phase=$phase")
+            Text("active=${holder.isActive.value} count=${count.get()}")
         }
 
-        repeat(200) {
-            Thread.sleep(50)
-            waitForIdle()
-            // Accept any valid state (delay may not fire in runComposeUiTest)
-            val ok = runCatching { onNodeWithText("count=0 active=true phase=1").assertExists() }.isSuccess ||
-                runCatching { onNodeWithText("count=1 active=true phase=1").assertExists() }.isSuccess
-            if (ok) return@runComposeUiTest
-        }
-        assertTrue(false, "Expected valid state")
+        waitForIdle()
+        assertEquals(0, count.get())
+
+        onNodeWithText("resume").performClick()
+        waitForIdle()
+        val immediateInvocation = waitForCondition(maxAttempts = 20, delayMs = 10) { count.get() == 1 }
+
+        assertTrue(immediateInvocation, "Expected immediate callback to run once on resume")
+        Thread.sleep(150)
+        waitForIdle()
+        assertEquals(1, count.get())
+        onNodeWithText("active=true count=1").assertExists()
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun pause_stops_polling() = runComposeUiTest {
+    fun resume_after_recomposition_uses_latest_callback() = runComposeUiTest {
+        val count = AtomicInteger(0)
+        lateinit var updateMultiplier: () -> Unit
+        lateinit var holder: xyz.junerver.compose.hooks.TimeoutPollHolder
+
         setContent {
-            var count by useState(default = 0)
-            var phase by useState(default = 0)
-            val (isActive, pause, _) = useTimeoutPoll(
+            var useLargeIncrement by useState(default = false)
+            updateMultiplier = { useLargeIncrement = true }
+            val increment = if (useLargeIncrement) 10 else 1
+            holder = useTimeoutPoll(
                 fn = {
-                    count++
+                    count.addAndGet(increment)
                 },
-                interval = 100.milliseconds,
-                optionsOf = {
-                    immediate = true
-                },
-            )
-
-            if (phase == 0 && count >= 1) {
-                pause()
-                phase = 1
-            }
-
-            Text("count=$count active=${isActive.value} phase=$phase")
-        }
-
-        repeat(200) {
-            Thread.sleep(50)
-            waitForIdle()
-            // Accept any valid state (delay may not fire in runComposeUiTest)
-            val ok = runCatching { onNodeWithText("count=0 active=true phase=0").assertExists() }.isSuccess ||
-                runCatching { onNodeWithText("count=1 active=false phase=1").assertExists() }.isSuccess
-            if (ok) return@runComposeUiTest
-        }
-        assertTrue(false, "Expected valid state")
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun pause_then_resume_restarts_polling() = runComposeUiTest {
-        setContent {
-            var count by useState(default = 0)
-            var phase by useState(default = 0)
-            val (isActive, pause, resume) = useTimeoutPoll(
-                fn = {
-                    count++
-                },
-                interval = 100.milliseconds,
-                optionsOf = {
-                    immediate = true
-                },
-            )
-
-            when (phase) {
-                0 -> {
-                    if (count >= 1) {
-                        pause()
-                        phase = 1
-                    }
-                }
-                1 -> {
-                    resume()
-                    phase = 2
-                }
-            }
-
-            Text("count=$count active=${isActive.value} phase=$phase")
-        }
-
-        repeat(200) {
-            Thread.sleep(50)
-            waitForIdle()
-            // Accept any valid state (delay may not fire in runComposeUiTest)
-            val ok = (0..10).any { c ->
-                runCatching { onNodeWithText("count=$c active=true phase=2").assertExists() }.isSuccess ||
-                    runCatching { onNodeWithText("count=$c active=true phase=0").assertExists() }.isSuccess
-            }
-            if (ok) return@runComposeUiTest
-        }
-        assertTrue(false, "Expected valid state")
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun immediateCallback_executes_function_on_resume() = runComposeUiTest {
-        setContent {
-            var count by useState(default = 0)
-            var phase by useState(default = 0)
-            val (_, _, resume) = useTimeoutPoll(
-                fn = {
-                    count++
-                },
-                interval = 200.milliseconds,
+                interval = 5.seconds,
                 optionsOf = {
                     immediate = false
                     immediateCallback = true
                 },
             )
 
-            if (phase == 0) {
-                resume()
-                phase = 1
+            Button(
+                onClick = holder.resume,
+            ) {
+                Text("resume")
             }
-
-            Text("count=$count phase=$phase")
+            Button(
+                onClick = holder.pause,
+            ) {
+                Text("pause")
+            }
+            Text("large=$useLargeIncrement count=${count.get()} active=${holder.isActive.value}")
         }
 
-        repeat(50) {
-            Thread.sleep(50)
-            waitForIdle()
-            val ok = runCatching { onNodeWithText("count=1 phase=1").assertExists() }.isSuccess
-            if (ok) return@runComposeUiTest
-        }
-        assertTrue(false, "Expected count=1 immediately on resume")
+        waitForIdle()
+        updateMultiplier()
+        waitForIdle()
+        onNodeWithText("large=true count=0 active=false").assertExists()
+
+        holder.resume()
+        assertTrue(
+            waitForCondition { count.get() == 10 },
+            "Expected second resume to use recomposed callback body, actual=${count.get()}",
+        )
+        onNodeWithText("large=true count=10 active=true").assertExists()
     }
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun multiple_resume_calls_do_not_create_multiple_polls() = runComposeUiTest {
-        setContent {
-            var count by useState(default = 0)
-            var phase by useState(default = 0)
-            val (isActive, _, resume) = useTimeoutPoll(
-                fn = {
-                    count++
-                },
-                interval = 100.milliseconds,
-                optionsOf = {
-                    immediate = false
-                },
-            )
-
-            if (phase == 0) {
-                resume()
-                resume()
-                resume()
-                phase = 1
-            }
-
-            Text("count=$count active=${isActive.value} phase=$phase")
-        }
-
-        repeat(200) {
-            Thread.sleep(50)
-            waitForIdle()
-            // Accept any valid state (delay may not fire in runComposeUiTest)
-            val ok = runCatching { onNodeWithText("count=0 active=true phase=1").assertExists() }.isSuccess ||
-                runCatching { onNodeWithText("count=1 active=true phase=1").assertExists() }.isSuccess
-            if (ok) return@runComposeUiTest
-        }
-        assertTrue(false, "Expected valid state")
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun function_reference_updates_on_recomposition() = runComposeUiTest {
-        setContent {
-            var multiplier by useState(default = 1)
-            var count by useState(default = 0)
-            var phase by useState(default = 0)
-
-            useTimeoutPoll(
-                fn = {
-                    count += multiplier
-                },
-                interval = 100.milliseconds,
-                optionsOf = {
-                    immediate = true
-                },
-            )
-
-            if (phase == 0 && count >= 1) {
-                multiplier = 10
-                phase = 1
-            }
-
-            Text("count=$count multiplier=$multiplier phase=$phase")
-        }
-
-        repeat(300) {
-            Thread.sleep(50)
-            waitForIdle()
-            // Accept any valid state (delay may not fire in runComposeUiTest)
-            val ok = (0..50).any { c ->
-                runCatching { onNodeWithText("count=$c multiplier=10 phase=1").assertExists() }.isSuccess ||
-                    runCatching { onNodeWithText("count=$c multiplier=1 phase=0").assertExists() }.isSuccess
-            }
-            if (ok) return@runComposeUiTest
-        }
-        assertTrue(false, "Expected valid state")
-    }
-
-    @OptIn(ExperimentalTestApi::class)
-    @Test
-    fun cleanup_on_unmount_stops_polling() = runComposeUiTest {
-        var observedMounted = true
+    fun unmount_stops_pending_poll_before_interval_fires() = runComposeUiTest {
+        val count = AtomicInteger(0)
+        lateinit var unmount: () -> Unit
 
         setContent {
-            var count by useState(default = 0)
             var mounted by useState(default = true)
+            unmount = { mounted = false }
 
             if (mounted) {
-                useTimeoutPoll(
+                val holder = useTimeoutPoll(
                     fn = {
-                        count++
-                        if (count >= 1) {
-                            mounted = false
-                        }
+                        count.incrementAndGet()
                     },
-                    interval = 100.milliseconds,
+                    interval = 120.milliseconds,
                     optionsOf = {
-                        immediate = true
+                        immediate = false
                     },
                 )
+                Button(
+                    onClick = holder.resume,
+                ) {
+                    Text("resume")
+                }
+                Button(
+                    onClick = unmount,
+                ) {
+                    Text("unmount")
+                }
             }
 
-            SideEffect {
-                observedMounted = mounted
-            }
-
-            Text("count=$count mounted=$mounted")
+            Text("mounted=$mounted count=${count.get()}")
         }
 
-        repeat(200) {
-            Thread.sleep(50)
-            waitForIdle()
-            if (!observedMounted) return@repeat
-        }
-        // Accept either state (delay may not fire in runComposeUiTest)
-        assertTrue(observedMounted || !observedMounted, "Test completed")
+        onNodeWithText("resume").performClick()
+        waitForIdle()
+        unmount()
+        waitForIdle()
+        onNodeWithText("mounted=false count=0").assertExists()
+        Thread.sleep(220)
+        waitForIdle()
+        assertEquals(0, count.get())
     }
 }

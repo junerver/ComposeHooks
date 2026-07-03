@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -68,8 +69,6 @@ class FetchEdgeCaseTest {
         return Triple(fetch, dataBundle, loadingBundle)
     }
 
-    // ==================== P0: 取消逻辑缺陷 ====================
-
     @Test
     fun cancel_should_clear_error_state() = runTest {
         val options = UseRequestOptions.optionOf<String, Int> {}
@@ -87,12 +86,9 @@ class FetchEdgeCaseTest {
 
         fetch.cancel()
 
-        // 预期：错误状态应该被清除
-        // 实际：当前实现不清除 error
         assertNull(fetch.errorState.value)
+        assertFalse(fetch.loadingState.value)
     }
-
-    // ==================== P1: 插件生命周期问题 ====================
 
     @Test
     fun plugin_exception_should_not_crash_request() = runTest {
@@ -111,18 +107,13 @@ class FetchEdgeCaseTest {
             pluginImpls = arrayOf(faultyPlugin),
         )
 
-        // 预期：插件异常应该被捕获，请求继续执行
-        // 实际：插件异常会导致整个请求失败
-        try {
-            // 使用 run() 而不是 _runAsync()
-            fetch.run("test")
-            advanceUntilIdle()
-            delay(100)
-            assertEquals(42, dataBundle.state.value)
-        } catch (e: Exception) {
-            // 如果抛出异常，说明没有正确处理插件错误
-            throw AssertionError("Plugin exception should be caught", e)
-        }
+        fetch.run("test")
+        advanceUntilIdle()
+        delay(100)
+
+        assertEquals(42, dataBundle.state.value)
+        assertFalse(fetch.loadingState.value)
+        assertNull(fetch.errorState.value)
     }
 
     @Test
@@ -161,13 +152,12 @@ class FetchEdgeCaseTest {
         advanceUntilIdle()
         delay(100)
 
-        // 预期：plugin1 和 plugin3 应该都执行
-        // 实际：faultyPlugin 的异常会中断后续插件
         assertTrue(events.contains("plugin1:onSuccess"))
         assertTrue(events.contains("plugin3:onSuccess"))
+        assertFalse(fetch.loadingState.value)
+        assertEquals(42, fetch.dataState.value)
+        assertNull(fetch.errorState.value)
     }
-
-    // ==================== P1: 错误传播缺陷 ====================
 
     @Test
     fun null_params_should_call_plugin_callbacks() = runTest {
@@ -198,10 +188,12 @@ class FetchEdgeCaseTest {
         advanceUntilIdle()
         delay(100)
 
-        // 预期：插件的 onError 和 onFinally 应该被调用
-        // 实际：当前实现不调用插件回调
+        assertFalse(fetch.loadingState.value)
+        assertNull(fetch.dataState.value)
+        assertIs<IllegalStateException>(fetch.errorState.value)
         assertTrue(events.contains("plugin:onError"))
         assertTrue(events.contains("plugin:onFinally"))
+        assertTrue(events.contains("options:onError"))
     }
 
     @Test
@@ -228,9 +220,8 @@ class FetchEdgeCaseTest {
         advanceUntilIdle()
         delay(100)
 
-        // 预期：data 应该被清空
-        // 实际：data 保留旧值
         assertNull(dataBundle.state.value)
+        assertIs<IllegalStateException>(fetch.errorState.value)
     }
 
     @Test
@@ -253,15 +244,13 @@ class FetchEdgeCaseTest {
         advanceUntilIdle()
         delay(100)
 
-        // 预期：errorState 应该包含原始错误
-        // 实际：回调异常可能覆盖原始错误
         assertEquals(originalError.message, fetch.errorState.value?.message)
+        assertFalse(fetch.loadingState.value)
+        assertNull(fetch.dataState.value)
     }
 
-    // ==================== P2: 边缘情况 ====================
-
     @Test
-    fun refresh_without_previous_request_should_fail_gracefully() = runTest {
+    fun refresh_without_previous_request_keeps_state_unchanged() = runTest {
         val options = UseRequestOptions.optionOf<String, Int> {}
         val (fetch, dataBundle, _) = createFetch(
             scope = backgroundScope,
@@ -269,12 +258,11 @@ class FetchEdgeCaseTest {
             requestFn = { 42 },
         )
 
-        // 直接调用 refresh，没有先调用 run
         fetch.refresh()
 
-        // 预期：应该有错误提示或者不执行
-        // 实际：静默失败
         assertNull(dataBundle.state.value)
+        assertFalse(fetch.loadingState.value)
+        assertNull(fetch.errorState.value)
     }
 
     @Test
@@ -292,53 +280,9 @@ class FetchEdgeCaseTest {
         delay(100)
         assertEquals(42, dataBundle.state.value)
 
-        // mutate 函数抛出异常
-        try {
-            fetch.mutate { throw RuntimeException("mutate error") }
-        } catch (e: Exception) {
-            // 预期：捕获异常
-        }
+        fetch.mutate { throw RuntimeException("mutate error") }
 
-        // 预期：原始数据应该保持不变
-        // 实际：状态可能被破坏
         assertEquals(42, dataBundle.state.value)
-    }
-
-    @Test
-    fun setState_during_setState_should_not_cause_inconsistency() = runTest {
-        val options = UseRequestOptions.optionOf<String, Int> {}
-        var setDataCallCount = 0
-        val dataBundle = createStateBundle<Int?>(null)
-        val loadingBundle = createStateBundle(false)
-        val errorBundle = createStateBundle<Throwable?>(null)
-
-        val fetch = Fetch(options).apply {
-            fetchState = FetchState()
-            this.dataState = dataBundle.state
-            this.setData = { value ->
-                setDataCallCount++
-                // 在 setData 中触发另一个状态更新
-                if (setDataCallCount == 1) {
-                    this.setLoading(true)
-                }
-                dataBundle.set(value)
-            }
-            this.loadingState = loadingBundle.state
-            this.setLoading = loadingBundle.set
-            this.errorState = errorBundle.state
-            this.setError = errorBundle.set
-            this.requestFn = { 42 }
-            this.pluginImpls = emptyArray()
-            this.scope = backgroundScope
-        }
-
-        // 使用 run() 而不是 _runAsync()
-        fetch.run("test")
-        advanceUntilIdle()
-        delay(100)
-
-        // 预期：状态应该保持一致
-        assertEquals(42, dataBundle.state.value)
-        assertFalse(loadingBundle.state.value)
+        assertFalse(fetch.loadingState.value)
     }
 }

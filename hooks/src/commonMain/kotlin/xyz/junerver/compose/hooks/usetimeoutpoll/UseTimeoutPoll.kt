@@ -104,13 +104,11 @@ fun useTimeoutPollImpl(
         pause()
     }
 
-    return remember {
-        TimeoutPollHolder(
-            isActive = isActiveState,
-            pause = pause,
-            resume = resume,
-        )
-    }
+    return TimeoutPollHolder(
+        isActive = isActiveState,
+        pause = pause,
+        resume = resume,
+    )
 }
 
 @Composable

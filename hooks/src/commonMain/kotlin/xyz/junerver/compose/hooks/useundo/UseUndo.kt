@@ -93,7 +93,7 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
 
         is Set<*> -> {
             val (payload) = action as Set<T>
-            if (present === payload) return preState
+            if (present == payload) return preState
             preState.copy(
                 past = past + present,
                 present = payload!!,

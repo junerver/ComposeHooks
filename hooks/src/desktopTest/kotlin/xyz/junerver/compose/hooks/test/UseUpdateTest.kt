@@ -73,7 +73,7 @@ class UseUpdateTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun useUpdate_returns_stable_function() = runComposeUiTest {
+    fun useUpdate_can_be_invoked_after_recomposition() = runComposeUiTest {
         setContent {
             var phase by useState(0)
             val update = useUpdate()

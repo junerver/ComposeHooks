@@ -389,15 +389,15 @@ class UseUndoTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun setValue_same_value_does_nothing() = runComposeUiTest {
+    fun setValue_value_equal_content_does_not_add_duplicate_history() = runComposeUiTest {
         setContent {
             var phase by useState(0)
-            val holder = useUndo("same")
+            val holder = useUndo(buildString { append("same") })
 
             SideEffect {
                 when (phase) {
                     0 -> {
-                        holder.setValue("same") // Same value, should not add to past
+                        holder.setValue(String(charArrayOf('s', 'a', 'm', 'e')))
                         phase = 1
                     }
                 }
@@ -406,7 +406,6 @@ class UseUndoTest {
             Text("pastSize=${holder.undoState.value.past.size} phase=$phase")
         }
         waitForIdle()
-        // Note: The implementation uses reference equality (===), so same string literal won't add to past
         onNodeWithText("pastSize=0 phase=1").assertExists()
     }
 
