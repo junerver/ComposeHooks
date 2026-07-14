@@ -113,6 +113,10 @@ internal class FakeHttpEngine : HttpEngine {
         }
     }
 
+    fun enqueueStream(events: Flow<SseEvent>) {
+        streamQueue += events
+    }
+
     fun enqueueResponse(result: HttpResult) {
         responseQueue += result
     }

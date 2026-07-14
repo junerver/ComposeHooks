@@ -8,8 +8,6 @@ import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonElement
 import xyz.junerver.compose.ai.AIOptionsDefaults
 import xyz.junerver.compose.ai.AppendMessageFn
@@ -163,41 +161,37 @@ fun useAgent(optionsOf: AgentOptions.() -> Unit = {}): AgentHolder {
             setIsLoading(true)
 
             asyncRun {
-                val chatOptions = optionsRef.current.toChatOptions()
-                clientRef.current?.close()
+                val requestOptions = optionsRef.current.copy()
+                val chatOptions = requestOptions.toChatOptions()
                 val client = ChatClient(chatOptions).also { clientRef.current = it }
                 try {
                     val localMessages = getMessages().toMutableList()
                     localMessages.add(userMessage(content))
-                    withContext(Dispatchers.Main) {
-                        setMessages(localMessages.toImmutableList())
-                    }
+                    setMessages(localMessages.toImmutableList())
 
                     runAgentLoop(
                         client = client,
                         messages = localMessages,
-                        tools = optionsRef.current.tools,
-                        maxSteps = optionsRef.current.maxSteps,
-                        parallelToolCalls = optionsRef.current.parallelToolCalls,
-                        stream = optionsRef.current.stream,
-                        model = optionsRef.current.effectiveModel,
+                        tools = requestOptions.tools,
+                        maxSteps = requestOptions.maxSteps,
+                        parallelToolCalls = requestOptions.parallelToolCalls,
+                        stream = requestOptions.stream,
+                        model = requestOptions.effectiveModel,
                         onAssistant = { response ->
-                            response.message.toolCalls.forEach { optionsRef.current.onToolCall?.invoke(it) }
-                            withContext(Dispatchers.Main) {
-                                setMessages(localMessages.toImmutableList())
-                            }
+                            response.message.toolCalls.forEach { requestOptions.onToolCall?.invoke(it) }
+                            setMessages(localMessages.toImmutableList())
 
                             if (response.message.toolCalls.isEmpty()) {
                                 // Record token usage if tracker is available
                                 if (response.usage != null) {
                                     tokenTracker?.recordUsage(
                                         requestId = response.message.id,
-                                        provider = optionsRef.current.provider.name,
-                                        model = optionsRef.current.effectiveModel,
+                                        provider = requestOptions.provider.name,
+                                        model = requestOptions.effectiveModel,
                                         usage = response.usage,
                                     )
                                 }
-                                optionsRef.current.onFinish?.invoke(
+                                requestOptions.onFinish?.invoke(
                                     response.message,
                                     response.usage,
                                     response.finishReason,
@@ -205,18 +199,14 @@ fun useAgent(optionsOf: AgentOptions.() -> Unit = {}): AgentHolder {
                             }
                         },
                         onAssistantPartial = {
-                            withContext(Dispatchers.Main) {
-                                setMessages(localMessages.toImmutableList())
-                            }
+                            setMessages(localMessages.toImmutableList())
                         },
                         onToolMessage = { toolMsg ->
-                            withContext(Dispatchers.Main) {
-                                setMessages(localMessages.toImmutableList())
-                            }
+                            setMessages(localMessages.toImmutableList())
 
                             val first = toolMsg.content.firstOrNull()
                             if (first != null) {
-                                optionsRef.current.onToolResult?.invoke(
+                                requestOptions.onToolResult?.invoke(
                                     first.toolCallId,
                                     first.toolName,
                                     first.result,
@@ -227,15 +217,12 @@ fun useAgent(optionsOf: AgentOptions.() -> Unit = {}): AgentHolder {
                     )
                 } catch (e: Exception) {
                     if (e is CancellationException) throw e
-                    withContext(Dispatchers.Main) {
-                        setError(e)
-                    }
-                    optionsRef.current.onError?.invoke(e)
+                    setError(e)
+                    requestOptions.onError?.invoke(e)
                 } finally {
                     client.close()
-                    withContext(Dispatchers.Main) {
-                        setIsLoading(false)
-                    }
+                    if (clientRef.current === client) clientRef.current = null
+                    setIsLoading(false)
                 }
             }
         }
