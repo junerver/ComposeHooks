@@ -19,6 +19,7 @@ import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useLatestRef
+import xyz.junerver.compose.hooks.useRef
 
 /*
   Description: useGenerateObject hook for structured output generation
@@ -215,6 +216,12 @@ fun <T : Any> useGenerateObject(
     val options = useCreation { GenerateObjectOptions.optionOf(optionsOf) }.current.apply(optionsOf)
     val optionsRef = useLatestRef(options)
     val serializerRef = useLatestRef(serializer)
+    val activeOptionsRef = useRef(
+        options.copy(
+            headers = options.headers.toMap(),
+        ),
+    )
+    val activeSerializerRef = useRef(serializer)
 
     // State for parsed object and parse error
     val parsedObject = _useState<T?>(null)
@@ -241,23 +248,24 @@ fun <T : Any> useGenerateObject(
         onFinish = { message, usage, _ ->
             // Parse JSON to object
             val rawJson = message.textContent
+            val requestOptions = activeOptionsRef.current
             try {
-                val cleanJson = healJson(rawJson, optionsRef.current.enableJsonHealing)
-                val obj = defaultJson.decodeFromString(serializerRef.current, cleanJson)
+                val cleanJson = healJson(rawJson, requestOptions.enableJsonHealing)
+                val obj = defaultJson.decodeFromString(activeSerializerRef.current, cleanJson)
                 parsedObject.value = obj
                 parseError.value = null
-                optionsRef.current.onFinish?.invoke(obj, usage)
+                requestOptions.onFinish?.invoke(obj, usage)
             } catch (e: Exception) {
                 if (e is CancellationException) throw e
                 parsedObject.value = null
                 parseError.value = e
-                optionsRef.current.onError?.invoke(e)
+                requestOptions.onError?.invoke(e)
             }
         }
 
         onError = { error ->
             parseError.value = error
-            optionsRef.current.onError?.invoke(error)
+            activeOptionsRef.current.onError?.invoke(error)
         }
     }
 
@@ -273,14 +281,15 @@ fun <T : Any> useGenerateObject(
 
     useEffect(rawJsonState.value, chatHolder.isLoading.value) {
         val rawJson = rawJsonState.value
+        val requestOptions = activeOptionsRef.current
         if (rawJson.isBlank()) return@useEffect
         if (!chatHolder.isLoading.value) return@useEffect
-        if (!optionsRef.current.stream) return@useEffect
-        if (!optionsRef.current.enableIncrementalParsing) return@useEffect
+        if (!requestOptions.stream) return@useEffect
+        if (!requestOptions.enableIncrementalParsing) return@useEffect
 
         try {
-            val cleanJson = healJson(rawJson, optionsRef.current.enableJsonHealing)
-            val obj = defaultJson.decodeFromString(serializerRef.current, cleanJson)
+            val cleanJson = healJson(rawJson, requestOptions.enableJsonHealing)
+            val obj = defaultJson.decodeFromString(activeSerializerRef.current, cleanJson)
             parsedObject.value = obj
         } catch (_: Exception) {
             // Ignore incremental parse failures during streaming
@@ -290,6 +299,13 @@ fun <T : Any> useGenerateObject(
     // Submit function - sends content and clears previous state
     val submit: SubmitFn = useCreation(chatHolder) {
         { content: List<UserContentPart> ->
+            if (content.isEmpty()) return@useCreation
+
+            val latestOptions = optionsRef.current
+            activeOptionsRef.current = latestOptions.copy(
+                headers = latestOptions.headers.toMap(),
+            )
+            activeSerializerRef.current = serializerRef.current
             parsedObject.value = null
             parseError.value = null
             chatHolder.setMessages(emptyList())
