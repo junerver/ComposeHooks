@@ -7,10 +7,8 @@ import arrow.core.left
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.withContext
 import xyz.junerver.compose.ai.AIOptionsDefaults
 import xyz.junerver.compose.ai.OnErrorCallback
 import xyz.junerver.compose.ai.OnResponseCallback
@@ -154,7 +152,7 @@ fun useTts(optionsOf: TtsOptionsConfig.() -> Unit = {}): TtsHolder {
     val optionsRef = useLatestRef(options)
 
     // State management
-    val (audioState, setAudioInternal, getAudio) = _useGetState("")
+    val (audioState, setAudioInternal, _) = _useGetState("")
     val (isLoadingState, setIsLoadingInternal, _) = _useGetState(false)
     val (errorState, setErrorInternal, _) = _useGetState<Throwable?>(null)
 
@@ -163,36 +161,6 @@ fun useTts(optionsOf: TtsOptionsConfig.() -> Unit = {}): TtsHolder {
 
     // Cancelable async
     val (asyncRun, cancelAsync, _) = useCancelableAsync()
-
-    // Build ChatOptions for TTS
-    val chatOptions = useCreation(
-        options.provider,
-        options.model,
-        options.voice,
-        options.effectiveFormat,
-        options.stream,
-        options.timeout,
-    ) {
-        ChatOptions(
-            provider = options.provider,
-            model = options.effectiveModel,
-            stream = options.stream,
-            timeout = options.timeout,
-            headers = options.headers,
-            httpEngine = options.httpEngine,
-            onResponse = options.onResponse,
-            onError = options.onError,
-            audioOptions = AudioOptions(
-                format = options.effectiveFormat,
-                voice = options.voice,
-            ),
-        )
-    }.current
-
-    // Create/recreate client when options change
-    val chatOptionsRef = useLatestRef(chatOptions)
-    clientRef.current?.close()
-    clientRef.current = ChatClient(chatOptionsRef.current)
 
     // Cleanup on unmount
     useUnmount {
@@ -224,12 +192,26 @@ fun useTts(optionsOf: TtsOptionsConfig.() -> Unit = {}): TtsHolder {
             }
 
             asyncRun {
+                val requestOptions = optionsRef.current.copy()
+                val client = ChatClient(
+                    ChatOptions(
+                        provider = requestOptions.provider,
+                        model = requestOptions.effectiveModel,
+                        stream = requestOptions.stream,
+                        timeout = requestOptions.timeout,
+                        headers = requestOptions.headers,
+                        httpEngine = requestOptions.httpEngine,
+                        onResponse = requestOptions.onResponse,
+                        onError = requestOptions.onError,
+                        audioOptions = AudioOptions(
+                            format = requestOptions.effectiveFormat,
+                            voice = requestOptions.voice,
+                        ),
+                    ),
+                )
+                clientRef.current = client
                 try {
-                    val client = clientRef.current
-                        ?: throw IllegalStateException("TTS client not initialized")
-                    val opts = optionsRef.current
-
-                    if (opts.stream) {
+                    if (requestOptions.stream) {
                         // Streaming mode: accumulate PCM16 base64 chunks
                         var accumulatedAudio = ""
 
@@ -237,21 +219,17 @@ fun useTts(optionsOf: TtsOptionsConfig.() -> Unit = {}): TtsHolder {
                             when (event) {
                                 is StreamEvent.AudioDelta -> {
                                     accumulatedAudio += event.audioDataBase64
-                                    withContext(Dispatchers.Main) {
-                                        setAudio(accumulatedAudio)
-                                    }
+                                    setAudio(accumulatedAudio)
                                     // Notify chunk callback
-                                    opts.onAudioChunk?.invoke(event.audioDataBase64)
+                                    requestOptions.onAudioChunk?.invoke(event.audioDataBase64)
                                 }
                                 is StreamEvent.Done -> {
                                     // Audio already accumulated
                                 }
                                 is StreamEvent.Error -> {
                                     if (event.error is CancellationException) throw event.error
-                                    withContext(Dispatchers.Main) {
-                                        setError(event.error)
-                                    }
-                                    opts.onError?.invoke(event.error)
+                                    setError(event.error)
+                                    requestOptions.onError?.invoke(event.error)
                                 }
                                 else -> Unit // Ignore text deltas etc.
                             }
@@ -261,21 +239,18 @@ fun useTts(optionsOf: TtsOptionsConfig.() -> Unit = {}): TtsHolder {
                         val result = client.chat(messages)
                         val audioData = result.audioDataBase64
                         if (audioData != null) {
-                            withContext(Dispatchers.Main) {
-                                setAudio(audioData)
-                            }
+                            setAudio(audioData)
                         } else {
                             throw Exception("No audio data in TTS response")
                         }
                     }
-
-                    setIsLoading(false)
                 } catch (e: Throwable) {
                     if (e is CancellationException) throw e
-                    withContext(Dispatchers.Main) {
-                        setError(e)
-                    }
-                    optionsRef.current.onError?.invoke(e)
+                    setError(e)
+                    requestOptions.onError?.invoke(e)
+                } finally {
+                    client.close()
+                    if (clientRef.current === client) clientRef.current = null
                     setIsLoading(false)
                 }
             }
@@ -300,14 +275,16 @@ fun useTts(optionsOf: TtsOptionsConfig.() -> Unit = {}): TtsHolder {
         }
     }.current
 
-    return TtsHolder(
-        audioDataBase64 = audioState,
-        isLoading = isLoadingState,
-        error = errorState,
-        synthesize = synthesize,
-        stop = stop,
-        reset = reset,
-    )
+    return useCreation(audioState, isLoadingState, errorState, synthesize, stop, reset) {
+        TtsHolder(
+            audioDataBase64 = audioState,
+            isLoading = isLoadingState,
+            error = errorState,
+            synthesize = synthesize,
+            stop = stop,
+            reset = reset,
+        )
+    }.current
 }
 
 // endregion

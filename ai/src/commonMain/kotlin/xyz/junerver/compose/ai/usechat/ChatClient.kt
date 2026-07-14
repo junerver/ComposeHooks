@@ -65,7 +65,7 @@ sealed class StreamEvent {
 internal class ChatClient(
     private val options: ChatOptions,
     private val engine: HttpEngine = options.httpEngine ?: HttpEngineConfig.defaultEngineFactory(),
-    private val shouldCloseEngine: Boolean = true,
+    private val shouldCloseEngine: Boolean = options.httpEngine == null,
 ) {
     private val json = Json {
         ignoreUnknownKeys = true

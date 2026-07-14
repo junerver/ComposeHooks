@@ -37,6 +37,8 @@ internal class FakeChatProvider(
     var lastStreamFlag: Boolean? = null
     var providedUsage: ChatUsage? = null
     var nextResponse: ChatResponseResult? = null
+    var lastAudioOptions: AudioOptions? = null
+    var lastAsrOptions: AsrOptions? = null
 
     override fun buildAuthHeaders(): Map<String, String> = mapOf("Authorization" to "Bearer $apiKey")
 
@@ -54,6 +56,8 @@ internal class FakeChatProvider(
     ): String {
         lastRequestMessages = messages
         lastStreamFlag = stream
+        lastAudioOptions = audioOptions
+        lastAsrOptions = asrOptions
         return buildString {
             append("model=").append(model)
             append("|stream=").append(stream)
@@ -67,6 +71,7 @@ internal class FakeChatProvider(
 
     override fun parseStreamLine(line: String): StreamEvent? = when {
         line.startsWith("delta:") -> StreamEvent.Delta(content = line.removePrefix("delta:").trim())
+        line.startsWith("audio:") -> StreamEvent.AudioDelta(audioDataBase64 = line.removePrefix("audio:").trim())
         line.startsWith("finish:") -> StreamEvent.Delta(
             content = "",
             finishReason = line.removePrefix("finish:").trim(),
@@ -99,6 +104,8 @@ internal class FakeHttpEngine : HttpEngine {
     private val responseQueue = ArrayDeque<HttpResult>()
 
     val recordedRequests = mutableListOf<HttpRequest>()
+    var closeCount: Int = 0
+        private set
 
     fun enqueueStream(vararg events: SseEvent) {
         streamQueue += flow {
@@ -122,5 +129,7 @@ internal class FakeHttpEngine : HttpEngine {
             ?: throw IllegalStateException("No queued stream Flow available")
     }
 
-    override fun close() = Unit
+    override fun close() {
+        closeCount++
+    }
 }

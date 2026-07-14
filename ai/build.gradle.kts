@@ -123,6 +123,10 @@ kotlin {
             implementation(compose.uiTest)
             implementation(libs.ktor.client.mock)
         }
+        val desktopTest by getting
+        desktopTest.dependencies {
+            implementation(compose.desktop.currentOs)
+        }
     }
 }
 

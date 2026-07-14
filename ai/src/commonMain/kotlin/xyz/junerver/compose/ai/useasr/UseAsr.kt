@@ -7,10 +7,8 @@ import arrow.core.left
 import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.withContext
 import xyz.junerver.compose.ai.AIOptionsDefaults
 import xyz.junerver.compose.ai.OnErrorCallback
 import xyz.junerver.compose.ai.OnResponseCallback
@@ -134,7 +132,7 @@ fun useAsr(optionsOf: AsrOptionsConfig.() -> Unit = {}): AsrHolder {
     val optionsRef = useLatestRef(options)
 
     // State management
-    val (textState, setTextInternal, getText) = _useGetState("")
+    val (textState, setTextInternal, _) = _useGetState("")
     val (isLoadingState, setIsLoadingInternal, _) = _useGetState(false)
     val (errorState, setErrorInternal, _) = _useGetState<Throwable?>(null)
 
@@ -143,26 +141,6 @@ fun useAsr(optionsOf: AsrOptionsConfig.() -> Unit = {}): AsrHolder {
 
     // Cancelable async
     val (asyncRun, cancelAsync, _) = useCancelableAsync()
-
-    // Initialize client
-    val chatOptions = useCreation(options.provider, options.model, options.timeout, options.language) {
-        ChatOptions(
-            provider = options.provider,
-            model = options.effectiveModel,
-            stream = true, // ASR supports streaming
-            timeout = options.timeout,
-            headers = options.headers,
-            httpEngine = options.httpEngine,
-            onResponse = options.onResponse,
-            onError = options.onError,
-            asrOptions = AsrOptions(language = options.language),
-        )
-    }.current
-
-    // Create/recreate client when options change
-    val chatOptionsRef = useLatestRef(chatOptions)
-    clientRef.current?.close()
-    clientRef.current = ChatClient(chatOptionsRef.current)
 
     // Cleanup on unmount
     useUnmount {
@@ -189,10 +167,22 @@ fun useAsr(optionsOf: AsrOptionsConfig.() -> Unit = {}): AsrHolder {
             )
 
             asyncRun {
+                val requestOptions = optionsRef.current.copy()
+                val client = ChatClient(
+                    ChatOptions(
+                        provider = requestOptions.provider,
+                        model = requestOptions.effectiveModel,
+                        stream = true,
+                        timeout = requestOptions.timeout,
+                        headers = requestOptions.headers,
+                        httpEngine = requestOptions.httpEngine,
+                        onResponse = requestOptions.onResponse,
+                        onError = requestOptions.onError,
+                        asrOptions = AsrOptions(language = requestOptions.language),
+                    ),
+                )
+                clientRef.current = client
                 try {
-                    val client = clientRef.current
-                        ?: throw IllegalStateException("ASR client not initialized")
-
                     var accumulatedText = ""
 
                     // Use streaming for real-time text output
@@ -200,31 +190,26 @@ fun useAsr(optionsOf: AsrOptionsConfig.() -> Unit = {}): AsrHolder {
                         when (event) {
                             is StreamEvent.Delta -> {
                                 accumulatedText += event.content
-                                withContext(Dispatchers.Main) {
-                                    setText(accumulatedText)
-                                }
+                                setText(accumulatedText)
                             }
                             is StreamEvent.Done -> {
                                 // Final text already accumulated
                             }
                             is StreamEvent.Error -> {
                                 if (event.error is CancellationException) throw event.error
-                                withContext(Dispatchers.Main) {
-                                    setError(event.error)
-                                }
-                                optionsRef.current.onError?.invoke(event.error)
+                                setError(event.error)
+                                requestOptions.onError?.invoke(event.error)
                             }
                             else -> Unit // Ignore other event types
                         }
                     }.collect()
-
-                    setIsLoading(false)
                 } catch (e: Throwable) {
                     if (e is CancellationException) throw e
-                    withContext(Dispatchers.Main) {
-                        setError(e)
-                    }
-                    optionsRef.current.onError?.invoke(e)
+                    setError(e)
+                    requestOptions.onError?.invoke(e)
+                } finally {
+                    client.close()
+                    if (clientRef.current === client) clientRef.current = null
                     setIsLoading(false)
                 }
             }
@@ -241,13 +226,15 @@ fun useAsr(optionsOf: AsrOptionsConfig.() -> Unit = {}): AsrHolder {
         }
     }.current
 
-    return AsrHolder(
-        text = textState,
-        isLoading = isLoadingState,
-        error = errorState,
-        recognize = recognize,
-        reset = reset,
-    )
+    return useCreation(textState, isLoadingState, errorState, recognize, reset) {
+        AsrHolder(
+            text = textState,
+            isLoading = isLoadingState,
+            error = errorState,
+            recognize = recognize,
+            reset = reset,
+        )
+    }.current
 }
 
 // endregion
