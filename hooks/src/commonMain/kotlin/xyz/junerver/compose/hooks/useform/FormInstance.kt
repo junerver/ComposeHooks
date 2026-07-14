@@ -77,7 +77,13 @@ class FormInstance {
      * }
      * ```
      */
-    fun isValidated() = formRef.current.isValidated
+    fun isValidated(): Boolean {
+        checkRef()
+        return formRef.current.isValidated
+    }
+
+    internal fun fieldValueOrNull(name: String): Any? =
+        if (this::formRef.isInitialized) formRef.current.fieldValue(name) else null
 
     /**
      * Sets multiple field values using a map.

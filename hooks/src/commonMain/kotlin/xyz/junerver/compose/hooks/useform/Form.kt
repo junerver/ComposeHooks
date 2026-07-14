@@ -3,9 +3,7 @@
 package xyz.junerver.compose.hooks.useform
 
 import androidx.compose.runtime.Composable
-import xyz.junerver.compose.hooks.useref.getValue
-import xyz.junerver.compose.hooks.useref.setValue
-import xyz.junerver.compose.hooks.useref.useRefImpl
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
@@ -18,8 +16,10 @@ import xyz.junerver.compose.hooks.internal.genFormFieldKey
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useEffect
+import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.useevent.useEventPublishImpl
 import xyz.junerver.compose.hooks.useMap
+import xyz.junerver.compose.hooks.utils.HooksEventManager
 
 /*
   Description: Headless Form Component
@@ -60,6 +60,18 @@ data class FormItemState<T>(
 ) {
     val state: State<T?> get() = value
     val setValue: (T?) -> Unit get() = onValueChange
+}
+
+private class TouchAwareMutableState<T>(
+    private val delegate: MutableState<T>,
+    private val onWrite: () -> Unit,
+) : MutableState<T> by delegate {
+    override var value: T
+        get() = delegate.value
+        set(value) {
+            onWrite()
+            delegate.value = value
+        }
 }
 
 /**
@@ -222,60 +234,75 @@ class FormScope private constructor(
     fun <T : Any> FormItemWithState(name: String, vararg validators: Validator, content: @Composable (FormItemState<T>) -> Unit) {
         val fieldState = _useStateImpl<T?>(default = null)
         val (validate, _, set) = useBoolean()
-        val (touched, _, setTouched) = useBoolean(false)
-        val (dirty, _, setDirty) = useBoolean(false)
         val errMsg = useMap<KClass<*>, String>()
         val currentFormRef: FormRef = formRefRef.current
-        @Suppress("UNCHECKED_CAST")
-        currentFormRef.registerField(name, fieldState as MutableState<Any?>)
-        val onValueChange = remember(fieldState) {
-            { nextValue: T? -> fieldState.value = nextValue }
-        }
-        val publish = useEventPublishImpl<T?>(name.genFormFieldKey(formInstance))
-        useEffect(fieldState) {
-            currentFormRef.incrementOperationCount()
-            publish(fieldState.value as? T)
+        val currentName = useLatestRef(name)
 
-            // Track touched state
-            if (fieldState.value != null) {
-                currentFormRef.markTouched(name)
-                setTouched(true)
+        @Suppress("UNCHECKED_CAST")
+        val registeredState = fieldState as MutableState<Any?>
+        val fieldKey = name.genFormFieldKey(formInstance)
+        val publish = useEventPublishImpl<T?>(fieldKey)
+        DisposableEffect(currentFormRef, name, registeredState) {
+            currentFormRef.registerField(name, registeredState)
+            onDispose {
+                if (currentFormRef.unregisterField(name, registeredState)) {
+                    HooksEventManager.post<T?>(fieldKey, null)
+                }
             }
+        }
+        val interactiveState: MutableState<T?> = remember(fieldState, currentFormRef) {
+            TouchAwareMutableState<T?>(fieldState) {
+                currentFormRef.markTouched(currentName.current)
+            }
+        }
+        val onValueChange: (T?) -> Unit = remember(interactiveState) {
+            { nextValue: T? -> interactiveState.value = nextValue }
+        }
+        useEffect(fieldState, name) {
+            publish(fieldState.value as? T)
 
             // Track dirty state
             val initialValue = currentFormRef.initialValue(name)
             val isDirty = fieldState.value != initialValue
             currentFormRef.setDirty(name, isDirty)
-            setDirty(isDirty)
+        }
 
-            fun Validator.pass(): Boolean {
-                errMsg.remove(this::class)
-                return true
-            }
+        val validatorSnapshot = validators.toList()
+        useEffect(fieldState, name, validatorSnapshot) {
+            val nextErrors = linkedMapOf<KClass<*>, String>()
+
+            fun Validator.pass(): Boolean = true
 
             fun Validator.fail(): Boolean {
-                errMsg[this::class] = this.message
+                nextErrors[this::class] = this.message
                 return false
             }
 
             val fieldValue: Any? = fieldState.value
             val isValidate =
                 (validators as Array<Validator>).validateField(fieldValue, pass = Validator::pass, fail = Validator::fail)
+            val nextErrorMessages = nextErrors.values.toList()
+            val validationChanged =
+                currentFormRef.validationState(name) != isValidate ||
+                    currentFormRef.errorMessages(name) != nextErrorMessages
             set(isValidate)
             currentFormRef.setValidation(name, isValidate)
-        }
-        useEffect(errMsg) {
-            currentFormRef.setErrorMessages(name, errMsg.values.toList())
+            currentFormRef.setErrorMessages(name, nextErrorMessages)
+            if (errMsg.toMap() != nextErrors) {
+                errMsg.clear()
+                errMsg.putAll(nextErrors)
+            }
+            if (validationChanged) currentFormRef.incrementOperationCount()
         }
         val errorMessages = errMsg.values.toList()
         content(
             FormItemState(
-                value = fieldState,
+                value = interactiveState,
                 onValueChange = onValueChange,
                 isValid = validate.value,
                 errors = errorMessages,
-                isTouched = touched.value,
-                isDirty = dirty.value,
+                isTouched = currentFormRef.isTouched(name),
+                isDirty = currentFormRef.isDirty(name),
             ),
         )
     }

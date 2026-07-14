@@ -39,6 +39,15 @@ class UseFormInstanceTest {
     }
 
     @Test
+    fun formInstance_isValidated_throws_consistent_error_when_not_initialized() {
+        val formInstance = FormInstance()
+
+        assertFailsWith<IllegalArgumentException> {
+            formInstance.isValidated()
+        }
+    }
+
+    @Test
     fun formInstance_getAllFields_returns_empty_map_when_no_fields() {
         val (formInstance, _) = createInitializedFormInstance()
 

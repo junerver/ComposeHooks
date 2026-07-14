@@ -85,6 +85,20 @@ internal data class FormRef(
         formFieldStateMap[name] = state
     }
 
+    internal fun unregisterField(name: String, state: MutableState<Any?>): Boolean {
+        if (formFieldStateMap[name] !== state) return false
+        formFieldStateMap.remove(name)
+        formFieldValidationStateMap.remove(name)
+        formFieldErrorMessagesStateMap.remove(name)
+        formFieldTouchedStateMap.remove(name)
+        formFieldDirtyStateMap.remove(name)
+        formFieldInitialValueStateMap.remove(name)
+        formFieldValidationTriggerStateMap.remove(name)
+        formFieldPendingValidationStateMap.remove(name)
+        incrementOperationCount()
+        return true
+    }
+
     internal fun containsField(name: String): Boolean = formFieldStateMap.containsKey(name)
 
     internal fun fieldNames(): Set<String> = formFieldStateMap.keys
@@ -92,6 +106,8 @@ internal data class FormRef(
     internal fun getAllFields(): Map<String, Any?> = formFieldStateMap.entries.associate { (name, state) ->
         name to state.value
     }
+
+    internal fun fieldValue(name: String): Any? = formFieldStateMap[name]?.value
 
     internal fun setFieldValue(name: String, value: Any?) {
         formFieldStateMap[name]?.value = value

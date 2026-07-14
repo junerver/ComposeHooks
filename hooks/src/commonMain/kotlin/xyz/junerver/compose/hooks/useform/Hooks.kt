@@ -8,6 +8,7 @@ import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks.usestate._useStateImpl
 import xyz.junerver.compose.hooks.internal.genFormFieldKey
 import xyz.junerver.compose.hooks.useContext
+import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useevent.useEventSubscribeImpl
 
 /*
@@ -134,6 +135,10 @@ fun <T> Form.useWatch(fieldName: String, formInstance: FormInstance): State<T?> 
     val state = _useStateImpl<T?>(null)
     useEventSubscribeImpl<T?>(fieldName.genFormFieldKey(formInstance)) { value ->
         state.value = value
+    }
+    useEffect(fieldName, formInstance) {
+        @Suppress("UNCHECKED_CAST")
+        state.value = formInstance.fieldValueOrNull(fieldName) as T?
     }
     return state
 }
