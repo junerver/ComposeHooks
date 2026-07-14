@@ -12,7 +12,11 @@ import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.withContext
 import xyz.junerver.compose.hooks.CancelableAsyncHolder
 import xyz.junerver.compose.hooks.useAsync
 import xyz.junerver.compose.hooks.useCancelableAsync
@@ -138,6 +142,45 @@ class UseAsyncTest {
         onNodeWithText("ready=true").assertExists()
         assertFalse(firstCompleted.get())
         assertTrue(secondCompleted.get())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun cancelableAsync_previous_cancellation_does_not_clear_latest_active_state() = runComposeUiTest {
+        val secondStarted = CompletableDeferred<Unit>()
+        val allowSecondToFinish = CompletableDeferred<Unit>()
+        lateinit var holder: CancelableAsyncHolder
+        setContent {
+            holder = useCancelableAsync()
+            Text("active=${holder.isActive.value}")
+        }
+
+        waitForIdle()
+        holder.asyncRun {
+            try {
+                awaitCancellation()
+            } finally {
+                withContext(NonCancellable) {
+                    secondStarted.await()
+                }
+            }
+        }
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+        onNodeWithText("active=true").assertExists()
+
+        holder.asyncRun {
+            secondStarted.complete(Unit)
+            allowSecondToFinish.await()
+        }
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+
+        onNodeWithText("active=true").assertExists()
+
+        allowSecondToFinish.complete(Unit)
+        waitForIdle()
+        onNodeWithText("active=false").assertExists()
     }
 
     @OptIn(ExperimentalTestApi::class)

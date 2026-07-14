@@ -104,10 +104,13 @@ fun useAsyncImpl(): AsyncRunFn {
 fun useCancelableAsyncImpl(): CancelableAsyncHolder {
     val scope = rememberCoroutineScope()
     var job by useRefImpl<Job?>(null)
+    var runId by useRefImpl(0L)
     val (isActive, setIsActive) = useGetStateImpl(false)
 
     val asyncRun = { fn: SuspendAsyncFn ->
         job?.cancel()
+        val currentRunId = runId + 1
+        runId = currentRunId
         job = scope.launch {
             setIsActive(true)
             try {
@@ -119,12 +122,15 @@ fun useCancelableAsyncImpl(): CancelableAsyncHolder {
                 // Silently catch other exceptions to prevent propagation
                 // This allows state machines to remain usable after action failures
             } finally {
-                setIsActive(false)
-                job = null
+                if (runId == currentRunId) {
+                    setIsActive(false)
+                    job = null
+                }
             }
         }
     }
     val cancel = {
+        runId += 1
         job?.cancel()
         job = null
         setIsActive(false)

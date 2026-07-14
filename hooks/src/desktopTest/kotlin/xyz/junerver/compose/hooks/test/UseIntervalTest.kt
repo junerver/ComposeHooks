@@ -343,4 +343,3 @@ class UseIntervalTest {
         assertTrue(fired, "Expected recomposed interval callback to increment by latest multiplier")
     }
 }
-
