@@ -164,7 +164,10 @@ internal class MultiProviderChatClient(
      * @return The complete assistant message
      * @throws AggregateException if all providers fail
      */
-    suspend fun chat(messages: List<ChatMessage>): ChatResponseResult {
+    suspend fun chat(
+        messages: List<ChatMessage>,
+        requestOptions: ChatOptions = baseOptions,
+    ): ChatResponseResult {
         val errors = mutableMapOf<String, Throwable>()
 
         repeat(retryConfig.maxRetries) { attempt ->
@@ -177,7 +180,7 @@ internal class MultiProviderChatClient(
 
             val startTime = Clock.System.now().toEpochMilliseconds()
             try {
-                val client = ChatClient(options = baseOptions.copy(provider = provider), engine = engine, shouldCloseEngine = false)
+                val client = ChatClient(options = requestOptions.copy(provider = provider), engine = engine, shouldCloseEngine = false)
                 val result = client.chat(messages)
                 val responseTime = Clock.System.now().toEpochMilliseconds() - startTime
 
@@ -217,7 +220,10 @@ internal class MultiProviderChatClient(
      * @param messages The list of messages to send
      * @return A Flow emitting StreamEvent objects
      */
-    suspend fun streamChat(messages: List<ChatMessage>): Flow<StreamEvent> = flow {
+    suspend fun streamChat(
+        messages: List<ChatMessage>,
+        requestOptions: ChatOptions = baseOptions,
+    ): Flow<StreamEvent> = flow {
         val errors = mutableMapOf<String, Throwable>()
         var completed = false
 
@@ -237,7 +243,7 @@ internal class MultiProviderChatClient(
             var shouldStopRetrying = false
 
             try {
-                val client = ChatClient(options = baseOptions.copy(provider = provider), engine = engine, shouldCloseEngine = false)
+                val client = ChatClient(options = requestOptions.copy(provider = provider), engine = engine, shouldCloseEngine = false)
                 client.streamChat(messages).collect { event ->
                     when (event) {
                         is StreamEvent.Error -> {

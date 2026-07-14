@@ -77,22 +77,25 @@ internal class ChatClient(
     /**
      * Sends a chat completion request and returns a flow of streaming events.
      */
-    suspend fun streamChat(messages: List<ChatMessage>): Flow<StreamEvent> = flow {
-        val requestBody = options.buildRequestBody(messages, stream = true)
-        val headers = options.buildAuthHeaders() + options.headers
+    suspend fun streamChat(
+        messages: List<ChatMessage>,
+        requestOptions: ChatOptions = options,
+    ): Flow<StreamEvent> = flow {
+        val requestBody = requestOptions.buildRequestBody(messages, stream = true)
+        val headers = requestOptions.buildAuthHeaders() + requestOptions.headers
 
         val request = HttpRequest(
-            url = options.buildEndpoint(),
+            url = requestOptions.buildEndpoint(),
             headers = headers,
             body = requestBody,
-            timeout = options.timeout.inWholeMilliseconds,
+            timeout = requestOptions.timeout.inWholeMilliseconds,
         )
 
         var doneEmitted = false
         engine.executeStream(request).collect { event ->
             when (event) {
                 is SseEvent.Data -> {
-                    val streamEvent = options.provider.parseStreamLine(event.line)
+                    val streamEvent = requestOptions.provider.parseStreamLine(event.line)
                     if (streamEvent != null) {
                         when (streamEvent) {
                             is StreamEvent.Multi -> {
@@ -136,15 +139,18 @@ internal class ChatClient(
     /**
      * Sends a non-streaming chat completion request.
      */
-    suspend fun chat(messages: List<ChatMessage>): ChatResponseResult {
-        val requestBody = options.buildRequestBody(messages, stream = false)
-        val headers = options.buildAuthHeaders() + options.headers
+    suspend fun chat(
+        messages: List<ChatMessage>,
+        requestOptions: ChatOptions = options,
+    ): ChatResponseResult {
+        val requestBody = requestOptions.buildRequestBody(messages, stream = false)
+        val headers = requestOptions.buildAuthHeaders() + requestOptions.headers
 
         val request = HttpRequest(
-            url = options.buildEndpoint(),
+            url = requestOptions.buildEndpoint(),
             headers = headers,
             body = requestBody,
-            timeout = options.timeout.inWholeMilliseconds,
+            timeout = requestOptions.timeout.inWholeMilliseconds,
         )
 
         val result = engine.execute(request)
@@ -157,7 +163,7 @@ internal class ChatClient(
         val responseBody = result.body
         if (responseBody.isEmpty()) throw Exception("Empty response")
 
-        return options.provider.parseResponse(responseBody)
+        return requestOptions.provider.parseResponse(responseBody)
     }
 
     /**

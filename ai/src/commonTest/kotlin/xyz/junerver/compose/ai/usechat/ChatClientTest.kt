@@ -5,6 +5,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.test.fail
+import kotlin.time.Duration.Companion.milliseconds
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import xyz.junerver.compose.ai.http.HttpResult
@@ -126,6 +127,45 @@ class ChatClientTest {
 
         val result = client.chat(noMessages)
         assertEquals("Completed", result.message.textContent)
+    }
+
+    @Test
+    fun chatUsesRequestOptionsWithoutReplacingClientEngine() = runTest {
+        val baseProvider = FakeChatProvider(name = "Base", apiKey = "base-key")
+        val requestProvider = FakeChatProvider(
+            name = "Request",
+            baseUrl = "https://request.fake",
+            apiKey = "request-key",
+        ).apply {
+            nextResponse = ChatResponseResult(message = assistantMessage("request-parser"))
+        }
+        val engine = FakeHttpEngine().apply {
+            enqueueResponse(HttpResult(statusCode = 200, body = "text:wire"))
+        }
+        val baseOptions = ChatOptions.optionOf {
+            provider = baseProvider
+            model = "base-model"
+            httpEngine = engine
+            stream = false
+        }
+        val requestOptions = baseOptions.copy(
+            provider = requestProvider,
+            model = "request-model",
+            timeout = 2_500.milliseconds,
+            headers = mapOf("X-Request" to "snapshot"),
+        )
+        val client = ChatClient(baseOptions)
+
+        val result = client.chat(noMessages, requestOptions)
+
+        val request = engine.recordedRequests.single()
+        assertEquals("https://request.fake/chat/completions", request.url)
+        assertEquals("Bearer request-key", request.headers["Authorization"])
+        assertEquals("snapshot", request.headers["X-Request"])
+        assertEquals(2_500L, request.timeout)
+        assertTrue(request.body.orEmpty().contains("model=request-model"))
+        assertEquals("request-parser", result.message.textContent)
+        assertEquals(0, engine.closeCount)
     }
 
     @Test

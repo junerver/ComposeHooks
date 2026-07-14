@@ -8,6 +8,7 @@
 
 package xyz.junerver.compose.ai
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
@@ -278,6 +279,65 @@ class UseChatHookTest {
         assertFalse(holder.isLoading.value)
         assertEquals(0, finishCalls)
         assertNull(holder.error.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun useChat_in_flight_request_keeps_callbacks_from_send_time() = runComposeUiTest {
+        val streamStarted = CompletableDeferred<Unit>()
+        val releaseStream = CompletableDeferred<Unit>()
+        val callbackVersion = mutableStateOf(0)
+        val firstChunks = mutableListOf<String>()
+        val secondChunks = mutableListOf<String>()
+        var firstFinishCalls = 0
+        var secondFinishCalls = 0
+        val engine = FakeHttpEngine().apply {
+            enqueueStream(
+                flow {
+                    streamStarted.complete(Unit)
+                    releaseStream.await()
+                    emit(SseEvent.Data("delta:answer"))
+                    emit(SseEvent.Data("done"))
+                    emit(SseEvent.Complete)
+                },
+            )
+        }
+        lateinit var holder: ChatHolder
+
+        setContent {
+            val version = callbackVersion.value
+            holder = useChat {
+                provider = FakeChatProvider()
+                httpEngine = engine
+                stream = true
+                if (version == 0) {
+                    onStream = firstChunks::add
+                    onFinish = { _, _, _ -> firstFinishCalls++ }
+                } else {
+                    onStream = secondChunks::add
+                    onFinish = { _, _, _ -> secondFinishCalls++ }
+                }
+            }
+            holder.messages.value
+        }
+
+        waitForIdle()
+        runOnIdle { holder.sendText("question") }
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+        streamStarted.await()
+
+        runOnIdle { callbackVersion.value = 1 }
+        waitForIdle()
+        releaseStream.complete(Unit)
+        mainClock.advanceTimeBy(100)
+        waitForIdle()
+
+        assertEquals(listOf("answer"), firstChunks)
+        assertTrue(secondChunks.isEmpty())
+        assertEquals(1, firstFinishCalls)
+        assertEquals(0, secondFinishCalls)
+        assertEquals("answer", holder.messages.value.last().textContent)
     }
 
     @OptIn(ExperimentalTestApi::class)
