@@ -7,10 +7,8 @@ import arrow.core.left
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toImmutableList
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonObject
@@ -341,12 +339,10 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                     )
                                     if (updatedMessage != null) {
                                         currentAssistantMessageRef.current = updatedMessage
-                                        withContext(Dispatchers.Main) {
-                                            val msgs = getMessages().toMutableList()
-                                            if (msgs.isNotEmpty()) {
-                                                msgs[msgs.lastIndex] = updatedMessage
-                                                setMessages(msgs.toImmutableList())
-                                            }
+                                        val msgs = getMessages().toMutableList()
+                                        if (msgs.isNotEmpty()) {
+                                            msgs[msgs.lastIndex] = updatedMessage
+                                            setMessages(msgs.toImmutableList())
                                         }
                                     }
                                 }
@@ -362,12 +358,10 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                     )
                                     if (updatedMessage != null) {
                                         currentAssistantMessageRef.current = updatedMessage
-                                        withContext(Dispatchers.Main) {
-                                            val msgs = getMessages().toMutableList()
-                                            if (msgs.isNotEmpty()) {
-                                                msgs[msgs.lastIndex] = updatedMessage
-                                                setMessages(msgs.toImmutableList())
-                                            }
+                                        val msgs = getMessages().toMutableList()
+                                        if (msgs.isNotEmpty()) {
+                                            msgs[msgs.lastIndex] = updatedMessage
+                                            setMessages(msgs.toImmutableList())
                                         }
                                     }
                                 }
@@ -386,12 +380,10 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                     )
                                     if (updatedMessage != null) {
                                         currentAssistantMessageRef.current = updatedMessage
-                                        withContext(Dispatchers.Main) {
-                                            val msgs = getMessages().toMutableList()
-                                            if (msgs.isNotEmpty()) {
-                                                msgs[msgs.lastIndex] = updatedMessage
-                                                setMessages(msgs.toImmutableList())
-                                            }
+                                        val msgs = getMessages().toMutableList()
+                                        if (msgs.isNotEmpty()) {
+                                            msgs[msgs.lastIndex] = updatedMessage
+                                            setMessages(msgs.toImmutableList())
                                         }
                                     }
                                 }
@@ -418,9 +410,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                 }
 
                                 is StreamEvent.Error -> {
-                                    withContext(Dispatchers.Main) {
-                                        setError(event.error)
-                                    }
+                                    setError(event.error)
                                     optionsRef.current.onError?.invoke(event.error)
                                 }
 
@@ -440,12 +430,10 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                         val finalMessage = result.message
                         currentAssistantMessageRef.current = finalMessage
 
-                        withContext(Dispatchers.Main) {
-                            val msgs = getMessages().toMutableList()
-                            if (msgs.isNotEmpty()) {
-                                msgs[msgs.lastIndex] = finalMessage
-                                setMessages(msgs.toImmutableList())
-                            }
+                        val msgs = getMessages().toMutableList()
+                        if (msgs.isNotEmpty()) {
+                            msgs[msgs.lastIndex] = finalMessage
+                            setMessages(msgs.toImmutableList())
                         }
                         // Record token usage if tracker is available (once per request)
                         if (result.usage != null && !usageRecorded) {
@@ -465,14 +453,10 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                     }
                 } catch (e: Exception) {
                     if (e is CancellationException) throw e
-                    withContext(Dispatchers.Main) {
-                        setError(e)
-                    }
+                    setError(e)
                     optionsRef.current.onError?.invoke(e)
                 } finally {
-                    withContext(Dispatchers.Main) {
-                        setIsLoading(false)
-                    }
+                    setIsLoading(false)
                     currentAssistantMessageRef.current = null
                 }
             }

@@ -262,12 +262,12 @@ fun <T : Any> useGenerateObject(
     }
 
     // Derive rawJson from last assistant message
-    val rawJsonState = useState(chatHolder.messages.value) {
+    val rawJsonState = useState {
         chatHolder.messages.value.lastOrNull()?.textContent ?: ""
     }
 
     // Combine chat error with parse error
-    val combinedError = useState(chatHolder.error.value, parseError.value) {
+    val combinedError = useState {
         chatHolder.error.value ?: parseError.value
     }
 
@@ -297,7 +297,7 @@ fun <T : Any> useGenerateObject(
         }
     }.current
 
-    return useCreation(chatHolder, parsedObject.value, parseError.value) {
+    return useCreation(chatHolder, parsedObject, rawJsonState, combinedError, submit) {
         GenerateObjectHolder(
             object_ = parsedObject,
             rawJson = rawJsonState,
