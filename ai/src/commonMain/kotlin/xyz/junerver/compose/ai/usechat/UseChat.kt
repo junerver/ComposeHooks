@@ -196,6 +196,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
     val clientRef: MutableRef<ChatClient?> = useRef(null)
     val multiProviderClientRef: MutableRef<MultiProviderChatClient?> = useRef(null)
     val currentAssistantMessageRef: MutableRef<AssistantMessage?> = useRef(null)
+    val activeRequestIdRef: MutableRef<Long> = useRef(0L)
 
     // Cancelable async for streaming
     val (asyncRun, cancelAsync, _) = useCancelableAsync()
@@ -240,6 +241,8 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
             currentMessages.add(userMsg)
             setMessages(currentMessages.toImmutableList())
 
+            val requestId = activeRequestIdRef.current + 1L
+            activeRequestIdRef.current = requestId
             setError(null)
             setIsLoading(true)
 
@@ -253,6 +256,8 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
             setMessages(currentMessages.toImmutableList())
 
             asyncRun {
+                fun isCurrentRequest(): Boolean = activeRequestIdRef.current == requestId
+
                 var accumulatedContent = ""
                 var accumulatedReasoning = ""
                 var lastUsage: ChatUsage? = null
@@ -319,6 +324,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                         streamFlow.onEach { event ->
                             when (event) {
                                 is StreamEvent.Delta -> {
+                                    if (!isCurrentRequest()) return@onEach
                                     accumulatedContent += event.content
                                     if (event.content.isNotEmpty()) {
                                         optionsRef.current.onStream?.invoke(event.content)
@@ -348,6 +354,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                 }
 
                                 is StreamEvent.ReasoningDelta -> {
+                                    if (!isCurrentRequest()) return@onEach
                                     accumulatedReasoning += event.text
 
                                     val updatedMessage = currentAssistantMessageRef.current?.copy(
@@ -367,6 +374,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                 }
 
                                 is StreamEvent.ToolCallDelta -> {
+                                    if (!isCurrentRequest()) return@onEach
                                     val builder = toolCallBuilders.getOrPut(event.index) { ToolCallBuilder() }
                                     if (!event.toolCallId.isNullOrBlank()) builder.toolCallId = event.toolCallId
                                     if (!event.toolName.isNullOrBlank()) builder.toolName = event.toolName
@@ -389,6 +397,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                 }
 
                                 is StreamEvent.Done -> {
+                                    if (!isCurrentRequest()) return@onEach
                                     val finalMessage = currentAssistantMessageRef.current
                                     if (finalMessage != null) {
                                         // Record token usage if tracker is available (once per request)
@@ -410,8 +419,10 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                 }
 
                                 is StreamEvent.Error -> {
-                                    setError(event.error)
-                                    optionsRef.current.onError?.invoke(event.error)
+                                    if (isCurrentRequest()) {
+                                        setError(event.error)
+                                        optionsRef.current.onError?.invoke(event.error)
+                                    }
                                 }
 
                                 is StreamEvent.Multi -> Unit
@@ -428,6 +439,8 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                 ?: throw IllegalStateException("ChatClient not initialized")
                         }
                         val finalMessage = result.message
+                        if (!isCurrentRequest()) return@asyncRun
+
                         currentAssistantMessageRef.current = finalMessage
 
                         val msgs = getMessages().toMutableList()
@@ -453,11 +466,15 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                     }
                 } catch (e: Exception) {
                     if (e is CancellationException) throw e
-                    setError(e)
-                    optionsRef.current.onError?.invoke(e)
+                    if (isCurrentRequest()) {
+                        setError(e)
+                        optionsRef.current.onError?.invoke(e)
+                    }
                 } finally {
-                    setIsLoading(false)
-                    currentAssistantMessageRef.current = null
+                    if (isCurrentRequest()) {
+                        setIsLoading(false)
+                        currentAssistantMessageRef.current = null
+                    }
                 }
             }
         }
@@ -501,8 +518,10 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
     // Stop function
     val stop: StopFn = useCreation {
         {
+            activeRequestIdRef.current += 1L
             cancelAsync()
             setIsLoading(false)
+            currentAssistantMessageRef.current = null
         }
     }.current
 

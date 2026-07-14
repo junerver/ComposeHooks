@@ -16,6 +16,11 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.withContext
 import xyz.junerver.compose.ai.http.HttpResult
 import xyz.junerver.compose.ai.http.SseEvent
 import xyz.junerver.compose.ai.test.FakeChatProvider
@@ -119,6 +124,67 @@ class UseChatHookTest {
         assertEquals(10, holder.tokenStats?.totalTokens)
         assertEquals(1, holder.tokenStats?.requestCount)
         assertFalse(holder.isLoading.value)
+        assertNull(holder.error.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun useChat_latest_stream_remains_active_after_previous_request_cleans_up() = runComposeUiTest {
+        val secondStarted = CompletableDeferred<Unit>()
+        val allowSecondToFinish = CompletableDeferred<Unit>()
+        val engine = FakeHttpEngine().apply {
+            enqueueStream(
+                flow {
+                    try {
+                        awaitCancellation()
+                    } finally {
+                        withContext(NonCancellable) {
+                            secondStarted.await()
+                        }
+                    }
+                },
+            )
+            enqueueStream(
+                flow {
+                    secondStarted.complete(Unit)
+                    allowSecondToFinish.await()
+                    emit(SseEvent.Data("delta:second"))
+                    emit(SseEvent.Data("done"))
+                    emit(SseEvent.Complete)
+                },
+            )
+        }
+        lateinit var holder: ChatHolder
+
+        setContent {
+            holder = useChat {
+                provider = FakeChatProvider()
+                httpEngine = engine
+                stream = true
+            }
+            holder.messages.value
+            holder.isLoading.value
+        }
+
+        waitForIdle()
+        runOnIdle { holder.sendText("first") }
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+        assertTrue(holder.isLoading.value)
+
+        runOnIdle { holder.sendText("second") }
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+
+        assertTrue(holder.isLoading.value)
+        assertEquals(listOf("first", "", "second", ""), holder.messages.value.map { it.textContent })
+
+        allowSecondToFinish.complete(Unit)
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+
+        assertFalse(holder.isLoading.value)
+        assertEquals(listOf("first", "", "second", "second"), holder.messages.value.map { it.textContent })
         assertNull(holder.error.value)
     }
 
