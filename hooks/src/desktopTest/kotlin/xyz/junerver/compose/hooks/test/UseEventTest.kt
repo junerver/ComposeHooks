@@ -6,6 +6,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
@@ -13,9 +14,14 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
+import xyz.junerver.compose.hooks.rememberEventPublish
+import xyz.junerver.compose.hooks.rememberEventSubscribe
 import xyz.junerver.compose.hooks.useEventPublish
 import xyz.junerver.compose.hooks.useEventSubscribe
 import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.useevent.useEventPublishImpl
+import xyz.junerver.compose.hooks.useevent.useEventSubscribeImpl
 import xyz.junerver.compose.hooks.utils.HooksEventManager
 
 /*
@@ -311,4 +317,132 @@ class UseEventTest {
         unsub1()
         unsub2()
     }
+
+    @Test
+    fun event_dispatch_snapshot_tolerates_subscriber_removal() {
+        val calls = mutableListOf<String>()
+        lateinit var unregisterFirst: () -> Unit
+        unregisterFirst = HooksEventManager.register<ReentrantEvent> {
+            calls += "first"
+            unregisterFirst()
+        }
+        val unregisterSecond = HooksEventManager.register<ReentrantEvent> {
+            calls += "second"
+        }
+
+        try {
+            HooksEventManager.post(ReentrantEvent)
+            assertEquals(listOf("first", "second"), calls)
+
+            calls.clear()
+            HooksEventManager.post(ReentrantEvent)
+            assertEquals(listOf("second"), calls)
+        } finally {
+            unregisterFirst()
+            unregisterSecond()
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun subscriber_uses_latest_callback_and_publisher_identity_is_stable() = runComposeUiTest {
+        val multiplier = mutableStateOf(1)
+        var observed = 0
+        lateinit var publish: (CallbackEvent) -> Unit
+        var initialPublish: Any? = null
+        setContent {
+            val currentMultiplier = multiplier.value
+            useEventSubscribe<CallbackEvent> { event ->
+                observed = event.value * currentMultiplier
+            }
+            publish = useEventPublish()
+            if (initialPublish == null) initialPublish = publish
+            Text("multiplier=$currentMultiplier")
+        }
+
+        waitForIdle()
+        runOnIdle { publish(CallbackEvent(2)) }
+        assertEquals(2, observed)
+
+        runOnIdle { multiplier.value = 10 }
+        waitForIdle()
+
+        assertSame(initialPublish, publish)
+        runOnIdle { publish(CallbackEvent(3)) }
+        assertEquals(30, observed)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun remember_alias_subscription_is_removed_when_component_unmounts() = runComposeUiTest {
+        val mounted = mutableStateOf(true)
+        var calls = 0
+        lateinit var publish: (UnmountEvent) -> Unit
+        setContent {
+            publish = rememberEventPublish()
+            if (mounted.value) {
+                rememberEventSubscribe<UnmountEvent> { calls++ }
+            }
+            Text("mounted=${mounted.value}")
+        }
+
+        waitForIdle()
+        runOnIdle { publish(UnmountEvent) }
+        assertEquals(1, calls)
+
+        runOnIdle { mounted.value = false }
+        waitForIdle()
+        runOnIdle { publish(UnmountEvent) }
+
+        assertEquals(1, calls)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun internal_alias_subscription_and_stable_publisher_follow_latest_alias() = runComposeUiTest {
+        val alias = mutableStateOf("first")
+        val firstEvents = mutableListOf<String>()
+        val secondEvents = mutableListOf<String>()
+        val unregisterFirst = HooksEventManager.register<String>("first") { firstEvents += it }
+        val unregisterSecond = HooksEventManager.register<String>("second") { secondEvents += it }
+        var observed: String? = null
+        lateinit var publish: (String) -> Unit
+        var initialPublish: Any? = null
+
+        try {
+            setContent {
+                useEventSubscribeImpl<String>(alias.value) { event -> observed = event }
+                publish = useEventPublishImpl(alias.value)
+                if (initialPublish == null) initialPublish = publish
+                Text("alias=${alias.value}")
+            }
+
+            waitForIdle()
+            runOnIdle { publish("initial") }
+            assertEquals("initial", observed)
+            assertEquals(listOf("initial"), firstEvents)
+            assertEquals(emptyList(), secondEvents)
+
+            runOnIdle { alias.value = "second" }
+            waitForIdle()
+
+            assertSame(initialPublish, publish)
+            runOnIdle { HooksEventManager.post("first", "stale") }
+            assertEquals("initial", observed)
+
+            runOnIdle { publish("fresh") }
+            assertEquals("fresh", observed)
+            assertEquals(listOf("initial", "stale"), firstEvents)
+            assertEquals(listOf("fresh"), secondEvents)
+        } finally {
+            unregisterFirst()
+            unregisterSecond()
+        }
+    }
+
+    private data class CallbackEvent(val value: Int)
+
+    private data object UnmountEvent
+
+    private data object ReentrantEvent
 }

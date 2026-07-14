@@ -17,28 +17,36 @@ object HooksEventManager {
     @Suppress("UNCHECKED_CAST")
     @PublishedApi
     internal fun <T : Any> register(clazz: KClass<*>, subscriber: (T) -> Unit): () -> Unit {
-        subscriberMap.getOrPut(clazz) { mutableListOf() }.add(subscriber as (Any) -> Unit)
+        val erasedSubscriber = subscriber as (Any) -> Unit
+        subscriberMap.getOrPut(clazz) { mutableListOf() }.add(erasedSubscriber)
         return {
-            subscriberMap[clazz]?.remove(subscriber)
+            subscriberMap[clazz]?.let { subscribers ->
+                subscribers.remove(erasedSubscriber)
+                if (subscribers.isEmpty()) subscriberMap.remove(clazz)
+            }
         }
     }
 
     @Suppress("UNCHECKED_CAST")
     @PublishedApi
     internal fun <T> post(event: T & Any, clazz: KClass<*>) {
-        subscriberMap[clazz]?.forEach { (it as (T) -> Unit).invoke(event) }
+        subscriberMap[clazz]?.toList()?.forEach { (it as (T) -> Unit).invoke(event) }
     }
 
     @Suppress("UNCHECKED_CAST")
     internal fun <T> register(alias: String, subscriber: (T) -> Unit): () -> Unit {
-        aliasSubscriberMap.getOrPut(alias) { mutableListOf() }.add(subscriber as (Any?) -> Unit)
+        val erasedSubscriber = subscriber as (Any?) -> Unit
+        aliasSubscriberMap.getOrPut(alias) { mutableListOf() }.add(erasedSubscriber)
         return {
-            aliasSubscriberMap[alias]?.remove(subscriber)
+            aliasSubscriberMap[alias]?.let { subscribers ->
+                subscribers.remove(erasedSubscriber)
+                if (subscribers.isEmpty()) aliasSubscriberMap.remove(alias)
+            }
         }
     }
 
     internal fun <T> post(alias: String, event: T) {
-        aliasSubscriberMap[alias]?.forEach { (it as (T?) -> Unit).invoke(event) }
+        aliasSubscriberMap[alias]?.toList()?.forEach { (it as (T?) -> Unit).invoke(event) }
     }
 
     inline fun <reified T : Any> register(noinline subscriber: (T) -> Unit): () -> Unit = register(T::class, subscriber)

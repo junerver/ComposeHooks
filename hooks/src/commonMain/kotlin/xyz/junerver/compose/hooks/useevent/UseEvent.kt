@@ -1,14 +1,10 @@
 package xyz.junerver.compose.hooks.useevent
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
-import xyz.junerver.compose.hooks.useref.getValue
-import xyz.junerver.compose.hooks.useref.setValue
-import xyz.junerver.compose.hooks.usemount.useMountImpl
-import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
-import xyz.junerver.compose.hooks.useLatestState
-import xyz.junerver.compose.hooks.useref.useRefImpl
+import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
+import xyz.junerver.compose.hooks.uselatest.useLatestStateImpl
 import xyz.junerver.compose.hooks.utils.HooksEventManager
 
 /*
@@ -29,15 +25,12 @@ import xyz.junerver.compose.hooks.utils.HooksEventManager
  */
 @Composable
 inline fun <reified T : Any> useEventSubscribeImpl(noinline subscriber: (T) -> Unit) {
-    val latest by useLatestState(subscriber)
-    var unSubscribeRef by useRefImpl<(() -> Unit)?>(null)
-
-    useMountImpl {
-        unSubscribeRef = HooksEventManager.register(T::class, latest)
-    }
-
-    useUnmountImpl {
-        unSubscribeRef?.invoke()
+    val latestSubscriber = useLatestStateImpl(subscriber)
+    DisposableEffect(T::class) {
+        val unsubscribe = HooksEventManager.register<T> { event ->
+            latestSubscriber.value(event)
+        }
+        onDispose(unsubscribe)
     }
 }
 
@@ -62,15 +55,12 @@ inline fun <reified T : Any> useEventPublishImpl(): (T) -> Unit = remember {
  */
 @Composable
 internal fun <T> useEventSubscribeImpl(alias: String, subscriber: (T?) -> Unit) {
-    val latest by useLatestState(subscriber)
-    var unSubscribeRef by useRefImpl<(() -> Unit)?>(null)
-
-    useMountImpl {
-        unSubscribeRef = HooksEventManager.register(alias, latest)
-    }
-
-    useUnmountImpl {
-        unSubscribeRef?.invoke()
+    val latestSubscriber = useLatestStateImpl(subscriber)
+    DisposableEffect(alias) {
+        val unsubscribe = HooksEventManager.register<T?>(alias) { event ->
+            latestSubscriber.value(event)
+        }
+        onDispose(unsubscribe)
     }
 }
 
@@ -81,6 +71,9 @@ internal fun <T> useEventSubscribeImpl(alias: String, subscriber: (T?) -> Unit) 
  * @return
  */
 @Composable
-internal fun <T> useEventPublishImpl(alias: String): (T) -> Unit = remember {
-    { event: T -> HooksEventManager.post(alias, event) }
+internal fun <T> useEventPublishImpl(alias: String): (T) -> Unit {
+    val latestAlias = useLatestRefImpl(alias)
+    return remember {
+        { event: T -> HooksEventManager.post(latestAlias.current, event) }
+    }
 }
