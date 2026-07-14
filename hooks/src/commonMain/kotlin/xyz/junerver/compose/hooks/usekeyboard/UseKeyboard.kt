@@ -6,6 +6,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import xyz.junerver.compose.hooks.HideKeyboardFn
 import xyz.junerver.compose.hooks.ShowKeyboardFn
+import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 
 /*
   Description: This hook function is used to conveniently call the soft keyboard controller.
@@ -17,11 +18,11 @@ import xyz.junerver.compose.hooks.ShowKeyboardFn
 
 @Composable
 fun useKeyboardImpl(): KeyboardHolder {
-    val keyboardController = LocalSoftwareKeyboardController.current
+    val keyboardControllerRef = useLatestRefImpl(LocalSoftwareKeyboardController.current)
     return remember {
         KeyboardHolder(
-            hideKeyboard = { keyboardController?.hide() },
-            showKeyboard = { keyboardController?.show() },
+            hideKeyboard = { keyboardControllerRef.current?.hide() },
+            showKeyboard = { keyboardControllerRef.current?.show() },
         )
     }
 }

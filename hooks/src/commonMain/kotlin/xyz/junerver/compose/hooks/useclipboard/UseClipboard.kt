@@ -7,6 +7,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import xyz.junerver.compose.hooks.CopyFn
 import xyz.junerver.compose.hooks.PasteFn
+import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 
 /**
  * A composable function that provides access to clipboard operations
@@ -19,11 +20,11 @@ import xyz.junerver.compose.hooks.PasteFn
 @Composable
 @Suppress("DEPRECATION")
 fun useClipboardImpl(): CopyPasteHolder {
-    val clipboardManager = LocalClipboardManager.current
+    val clipboardManagerRef = useLatestRefImpl(LocalClipboardManager.current)
     return remember {
         CopyPasteHolder(
-            copy = { text: String -> clipboardManager.setText(AnnotatedString(text)) },
-            paste = { clipboardManager.getText()?.text ?: "" },
+            copy = { text: String -> clipboardManagerRef.current.setText(AnnotatedString(text)) },
+            paste = { clipboardManagerRef.current.getText()?.text ?: "" },
         )
     }
 }
