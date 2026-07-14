@@ -99,3 +99,16 @@ inline fun <reified T : Any> rememberGenerateObject(
 
 @Composable
 fun rememberTts(optionsOf: TtsOptionsConfig.() -> Unit = {}): TtsHolder = useTts(optionsOf)
+
+@Composable
+fun rememberTokenUsage(): TokenUsageTracker = useTokenUsage()
+
+@Composable
+fun rememberTokenStats(): TokenUsageStats = useTokenStats()
+
+@Composable
+fun rememberWindowTokens(messages: List<Any>, maxContextTokens: Int? = null): WindowTokenUsage =
+    useWindowTokens(messages, maxContextTokens)
+
+@Composable
+fun useTokenTracker(): TokenUsageTracker? = rememberTokenTracker()

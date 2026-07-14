@@ -5,12 +5,11 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toPersistentList
 import xyz.junerver.compose.ai.usechat.ChatUsage
 import xyz.junerver.compose.hooks.createContext
 import xyz.junerver.compose.hooks.useContext
 import xyz.junerver.compose.hooks.useCreation
-import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useState
 
 /*
@@ -116,12 +115,13 @@ class TokenUsageTracker {
             model = model,
             usage = usage,
         )
-        statsState.value = statsState.value.copy(
-            totalPromptTokens = statsState.value.totalPromptTokens + usage.promptTokens,
-            totalCompletionTokens = statsState.value.totalCompletionTokens + usage.completionTokens,
-            totalTokens = statsState.value.totalTokens + usage.totalTokens,
-            requestCount = statsState.value.requestCount + 1,
-            records = (statsState.value.records + record).toImmutableList(),
+        val current = statsState.value
+        statsState.value = current.copy(
+            totalPromptTokens = current.totalPromptTokens.saturatedPlus(usage.promptTokens),
+            totalCompletionTokens = current.totalCompletionTokens.saturatedPlus(usage.completionTokens),
+            totalTokens = current.totalTokens.saturatedPlus(usage.totalTokens),
+            requestCount = current.requestCount.saturatedPlus(1),
+            records = current.records.toPersistentList().add(record),
         )
     }
 
@@ -132,6 +132,11 @@ class TokenUsageTracker {
         statsState.value = TokenUsageStats.EMPTY
     }
 }
+
+private fun Int.saturatedPlus(other: Int): Int =
+    (toLong() + other.toLong())
+        .coerceIn(Int.MIN_VALUE.toLong(), Int.MAX_VALUE.toLong())
+        .toInt()
 
 /**
  * Context for sharing token usage statistics across AI hooks.
@@ -180,29 +185,38 @@ fun useWindowTokens(
     messages: List<Any>, // Accept any message type with textContent
     maxContextTokens: Int? = null,
 ): WindowTokenUsage {
-    val windowUsageState = useState(WindowTokenUsage())
-
-    useEffect(messages, maxContextTokens) {
-        val totalChars = messages.sumOf { msg ->
-            // Try to get text content via reflection or common interface
-            when (msg) {
-                is xyz.junerver.compose.ai.usechat.ChatMessage -> msg.textContent.length
-                else -> msg.toString().length
-            }
-        }
-        // Rough estimation: 1 token ≈ 3-4 chars for mixed content
-        val estimatedTokens = totalChars / 3
-        val remaining = maxContextTokens?.let { it - estimatedTokens }
-
-        windowUsageState.value = WindowTokenUsage(
-            messageCount = messages.size,
-            estimatedTokens = estimatedTokens,
-            maxTokens = maxContextTokens,
-            remainingTokens = remaining,
-        )
+    val windowUsageState = useState(messages, maxContextTokens) {
+        estimateWindowTokenUsage(messages, maxContextTokens)
     }
-
     return windowUsageState.value
+}
+
+internal fun estimateWindowTokenUsage(messages: List<Any>, maxContextTokens: Int?): WindowTokenUsage {
+    val totalChars = messages.fold(0L) { total, message ->
+        val length = when (message) {
+            is xyz.junerver.compose.ai.usechat.ChatMessage -> message.textContent.length
+            else -> message.toString().length
+        }
+        total + length
+    }
+    val estimatedTokens = if (totalChars == 0L) {
+        0
+    } else {
+        ((totalChars + 2L) / 3L)
+            .coerceAtMost(Int.MAX_VALUE.toLong())
+            .toInt()
+    }
+    val remainingTokens = maxContextTokens?.let { maximum ->
+        (maximum.toLong() - estimatedTokens.toLong())
+            .coerceIn(0L, Int.MAX_VALUE.toLong())
+            .toInt()
+    }
+    return WindowTokenUsage(
+        messageCount = messages.size,
+        estimatedTokens = estimatedTokens,
+        maxTokens = maxContextTokens,
+        remainingTokens = remainingTokens,
+    )
 }
 
 /**
