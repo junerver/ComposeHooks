@@ -1,11 +1,12 @@
 package xyz.junerver.compose.hooks.usebackfront
-import xyz.junerver.compose.hooks.useref.useRefImpl
-import xyz.junerver.compose.hooks.useref.setValue
+import xyz.junerver.compose.hooks.usecreation.useCreationImpl
 import xyz.junerver.compose.hooks.useref.getValue
-import xyz.junerver.compose.hooks.useref.Ref
+import xyz.junerver.compose.hooks.useref.setValue
+import xyz.junerver.compose.hooks.useref.useRefImpl
 
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleEventEffect
 import xyz.junerver.compose.hooks.utils.unwrap
 
 /*
@@ -31,12 +32,16 @@ import xyz.junerver.compose.hooks.utils.unwrap
 @Composable
 fun useBackToFrontEffectImpl(vararg deps: Any?, effect: () -> Unit) {
     var inBackgroundRef by useRefImpl(default = false)
-    LifecycleResumeEffect(keys = unwrap(deps)) {
+    val currentEffect = useCreationImpl(*unwrap(deps)) { effect }.current
+
+    LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) {
+        inBackgroundRef = true
+    }
+    LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         if (inBackgroundRef) {
-            effect()
+            currentEffect()
             inBackgroundRef = false
         }
-        onPauseOrDispose { inBackgroundRef = true }
     }
 }
 
@@ -50,14 +55,9 @@ fun useBackToFrontEffectImpl(vararg deps: Any?, effect: () -> Unit) {
  */
 @Composable
 fun useFrontToBackEffectImpl(vararg deps: Any?, effect: () -> Unit) {
-    var inBackgroundRef by useRefImpl(default = false)
-    LifecycleResumeEffect(keys = unwrap(deps)) {
-        if (inBackgroundRef) {
-            inBackgroundRef = false
-        }
-        onPauseOrDispose {
-            effect()
-            inBackgroundRef = true
-        }
+    val currentEffect = useCreationImpl(*unwrap(deps)) { effect }.current
+
+    LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) {
+        currentEffect()
     }
 }
