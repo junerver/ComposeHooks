@@ -26,6 +26,9 @@ import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.JsonPrimitive
 import xyz.junerver.compose.ai.http.HttpResult
 import xyz.junerver.compose.ai.http.SseEvent
+import xyz.junerver.compose.ai.multiprovider.LoadBalanceStrategy
+import xyz.junerver.compose.ai.multiprovider.ModelsProvider
+import xyz.junerver.compose.ai.multiprovider.RetryConfig
 import xyz.junerver.compose.ai.test.FakeChatProvider
 import xyz.junerver.compose.ai.test.FakeHttpEngine
 import xyz.junerver.compose.ai.usechat.ChatHolder
@@ -338,6 +341,157 @@ class UseChatHookTest {
         assertEquals(1, firstFinishCalls)
         assertEquals(0, secondFinishCalls)
         assertEquals("answer", holder.messages.value.last().textContent)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun useChat_models_provider_round_robin_persists_across_requests() = runComposeUiTest {
+        val firstProvider = FakeChatProvider(name = "First", defaultModel = "first-model")
+        val secondProvider = FakeChatProvider(name = "Second", defaultModel = "second-model")
+        val engine = FakeHttpEngine().apply {
+            enqueueResponse(HttpResult(200, "text:first-answer"))
+            enqueueResponse(HttpResult(200, "text:second-answer"))
+        }
+        lateinit var holder: ChatHolder
+
+        setContent {
+            ModelsProvider(
+                providers = listOf(firstProvider, secondProvider),
+                strategy = LoadBalanceStrategy.RoundRobin,
+                retryConfig = RetryConfig.noRetry(),
+            ) {
+                holder = useChat {
+                    httpEngine = engine
+                    stream = false
+                }
+                holder.messages.value
+            }
+        }
+
+        waitForIdle()
+        runOnIdle { holder.sendText("first-question") }
+        mainClock.advanceTimeBy(100)
+        waitForIdle()
+        runOnIdle { holder.sendText("second-question") }
+        mainClock.advanceTimeBy(100)
+        waitForIdle()
+
+        assertEquals(
+            listOf("first-question", "first-answer", "second-question", "second-answer"),
+            holder.messages.value.map { it.textContent },
+        )
+        assertEquals("first-question", firstProvider.lastRequestMessages?.last()?.textContent)
+        assertEquals("second-question", secondProvider.lastRequestMessages?.last()?.textContent)
+        assertEquals(
+            listOf("first-model", "second-model"),
+            holder.messages.value.filterIsInstance<AssistantMessage>().map { it.model },
+        )
+        assertEquals(2, engine.recordedRequests.size)
+        assertEquals(0, engine.closeCount)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun useChat_models_provider_stream_fails_over_before_first_delta() = runComposeUiTest {
+        val firstProvider = FakeChatProvider(name = "First")
+        val usage = ChatUsage(promptTokens = 2, completionTokens = 3, totalTokens = 5)
+        val secondProvider = FakeChatProvider(name = "Second").apply { providedUsage = usage }
+        val engine = FakeHttpEngine().apply {
+            enqueueStream(
+                SseEvent.Error(IllegalStateException("HTTP 429: retry")),
+            )
+            enqueueStream(
+                SseEvent.Data("delta:recovered"),
+                SseEvent.Data("finish:stop"),
+                SseEvent.Data("done"),
+                SseEvent.Complete,
+            )
+        }
+        lateinit var holder: ChatHolder
+
+        setContent {
+            TokenUsageProvider {
+                ModelsProvider(
+                    providers = listOf(firstProvider, secondProvider),
+                    strategy = LoadBalanceStrategy.RoundRobin,
+                    retryConfig = RetryConfig(
+                        maxRetries = 2,
+                        retryDelay = 0,
+                        exponentialBackoff = false,
+                    ),
+                ) {
+                    holder = useChat {
+                        httpEngine = engine
+                        stream = true
+                    }
+                    holder.messages.value
+                    holder.tokenStats
+                }
+            }
+        }
+
+        waitForIdle()
+        runOnIdle { holder.sendText("question") }
+        mainClock.advanceTimeBy(100)
+        waitForIdle()
+
+        assertEquals("recovered", holder.messages.value.last().textContent)
+        assertEquals(2, engine.recordedRequests.size)
+        assertTrue(firstProvider.lastRequestMessages != null)
+        assertTrue(secondProvider.lastRequestMessages != null)
+        assertNull(holder.error.value)
+        assertFalse(holder.isLoading.value)
+        val assistant = holder.messages.value.last() as AssistantMessage
+        assertEquals(secondProvider.defaultModel, assistant.model)
+        assertEquals("Second", holder.tokenStats?.records?.single()?.provider)
+        assertEquals(secondProvider.defaultModel, holder.tokenStats?.records?.single()?.model)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun useChat_recomposition_switches_from_models_provider_to_explicit_provider() = runComposeUiTest {
+        val useExplicitProvider = mutableStateOf(false)
+        val contextProvider = FakeChatProvider(name = "Context", defaultModel = "context-model")
+        val explicitProvider = FakeChatProvider(name = "Explicit", defaultModel = "explicit-model")
+        val engine = FakeHttpEngine().apply {
+            enqueueResponse(HttpResult(200, "text:context-answer"))
+            enqueueResponse(HttpResult(200, "text:explicit-answer"))
+        }
+        lateinit var holder: ChatHolder
+
+        setContent {
+            ModelsProvider(
+                providers = listOf(contextProvider),
+                retryConfig = RetryConfig.noRetry(),
+            ) {
+                val explicit = useExplicitProvider.value
+                holder = useChat {
+                    httpEngine = engine
+                    stream = false
+                    if (explicit) provider = explicitProvider
+                }
+                holder.messages.value
+            }
+        }
+
+        waitForIdle()
+        runOnIdle { holder.sendText("context-question") }
+        mainClock.advanceTimeBy(100)
+        waitForIdle()
+        assertEquals("context-answer", holder.messages.value.last().textContent)
+
+        runOnIdle { useExplicitProvider.value = true }
+        waitForIdle()
+        runOnIdle { holder.sendText("explicit-question") }
+        mainClock.advanceTimeBy(100)
+        waitForIdle()
+
+        assertEquals("explicit-answer", holder.messages.value.last().textContent)
+        assertEquals("context-question", contextProvider.lastRequestMessages?.last()?.textContent)
+        assertEquals("explicit-question", explicitProvider.lastRequestMessages?.last()?.textContent)
+        assertEquals("explicit-model", (holder.messages.value.last() as AssistantMessage).model)
+        assertEquals(2, engine.recordedRequests.size)
+        assertEquals(0, engine.closeCount)
     }
 
     @OptIn(ExperimentalTestApi::class)

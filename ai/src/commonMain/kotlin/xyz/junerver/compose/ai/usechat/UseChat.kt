@@ -268,6 +268,10 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
             asyncRun {
                 fun isCurrentRequest(): Boolean = activeRequestIdRef.current == requestId
 
+                var selectedProvider = requestOptions.provider
+
+                fun selectedModel(): String = requestOptions.model ?: selectedProvider.defaultModel
+
                 var accumulatedContent = ""
                 var accumulatedReasoning = ""
                 var lastUsage: ChatUsage? = null
@@ -324,7 +328,11 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                     if (streamEnabled) {
                         // Use multi-provider or single-provider client
                         val streamFlow = if (requestUsesMultiProvider) {
-                            multiProviderClientRef.current?.streamChat(currentMessages.dropLast(1), requestOptions)
+                            multiProviderClientRef.current?.streamChat(
+                                messages = currentMessages.dropLast(1),
+                                requestOptions = requestOptions,
+                                onProviderSelected = { selectedProvider = it },
+                            )
                                 ?: throw IllegalStateException("MultiProviderChatClient not initialized")
                         } else {
                             clientRef.current?.streamChat(currentMessages.dropLast(1), requestOptions)
@@ -349,7 +357,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
 
                                     val updatedMessage = currentAssistantMessageRef.current?.copy(
                                         content = currentContentParts(),
-                                        model = requestOptions.effectiveModel,
+                                        model = selectedModel(),
                                         usage = lastUsage,
                                         finishReason = lastFinishReason,
                                     )
@@ -369,7 +377,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
 
                                     val updatedMessage = currentAssistantMessageRef.current?.copy(
                                         content = currentContentParts(),
-                                        model = requestOptions.effectiveModel,
+                                        model = selectedModel(),
                                         usage = lastUsage,
                                         finishReason = lastFinishReason,
                                     )
@@ -392,7 +400,7 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
 
                                     val updatedMessage = currentAssistantMessageRef.current?.copy(
                                         content = currentContentParts(),
-                                        model = requestOptions.effectiveModel,
+                                        model = selectedModel(),
                                         usage = lastUsage,
                                         finishReason = lastFinishReason,
                                     )
@@ -415,8 +423,8 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                                             usageRecorded = true
                                             tokenTracker?.recordUsage(
                                                 requestId = finalMessage.id,
-                                                provider = requestOptions.provider.name,
-                                                model = requestOptions.effectiveModel,
+                                                provider = selectedProvider.name,
+                                                model = finalMessage.model ?: selectedModel(),
                                                 usage = lastUsage,
                                             )
                                         }
@@ -442,13 +450,19 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                     } else {
                         // Use multi-provider or single-provider client
                         val result = if (requestUsesMultiProvider) {
-                            multiProviderClientRef.current?.chat(currentMessages.dropLast(1), requestOptions)
+                            multiProviderClientRef.current?.chat(
+                                messages = currentMessages.dropLast(1),
+                                requestOptions = requestOptions,
+                                onProviderSelected = { selectedProvider = it },
+                            )
                                 ?: throw IllegalStateException("MultiProviderChatClient not initialized")
                         } else {
                             clientRef.current?.chat(currentMessages.dropLast(1), requestOptions)
                                 ?: throw IllegalStateException("ChatClient not initialized")
                         }
-                        val finalMessage = result.message
+                        val finalMessage = result.message.copy(
+                            model = result.message.model ?: selectedModel(),
+                        )
                         if (!isCurrentRequest()) return@asyncRun
 
                         currentAssistantMessageRef.current = finalMessage
@@ -463,8 +477,8 @@ fun useChat(optionsOf: ChatOptions.() -> Unit = {}): ChatHolder {
                             usageRecorded = true
                             tokenTracker?.recordUsage(
                                 requestId = finalMessage.id,
-                                provider = requestOptions.provider.name,
-                                model = requestOptions.effectiveModel,
+                                provider = selectedProvider.name,
+                                model = finalMessage.model ?: selectedModel(),
                                 usage = result.usage,
                             )
                         }

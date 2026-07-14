@@ -167,6 +167,7 @@ internal class MultiProviderChatClient(
     suspend fun chat(
         messages: List<ChatMessage>,
         requestOptions: ChatOptions = baseOptions,
+        onProviderSelected: ((ChatProvider) -> Unit)? = null,
     ): ChatResponseResult {
         val errors = mutableMapOf<String, Throwable>()
 
@@ -178,6 +179,7 @@ internal class MultiProviderChatClient(
                 return@repeat
             }
 
+            onProviderSelected?.invoke(provider)
             val startTime = Clock.System.now().toEpochMilliseconds()
             try {
                 val client = ChatClient(options = requestOptions.copy(provider = provider), engine = engine, shouldCloseEngine = false)
@@ -223,6 +225,7 @@ internal class MultiProviderChatClient(
     suspend fun streamChat(
         messages: List<ChatMessage>,
         requestOptions: ChatOptions = baseOptions,
+        onProviderSelected: ((ChatProvider) -> Unit)? = null,
     ): Flow<StreamEvent> = flow {
         val errors = mutableMapOf<String, Throwable>()
         var completed = false
@@ -237,6 +240,7 @@ internal class MultiProviderChatClient(
                 return@repeat
             }
 
+            onProviderSelected?.invoke(provider)
             val startTime = Clock.System.now().toEpochMilliseconds()
             var streamStarted = false
             var streamError: Throwable? = null
