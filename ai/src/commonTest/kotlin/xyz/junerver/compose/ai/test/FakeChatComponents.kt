@@ -23,6 +23,8 @@ import xyz.junerver.compose.ai.usechat.assistantMessage
  *
  * The provider interprets streaming lines in a simplified protocol:
  * - `delta:<text>` emits a [StreamEvent.Delta] with the provided content
+ * - `reasoning:<text>` emits a [StreamEvent.ReasoningDelta]
+ * - `tool:<index>|<id>|<name>|<arguments>` emits a [StreamEvent.ToolCallDelta]
  * - `finish:<reason>` emits a [StreamEvent.Delta] carrying only the finish reason
  * - `done` emits [StreamEvent.Done]
  * - `error:<message>` emits [StreamEvent.Error]
@@ -71,6 +73,16 @@ internal class FakeChatProvider(
 
     override fun parseStreamLine(line: String): StreamEvent? = when {
         line.startsWith("delta:") -> StreamEvent.Delta(content = line.removePrefix("delta:").trim())
+        line.startsWith("reasoning:") -> StreamEvent.ReasoningDelta(text = line.removePrefix("reasoning:"))
+        line.startsWith("tool:") -> {
+            val parts = line.removePrefix("tool:").split("|", limit = 4)
+            StreamEvent.ToolCallDelta(
+                index = parts.getOrNull(0)?.toIntOrNull() ?: 0,
+                toolCallId = parts.getOrNull(1)?.ifBlank { null },
+                toolName = parts.getOrNull(2)?.ifBlank { null },
+                argumentsDelta = parts.getOrNull(3)?.ifEmpty { null },
+            )
+        }
         line.startsWith("audio:") -> StreamEvent.AudioDelta(audioDataBase64 = line.removePrefix("audio:").trim())
         line.startsWith("finish:") -> StreamEvent.Delta(
             content = "",

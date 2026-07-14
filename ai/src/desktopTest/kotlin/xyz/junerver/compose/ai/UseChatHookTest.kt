@@ -19,8 +19,10 @@ import kotlin.test.assertTrue
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.withContext
+import kotlinx.serialization.json.JsonPrimitive
 import xyz.junerver.compose.ai.http.HttpResult
 import xyz.junerver.compose.ai.http.SseEvent
 import xyz.junerver.compose.ai.test.FakeChatProvider
@@ -29,6 +31,7 @@ import xyz.junerver.compose.ai.usechat.ChatHolder
 import xyz.junerver.compose.ai.usechat.ChatMessage
 import xyz.junerver.compose.ai.usechat.ChatUsage
 import xyz.junerver.compose.ai.usechat.FinishReason
+import xyz.junerver.compose.ai.usechat.AssistantMessage
 import xyz.junerver.compose.ai.usechat.assistantMessage
 import xyz.junerver.compose.ai.usechat.sendText
 import xyz.junerver.compose.ai.usechat.useChat
@@ -185,6 +188,95 @@ class UseChatHookTest {
 
         assertFalse(holder.isLoading.value)
         assertEquals(listOf("first", "", "second", "second"), holder.messages.value.map { it.textContent })
+        assertNull(holder.error.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun useChat_streaming_accumulates_reasoning_and_tool_call_arguments() = runComposeUiTest {
+        val engine = FakeHttpEngine().apply {
+            enqueueStream(
+                SseEvent.Data("reasoning:check "),
+                SseEvent.Data("reasoning:weather"),
+                SseEvent.Data("tool:0|call_1|weather|{\"city\":"),
+                SseEvent.Data("tool:0|||\"Paris\"}"),
+                SseEvent.Data("finish:tool_calls"),
+                SseEvent.Data("done"),
+                SseEvent.Complete,
+            )
+        }
+        lateinit var holder: ChatHolder
+
+        setContent {
+            holder = useChat {
+                provider = FakeChatProvider()
+                httpEngine = engine
+                stream = true
+            }
+            holder.messages.value
+        }
+
+        waitForIdle()
+        runOnIdle { holder.sendText("weather") }
+        mainClock.advanceTimeBy(100)
+        waitForIdle()
+
+        val assistant = holder.messages.value.last() as AssistantMessage
+        assertEquals("check weather", assistant.reasoningContent)
+        assertEquals(FinishReason.ToolCalls, assistant.finishReason)
+        assertEquals(1, assistant.toolCalls.size)
+        assertEquals("call_1", assistant.toolCalls.single().toolCallId)
+        assertEquals("weather", assistant.toolCalls.single().toolName)
+        assertEquals(JsonPrimitive("Paris"), assistant.toolCalls.single().args["city"])
+        assertFalse(holder.isLoading.value)
+        assertNull(holder.error.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun useChat_stop_cancels_stream_and_preserves_received_content() = runComposeUiTest {
+        val streamStarted = CompletableDeferred<Unit>()
+        val engine = FakeHttpEngine().apply {
+            enqueueStream(
+                flow {
+                    emit(SseEvent.Data("delta:partial"))
+                    streamStarted.complete(Unit)
+                    delay(1_000)
+                    emit(SseEvent.Data("delta:late"))
+                    emit(SseEvent.Data("done"))
+                    emit(SseEvent.Complete)
+                },
+            )
+        }
+        var finishCalls = 0
+        lateinit var holder: ChatHolder
+
+        setContent {
+            holder = useChat {
+                provider = FakeChatProvider()
+                httpEngine = engine
+                stream = true
+                onFinish = { _, _, _ -> finishCalls++ }
+            }
+            holder.messages.value
+            holder.isLoading.value
+        }
+
+        waitForIdle()
+        runOnIdle { holder.sendText("question") }
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+        streamStarted.await()
+        assertEquals("partial", holder.messages.value.last().textContent)
+        assertTrue(holder.isLoading.value)
+
+        runOnIdle { holder.stop() }
+        mainClock.advanceTimeBy(2_000)
+        waitForIdle()
+
+        assertEquals("partial", holder.messages.value.last().textContent)
+        assertFalse(holder.isLoading.value)
+        assertEquals(0, finishCalls)
         assertNull(holder.error.value)
     }
 
