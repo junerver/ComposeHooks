@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import kotlin.coroutines.cancellation.CancellationException
+import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.delay
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.serializer
@@ -108,6 +110,8 @@ private val defaultJson = Json {
     isLenient = true
     coerceInputValues = true
 }
+
+private val INCREMENTAL_PARSE_DEBOUNCE = 50.milliseconds
 
 /**
  * Builds the system prompt with JSON schema injection.
@@ -279,6 +283,17 @@ fun <T : Any> useGenerateObject(
         chatHolder.error.value ?: parseError.value
     }
 
+    fun updateIncrementalObject(rawJson: String) {
+        val requestOptions = activeOptionsRef.current
+        try {
+            val cleanJson = healJson(rawJson, requestOptions.enableJsonHealing)
+            val obj = defaultJson.decodeFromString(activeSerializerRef.current, cleanJson)
+            parsedObject.value = obj
+        } catch (_: Exception) {
+            // Ignore incremental parse failures while more data may still arrive
+        }
+    }
+
     useEffect(rawJsonState.value, chatHolder.isLoading.value) {
         val rawJson = rawJsonState.value
         val requestOptions = activeOptionsRef.current
@@ -287,13 +302,8 @@ fun <T : Any> useGenerateObject(
         if (!requestOptions.stream) return@useEffect
         if (!requestOptions.enableIncrementalParsing) return@useEffect
 
-        try {
-            val cleanJson = healJson(rawJson, requestOptions.enableJsonHealing)
-            val obj = defaultJson.decodeFromString(activeSerializerRef.current, cleanJson)
-            parsedObject.value = obj
-        } catch (_: Exception) {
-            // Ignore incremental parse failures during streaming
-        }
+        delay(INCREMENTAL_PARSE_DEBOUNCE)
+        updateIncrementalObject(rawJson)
     }
 
     // Submit function - sends content and clears previous state
@@ -313,14 +323,25 @@ fun <T : Any> useGenerateObject(
         }
     }.current
 
-    return useCreation(chatHolder, parsedObject, rawJsonState, combinedError, submit) {
+    val stop: StopFn = useCreation(chatHolder, rawJsonState) {
+        {
+            chatHolder.stop()
+            val requestOptions = activeOptionsRef.current
+            val rawJson = rawJsonState.value
+            if (requestOptions.stream && requestOptions.enableIncrementalParsing && rawJson.isNotBlank()) {
+                updateIncrementalObject(rawJson)
+            }
+        }
+    }.current
+
+    return useCreation(chatHolder, parsedObject, rawJsonState, combinedError, submit, stop) {
         GenerateObjectHolder(
             object_ = parsedObject,
             rawJson = rawJsonState,
             isLoading = chatHolder.isLoading,
             error = combinedError,
             submit = submit,
-            stop = chatHolder.stop,
+            stop = stop,
         )
     }.current
 }

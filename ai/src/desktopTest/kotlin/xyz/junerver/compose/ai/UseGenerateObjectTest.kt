@@ -181,6 +181,7 @@ class UseGenerateObjectTest {
             holder.isLoading.value
         }
 
+        mainClock.autoAdvance = false
         waitForIdle()
         runOnIdle { holder.submitText("Create an object") }
         mainClock.advanceTimeBy(1)
@@ -190,6 +191,10 @@ class UseGenerateObjectTest {
 
         assertTrue(holder.isLoading.value)
         assertEquals("{\"name\":\"Ada\",\"count\":2", holder.rawJson.value)
+        assertNull(holder.object_.value)
+
+        mainClock.advanceTimeBy(60)
+        waitForIdle()
         assertEquals(GeneratedPayload("Ada", 2), holder.object_.value)
 
         allowFinish.complete(Unit)
@@ -238,7 +243,7 @@ class UseGenerateObjectTest {
         waitForIdle()
         partialEmitted.await()
         waitForIdle()
-        assertEquals(GeneratedPayload("Partial", 1), holder.object_.value)
+        assertNull(holder.object_.value)
 
         runOnIdle { holder.stop() }
         mainClock.advanceTimeBy(2_000)
