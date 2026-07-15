@@ -11,6 +11,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelChildren
 import xyz.junerver.compose.hooks.SuspendNormalFunction
 import xyz.junerver.compose.hooks.useCreation
+import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
 import xyz.junerver.compose.hooks.userequest.plugins.useAutoRunPlugin
 import xyz.junerver.compose.hooks.userequest.plugins.useDebouncePlugin
 import xyz.junerver.compose.hooks.utils.isNotNull
@@ -337,10 +338,13 @@ internal class EmptyPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
 /** 返回一个空插件，避免直接使用[EmptyPlugin]实例 */
 @Composable
 fun <TParams, TData : Any> useEmptyPlugin(): Plugin<TParams, TData> {
-    val emptyPluginRef = useCreation {
+    val emptyPlugin = useCreation {
         EmptyPlugin<TParams, TData>()
+    }.current
+    useUnmountImpl {
+        emptyPlugin.cancel()
     }
-    return emptyPluginRef.current
+    return emptyPlugin
 }
 
 internal sealed interface Methods<TParams, out TData> {
