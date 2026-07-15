@@ -2,12 +2,20 @@ package xyz.junerver.compose.hooks.test
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertSame
+import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.rememberLatestRef
+import xyz.junerver.compose.hooks.rememberLatestState
 import xyz.junerver.compose.hooks.useLatestRef
 import xyz.junerver.compose.hooks.useLatestState
 import xyz.junerver.compose.hooks.useState
@@ -243,4 +251,83 @@ class UseLatestTest {
         waitForIdle()
         onNodeWithText("latest=d phase=3").assertExists()
     }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun latest_ref_and_state_keep_identity_across_nullable_updates() = runComposeUiTest {
+        val source = mutableStateOf<String?>(null)
+        lateinit var latestRef: Ref<String?>
+        lateinit var latestState: State<String?>
+
+        setContent {
+            latestRef = useLatestRef(source.value)
+            latestState = useLatestState(source.value)
+        }
+
+        waitForIdle()
+        val initialRef = latestRef
+        val initialState = latestState
+        assertEquals(null, latestRef.current)
+        assertEquals(null, latestState.value)
+
+        source.value = "updated"
+        waitForIdle()
+        assertSame(initialRef, latestRef)
+        assertSame(initialState, latestState)
+        assertEquals("updated", latestRef.current)
+        assertEquals("updated", latestState.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun equal_distinct_values_follow_ref_and_state_equality_contracts() = runComposeUiTest {
+        val first = EqualValue("same")
+        val replacement = EqualValue("same")
+        val source = mutableStateOf(first, referentialEqualityPolicy())
+        lateinit var latestRef: Ref<EqualValue>
+        lateinit var latestState: State<EqualValue>
+
+        setContent {
+            latestRef = useLatestRef(source.value)
+            latestState = useLatestState(source.value)
+        }
+
+        waitForIdle()
+        val initialRef = latestRef
+        val initialState = latestState
+        source.value = replacement
+        waitForIdle()
+
+        assertSame(initialRef, latestRef)
+        assertSame(initialState, latestState)
+        assertSame(replacement, latestRef.current)
+        assertSame(first, latestState.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun remember_latest_aliases_expose_latest_lambda_and_state() = runComposeUiTest {
+        val multiplier = mutableStateOf(1)
+        lateinit var latestLambda: Ref<(Int) -> Int>
+        lateinit var latestState: State<Int>
+
+        setContent {
+            val currentMultiplier = multiplier.value
+            latestLambda = rememberLatestRef { value: Int -> value * currentMultiplier }
+            latestState = rememberLatestState(currentMultiplier)
+        }
+
+        waitForIdle()
+        val initialLambdaRef = latestLambda
+        val initialState = latestState
+        multiplier.value = 3
+        waitForIdle()
+
+        assertSame(initialLambdaRef, latestLambda)
+        assertSame(initialState, latestState)
+        assertEquals(15, latestLambda.current(5))
+        assertEquals(3, latestState.value)
+    }
+
+    private data class EqualValue(val value: String)
 }
