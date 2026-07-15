@@ -6,6 +6,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
@@ -410,5 +411,34 @@ class FetchRaceTest {
             fixture.fetch.cancel()
             runCurrent()
         }
+    }
+
+    @Test
+    fun requestCancellationResetsLoadingAndSkipsPluginFinally() = runTest {
+        val publicFinally = mutableListOf<FinalEvent>()
+        var pluginFinallyCount = 0
+        val options = UseRequestOptions.optionOf<String, Int> {
+            onFinally = { params, data, error ->
+                publicFinally += FinalEvent(params, data, error?.message)
+            }
+        }
+        val lifecycle = object : PluginLifecycle<String, Int>() {
+            override val onFinally: ((String, Int?, Throwable?) -> Unit)? = { _, _, _ ->
+                pluginFinallyCount += 1
+            }
+        }
+        val fixture = createFixture(options = options, pluginImpls = arrayOf(lifecycle), requestFn = {
+            throw kotlinx.coroutines.CancellationException("request canceled")
+        })
+
+        assertFailsWith<kotlinx.coroutines.CancellationException> {
+            fixture.fetch.runAsync("cancel")
+        }
+
+        assertFalse(fixture.loading.value)
+        assertNull(fixture.error.value)
+        assertEquals(listOf(FinalEvent("cancel", null, null)), publicFinally)
+        assertEquals(0, pluginFinallyCount)
+        assertEquals(0, fixture.fetch.activeRequestJobCount)
     }
 }

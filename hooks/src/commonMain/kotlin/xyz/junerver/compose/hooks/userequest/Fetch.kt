@@ -154,6 +154,16 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
         }
     }
 
+    private fun invalidateCanceledTransition(requestGeneration: Long): Boolean = withTransitionLock {
+        if (!isCurrentGeneration(requestGeneration)) {
+            false
+        } else {
+            nextGeneration()
+            commitState(mapOf(Keys.loading to false))
+            true
+        }
+    }
+
     /**
      * 异步请求函数，需要注意调用取消时将无法自动取消请求，
      * 因为请求发生在调用者自己的作用域，而非Fetch实例所在的作用域。
@@ -269,7 +279,10 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
                 runPluginHandler(Methods.OnSuccess(result, resolvedParams), lifecycleSnapshot)
             }
         } catch (error: Throwable) {
-            error.rethrowIfCancellation()
+            if (error is CancellationException) {
+                invalidateCanceledTransition(requestGeneration)
+                throw error
+            }
             requestError = error
             if (
                 !commitTerminalState(
