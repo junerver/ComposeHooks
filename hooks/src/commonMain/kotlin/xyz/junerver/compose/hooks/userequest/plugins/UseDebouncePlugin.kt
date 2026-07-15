@@ -49,10 +49,11 @@ private class DebouncePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
 
 @Composable
 internal fun <TParams, TData : Any> useDebouncePlugin(options: UseRequestOptions<TParams, TData>): Plugin<TParams, TData> {
-    if (options.debounceOptions.wait == Duration.ZERO) {
+    val (wait, leading, trailing, maxWait) = options.debounceOptions
+    if (wait == Duration.ZERO) {
         return useEmptyPlugin()
     }
-    val debouncePlugin = remember {
+    val debouncePlugin = remember(wait, leading, trailing, maxWait) {
         DebouncePlugin<TParams, TData>()
     }
     return debouncePlugin

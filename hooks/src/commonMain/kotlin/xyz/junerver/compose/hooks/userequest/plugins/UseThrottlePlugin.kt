@@ -50,10 +50,11 @@ private class ThrottlePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
 
 @Composable
 internal fun <TParams, TData : Any> useThrottlePlugin(options: UseRequestOptions<TParams, TData>): Plugin<TParams, TData> {
-    if (options.throttleOptions.wait == Duration.ZERO) {
+    val (wait, leading, trailing) = options.throttleOptions
+    if (wait == Duration.ZERO) {
         return useEmptyPlugin()
     }
-    val throttlePlugin = remember {
+    val throttlePlugin = remember(wait, leading, trailing) {
         ThrottlePlugin<TParams, TData>()
     }
     return throttlePlugin

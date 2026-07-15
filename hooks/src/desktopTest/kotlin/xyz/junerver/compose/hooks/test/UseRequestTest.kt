@@ -3,17 +3,20 @@ package xyz.junerver.compose.hooks.test
 import androidx.compose.material3.Text
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import java.util.concurrent.atomic.AtomicInteger
+import java.util.concurrent.CopyOnWriteArrayList
 import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.Instant
@@ -486,6 +489,199 @@ class UseRequestTest {
         assertNull(holder.data.value)
     }
 
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun debouncePlugin_can_be_enabled_after_recomposition_with_stable_controls() = runComposeUiTest {
+        val enabled = mutableStateOf(false)
+        val callCount = AtomicInteger(0)
+        val receivedParams = CopyOnWriteArrayList<String>()
+        lateinit var holder: RequestHolder<String, Int>
+        setContent {
+            holder = useRequest(
+                requestFn = { params: String ->
+                    receivedParams += params
+                    callCount.incrementAndGet()
+                    params.length
+                },
+                optionsOf = {
+                    manual = true
+                    debounceOptionsOf = {
+                        wait = if (enabled.value) 500.milliseconds else 0.milliseconds
+                    }
+                },
+            )
+            Text("data=${holder.data.value}")
+        }
+
+        waitForIdle()
+        val initialHolder = holder
+        val initialRequest = holder.request
+        runOnIdle { initialRequest("direct") }
+        waitForIdle()
+        assertEquals(1, callCount.get())
+
+        runOnIdle { enabled.value = true }
+        waitForIdle()
+        assertSame(initialHolder, holder)
+        assertSame(initialRequest, holder.request)
+
+        runOnIdle { initialRequest("delayed") }
+        waitForIdle()
+        assertEquals(1, callCount.get())
+
+        val completed = waitForCondition {
+            callCount.get() == 2
+        }
+        waitForIdle()
+
+        assertTrue(completed, "Expected dynamically enabled debounce to delay the request")
+        assertEquals(listOf("direct", "delayed"), receivedParams.toList())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun debouncePlugin_can_be_disabled_and_cancels_pending_request() = runComposeUiTest {
+        val enabled = mutableStateOf(true)
+        val callCount = AtomicInteger(0)
+        val receivedParams = CopyOnWriteArrayList<String>()
+        lateinit var holder: RequestHolder<String, Int>
+        setContent {
+            holder = useRequest(
+                requestFn = { params: String ->
+                    receivedParams += params
+                    callCount.incrementAndGet()
+                    params.length
+                },
+                optionsOf = {
+                    manual = true
+                    debounceOptionsOf = {
+                        wait = if (enabled.value) 300.milliseconds else 0.milliseconds
+                    }
+                },
+            )
+            Text("data=${holder.data.value}")
+        }
+
+        waitForIdle()
+        val initialHolder = holder
+        val initialRequest = holder.request
+        runOnIdle { initialRequest("stale") }
+        waitForIdle()
+        assertEquals(0, callCount.get())
+
+        runOnIdle { enabled.value = false }
+        waitForIdle()
+        assertSame(initialHolder, holder)
+        assertSame(initialRequest, holder.request)
+
+        val unexpectedlyRan = waitForCondition(maxAttempts = 25, delayMs = 20) {
+            callCount.get() > 0
+        }
+        assertFalse(unexpectedlyRan)
+
+        runOnIdle { initialRequest("direct") }
+        waitForIdle()
+
+        assertEquals(1, callCount.get())
+        assertEquals(listOf("direct"), receivedParams.toList())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun debouncePlugin_applies_changed_positive_wait_after_recomposition() = runComposeUiTest {
+        val useShortWait = mutableStateOf(false)
+        val callCount = AtomicInteger(0)
+        val receivedParams = CopyOnWriteArrayList<String>()
+        lateinit var holder: RequestHolder<String, Int>
+        setContent {
+            holder = useRequest(
+                requestFn = { params: String ->
+                    receivedParams += params
+                    callCount.incrementAndGet()
+                    params.length
+                },
+                optionsOf = {
+                    manual = true
+                    debounceOptionsOf = {
+                        wait = if (useShortWait.value) 50.milliseconds else 1.seconds
+                    }
+                },
+            )
+            Text("data=${holder.data.value}")
+        }
+
+        waitForIdle()
+        val initialHolder = holder
+        val initialRequest = holder.request
+        runOnIdle { initialRequest("stale") }
+        waitForIdle()
+
+        runOnIdle { useShortWait.value = true }
+        waitForIdle()
+        assertSame(initialHolder, holder)
+        assertSame(initialRequest, holder.request)
+
+        runOnIdle { initialRequest("latest") }
+        waitForIdle()
+        assertEquals(0, callCount.get())
+
+        val completed = waitForCondition(maxAttempts = 30, delayMs = 20) {
+            callCount.get() == 1
+        }
+        waitForIdle()
+
+        assertTrue(completed, "Expected the updated debounce wait to take effect")
+        assertEquals(listOf("latest"), receivedParams.toList())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun timingPlugin_recomposition_preserves_fetch_state_for_mutate_and_refresh() = runComposeUiTest {
+        val enabled = mutableStateOf(false)
+        val receivedParams = CopyOnWriteArrayList<String>()
+        lateinit var holder: RequestHolder<String, Int>
+        setContent {
+            holder = useRequest(
+                requestFn = { params: String ->
+                    receivedParams += params
+                    params.length
+                },
+                optionsOf = {
+                    manual = true
+                    debounceOptionsOf = {
+                        wait = if (enabled.value) 10.seconds else 0.milliseconds
+                    }
+                },
+            )
+            Text("data=${holder.data.value}")
+        }
+
+        waitForIdle()
+        val initialHolder = holder
+        val initialMutate = holder.mutate
+        val initialRefresh = holder.refresh
+        runOnIdle { holder.request("seed") }
+        waitForIdle()
+        assertEquals(4, holder.data.value)
+
+        runOnIdle { enabled.value = true }
+        waitForIdle()
+        assertSame(initialHolder, holder)
+        assertSame(initialMutate, holder.mutate)
+        assertSame(initialRefresh, holder.refresh)
+        assertEquals(4, holder.data.value)
+
+        runOnIdle { initialMutate { data -> (data ?: -100) + 1 } }
+        waitForIdle()
+        assertEquals(5, holder.data.value)
+
+        runOnIdle { initialRefresh() }
+        waitForIdle()
+
+        assertEquals(listOf("seed", "seed"), receivedParams.toList())
+        assertEquals(4, holder.data.value)
+    }
+
     // endregion
 
     // region ThrottlePlugin Tests
@@ -616,6 +812,156 @@ class UseRequestTest {
         assertFalse(unexpectedlyRan)
         assertEquals(0, callCount.get())
         assertNull(holder.data.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun throttlePlugin_can_be_enabled_after_recomposition_with_stable_controls() = runComposeUiTest {
+        val enabled = mutableStateOf(false)
+        val receivedParams = CopyOnWriteArrayList<String>()
+        lateinit var holder: RequestHolder<String, Int>
+        setContent {
+            holder = useRequest(
+                requestFn = { params: String ->
+                    receivedParams += params
+                    params.length
+                },
+                optionsOf = {
+                    manual = true
+                    throttleOptionsOf = {
+                        wait = if (enabled.value) 10.seconds else 0.milliseconds
+                        leading = true
+                        trailing = false
+                    }
+                },
+            )
+            Text("data=${holder.data.value}")
+        }
+
+        waitForIdle()
+        val initialHolder = holder
+        val initialRequest = holder.request
+        runOnIdle { initialRequest("direct") }
+        waitForIdle()
+        assertEquals(listOf("direct"), receivedParams.toList())
+
+        runOnIdle { enabled.value = true }
+        waitForIdle()
+        assertSame(initialHolder, holder)
+        assertSame(initialRequest, holder.request)
+
+        runOnIdle {
+            initialRequest("first")
+            initialRequest("suppressed")
+        }
+        waitForIdle()
+
+        assertEquals(listOf("direct", "first"), receivedParams.toList())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun throttlePlugin_can_be_disabled_after_recomposition_with_stable_controls() = runComposeUiTest {
+        val enabled = mutableStateOf(true)
+        val receivedParams = CopyOnWriteArrayList<String>()
+        lateinit var holder: RequestHolder<String, Int>
+        setContent {
+            holder = useRequest(
+                requestFn = { params: String ->
+                    receivedParams += params
+                    params.length
+                },
+                optionsOf = {
+                    manual = true
+                    throttleOptionsOf = {
+                        wait = if (enabled.value) 10.seconds else 0.milliseconds
+                        leading = true
+                        trailing = false
+                    }
+                },
+            )
+            Text("data=${holder.data.value}")
+        }
+
+        waitForIdle()
+        val initialHolder = holder
+        val initialRequest = holder.request
+        runOnIdle {
+            initialRequest("first")
+            initialRequest("suppressed")
+        }
+        waitForIdle()
+        assertEquals(listOf("first"), receivedParams.toList())
+
+        runOnIdle { enabled.value = false }
+        waitForIdle()
+        assertSame(initialHolder, holder)
+        assertSame(initialRequest, holder.request)
+
+        runOnIdle { initialRequest("direct") }
+        waitForIdle()
+
+        assertEquals(listOf("first", "direct"), receivedParams.toList())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun throttlePlugin_applies_changed_options_after_recomposition() = runComposeUiTest {
+        val useTrailingMode = mutableStateOf(false)
+        val callCount = AtomicInteger(0)
+        val receivedParams = CopyOnWriteArrayList<String>()
+        lateinit var holder: RequestHolder<String, Int>
+        setContent {
+            holder = useRequest(
+                requestFn = { params: String ->
+                    receivedParams += params
+                    callCount.incrementAndGet()
+                    params.length
+                },
+                optionsOf = {
+                    manual = true
+                    throttleOptionsOf = {
+                        if (useTrailingMode.value) {
+                            wait = 50.milliseconds
+                            leading = false
+                            trailing = true
+                        } else {
+                            wait = 10.seconds
+                            leading = true
+                            trailing = false
+                        }
+                    }
+                },
+            )
+            Text("data=${holder.data.value}")
+        }
+
+        waitForIdle()
+        val initialHolder = holder
+        val initialRequest = holder.request
+        runOnIdle {
+            initialRequest("first")
+            initialRequest("suppressed")
+        }
+        waitForIdle()
+        assertEquals(listOf("first"), receivedParams.toList())
+
+        runOnIdle { useTrailingMode.value = true }
+        waitForIdle()
+        assertSame(initialHolder, holder)
+        assertSame(initialRequest, holder.request)
+
+        runOnIdle { initialRequest("delayed") }
+        waitForIdle()
+        assertEquals(1, callCount.get())
+
+        val completed = waitForCondition(maxAttempts = 30, delayMs = 20) {
+            callCount.get() == 2
+        }
+        waitForIdle()
+
+        assertTrue(completed, "Expected the updated throttle options to take effect")
+        assertEquals(listOf("first", "delayed"), receivedParams.toList())
     }
 
     // endregion

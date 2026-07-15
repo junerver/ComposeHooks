@@ -136,7 +136,16 @@ private fun <TParams, TData : Any> useRequestPrivate(
     val buildInAutoRunPlugin = useAutoRunPlugin(options)
     val buildInCachePlugin = useCachePlugin(options)
     val buildInRetryPlugin = useRetryPlugin(options)
-    val allPlugins by useCreation(*plugins) {
+    val allPlugins by useCreation(
+        *customPluginsRef,
+        buildInDebouncePlugin,
+        buildInLoadingDelayPlugin,
+        buildInPollingPlugin,
+        buildInThrottlePlugin,
+        buildInAutoRunPlugin,
+        buildInCachePlugin,
+        buildInRetryPlugin,
+    ) {
         customPluginsRef + arrayOf(
             buildInDebouncePlugin,
             buildInLoadingDelayPlugin,
@@ -153,17 +162,18 @@ private fun <TParams, TData : Any> useRequestPrivate(
         allPlugins,
     )
 
-    return with(fetch) {
-        RequestHolder(
-            data = dataState,
-            isLoading = loadingState,
-            error = errorState,
-            request = run,
-            mutate = ::mutate,
-            refresh = ::refresh,
-            cancel = ::cancel,
+    val holder by useCreation<RequestHolder<TParams, TData>>(fetch) {
+        RequestHolder<TParams, TData>(
+            data = fetch.dataState,
+            isLoading = fetch.loadingState,
+            error = fetch.errorState,
+            request = { params: TParams -> fetch.run(params) },
+            mutate = fetch::mutate,
+            refresh = fetch::refresh,
+            cancel = fetch::cancel,
         )
     }
+    return holder
 }
 
 /**
@@ -203,13 +213,23 @@ private fun <TParams, TData : Any> useRequestPluginsImpl(
     fetch.requestFn = requestFn
 
     var pluginsRef by useRefImpl<Array<Plugin<TParams, TData>>>(emptyArray())
-    if (!pluginsRef.contentEquals(plugins)) {
+    var pluginsInitialized by useRefImpl(false)
+    if (!pluginsInitialized || !pluginsRef.contentEquals(plugins)) {
+        pluginsRef.forEachIndexed { index, plugin ->
+            if (plugins.none { it === plugin }) {
+                runCatching { fetch.pluginImpls.getOrNull(index)?.onCancel?.invoke() }
+                plugin.cancel()
+            }
+        }
         pluginsRef = plugins.copyOf()
         fetch.run = fetch::_run
         fetch.runAsync = fetch::_runAsync
-        fetch.fetchState = plugins.mapNotNull {
-            it.onInit?.invoke(options)
-        }.cover() ?: FetchState()
+        if (!pluginsInitialized) {
+            fetch.fetchState = plugins.mapNotNull {
+                it.onInit?.invoke(options)
+            }.cover() ?: FetchState()
+            pluginsInitialized = true
+        }
         fetch.pluginImpls = plugins.map { it.invoke(fetch, options) }.toTypedArray()
     }
 
