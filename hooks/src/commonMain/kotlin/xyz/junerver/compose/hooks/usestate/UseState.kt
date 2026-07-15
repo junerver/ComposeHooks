@@ -165,7 +165,7 @@ fun <T> useStateAsyncImpl(
     val dependencyKey = useCreationImpl(*unwrap(keys)) { Any() }.current
     val dependencyKeyRef = useLatestRefImpl(dependencyKey)
     val controller = useCreationImpl {
-        AsyncStateController(scope, state, factoryRef, onErrorRef)
+        AsyncStateController(scope, state, factoryRef, onErrorRef, dependencyKeyRef)
     }.current
     val asyncState = useCreationImpl<State<T?>> {
         AsyncCalcState(controller, dependencyKeyRef, lazyRef, state)
@@ -186,6 +186,7 @@ internal class AsyncStateController<T>(
     private val state: MutableState<T?>,
     private val factoryRef: Ref<suspend () -> T>,
     private val onErrorRef: Ref<(Throwable) -> Unit>,
+    private val latestDependencyKeyRef: Ref<Any>,
 ) {
     private class RequestTransition(
         val previousJob: Job?,
@@ -291,7 +292,8 @@ internal class AsyncStateController<T>(
         key: Any,
         requestGeneration: Long,
         requestJob: Job,
-    ): Boolean = currentKey === key && generation == requestGeneration && job === requestJob
+    ): Boolean =
+        latestDependencyKeyRef.current === key && currentKey === key && generation == requestGeneration && job === requestJob
 }
 
 internal class AsyncCalcState<T>(
