@@ -3,11 +3,16 @@ package xyz.junerver.compose.hooks.test
 import androidx.compose.material3.Text
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertSame
+import xyz.junerver.compose.hooks.UndoHolder
+import xyz.junerver.compose.hooks.rememberUndo
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.useUndo
 
@@ -437,5 +442,86 @@ class UseUndoTest {
         }
         waitForIdle()
         onNodeWithText("present=1 phase=3").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun nullable_values_support_rapid_set_undo_and_redo() = runComposeUiTest {
+        lateinit var holder: UndoHolder<String?>
+
+        setContent {
+            holder = useUndo<String?>(null)
+            val state = holder.undoState.value
+            Text("present=${state.present} past=${state.past} future=${state.future}")
+        }
+
+        waitForIdle()
+        runOnIdle {
+            holder.setValue("value")
+            holder.setValue(null)
+            holder.undo()
+            holder.redo()
+        }
+        waitForIdle()
+
+        assertEquals(null, holder.undoState.value.present)
+        assertEquals(listOf(null, "value"), holder.undoState.value.past)
+        assertEquals(emptyList(), holder.undoState.value.future)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun nullable_reset_clears_history() = runComposeUiTest {
+        lateinit var holder: UndoHolder<String?>
+
+        setContent {
+            holder = useUndo<String?>(null)
+            val state = holder.undoState.value
+            Text("present=${state.present} past=${state.past.size} future=${state.future.size}")
+        }
+
+        waitForIdle()
+        runOnIdle {
+            holder.setValue("value")
+            holder.resetValue(null)
+        }
+        waitForIdle()
+
+        assertEquals(null, holder.undoState.value.present)
+        assertEquals(emptyList(), holder.undoState.value.past)
+        assertEquals(emptyList(), holder.undoState.value.future)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun remember_alias_keeps_holder_actions_and_initial_value_contract() = runComposeUiTest {
+        val initialValue = mutableStateOf("initial")
+        lateinit var holder: UndoHolder<String>
+
+        setContent {
+            holder = rememberUndo(initialValue.value)
+            Text(holder.undoState.value.present)
+        }
+
+        waitForIdle()
+        val initialHolder = holder
+        val initialState = holder.undoState
+        val initialSet = holder.setValue
+        val initialReset = holder.resetValue
+        val initialUndo = holder.undo
+        val initialRedo = holder.redo
+
+        runOnIdle { holder.setValue("saved") }
+        waitForIdle()
+        initialValue.value = "replacement"
+        waitForIdle()
+
+        assertSame(initialHolder, holder)
+        assertSame(initialState, holder.undoState)
+        assertSame(initialSet, holder.setValue)
+        assertSame(initialReset, holder.resetValue)
+        assertSame(initialUndo, holder.undo)
+        assertSame(initialRedo, holder.redo)
+        assertEquals("saved", holder.undoState.value.present)
     }
 }

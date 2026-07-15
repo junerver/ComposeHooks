@@ -96,7 +96,7 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
             if (present == payload) return preState
             preState.copy(
                 past = past + present,
-                present = payload!!,
+                present = payload,
                 future = persistentListOf(),
             )
         }
@@ -105,7 +105,7 @@ private fun <T> undoReducer(preState: UndoState<T>, action: UndoAction): UndoSta
             val (payload) = action as Reset<T>
             preState.copy(
                 past = persistentListOf(),
-                present = payload!!,
+                present = payload,
                 future = persistentListOf(),
             )
         }
