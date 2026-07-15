@@ -11,8 +11,8 @@ import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.number
 import kotlinx.datetime.offsetAt
+import kotlinx.datetime.toInstant
 import xyz.junerver.compose.hooks.utils.currentInstant
-import xyz.junerver.compose.hooks.utils.currentLocalDateTime
 import xyz.junerver.compose.hooks.utils.toLocalDateTime
 import xyz.junerver.compose.hooks.Options
 import xyz.junerver.compose.hooks.usestate.useStateImpl
@@ -303,36 +303,60 @@ private fun useDateFormatCore(
     val options = useDynamicOptions(optionsOf)
     val dateState = useLatestStateImpl(date)
     val formatStrState = useLatestStateImpl(formatStr)
+    val localeState = useLatestStateImpl(options.locale)
+    val customMeridiemState = useLatestStateImpl(options.customMeridiem)
+    val timeZoneState = useLatestStateImpl(options.timeZone)
 
-    // Create a derived state that updates when date or format changes
     return useStateImpl {
-        formatDate(normalizeDate(dateState.value), formatStrState.value, options)
+        val timeZone = timeZoneState.value
+        val currentOptions = options.copy(
+            locale = localeState.value,
+            customMeridiem = customMeridiemState.value,
+            timeZone = timeZone,
+        )
+        val currentDate = dateState.value
+        val normalizedDate = normalizeDate(currentDate, timeZone)
+        val sourceInstant = when (currentDate) {
+            is Instant -> currentDate
+            is Long -> Instant.fromEpochMilliseconds(currentDate)
+            else -> runCatching { normalizedDate.toInstant(timeZone) }.getOrNull()
+        }
+        formatDate(normalizedDate, formatStrState.value, currentOptions, sourceInstant)
     }
 }
 
 /**
  * Normalizes various date types to a LocalDateTime object
  */
-internal fun normalizeDate(date: DateLike): LocalDateTime = when (date) {
+internal fun normalizeDate(date: DateLike, timeZone: TimeZone = TimeZone.currentSystemDefault()): LocalDateTime = when (date) {
     is LocalDateTime -> date
-    is Instant -> date.toLocalDateTime()
-    is Long -> date.toLocalDateTime()
+    is Instant -> date.toLocalDateTime(timeZone)
+    is Long -> date.toLocalDateTime(timeZone)
     is String -> {
         try {
             LocalDateTime.parse(date)
         } catch (_: Exception) {
-            currentLocalDateTime
+            try {
+                LocalDateTime.parse("${date}T00:00:00")
+            } catch (_: Exception) {
+                currentInstant.toLocalDateTime(timeZone)
+            }
         }
     }
 
-    null -> currentLocalDateTime
-    else -> currentLocalDateTime
+    null -> currentInstant.toLocalDateTime(timeZone)
+    else -> currentInstant.toLocalDateTime(timeZone)
 }
 
 /**
  * Formats a date according to the specified format string
  */
-internal fun formatDate(date: LocalDateTime, formatStr: String, options: UseDateFormatOptions): String {
+internal fun formatDate(
+    date: LocalDateTime,
+    formatStr: String,
+    options: UseDateFormatOptions,
+    sourceInstant: Instant? = null,
+): String {
     val locale = options.locale
     val timeZone = options.timeZone
     val customMeridiem = options.customMeridiem
@@ -463,10 +487,10 @@ internal fun formatDate(date: LocalDateTime, formatStr: String, options: UseDate
                 }
 
                 // Timezone
-                "zzzz" -> getTimezoneString(timeZone, true)
-                "zzz" -> getTimezoneString(timeZone, false)
-                "zz" -> getTimezoneString(timeZone, false)
-                "z" -> getTimezoneString(timeZone, false)
+                "zzzz" -> getTimezoneString(timeZone, date, sourceInstant, true)
+                "zzz" -> getTimezoneString(timeZone, date, sourceInstant, false)
+                "zz" -> getTimezoneString(timeZone, date, sourceInstant, false)
+                "z" -> getTimezoneString(timeZone, date, sourceInstant, false)
 
                 // If no match found, return the original token (this case should ideally not be hit for defined tokens)
                 else -> token
@@ -527,11 +551,14 @@ private fun getOrdinal(number: Int): String {
 /**
  * Gets the timezone string representation
  */
-private fun getTimezoneString(timeZone: TimeZone, longFormat: Boolean): String {
-    // Get the current time point, as timezone offset may vary due to daylight saving time
-    val now = currentInstant
-    // Get the UTC offset for the specified timezone at the current time point
-    val offset: UtcOffset = timeZone.offsetAt(now)
+private fun getTimezoneString(
+    timeZone: TimeZone,
+    date: LocalDateTime,
+    sourceInstant: Instant?,
+    longFormat: Boolean,
+): String {
+    val instant = sourceInstant ?: date.toInstant(timeZone)
+    val offset: UtcOffset = timeZone.offsetAt(instant)
 
     // Calculate hours and minutes based on the total seconds of the offset, and handle the sign
     val sign = if (offset.totalSeconds >= 0) "+" else "-"
@@ -592,7 +619,7 @@ fun useDateFormatImpl(
  */
 @Composable
 fun useDateFormatImpl(date: LocalDateTime, formatStr: String = "HH:mm:ss", optionsOf: UseDateFormatOptions.() -> Unit = {}): State<String> =
-    useDateFormatImpl(date, formatStr, optionsOf)
+    useDateFormatCore(date, formatStr, optionsOf)
 
 /**
  * A hook for formatting dates using String representations.
@@ -614,7 +641,7 @@ fun useDateFormatImpl(date: LocalDateTime, formatStr: String = "HH:mm:ss", optio
  */
 @Composable
 fun useDateFormatImpl(date: String, formatStr: String = "HH:mm:ss", optionsOf: UseDateFormatOptions.() -> Unit = {}): State<String> =
-    useDateFormatImpl(date, formatStr, optionsOf)
+    useDateFormatCore(date, formatStr, optionsOf)
 
 /**
  * A hook for formatting dates using Long timestamp values.
@@ -637,4 +664,4 @@ fun useDateFormatImpl(date: String, formatStr: String = "HH:mm:ss", optionsOf: U
  */
 @Composable
 fun useDateFormatImpl(date: Long, formatStr: String = "HH:mm:ss", optionsOf: UseDateFormatOptions.() -> Unit = {}): State<String> =
-    useDateFormatImpl(date, formatStr, optionsOf)
+    useDateFormatCore(date, formatStr, optionsOf)

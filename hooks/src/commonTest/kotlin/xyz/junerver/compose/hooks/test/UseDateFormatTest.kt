@@ -1,10 +1,12 @@
 package xyz.junerver.compose.hooks.test
 
 import kotlin.test.Test
+import kotlin.test.AfterTest
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
@@ -13,11 +15,17 @@ import kotlinx.datetime.toLocalDateTime
 import xyz.junerver.compose.hooks.UseDateFormatOptions
 import xyz.junerver.compose.hooks.usedateformat.formatDate
 import xyz.junerver.compose.hooks.usedateformat.normalizeDate
+import xyz.junerver.compose.hooks.utils.instantProvider
 
 class UseDateFormatTest {
     // Test date: Monday, July 14, 2025, 13:45:30.123
     private val testDate = LocalDateTime(2025, 7, 14, 13, 45, 30, 123_000_000)
     private val options = UseDateFormatOptions.optionOf {}
+
+    @AfterTest
+    fun tearDown() {
+        instantProvider = { Clock.System.now() }
+    }
 
     @Test
     fun testYearFormats() {
@@ -115,6 +123,17 @@ class UseDateFormatTest {
         assertEquals("GMT-4", formatDate(testDate, "z", newYorkOptions))
         assertEquals("GMT-4", formatDate(testDate, "zzz", newYorkOptions))
         assertEquals("GMT-04:00", formatDate(testDate, "zzzz", newYorkOptions))
+    }
+
+    @Test
+    fun timezone_offset_uses_formatted_date_for_dst() {
+        instantProvider = { Instant.parse("2025-07-15T12:00:00Z") }
+        val winterDate = LocalDateTime(2025, 1, 15, 12, 0)
+        val newYorkOptions = UseDateFormatOptions.optionOf {
+            timeZone = TimeZone.of("America/New_York")
+        }
+
+        assertEquals("GMT-05:00", formatDate(winterDate, "zzzz", newYorkOptions))
     }
 
     @Test
