@@ -1,12 +1,12 @@
 package xyz.junerver.compose.hooks.uselastchanged
-import xyz.junerver.compose.hooks.invoke
-import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
-import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
-import xyz.junerver.compose.hooks.useeffect.useEffectImpl
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import kotlin.time.Instant
+import xyz.junerver.compose.hooks.invoke
+import xyz.junerver.compose.hooks.usecreation.useCreationImpl
+import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
+import xyz.junerver.compose.hooks.useupdateeffect.useUpdateEffectImpl
 import xyz.junerver.compose.hooks.utils.currentInstant
 
 /*
@@ -18,8 +18,9 @@ import xyz.junerver.compose.hooks.utils.currentInstant
 */
 @Composable
 fun useLastChangedImpl(source: Any?): State<Instant> {
-    val (lastChanged, setLastChanged) = useGetStateImpl<Instant>(currentInstant)
-    useEffectImpl(source) {
+    val initialInstant = useCreationImpl { currentInstant }.current
+    val (lastChanged, setLastChanged) = useGetStateImpl(initialInstant)
+    useUpdateEffectImpl(source) {
         setLastChanged(currentInstant)
     }
     return lastChanged
