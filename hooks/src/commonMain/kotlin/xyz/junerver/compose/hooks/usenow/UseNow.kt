@@ -14,6 +14,7 @@ import xyz.junerver.compose.hooks.Options
 import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.useref.getValue
 import xyz.junerver.compose.hooks.usecreation.useCreationImpl
+import xyz.junerver.compose.hooks.uselatest.useLatestStateImpl
 import xyz.junerver.compose.hooks.usetimestamp.useTimestampImpl
 import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.usestate.useStateImpl
@@ -98,18 +99,20 @@ fun useNowImpl(optionsOf: UseNowOptions.() -> Unit = {}) = useNow(useDynamicOpti
 @Composable
 private fun useNow(options: UseNowOptions): State<String> {
     val (interval, format, formatPattern) = with(options) { tuple(interval, format, formatPattern) }
-    val sdfRef by useCreationImpl {
+    val currentSdfRef by useCreationImpl(formatPattern) {
         LocalDateTime.Format {
             byUnicodePattern(formatPattern)
         }
     }
+    val formatState = useLatestStateImpl(format)
+    val formatterState = useLatestStateImpl(currentSdfRef)
     val (time) = useTimestampImpl(
         optionsOf = {
             this.interval = interval
         },
     )
     val date = useStateImpl {
-        format?.invoke(time.value) ?: time.value.toLocalDateTime().format(sdfRef)
+        formatState.value?.invoke(time.value) ?: time.value.toLocalDateTime().format(formatterState.value)
     }
     return date
 }

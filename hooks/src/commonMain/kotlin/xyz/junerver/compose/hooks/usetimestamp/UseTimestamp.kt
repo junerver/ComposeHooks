@@ -14,6 +14,7 @@ import xyz.junerver.compose.hooks.useref.Ref
 import xyz.junerver.compose.hooks.ResumeFn
 import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.useinterval.useIntervalImpl
+import xyz.junerver.compose.hooks.useeffect.useEffectImpl
 import xyz.junerver.compose.hooks.usemount.useMountImpl
 import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.useref.useRefImpl
@@ -172,7 +173,7 @@ data class TimestampRefHolder(
 @Composable
 private fun useTimestamp(options: UseTimestampOptions, autoResume: Boolean = true): TimestampHolder {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
-    val timestamp = useStateImpl(default = currentInstant)
+    val timestamp = useStateImpl(default = currentInstant + offset)
     val (resume, pause, isActive) = useIntervalImpl(
         optionsOf = {
             period = interval
@@ -183,6 +184,9 @@ private fun useTimestamp(options: UseTimestampOptions, autoResume: Boolean = tru
     }
     useMountImpl {
         if (autoResume) resume()
+    }
+    useEffectImpl(offset) {
+        timestamp.value = currentInstant + offset
     }
     val timestampState = useStateImpl { timestamp.value.toEpochMilliseconds() }
     return remember { TimestampHolder(timestampState, pause, resume, isActive) }
@@ -198,7 +202,7 @@ private fun useTimestamp(options: UseTimestampOptions, autoResume: Boolean = tru
 @Composable
 private fun useTimestampRef(options: UseTimestampOptions, autoResume: Boolean = true): TimestampRefHolder {
     val (interval, offset, callback) = with(options) { tuple(interval, offset, callback) }
-    val timestampRef = useRefImpl(default = currentInstant.toEpochMilliseconds())
+    val timestampRef = useRefImpl(default = (currentInstant + offset).toEpochMilliseconds())
     val (resume, pause, isActive) = useIntervalImpl(
         optionsOf = {
             period = interval
@@ -209,6 +213,9 @@ private fun useTimestampRef(options: UseTimestampOptions, autoResume: Boolean = 
     }
     useMountImpl {
         if (autoResume) resume()
+    }
+    useEffectImpl(offset) {
+        timestampRef.current = (currentInstant + offset).toEpochMilliseconds()
     }
     return remember { TimestampRefHolder(timestampRef, pause, resume, isActive) }
 }
