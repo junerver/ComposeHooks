@@ -3,7 +3,10 @@ package xyz.junerver.compose.hooks.userequest.plugins
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlin.math.pow
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.tuple
@@ -26,9 +29,36 @@ import xyz.junerver.compose.hooks.utils.asBoolean
   Email: junerver@gmail.com
   Version: v1.0
 */
+internal class RetryTimer {
+    private class ScheduledTask {
+        var job: Job? = null
+    }
+
+    private var scheduledTask: ScheduledTask? = null
+
+    fun schedule(scope: CoroutineScope, interval: Duration, block: suspend () -> Unit) {
+        cancel()
+        val task = ScheduledTask()
+        scheduledTask = task
+        task.job = scope.launch {
+            delay(interval)
+            if (scheduledTask !== task) return@launch
+            scheduledTask = null
+            block()
+        }
+    }
+
+    fun cancel() {
+        val task = scheduledTask
+        scheduledTask = null
+        task?.job?.cancel()
+    }
+}
+
 private class RetryPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
     var count = 0
     var triggerByRetry = false // 触发retry标志
+    private val retryTimer = RetryTimer()
 
     override val invoke: GenPluginLifecycleFn<TParams, TData>
         get() = { fetch: Fetch<TParams, TData>, useRequestOptions: UseRequestOptions<TParams, TData> ->
@@ -41,6 +71,7 @@ private class RetryPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
                     get() = {
                         // 未触发retry时，
                         if (!triggerByRetry) {
+                            retryTimer.cancel()
                             count = 0
                         }
                         triggerByRetry = false
@@ -49,6 +80,7 @@ private class RetryPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
 
                 override val onSuccess: PluginOnSuccess<TParams, TData>
                     get() = { _, _ ->
+                        retryTimer.cancel()
                         count = 0
                     }
 
@@ -56,36 +88,43 @@ private class RetryPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
                     get() = { _, _ ->
                         count++
                         if (retryCount == -1 || count <= retryCount) {
-                            launch {
-                                delay(
-                                    if (retryInterval.asBoolean()) {
-                                        retryInterval
-                                    } else {
-                                        (1.seconds * 2f.pow(count).toInt()).coerceAtMost(30.seconds)
-                                    },
-                                )
+                            val delayDuration = if (retryInterval.asBoolean()) {
+                                retryInterval
+                            } else {
+                                (1.seconds * 2f.pow(count).toInt()).coerceAtMost(30.seconds)
+                            }
+                            retryTimer.schedule(this@RetryPlugin, delayDuration) {
                                 triggerByRetry = true
                                 fetch.refreshAsync()
                             }
                         } else {
+                            retryTimer.cancel()
                             count = 0
                         }
                     }
                 override val onCancel: PluginOnCancel
                     get() = {
                         cancel()
-                        count = 0
                     }
             }
         }
+
+    override fun cancel() {
+        retryTimer.cancel()
+        count = 0
+        triggerByRetry = false
+        super.cancel()
+    }
 }
 
 @Composable
 internal fun <TParams, TData : Any> useRetryPlugin(options: UseRequestOptions<TParams, TData>): Plugin<TParams, TData> {
-    if (options.retryCount == 0) {
+    val retryCount = options.retryCount
+    val retryInterval = options.retryInterval
+    if (retryCount == 0) {
         return useEmptyPlugin()
     }
-    val retryPlugin = remember {
+    val retryPlugin = remember(retryCount, retryInterval) {
         RetryPlugin<TParams, TData>()
     }
     return retryPlugin

@@ -1048,6 +1048,96 @@ class UseRequestTest {
         onNodeWithText("data=null loading=false error=Always fails").assertExists()
     }
 
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun retryPlugin_applies_changed_positive_options() = runComposeUiTest {
+        val useShortInterval = mutableStateOf(false)
+        val callCount = AtomicInteger(0)
+        lateinit var holder: RequestHolder<String, Int>
+        setContent {
+            holder = useRequest(
+                requestFn = { _: String ->
+                    val currentCall = callCount.incrementAndGet()
+                    if (currentCall <= 2) error("retry $currentCall")
+                    currentCall
+                },
+                optionsOf = {
+                    manual = true
+                    retryCount = 2
+                    retryInterval = if (useShortInterval.value) 50.milliseconds else 1.seconds
+                    onError = { _, _ -> }
+                },
+            )
+            Text("data=${holder.data.value} error=${holder.error.value?.message}")
+        }
+
+        waitForIdle()
+        val initialHolder = holder
+        val initialRequest = holder.request
+        runOnIdle { initialRequest("test") }
+        waitForIdle()
+        assertEquals(1, callCount.get())
+
+        runOnIdle { useShortInterval.value = true }
+        waitForIdle()
+        assertSame(initialHolder, holder)
+        assertSame(initialRequest, holder.request)
+
+        runOnIdle { initialRequest("test") }
+        waitForIdle()
+        assertEquals(2, callCount.get())
+
+        val completed = waitForCondition(maxAttempts = 30, delayMs = 20) {
+            waitForIdle()
+            callCount.get() == 3 && holder.data.value == 3 && holder.error.value == null
+        }
+        holder.cancel()
+
+        assertTrue(completed, "Expected changed retry options to apply to the next failure")
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun retryPlugin_manual_request_replaces_pending_retry() = runComposeUiTest {
+        val receivedParams = CopyOnWriteArrayList<String>()
+        lateinit var holder: RequestHolder<String, Int>
+        setContent {
+            holder = useRequest(
+                requestFn = { params: String ->
+                    receivedParams += params
+                    if (params == "first") error("retry first")
+                    params.length
+                },
+                optionsOf = {
+                    manual = true
+                    retryCount = 1
+                    retryInterval = 1.seconds
+                    onError = { _, _ -> }
+                },
+            )
+            Text("data=${holder.data.value} error=${holder.error.value?.message}")
+        }
+
+        waitForIdle()
+        runOnIdle { holder.request("first") }
+        waitForIdle()
+        assertEquals(listOf("first"), receivedParams.toList())
+
+        runOnIdle { holder.request("second") }
+        waitForIdle()
+        assertEquals(listOf("first", "second"), receivedParams.toList())
+        assertEquals(6, holder.data.value)
+
+        val retriedAfterManualRequest = waitForCondition(maxAttempts = 65, delayMs = 20) {
+            waitForIdle()
+            receivedParams.size > 2
+        }
+        holder.cancel()
+
+        assertFalse(retriedAfterManualRequest, "A manual request must replace a pending retry")
+        assertEquals(listOf("first", "second"), receivedParams.toList())
+    }
+
     // endregion
 
     // region PollingPlugin Tests
