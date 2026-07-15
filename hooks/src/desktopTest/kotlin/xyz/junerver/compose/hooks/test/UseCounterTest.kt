@@ -357,4 +357,50 @@ class UseCounterTest {
         waitForIdle()
         onNodeWithText("value=10 phase=3").assertExists()
     }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun increment_saturates_before_integer_overflow() = runComposeUiTest {
+        setContent {
+            var fired by useState(false)
+            val counter = useCounter(initialValue = Int.MAX_VALUE) {
+                min = Int.MIN_VALUE
+                max = Int.MAX_VALUE
+            }
+
+            SideEffect {
+                if (!fired) {
+                    fired = true
+                    counter.inc(1)
+                }
+            }
+
+            Text("value=${counter.state.value}")
+        }
+        waitForIdle()
+        onNodeWithText("value=${Int.MAX_VALUE}").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun decrement_saturates_before_integer_underflow() = runComposeUiTest {
+        setContent {
+            var fired by useState(false)
+            val counter = useCounter(initialValue = Int.MIN_VALUE) {
+                min = Int.MIN_VALUE
+                max = Int.MAX_VALUE
+            }
+
+            SideEffect {
+                if (!fired) {
+                    fired = true
+                    counter.dec(1)
+                }
+            }
+
+            Text("value=${counter.state.value}")
+        }
+        waitForIdle()
+        onNodeWithText("value=${Int.MIN_VALUE}").assertExists()
+    }
 }

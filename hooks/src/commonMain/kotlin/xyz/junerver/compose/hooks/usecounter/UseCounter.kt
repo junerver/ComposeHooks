@@ -75,11 +75,11 @@ private fun useCounter(initialValue: Int = 0, options: UseCounterOptions): Count
     }
 
     fun inc(delta: Int) {
-        setValue { c: Int -> c + delta }
+        setValue { c: Int -> getTargetValue(c.toLong() + delta.toLong(), options) }
     }
 
     fun dec(delta: Int) {
-        setValue { c: Int -> c - delta }
+        setValue { c: Int -> getTargetValue(c.toLong() - delta.toLong(), options) }
     }
 
     fun set(value: Either<Int, (Int) -> Int>) {
@@ -145,9 +145,11 @@ fun useCounterImpl(initialValue: Int = 0, optionsOf: UseCounterOptions.() -> Uni
  * @param options The counter options containing min/max bounds
  * @return The constrained value
  */
-private fun getTargetValue(value: Int, options: UseCounterOptions): Int {
+private fun getTargetValue(value: Int, options: UseCounterOptions): Int = getTargetValue(value.toLong(), options)
+
+private fun getTargetValue(value: Long, options: UseCounterOptions): Int {
     val (min, max) = options
-    return value.coerceIn(min, max)
+    return value.coerceIn(min.toLong(), max.toLong()).toInt()
 }
 
 /**
