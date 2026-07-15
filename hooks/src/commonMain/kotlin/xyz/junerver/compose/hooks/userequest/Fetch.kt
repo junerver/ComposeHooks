@@ -216,8 +216,11 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
                 e.rethrowIfCancellation()
                 // 捕获 onFinally 回调异常
             }
-            // 插件的 onFinally 应该总是执行，用于清理资源
-            runPluginHandler(Methods.OnFinally(latestParams, requestResult, requestError))
+            // 已取消或已被更新请求取代的旧生命周期不能再修改当前插件状态；
+            // 取消清理由 onCancel 负责，公开的 options.onFinally 仍保持总会调用。
+            if (currentCount == count) {
+                runPluginHandler(Methods.OnFinally(latestParams, requestResult, requestError))
+            }
         }
     }
 
@@ -235,12 +238,12 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
      */
     override fun cancel() {
         this.count += 1
+        runPluginHandler(Methods.OnCancel)
+        cancelRequest()
         this.setState(
             Keys.loading to false,
             Keys.error to null, // 清除错误状态
         )
-        cancelRequest()
-        runPluginHandler(Methods.OnCancel)
     }
 
     /**
