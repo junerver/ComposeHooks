@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
 import xyz.junerver.compose.hooks.Dispatch
 import xyz.junerver.compose.hooks.rememberDispatch
@@ -37,6 +38,61 @@ private val routingReducer: (Int, RoutingAction) -> Int = { state, action ->
 
 @Suppress("DEPRECATION")
 class UseReduxRoutingTest {
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun sync_dispatch_tracks_latest_alias_after_recomposition() = runComposeUiTest {
+        val alias = mutableStateOf("first")
+        lateinit var dispatch: Dispatch<RoutingAction>
+        lateinit var firstState: State<Int>
+        lateinit var secondState: State<Int>
+
+        setContent {
+            val store = createStore {
+                named<Int, RoutingAction>("first") { routingReducer with 1 }
+                named<Int, RoutingAction>("second") { routingReducer with 10 }
+            }
+            ReduxProvider(store) {
+                dispatch = useDispatch(alias.value)
+                firstState = useSelector(alias = "first")
+                secondState = useSelector(alias = "second")
+                Text("first=${firstState.value} second=${secondState.value}")
+            }
+        }
+
+        waitForIdle()
+        dispatch(RoutingAction.Add(2))
+        waitForIdle()
+        assertEquals(3, firstState.value)
+        assertEquals(10, secondState.value)
+
+        runOnIdle { alias.value = "second" }
+        waitForIdle()
+        dispatch(RoutingAction.Add(5))
+        waitForIdle()
+
+        assertEquals(3, firstState.value)
+        assertEquals(15, secondState.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun explicit_missing_alias_does_not_fall_back_to_type_route() = runComposeUiTest {
+        val error = assertFailsWith<IllegalStateException> {
+            setContent {
+                val store = createStore { routingReducer with 0 }
+                ReduxProvider(store) {
+                    useDispatch<RoutingAction>(alias = "missing")
+                }
+            }
+            waitForIdle()
+        }
+
+        assertEquals(
+            "Please confirm alias:<missing> that you have correctly registered in `createStore`!",
+            error.message,
+        )
+    }
+
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun projected_selector_tracks_latest_alias_and_projector_with_stable_identity() = runComposeUiTest {
