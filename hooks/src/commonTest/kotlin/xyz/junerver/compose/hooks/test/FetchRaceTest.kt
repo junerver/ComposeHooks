@@ -385,4 +385,30 @@ class FetchRaceTest {
         assertEquals(listOf(FinalEvent("blocked", null, null)), finalEvents)
         assertEquals(0, fixture.fetch.activeRequestJobCount)
     }
+
+    @Test
+    fun staleDispatchTokenCannotStartRequestAfterCancel() = runTest {
+        val calls = mutableListOf<String>()
+        val fixture = createFixture(requestFn = { params ->
+            calls += params
+            params.length
+        })
+        val staleToken = fixture.fetch.requestDispatchToken()
+
+        try {
+            fixture.fetch.cancel()
+
+            assertFalse(fixture.fetch.runIfDispatchTokenCurrent(staleToken, "stale"))
+            val currentToken = fixture.fetch.requestDispatchToken()
+            assertTrue(fixture.fetch.runIfDispatchTokenCurrent(currentToken, "current"))
+            runCurrent()
+
+            assertEquals(listOf("current"), calls)
+            assertEquals(7, fixture.data.value)
+            assertEquals(0, fixture.fetch.activeRequestJobCount)
+        } finally {
+            fixture.fetch.cancel()
+            runCurrent()
+        }
+    }
 }

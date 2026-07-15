@@ -92,6 +92,8 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
 
     private fun detachRequestJobs(): Set<Job> = requestJobs.getAndUpdate { emptySet() }
 
+    internal fun requestDispatchToken(): Long = cancellationGeneration.value
+
     private fun Throwable.rethrowIfCancellation() {
         if (this is CancellationException) throw this
     }
@@ -308,18 +310,41 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
     /**
      * 使用自身作用域的同步请求函数
      */
-    override fun _run(params: TParams?) {
+    private fun launchRequest(params: TParams?, expectedDispatchToken: Long?): Boolean {
         val requestJob = this.scope.launch(start = CoroutineStart.LAZY) {
             _runAsync(params)
         }
-        registerRequestJob(requestJob)
+        val registered = if (expectedDispatchToken == null) {
+            registerRequestJob(requestJob)
+            true
+        } else {
+            withTransitionLock {
+                if (cancellationGeneration.value != expectedDispatchToken) {
+                    false
+                } else {
+                    registerRequestJob(requestJob)
+                    true
+                }
+            }
+        }
+        if (!registered) {
+            requestJob.cancel()
+            return false
+        }
         requestJob.start()
+        return true
+    }
+
+    internal fun runIfDispatchTokenCurrent(dispatchToken: Long, params: TParams?): Boolean =
+        launchRequest(params, expectedDispatchToken = dispatchToken)
+
+    override fun _run(params: TParams?) {
+        launchRequest(params, expectedDispatchToken = null)
     }
 
     private fun cancelRequestLifecycle(clearError: Boolean) {
         val lifecycleSnapshot = pluginImpls
-        val jobsToCancel = detachRequestJobs()
-        withTransitionLock {
+        val jobsToCancel = withTransitionLock {
             cancellationGeneration.update { it + 1L }
             nextGeneration()
             commitState(
@@ -328,6 +353,7 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
                     if (clearError) put(Keys.error, null)
                 },
             )
+            detachRequestJobs()
         }
         runPluginHandler(Methods.OnCancel, lifecycleSnapshot)
         jobsToCancel.forEach { it.cancel() }
