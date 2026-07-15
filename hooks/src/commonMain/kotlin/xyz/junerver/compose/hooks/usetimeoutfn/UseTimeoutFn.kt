@@ -5,20 +5,20 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import kotlin.properties.Delegates
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.IsActive
 import xyz.junerver.compose.hooks.NoParamsVoidFunction
 import xyz.junerver.compose.hooks.Options
-import xyz.junerver.compose.hooks.useref.Ref
 import xyz.junerver.compose.hooks.SuspendAsyncFn
 import xyz.junerver.compose.hooks.useDynamicOptions
-import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 import xyz.junerver.compose.hooks.usemount.useMountImpl
 import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
 import xyz.junerver.compose.hooks.usestate.useStateImpl
@@ -51,39 +51,64 @@ typealias StartFn = NoParamsVoidFunction
 typealias StopFn = () -> Unit
 
 @Stable
-private class TimeoutFn(var options: UseTimeoutFnOptions) {
-    var scope: CoroutineScope by Delegates.notNull()
-    var isPendingState: MutableState<Boolean>? = null
-    lateinit var timeoutFn: Ref<SuspendAsyncFn>
-    var interval: Duration by Delegates.notNull()
+private class TimeoutFn(
+    private val scope: CoroutineScope,
+    private val isPendingState: MutableState<Boolean>,
+    options: UseTimeoutFnOptions,
+    interval: Duration,
+    fn: SuspendAsyncFn,
+) {
+    private val lock = SynchronizedObject()
+    private var immediateCallback = options.immediateCallback
+    private var interval = interval
+    private var timeoutFn = fn
     private var timeoutJob: Job? = null
 
-    fun isRunning() = timeoutJob?.isActive == true
+    fun update(options: UseTimeoutFnOptions, interval: Duration, fn: SuspendAsyncFn) {
+        synchronized(lock) {
+            immediateCallback = options.immediateCallback
+            this.interval = interval
+            timeoutFn = fn
+        }
+    }
 
     fun start() {
-        if (isRunning()) {
-            stop()
+        lateinit var candidate: Job
+        val previousJob = synchronized(lock) {
+            val scheduledDelay = if (immediateCallback) Duration.ZERO else interval
+            candidate = scope.launch(start = CoroutineStart.LAZY) {
+                delay(scheduledDelay)
+                val callback = synchronized(lock) {
+                    timeoutFn.takeIf { timeoutJob === candidate }
+                } ?: return@launch
+                callback(this)
+            }
+            timeoutJob.also {
+                timeoutJob = candidate
+                isPendingState.value = true
+            }
         }
 
-        scope.launch {
-            isPendingState?.value = true
-            try {
-                if (options.immediateCallback) {
-                    timeoutFn.current(this)
-                } else {
-                    delay(interval)
-                    timeoutFn.current(this)
+        candidate.invokeOnCompletion {
+            synchronized(lock) {
+                if (timeoutJob === candidate) {
+                    timeoutJob = null
+                    isPendingState.value = false
                 }
-            } finally {
-                isPendingState?.value = false
             }
-        }.also { timeoutJob = it }
+        }
+        previousJob?.cancel()
+        candidate.start()
     }
 
     fun stop() {
-        timeoutJob?.cancel()
-        timeoutJob = null
-        isPendingState?.value = false
+        val jobToCancel = synchronized(lock) {
+            val currentJob = timeoutJob
+            timeoutJob = null
+            isPendingState.value = false
+            currentJob
+        }
+        jobToCancel?.cancel()
     }
 }
 
@@ -93,24 +118,20 @@ fun useTimeoutFnImpl(
     interval: Duration = 1.seconds,
     optionsOf: UseTimeoutFnOptions.() -> Unit = {},
 ): TimeoutFnHolder {
+    require(interval >= Duration.ZERO) { "useTimeoutFn interval must not be negative" }
     val options = useDynamicOptions(optionsOf)
-    val latestFn = useLatestRefImpl(value = fn)
     val isPendingState = useStateImpl(default = false)
     val scope = rememberCoroutineScope()
 
     val timeoutFn = remember {
-        TimeoutFn(options).apply {
-            this.isPendingState = isPendingState
-            this.timeoutFn = latestFn
-            this.scope = scope
-            this.interval = interval
-        }
-    }.apply {
-        this.options = options
-        this.timeoutFn = latestFn
-        this.scope = scope
-        this.interval = interval
-    }
+        TimeoutFn(
+            scope = scope,
+            isPendingState = isPendingState,
+            options = options,
+            interval = interval,
+            fn = fn,
+        )
+    }.also { it.update(options = options, interval = interval, fn = fn) }
 
     useMountImpl {
         if (options.immediate) {
