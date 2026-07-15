@@ -5,10 +5,11 @@ import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.updateAndGet
 import xyz.junerver.compose.hooks.useref.MutableRef
 import xyz.junerver.compose.hooks.Tuple4
 import xyz.junerver.compose.hooks.tuple
@@ -48,9 +49,10 @@ import xyz.junerver.compose.hooks.utils.isNotNull
 */
 private class CachePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
     lateinit var unSubscribeRef: MutableRef<(() -> Unit)?>
-    lateinit var currentPromiseRef: MutableRef<Deferred<*>?>
 
     private var staleTime: Duration = Duration.ZERO
+    private val promiseOwner = Any()
+    private val requestVersion = MutableStateFlow(0L)
     lateinit var setCache: (key: String, cachedData: CachedData<TData>) -> Unit
     lateinit var getCache: (String, TParams) -> CachedData<TData>?
 
@@ -95,6 +97,7 @@ private class CachePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
 
                 override val onRequest: PluginOnRequest<TParams, TData>
                     get() = onRequest@{ requestFn, param ->
+                        val version = requestVersion.updateAndGet { it + 1 }
                         if (!loadingDelay.asBoolean()) {
                             trigger(cacheKey, RestoreFetchStateData(loading = true))
                         }
@@ -104,9 +107,8 @@ private class CachePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
                         val requestContext = requestSupervisor + coroutineContext.minusKey(Job)
                         val candidate = async(requestContext, start = CoroutineStart.LAZY) { requestFn(param) }
                         candidate.invokeOnCompletion { requestSupervisor.cancel() }
-                        val servicePromise = acquireCacheDeferred(cacheKey, currentPromiseRef.current, candidate)
+                        val servicePromise = acquireCacheDeferred(cacheKey, promiseOwner, version, candidate)
                         if (servicePromise === candidate) {
-                            currentPromiseRef.current = candidate
                             candidate.start()
                         } else {
                             candidate.cancel()
@@ -228,18 +230,15 @@ internal fun <TParams, TData : Any> useCachePlugin(options: UseRequestOptions<TP
 
     // 反订阅函数
     val unSubscribeRef = useRefImpl<(() -> Unit)?>(null)
-    val currentPromiseRef = useRefImpl<Deferred<*>?>(null)
 
     val cachePlugin = remember(cacheKey, staleTime, loadingDelay) {
         CachePlugin<TParams, TData>().apply {
             this.unSubscribeRef = unSubscribeRef
-            this.currentPromiseRef = currentPromiseRef
         }
     }.apply {
         this.setCache = ::setCache
         this.getCache = ::getCache
         this.unSubscribeRef = unSubscribeRef
-        this.currentPromiseRef = currentPromiseRef
     }
 
     useEffect(cacheKey, cachePlugin) {

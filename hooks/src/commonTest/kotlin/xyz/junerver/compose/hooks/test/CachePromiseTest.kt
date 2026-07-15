@@ -75,12 +75,13 @@ class CachePromiseTest {
         val attempts = List(64) {
             async(Dispatchers.Default) {
                 raceStart.await()
+                val owner = Any()
                 val candidate = backgroundScope.async(start = CoroutineStart.LAZY) {
                     startCount += 1
                     requestGate.await()
                     42
                 }
-                val selected = acquireCacheDeferred(key, currentPromise = null, candidate)
+                val selected = acquireCacheDeferred(key, owner, requestVersion = 1, candidate)
                 if (selected === candidate) {
                     candidate.start()
                 } else {
@@ -118,12 +119,13 @@ class CachePromiseTest {
     @Test
     fun olderCompletionCannotRemoveReplacement() = runTest {
         val key = uniqueKey("replacement")
+        val owner = Any()
         val first = CompletableDeferred<Int>()
         val second = CompletableDeferred<Int>()
 
         try {
-            assertSame(first, acquireCacheDeferred(key, currentPromise = null, first))
-            assertSame(second, acquireCacheDeferred(key, currentPromise = first, second))
+            assertSame(first, acquireCacheDeferred(key, owner, requestVersion = 1, first))
+            assertSame(second, acquireCacheDeferred(key, owner, requestVersion = 2, second))
 
             first.complete(1)
             assertSame(second, getCacheDeferred<Int>(key))
@@ -133,6 +135,43 @@ class CachePromiseTest {
         } finally {
             first.cancelAndJoin()
             second.cancelAndJoin()
+        }
+    }
+
+    @Test
+    fun sameOwnerHigherVersionWinsDespiteStaleCallerState() = runTest {
+        val key = uniqueKey("owner-version")
+        val owner = Any()
+        val first = CompletableDeferred<Int>()
+        val second = CompletableDeferred<Int>()
+        val third = CompletableDeferred<Int>()
+        val lateSecond = CompletableDeferred<Int>()
+
+        try {
+            assertSame(first, acquireCacheDeferred(key, owner, requestVersion = 1, first))
+            val staleCallerSnapshot = getCacheDeferred<Int>(key)
+            assertSame(second, acquireCacheDeferred(key, owner, requestVersion = 2, second))
+
+            // v2 已注册，但调用方仍持有 v1 的旧快照；v3 必须仅凭 owner/version 完成替换。
+            assertSame(first, staleCallerSnapshot)
+            assertSame(second, getCacheDeferred<Int>(key))
+            assertSame(third, acquireCacheDeferred(key, owner, requestVersion = 3, third))
+
+            // 更低版本迟到时不得覆盖 v3，必须复用当前更高版本。
+            assertSame(third, acquireCacheDeferred(key, owner, requestVersion = 2, lateSecond))
+            assertSame(third, getCacheDeferred<Int>(key))
+
+            first.complete(1)
+            second.complete(2)
+            assertSame(third, getCacheDeferred<Int>(key))
+
+            third.complete(3)
+            assertNull(getCacheDeferred<Int>(key))
+        } finally {
+            first.cancelAndJoin()
+            second.cancelAndJoin()
+            third.cancelAndJoin()
+            lateSecond.cancelAndJoin()
         }
     }
 }
