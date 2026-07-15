@@ -1,19 +1,21 @@
 package xyz.junerver.compose.hooks.usses
-import xyz.junerver.compose.hooks.useDynamicOptions
-import xyz.junerver.compose.hooks.usecontrollable._useControllableImpl
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.launch
-import xyz.junerver.compose.hooks._useControllable
-import xyz.junerver.compose.hooks.useref.getValue
-import xyz.junerver.compose.hooks.useref.setValue
+import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.useEffect
-import xyz.junerver.compose.hooks.useref.useRefImpl
 import xyz.junerver.compose.hooks.useUnmount
+import xyz.junerver.compose.hooks.usecontrollable._useControllableImpl
 
 /*
   Description: useSse - A hook for managing SSE/streaming connections
@@ -22,6 +24,190 @@ import xyz.junerver.compose.hooks.useUnmount
   Email: junerver@gmail.com
   Version: v1.2
 */
+
+private data class SseConfiguration<TParams, TEvent>(
+    val streamFn: SseStreamFn<TParams, TEvent>,
+    val defaultParams: TParams?,
+    val onBefore: (TParams?) -> Unit,
+    val onEvent: OnEventFn<TEvent>,
+    val onError: (Throwable, TParams?) -> Unit,
+    val onFinally: (TParams?, Throwable?) -> Unit,
+)
+
+private class SseSession<TParams, TEvent>(
+    val params: TParams?,
+    val configuration: SseConfiguration<TParams, TEvent>,
+) {
+    lateinit var job: Job
+    var terminalError: Throwable? = null
+    var finalized: Boolean = false
+}
+
+private data class SseStartTransition<TParams, TEvent>(
+    val session: SseSession<TParams, TEvent>,
+    val previousJob: Job?,
+)
+
+private class SseController<TParams, TEvent>(
+    private val scope: CoroutineScope,
+    private val setData: (TEvent?) -> Unit,
+    private val setStreaming: (Boolean) -> Unit,
+    private val setError: (Throwable?) -> Unit,
+    private val setParams: (TParams?) -> Unit,
+) {
+    private val lock = SynchronizedObject()
+    private var configuration: SseConfiguration<TParams, TEvent>? = null
+    private var activeSession: SseSession<TParams, TEvent>? = null
+    private var latestParams: TParams? = null
+    private var disposed: Boolean = false
+
+    val send: SendFn<TParams> = { params -> start(params) }
+    val cancel: () -> Unit = ::cancelActive
+    val refresh: () -> Unit = ::refreshActive
+
+    fun update(streamFn: SseStreamFn<TParams, TEvent>, options: UseSseOptions<TParams, TEvent>) {
+        synchronized(lock) {
+            if (!disposed) {
+                configuration = SseConfiguration(
+                    streamFn = streamFn,
+                    defaultParams = options.defaultParams,
+                    onBefore = options.onBefore,
+                    onEvent = options.onEvent,
+                    onError = options.onError,
+                    onFinally = options.onFinally,
+                )
+            }
+        }
+    }
+
+    private fun start(params: TParams?) {
+        val transition = synchronized(lock) {
+            val currentConfiguration = configuration
+            if (disposed || currentConfiguration == null) {
+                null
+            } else {
+                val resolvedParams = params ?: currentConfiguration.defaultParams
+                val session = SseSession(
+                    params = resolvedParams,
+                    configuration = currentConfiguration,
+                )
+                session.job = scope.launch(start = CoroutineStart.LAZY) {
+                    collectSession(session)
+                }
+
+                SseStartTransition(
+                    session = session,
+                    previousJob = activeSession?.job,
+                ).also {
+                    activeSession = session
+                    latestParams = resolvedParams
+                    setParams(resolvedParams)
+                    setStreaming(true)
+                    setError(null)
+                }
+            }
+        } ?: return
+
+        transition.session.job.invokeOnCompletion {
+            finalizeSession(transition.session)
+        }
+        transition.previousJob?.cancel()
+        transition.session.job.start()
+    }
+
+    private suspend fun collectSession(session: SseSession<TParams, TEvent>) {
+        try {
+            session.configuration.onBefore(session.params)
+            currentCoroutineContext().ensureActive()
+
+            @Suppress("UNCHECKED_CAST")
+            session.configuration.streamFn(session.params as TParams).collect { event ->
+                val callback = synchronized(lock) {
+                    if (activeSession === session && !session.finalized) {
+                        setData(event)
+                        (configuration ?: session.configuration).onEvent
+                    } else {
+                        null
+                    }
+                }
+                callback?.let { invokeCallback { it(event) } }
+            }
+        } catch (error: Throwable) {
+            if (error is CancellationException) throw error
+            currentCoroutineContext().ensureActive()
+
+            val callback = synchronized(lock) {
+                session.terminalError = error
+                if (activeSession === session && !session.finalized) {
+                    setError(error)
+                    (configuration ?: session.configuration).onError
+                } else {
+                    null
+                }
+            }
+            callback?.let { invokeCallback { it(error, session.params) } }
+        }
+    }
+
+    private fun finalizeSession(session: SseSession<TParams, TEvent>) {
+        var callback: ((TParams?, Throwable?) -> Unit)? = null
+        synchronized(lock) {
+            if (!session.finalized) {
+                session.finalized = true
+                if (activeSession === session) {
+                    activeSession = null
+                    setStreaming(false)
+                }
+                callback = (configuration ?: session.configuration).onFinally
+            }
+        }
+
+        callback?.let {
+            try {
+                it(session.params, session.terminalError)
+            } catch (callbackError: Throwable) {
+                callbackError.printStackTrace()
+            }
+        }
+    }
+
+    private fun cancelActive() {
+        val jobToCancel = synchronized(lock) {
+            activeSession?.job.also {
+                activeSession = null
+                setStreaming(false)
+                setError(null)
+            }
+        }
+        jobToCancel?.cancel()
+    }
+
+    private fun refreshActive() {
+        val params = synchronized(lock) { latestParams }
+        start(params)
+    }
+
+    fun dispose() {
+        val jobToCancel = synchronized(lock) {
+            if (disposed) {
+                null
+            } else {
+                disposed = true
+                activeSession?.job.also { activeSession = null }
+            }
+        }
+        jobToCancel?.cancel()
+    }
+
+    private fun invokeCallback(callback: () -> Unit) {
+        try {
+            callback()
+        } catch (callbackError: Throwable) {
+            if (callbackError is CancellationException) throw callbackError
+            callbackError.printStackTrace()
+        }
+    }
+}
 
 /**
  * A hook for managing Server-Sent Events (SSE) and streaming connections.
@@ -67,101 +253,40 @@ fun <TParams, TEvent> useSse(
     val options = useDynamicOptions(optionsOf as UseSseOptions<Any, Any>.() -> Unit)
         as UseSseOptions<TParams, TEvent>
 
-    val (dataState, setData) = _useControllable<TEvent?>(null)
+    val (dataState, setData) = _useControllableImpl<TEvent?>(null)
     val (streamingState, setStreaming) = _useControllableImpl(false)
-    val (errorState, setError) = _useControllable<Throwable?>(null)
+    val (errorState, setError) = _useControllableImpl<Throwable?>(null)
+    val (paramsState, setParams) = _useControllableImpl<TParams?>(null)
     val scope = rememberCoroutineScope()
 
-    // Track the current active stream job and a monotonic id to prevent stale finally blocks
-    var currentJob by useRefImpl<Job?>(null)
-    var streamId by useRefImpl(0L)
+    val controller = useCreation {
+        SseController<TParams, TEvent>(
+            scope = scope,
+            setData = setData,
+            setStreaming = setStreaming,
+            setError = setError,
+            setParams = setParams,
+        )
+    }.current
+    controller.update(streamFn = streamFn, options = options)
 
-    // Hold latest streamFn reference to avoid stale closures
-    var latestStreamFn by useRefImpl(streamFn)
-    latestStreamFn = streamFn
-
-    // Track the last used params for refresh capability
-    var latestParams by useRefImpl<TParams?>(null)
-
-    // Core send function — launches a coroutine to call the suspend streamFn
-    val sendFn: SendFn<TParams> = { params ->
-        // Cancel any existing stream
-        currentJob?.cancel()
-        currentJob = null
-        streamId += 1
-        val currentStreamId = streamId
-
-        val resolvedParams = params ?: options.defaultParams
-        latestParams = resolvedParams
-        options.onBefore(resolvedParams)
-        setStreaming(true)
-        setError(null)
-
-        currentJob = scope.launch {
-            var caughtError: Throwable? = null
-            try {
-                @Suppress("UNCHECKED_CAST")
-                latestStreamFn(resolvedParams as TParams).collect { event ->
-                    setData(event)
-                    try {
-                        options.onEvent(event)
-                    } catch (callbackError: Throwable) {
-                        if (callbackError is CancellationException) throw callbackError
-                        // Swallow callback errors to avoid treating them as stream errors
-                        callbackError.printStackTrace()
-                    }
-                }
-            } catch (e: Throwable) {
-                if (e is CancellationException) throw e
-                caughtError = e
-                setError(e)
-                options.onError(e, resolvedParams)
-            } finally {
-                // Only update state if this is still the current stream (not superseded)
-                if (streamId == currentStreamId) {
-                    currentJob = null
-                    setStreaming(false)
-                    options.onFinally(resolvedParams, caughtError)
-                }
-            }
-        }
-    }
-
-    // Cancel function
-    val cancelFn: () -> Unit = {
-        currentJob?.cancel()
-        currentJob = null
-        streamId += 1
-        setStreaming(false)
-        setError(null)
-    }
-
-    // Refresh function — re-sends with the last used params
-    val refreshFn: () -> Unit = {
-        sendFn(latestParams)
-    }
-
-    // Single useEffect for auto-run and refreshDeps to avoid double-trigger
     useEffect(options.ready, options.manual, *options.refreshDeps) {
         if (!options.manual && options.ready) {
-            sendFn(options.defaultParams)
+            controller.send(options.defaultParams)
         }
     }
 
-    // Cleanup on unmount
     useUnmount {
-        currentJob?.cancel()
-        currentJob = null
-        streamId += 1
+        controller.dispose()
     }
 
     return SseHolder(
         data = dataState,
         isStreaming = streamingState,
         error = errorState,
-        params = latestParams,
-        send = sendFn,
-        cancel = cancelFn,
-        refresh = refreshFn,
+        params = paramsState.value,
+        send = controller.send,
+        cancel = controller.cancel,
+        refresh = controller.refresh,
     )
 }
