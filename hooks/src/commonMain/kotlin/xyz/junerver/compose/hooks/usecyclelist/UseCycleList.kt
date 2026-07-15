@@ -10,8 +10,11 @@ import xyz.junerver.compose.hooks.Options
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
 import kotlinx.collections.immutable.PersistentList
+import xyz.junerver.compose.hooks.usecreation.useCreationImpl
 
 /*
   Description: Cycle through a list of items
@@ -66,41 +69,54 @@ data class UseCycleListOptions<T> internal constructor(
  */
 @Composable
 fun <T> useCycleListImpl(list: PersistentList<T>, optionsOf: UseCycleListOptions<T>.() -> Unit = {}): CycleListHolder<T> {
-    // Initialize options with remember and apply user-provided configuration
     val options = useDynamicOptions(optionsOf)
-    // Create a mutable reference with useRef, initialized with the configured initial value or the first item in the list
-    val (state, setState) = _useGetStateImpl(getInitialValue(list, options))
+    val currentList = useIdentityState(list)
+    val currentFallbackIndex = useIdentityState(options.fallbackIndex)
+    val currentGetIndexOf = useIdentityState(options.getIndexOf)
+    val initialValue = useCreationImpl { getInitialValue(list, options) }.current
+    val initialIndex = useCreationImpl {
+        getCurrentIndex(initialValue, list, options.fallbackIndex, options.getIndexOf)
+    }.current
+    val (state, setState) = _useGetStateImpl(initialValue)
+    val currentPosition = useStateImpl(initialIndex)
 
-    // Create a function to set the state to a specific index
-    fun set(i: Int) {
-        val length = list.size
-        if (length == 0) return // If the list is empty, do nothing
+    fun resolveCurrentIndex(): Int {
+        val latestList = currentList.value
+        if (latestList.isEmpty()) return 0
 
-        // Ensure the index wraps around properly, handling negative indices and out-of-range indices
-        // The formula (i % length + length) % length ensures the result is always in the range [0, length-1]
-        val index = (i % length + length) % length
-        val value = list[index]
-        setState(value) // Update the current value of the reference
+        currentGetIndexOf.value?.let { getIndexOf ->
+            return getIndexOf(state.value, latestList)
+        }
+
+        val trackedIndex = currentPosition.value
+        if (trackedIndex in latestList.indices && latestList[trackedIndex] == state.value) {
+            return trackedIndex
+        }
+
+        return latestList.indexOf(state.value).takeIf { it >= 0 } ?: currentFallbackIndex.value
     }
 
-    // Create a function to shift the current index by a delta
+    fun set(i: Long) {
+        val latestList = currentList.value
+        if (latestList.isEmpty()) return
+
+        val index = normalizeIndex(i, latestList.size)
+        currentPosition.value = index
+        setState(latestList[index])
+    }
+
     fun shift(delta: Int = 1) {
-        // Get the index of the current value in the list
-        val currentIndex = getCurrentIndex(state.value, list, options)
-        // Move the index by delta positions and set the new value
-        set(currentIndex + delta)
+        set(resolveCurrentIndex().toLong() + delta.toLong())
     }
 
-    // Create navigation functions: next item, previous item, and jump to specific index
-    fun next() = shift(1) // Move forward n positions
+    fun next() = shift(1)
 
-    fun prev() = shift(-1) // Move backward n positions
+    fun prev() = shift(-1)
 
-    fun go(i: Int) = set(i) // Jump directly to index i
+    fun go(i: Int) = set(i.toLong())
 
-    // Create a derived state to track the current index
     val index = useStateImpl {
-        getCurrentIndex(state.value, list, options)
+        resolveCurrentIndex()
     }
 
     return remember { CycleListHolder(state, index, ::next, ::prev, ::go, ::shift) }
@@ -133,7 +149,8 @@ data class CycleListHolder<T>(
  * Helper function to get the initial value.
  *
  * @param list The item list
- * @param options Configuration options
+ * @param fallbackIndex Index used when [value] is not found
+ * @param getIndexOf Optional custom lookup function
  * @return The initial value
  * @throws IllegalArgumentException when the list is empty and no initial value is provided
  */
@@ -154,8 +171,25 @@ private fun <T> getInitialValue(list: PersistentList<T>, options: UseCycleListOp
  * @param options Configuration options
  * @return The index of the current value in the list
  */
-private fun <T> getCurrentIndex(value: T, list: PersistentList<T>, options: UseCycleListOptions<T>): Int {
+private fun <T> getCurrentIndex(
+    value: T,
+    list: PersistentList<T>,
+    fallbackIndex: Int,
+    getIndexOf: ((value: T, list: PersistentList<T>) -> Int)?,
+): Int {
     if (list.isEmpty()) return 0
 
-    return options.getIndexOf?.invoke(value, list) ?: list.indexOf(value).takeIf { it >= 0 } ?: options.fallbackIndex
+    return getIndexOf?.invoke(value, list) ?: list.indexOf(value).takeIf { it >= 0 } ?: fallbackIndex
+}
+
+private fun normalizeIndex(index: Long, size: Int): Int {
+    val longSize = size.toLong()
+    return (((index % longSize) + longSize) % longSize).toInt()
+}
+
+@Composable
+private fun <T> useIdentityState(value: T): State<T> {
+    val state = remember { mutableStateOf(value, referentialEqualityPolicy()) }
+    state.value = value
+    return state
 }

@@ -3,12 +3,17 @@ package xyz.junerver.compose.hooks.test
 import androidx.compose.material3.Text
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertSame
 import kotlinx.collections.immutable.persistentListOf
+import xyz.junerver.compose.hooks.CycleListHolder
+import xyz.junerver.compose.hooks.rememberCycleList
 import xyz.junerver.compose.hooks.useCycleList
 import xyz.junerver.compose.hooks.useState
 
@@ -286,5 +291,181 @@ class UseCycleListTest {
         }
         waitForIdle()
         onNodeWithText("value=30 phase=2").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun navigation_uses_latest_list_and_preserves_holder_identity() = runComposeUiTest {
+        var items by mutableStateOf(persistentListOf("A", "B"))
+        lateinit var holder: CycleListHolder<String>
+
+        setContent {
+            holder = useCycleList(items)
+        }
+
+        waitForIdle()
+        val initialHolder = holder
+        val initialState = holder.state
+        val initialIndex = holder.index
+        val initialNext = holder.next
+        val initialGo = holder.go
+
+        items = persistentListOf("A", "C", "D")
+        waitForIdle()
+        holder.next()
+        waitForIdle()
+
+        assertSame(initialHolder, holder)
+        assertSame(initialState, holder.state)
+        assertSame(initialIndex, holder.index)
+        assertSame(initialNext, holder.next)
+        assertSame(initialGo, holder.go)
+        assertEquals("C", holder.state.value)
+        assertEquals(1, holder.index.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun later_empty_list_is_safe_and_navigation_recovers() = runComposeUiTest {
+        var items by mutableStateOf(persistentListOf("A", "B"))
+        lateinit var holder: CycleListHolder<String>
+
+        setContent {
+            holder = useCycleList(items)
+        }
+
+        waitForIdle()
+        holder.next()
+        waitForIdle()
+        assertEquals("B", holder.state.value)
+
+        items = persistentListOf()
+        waitForIdle()
+        assertEquals("B", holder.state.value)
+        assertEquals(0, holder.index.value)
+        holder.next()
+        assertEquals("B", holder.state.value)
+
+        items = persistentListOf("X", "Y")
+        waitForIdle()
+        holder.next()
+        waitForIdle()
+        assertEquals("Y", holder.state.value)
+        assertEquals(1, holder.index.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun equal_duplicates_cycle_by_position_under_rapid_updates() = runComposeUiTest {
+        lateinit var holder: CycleListHolder<String>
+
+        setContent {
+            holder = useCycleList(persistentListOf("A", "A", "B"))
+        }
+
+        waitForIdle()
+        holder.go(1)
+        waitForIdle()
+        assertEquals("A", holder.state.value)
+        assertEquals(1, holder.index.value)
+
+        holder.next()
+        holder.next()
+        holder.next()
+        waitForIdle()
+        assertEquals("A", holder.state.value)
+        assertEquals(1, holder.index.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamic_fallback_and_extreme_shifts_are_observed() = runComposeUiTest {
+        var fallbackIndex by mutableStateOf(0)
+        lateinit var holder: CycleListHolder<String>
+
+        setContent {
+            holder = useCycleList(persistentListOf("A", "B", "C")) {
+                initialValue = "missing"
+                this.fallbackIndex = fallbackIndex
+            }
+        }
+
+        waitForIdle()
+        assertEquals(0, holder.index.value)
+
+        fallbackIndex = 1
+        waitForIdle()
+        assertEquals(1, holder.index.value)
+
+        holder.shift(Int.MAX_VALUE)
+        waitForIdle()
+        assertEquals("C", holder.state.value)
+        assertEquals(2, holder.index.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun latest_custom_index_lookup_drives_navigation() = runComposeUiTest {
+        var useLastMatch by mutableStateOf(false)
+        lateinit var holder: CycleListHolder<String>
+
+        setContent {
+            val shouldUseLastMatch = useLastMatch
+            holder = useCycleList(persistentListOf("B", "C", "B", "D")) {
+                getIndexOf = { value, items ->
+                    if (shouldUseLastMatch) items.lastIndexOf(value) else items.indexOf(value)
+                }
+            }
+        }
+
+        waitForIdle()
+        assertEquals(0, holder.index.value)
+
+        useLastMatch = true
+        waitForIdle()
+        assertEquals(2, holder.index.value)
+
+        holder.next()
+        waitForIdle()
+        assertEquals("D", holder.state.value)
+        assertEquals(3, holder.index.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun explicit_initial_value_supports_an_empty_list() = runComposeUiTest {
+        lateinit var holder: CycleListHolder<String>
+
+        setContent {
+            holder = useCycleList(persistentListOf()) {
+                initialValue = "fallback"
+            }
+        }
+
+        waitForIdle()
+        assertEquals("fallback", holder.state.value)
+        assertEquals(0, holder.index.value)
+        holder.go(Int.MIN_VALUE)
+        holder.shift(Int.MAX_VALUE)
+        assertEquals("fallback", holder.state.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun remember_alias_exposes_the_same_contract() = runComposeUiTest {
+        lateinit var holder: CycleListHolder<String>
+
+        setContent {
+            holder = rememberCycleList(persistentListOf("A", "B")) {
+                initialValue = "B"
+            }
+        }
+
+        waitForIdle()
+        assertEquals("B", holder.state.value)
+        assertEquals(1, holder.index.value)
+        holder.next()
+        waitForIdle()
+        assertEquals("A", holder.state.value)
     }
 }
