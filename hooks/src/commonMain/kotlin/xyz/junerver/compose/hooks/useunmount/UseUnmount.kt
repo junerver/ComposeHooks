@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks.useunmount
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 
 /*
   Description: 组件卸载时执行
@@ -12,6 +13,9 @@ import androidx.compose.runtime.DisposableEffect
 */
 
 @Composable
-fun useUnmountImpl(block: () -> Unit) = DisposableEffect(Unit) {
-    onDispose(block)
+fun useUnmountImpl(block: () -> Unit) {
+    val blockRef = useLatestRefImpl(block)
+    DisposableEffect(Unit) {
+        onDispose { blockRef.current() }
+    }
 }

@@ -3,6 +3,7 @@ package xyz.junerver.compose.hooks.usemount
 import androidx.compose.runtime.Composable
 import xyz.junerver.compose.hooks.SuspendAsyncFn
 import xyz.junerver.compose.hooks.useeffect.useEffectImpl
+import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 
 /*
   Description:Execute `fn` function when component is mounted
@@ -13,4 +14,7 @@ import xyz.junerver.compose.hooks.useeffect.useEffectImpl
 */
 
 @Composable
-fun useMountImpl(block: SuspendAsyncFn) = useEffectImpl(Unit) { block() }
+fun useMountImpl(block: SuspendAsyncFn) {
+    val blockRef = useLatestRefImpl(block)
+    useEffectImpl(Unit) { blockRef.current.invoke(this) }
+}
