@@ -243,7 +243,7 @@ class UseCountdownTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun interval_change_restarts_countdown() = runComposeUiTest {
+    fun interval_change_preserves_remaining_time() = runComposeUiTest {
         resetInstantProvider()
         advanceInstant(0.milliseconds)
         setContent {
@@ -267,7 +267,37 @@ class UseCountdownTest {
         advanceInstant(250.milliseconds)
         mainClock.advanceTimeBy(250)
         waitForIdle()
-        onNodeWithText("left=500 interval=200 phase=1").assertExists()
+        onNodeWithText("left=250 interval=200 phase=1").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun interval_change_preserves_original_countdown_target() = runComposeUiTest {
+        resetInstantProvider()
+        val interval = mutableStateOf(100.milliseconds)
+        lateinit var currentLeft: () -> Duration
+
+        setContent {
+            val countdown = useCountdown {
+                leftTime = 1.seconds
+                this.interval = interval.value
+            }
+            currentLeft = { countdown.timeLeft.value }
+            Text("left=${countdown.timeLeft.value.inWholeMilliseconds}")
+        }
+
+        waitForIdle()
+        assertEquals(1_000.milliseconds, currentLeft())
+
+        advanceInstant(400.milliseconds)
+        mainClock.advanceTimeBy(400)
+        waitForIdle()
+        assertEquals(600.milliseconds, currentLeft())
+
+        runOnIdle { interval.value = 200.milliseconds }
+        waitForIdle()
+
+        assertEquals(600.milliseconds, currentLeft())
     }
 
     @OptIn(ExperimentalTestApi::class)

@@ -1,5 +1,4 @@
 package xyz.junerver.compose.hooks.usecountdown
-import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -80,7 +79,7 @@ private fun useCountdown(options: UseCountdownOptions): CountdownHolder {
         }
     }
     pauseRef = pause
-    useEffectImpl(leftTime, targetDate, interval) {
+    useEffectImpl(leftTime, targetDate) {
         targetRef.current = when {
             leftTime == Duration.INFINITE -> Instant.DISTANT_FUTURE
             leftTime != null -> currentInstant + leftTime
