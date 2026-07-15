@@ -1,7 +1,7 @@
 package xyz.junerver.compose.hooks.usememoizedfn
 
 import androidx.compose.runtime.Composable
-import arrow.core.MemoizedDeepRecursiveFunction
+import arrow.core.AtomicMemoizationCache
 import xyz.junerver.compose.hooks.usecreation.useCreationImpl
 
 /*
@@ -24,5 +24,13 @@ import xyz.junerver.compose.hooks.usecreation.useCreationImpl
  */
 @Composable
 fun <T, R> useMemoizedFnImpl(fn: suspend DeepRecursiveScope<T, R>.(T) -> R): DeepRecursiveFunction<T, R> = useCreationImpl {
-    MemoizedDeepRecursiveFunction(block = fn)
+    val cache = AtomicMemoizationCache<T, CachedResult<R>>()
+    DeepRecursiveFunction { value ->
+        when (val cached = cache.get(value)) {
+            null -> cache.set(value, CachedResult(fn(value))).value
+            else -> cached.value
+        }
+    }
 }.current
+
+private data class CachedResult<R>(val value: R)
