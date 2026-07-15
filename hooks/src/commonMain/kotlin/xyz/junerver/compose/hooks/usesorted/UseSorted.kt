@@ -79,7 +79,7 @@ private fun <T> defaultSortFn(): SortedFn<T> = { arr, compareFn ->
 private fun <T> defaultCompare(): SortedCompareFn<T> = { a, b ->
     when {
         // Check if both are Comparable
-        a is Comparable<*> && b is Comparable<*> -> {
+        a is Comparable<*> && b is Comparable<*> && a::class == b::class -> {
             @Suppress("UNCHECKED_CAST")
             (a as Comparable<Any>).compareTo(b)
         }

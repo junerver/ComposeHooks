@@ -55,4 +55,17 @@ class UseSortedTest {
         waitForIdle()
         assertEquals(listOf(7, 8, 9), result!!.value)
     }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun sorted_falls_back_to_string_order_for_different_comparable_types() = runComposeUiTest {
+        var result: State<List<Any>>? = null
+
+        setContent {
+            result = useSorted(listOf<Any>(2, "10", 1))
+        }
+
+        waitForIdle()
+        assertEquals(listOf<Any>(1, "10", 2), result!!.value)
+    }
 }
