@@ -9,7 +9,6 @@ import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
-import xyz.junerver.compose.hooks.utils.asBoolean
 import xyz.junerver.compose.hooks.utils.currentInstant
 import xyz.junerver.compose.hooks.Options
 import xyz.junerver.compose.hooks.OnEndCallback
@@ -59,9 +58,10 @@ data class UseCountdownOptions internal constructor(
 @Composable
 private fun useCountdown(options: UseCountdownOptions): CountdownHolder {
     val (leftTime, targetDate, interval, onEnd) = options
-    require(leftTime.asBoolean() || targetDate.asBoolean()) {
+    require(leftTime != null || targetDate != null) {
         "'leftTime' or 'targetDate' must be set"
     }
+    require(leftTime == null || leftTime >= Duration.ZERO) { "'leftTime' must not be negative" }
     val targetRef = useRefImpl<Instant?>(null)
     val (timeLeft, setTimeLeft) = useGetStateImpl(Duration.ZERO)
 
@@ -81,12 +81,12 @@ private fun useCountdown(options: UseCountdownOptions): CountdownHolder {
     }
     pauseRef = pause
     useEffectImpl(leftTime, targetDate, interval) {
-        targetRef.current = if (leftTime.asBoolean()) {
-            currentInstant + leftTime
-        } else {
-            targetDate
+        targetRef.current = when {
+            leftTime == Duration.INFINITE -> Instant.DISTANT_FUTURE
+            leftTime != null -> currentInstant + leftTime
+            else -> targetDate
         }
-        if (!targetRef.current.asBoolean()) {
+        if (targetRef.current == null) {
             setTimeLeft(Duration.ZERO)
             return@useEffectImpl
         }
@@ -162,13 +162,16 @@ data class FormattedRes(
  * @return A [FormattedRes] containing the parsed time components
  */
 @Stable
-private fun parseDuration(leftTime: Duration): FormattedRes = FormattedRes(
-    days = (leftTime.inWholeDays).toInt(),
-    hours = ((leftTime.inWholeHours) % 24).toInt(),
-    minutes = ((leftTime.inWholeMinutes) % 60).toInt(),
-    seconds = ((leftTime.inWholeSeconds) % 60).toInt(),
-    milliseconds = (leftTime.inWholeMilliseconds % 1000).toInt(),
-)
+private fun parseDuration(leftTime: Duration): FormattedRes {
+    val nonNegativeTime = if (leftTime < Duration.ZERO) Duration.ZERO else leftTime
+    return FormattedRes(
+        days = nonNegativeTime.inWholeDays.coerceAtMost(Int.MAX_VALUE.toLong()).toInt(),
+        hours = (nonNegativeTime.inWholeHours % 24).toInt(),
+        minutes = (nonNegativeTime.inWholeMinutes % 60).toInt(),
+        seconds = (nonNegativeTime.inWholeSeconds % 60).toInt(),
+        milliseconds = (nonNegativeTime.inWholeMilliseconds % 1000).toInt(),
+    )
+}
 
 /**
  * Holder class for countdown state and formatted results.

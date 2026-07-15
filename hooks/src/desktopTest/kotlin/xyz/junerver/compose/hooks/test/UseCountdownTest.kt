@@ -3,6 +3,7 @@ package xyz.junerver.compose.hooks.test
 import androidx.compose.material3.Text
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
@@ -11,11 +12,13 @@ import kotlin.test.AfterTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Duration
 import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 import xyz.junerver.compose.hooks.useCountdown
+import xyz.junerver.compose.hooks.rememberCountdown
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.utils.instantProvider
 
@@ -327,5 +330,143 @@ class UseCountdownTest {
             currentSeconds() <= 1
         }
         assertTrue(updatedFound, "Expected formatted countdown seconds to decrease after time advances")
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun zero_left_time_takes_priority_and_ends_exactly_once() = runComposeUiTest {
+        resetInstantProvider()
+        val futureTarget = currentInstant + 10.seconds
+        var endCount = 0
+        lateinit var currentLeft: () -> Duration
+
+        setContent {
+            val countdown = rememberCountdown {
+                leftTime = Duration.ZERO
+                targetDate = futureTarget
+                interval = 100.milliseconds
+                onEnd = { endCount++ }
+            }
+            currentLeft = { countdown.timeLeft.value }
+            Text("left=${countdown.timeLeft.value.inWholeMilliseconds}")
+        }
+
+        waitForIdle()
+        assertEquals(Duration.ZERO, currentLeft())
+        assertEquals(1, endCount)
+
+        advanceInstant(1.seconds)
+        mainClock.advanceTimeBy(1_000)
+        waitForIdle()
+        assertEquals(1, endCount)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun negative_left_time_is_rejected_even_with_target_fallback() {
+        resetInstantProvider()
+        val result = runCatching {
+            runComposeUiTest {
+                setContent {
+                    useCountdown {
+                        leftTime = (-1).milliseconds
+                        targetDate = currentInstant + 1.seconds
+                    }
+                }
+            }
+        }
+
+        assertTrue(result.exceptionOrNull() is IllegalArgumentException)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun non_positive_countdown_interval_is_rejected() {
+        listOf(Duration.ZERO, (-1).milliseconds).forEach { invalidInterval ->
+            val result = runCatching {
+                runComposeUiTest {
+                    setContent {
+                        useCountdown {
+                            leftTime = 1.seconds
+                            interval = invalidInterval
+                        }
+                    }
+                }
+            }
+
+            assertTrue(result.exceptionOrNull() is IllegalArgumentException)
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun distant_target_clamps_formatted_days_without_integer_overflow() = runComposeUiTest {
+        resetInstantProvider()
+        lateinit var formattedDays: () -> Int
+
+        setContent {
+            val countdown = useCountdown {
+                targetDate = Instant.DISTANT_FUTURE
+                interval = 1.seconds
+            }
+            formattedDays = { countdown.formatRes.value.days }
+        }
+
+        waitForIdle()
+        assertEquals((Instant.DISTANT_FUTURE - currentInstant).inWholeDays.toInt(), formattedDays())
+        assertTrue(formattedDays() > 0)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun active_countdown_uses_latest_onEnd_callback() = runComposeUiTest {
+        resetInstantProvider()
+        val revision = mutableStateOf(1)
+        val callbacks = mutableListOf<Int>()
+
+        setContent {
+            val currentRevision = revision.value
+            useCountdown {
+                leftTime = 300.milliseconds
+                interval = 100.milliseconds
+                onEnd = { callbacks += currentRevision }
+            }
+        }
+
+        waitForIdle()
+        runOnIdle { revision.value = 2 }
+        waitForIdle()
+        advanceInstant(500.milliseconds)
+        mainClock.advanceTimeBy(500)
+        waitForIdle()
+
+        assertEquals(listOf(2), callbacks)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun unmount_stops_countdown_without_end_callback() = runComposeUiTest {
+        resetInstantProvider()
+        val mounted = mutableStateOf(true)
+        var endCount = 0
+
+        setContent {
+            if (mounted.value) {
+                useCountdown {
+                    leftTime = 500.milliseconds
+                    interval = 100.milliseconds
+                    onEnd = { endCount++ }
+                }
+            }
+        }
+
+        waitForIdle()
+        runOnIdle { mounted.value = false }
+        waitForIdle()
+        advanceInstant(1.seconds)
+        mainClock.advanceTimeBy(1_000)
+        waitForIdle()
+
+        assertEquals(0, endCount)
     }
 }
