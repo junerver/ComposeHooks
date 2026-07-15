@@ -2,6 +2,7 @@ package xyz.junerver.compose.hooks.usecounter
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
 import xyz.junerver.compose.hooks.useDynamicOptions
+import xyz.junerver.compose.hooks.useeffect.useEffectImpl
 import xyz.junerver.compose.hooks.SetValueFn
 import xyz.junerver.compose.hooks.SetterEither
 import xyz.junerver.compose.hooks.Options
@@ -88,6 +89,10 @@ private fun useCounter(initialValue: Int = 0, options: UseCounterOptions): Count
 
     fun reset() {
         setValue(initialValue)
+    }
+
+    useEffectImpl(options.min, options.max) {
+        setCurrent(getTargetValue(getCurrent(), options))
     }
 
     return remember {

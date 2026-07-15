@@ -3,6 +3,7 @@ package xyz.junerver.compose.hooks.test
 import androidx.compose.material3.Text
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
@@ -10,6 +11,10 @@ import androidx.compose.ui.test.runComposeUiTest
 import arrow.core.left
 import arrow.core.right
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertSame
+import xyz.junerver.compose.hooks.CounterHolder
+import xyz.junerver.compose.hooks.rememberCounter
 import xyz.junerver.compose.hooks.useCounter
 import xyz.junerver.compose.hooks.useState
 
@@ -402,5 +407,99 @@ class UseCounterTest {
         }
         waitForIdle()
         onNodeWithText("value=${Int.MIN_VALUE}").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun dynamic_bounds_clamp_the_existing_value() = runComposeUiTest {
+        val min = mutableStateOf(0)
+        val max = mutableStateOf(10)
+        lateinit var counter: CounterHolder
+        setContent {
+            counter = useCounter(initialValue = 8) {
+                this.min = min.value
+                this.max = max.value
+            }
+            Text("value=${counter.state.value}")
+        }
+
+        waitForIdle()
+        runOnIdle { max.value = 5 }
+        waitForIdle()
+        assertEquals(5, counter.state.value, "Existing value must respect a dynamically lowered max")
+
+        runOnIdle {
+            min.value = 7
+            max.value = 10
+        }
+        waitForIdle()
+        assertEquals(7, counter.state.value, "Existing value must respect a dynamically raised min")
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun holder_and_functions_keep_identity_across_recomposition() = runComposeUiTest {
+        val trigger = mutableStateOf(0)
+        lateinit var observed: CounterHolder
+        setContent {
+            observed = useCounter(initialValue = 2) {
+                min = 0
+                max = 10
+            }
+            Text("trigger=${trigger.value} value=${observed.state.value}")
+        }
+
+        waitForIdle()
+        val first = observed
+        runOnIdle { trigger.value++ }
+        waitForIdle()
+        val second = observed
+
+        assertSame(first.state, second.state)
+        assertSame(first.inc, second.inc)
+        assertSame(first.dec, second.dec)
+        assertSame(first.setValue, second.setValue)
+        assertSame(first.reset, second.reset)
+        assertSame(first, second)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun rapid_functional_updates_use_the_latest_value() = runComposeUiTest {
+        lateinit var counter: CounterHolder
+        setContent {
+            counter = useCounter(initialValue = 0) {
+                min = -2_000
+                max = 2_000
+            }
+            Text("value=${counter.state.value}")
+        }
+
+        waitForIdle()
+        runOnIdle {
+            repeat(1_000) { counter.inc(1) }
+            repeat(250) { counter.dec(1) }
+        }
+        waitForIdle()
+
+        assertEquals(750, counter.state.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun remember_alias_preserves_counter_behavior() = runComposeUiTest {
+        lateinit var counter: CounterHolder
+        setContent {
+            counter = rememberCounter(initialValue = 4) {
+                min = 0
+                max = 10
+            }
+            Text("value=${counter.state.value}")
+        }
+
+        waitForIdle()
+        runOnIdle { counter.inc(3) }
+        waitForIdle()
+        assertEquals(7, counter.state.value)
     }
 }
