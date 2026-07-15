@@ -444,9 +444,10 @@ class UsePersistentTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
-    fun persistent_incompatible_stored_type_uses_default_and_can_recover() = runComposeUiTest {
+    fun persistent_backend_reported_incompatible_type_uses_default_and_can_recover() = runComposeUiTest {
         val key = "persistent-incompatible-type"
         val backend = TestPersistentBackend(mapOf(key to 42))
+        backend.rejectReadValue = { it !is String }
 
         setContent {
             PersistentContext.Provider(value = backend.contextValue) {
@@ -461,6 +462,26 @@ class UsePersistentTest {
         notifyDefaultPersistentObserver(key)
         waitForIdle()
         onNodeWithText("recovered").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun persistent_generic_supertype_accepts_different_runtime_subtypes() = runComposeUiTest {
+        val key = "persistent-number-subtypes"
+        lateinit var first: PersistentHolder<Number>
+        lateinit var second: PersistentHolder<Number>
+
+        setContent {
+            first = usePersistent<Number>(key, 0, forceUseMemory = true)
+            second = usePersistent<Number>(key, 0L, forceUseMemory = true)
+            Text("first=${first.state.value} second=${second.state.value}")
+        }
+
+        waitForIdle()
+        onNodeWithText("first=0 second=0").assertExists()
+        first.save(1.5)
+        waitForIdle()
+        onNodeWithText("first=1.5 second=1.5").assertExists()
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -608,12 +629,15 @@ private class TestPersistentBackend(initialValues: Map<String, Any?> = emptyMap(
     var readCount = 0
     var failReads = false
     var failSaves = false
+    var rejectReadValue: (Any) -> Boolean = { false }
 
     val contextValue = Triple(
         first = { key: String, defaultValue: Any ->
             readCount += 1
             if (failReads) error("read failed")
-            values[key] ?: defaultValue
+            val storedValue = values[key] ?: defaultValue
+            if (rejectReadValue(storedValue)) error("stored value cannot be decoded")
+            storedValue
         },
         second = { key: String, value: Any? ->
             if (failSaves) error("save failed")

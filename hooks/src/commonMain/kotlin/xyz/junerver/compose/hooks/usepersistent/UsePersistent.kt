@@ -183,9 +183,7 @@ private fun <T> getPersistentValueOrDefault(get: PersistentGet, key: String, def
         val storedValue = get(key, backendDefault)
         when {
             storedValue === NullPersistentDefault -> defaultValue
-            defaultValue == null -> storedValue as T
-            (defaultValue as Any)::class.isInstance(storedValue) -> storedValue as T
-            else -> defaultValue
+            else -> storedValue as T
         }
     } catch (_: Exception) {
         defaultValue
