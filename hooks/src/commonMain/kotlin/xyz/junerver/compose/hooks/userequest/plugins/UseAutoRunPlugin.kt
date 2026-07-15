@@ -6,17 +6,20 @@ import xyz.junerver.compose.hooks.Tuple5
 import xyz.junerver.compose.hooks.useref.getValue
 import xyz.junerver.compose.hooks.useref.setValue
 import xyz.junerver.compose.hooks.useEffect
+import xyz.junerver.compose.hooks.useUpdateEffect
 import xyz.junerver.compose.hooks.useref.useRefImpl
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.FetchState
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
+import xyz.junerver.compose.hooks.userequest.Keys
 import xyz.junerver.compose.hooks.userequest.OnBeforeReturn
 import xyz.junerver.compose.hooks.userequest.Plugin
 import xyz.junerver.compose.hooks.userequest.PluginLifecycle
 import xyz.junerver.compose.hooks.userequest.PluginOnBefore
+import xyz.junerver.compose.hooks.userequest.PluginOnCancel
+import xyz.junerver.compose.hooks.userequest.PluginOnError
 import xyz.junerver.compose.hooks.userequest.UseRequestOptions
 import xyz.junerver.compose.hooks.utils.asBoolean
-import xyz.junerver.compose.hooks.utils.runIf
 
 /*
   Description:
@@ -32,9 +35,13 @@ private class AutoRunPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
      */
     var ready = true
 
+    private var pendingAutoRun = false
+
     override val onInit: (UseRequestOptions<TParams, TData>) -> FetchState<TParams, TData> = {
         // 如果是手动模式 则不loading，自动模式则loading
-        FetchState(loading = it.manual.not() && ready)
+        val shouldAutoRun = it.manual.not() && ready
+        pendingAutoRun = shouldAutoRun
+        FetchState(loading = shouldAutoRun)
     }
 
     override val invoke: GenPluginLifecycleFn<TParams, TData>
@@ -43,12 +50,22 @@ private class AutoRunPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
             object : PluginLifecycle<TParams, TData>() {
                 override val onBefore: PluginOnBefore<TParams, TData>
                     get() = {
-                        runIf(!ready) {
+                        pendingAutoRun = false
+                        if (!ready) {
+                            fetch.setState(Keys.loading to false)
                             OnBeforeReturn(
                                 stopNow = true,
                             )
+                        } else {
+                            null
                         }
                     }
+
+                override val onError: PluginOnError<TParams>
+                    get() = { _, _ -> pendingAutoRun = false }
+
+                override val onCancel: PluginOnCancel
+                    get() = { pendingAutoRun = false }
             }
         }
 
@@ -65,7 +82,14 @@ private class AutoRunPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
     }
 
     override fun _run(params: TParams?) {
+        pendingAutoRun = true
         fetchInstance.run(params)
+    }
+
+    fun cancelPendingAutoRun() {
+        if (!pendingAutoRun) return
+        pendingAutoRun = false
+        fetchInstance.cancel()
     }
     //endregion
 }
@@ -92,9 +116,11 @@ internal fun <TParams, TData : Any> useAutoRunPlugin(options: UseRequestOptions<
         if (!manual && ready) {
             hasAutoRun = true
             autoRunPlugin._run(defaultParams)
+        } else if (!ready) {
+            autoRunPlugin.cancelPendingAutoRun()
         }
     }
-    useEffect(deps = refreshDeps) block@{
+    useUpdateEffect(*refreshDeps) block@{
         if (hasAutoRun) return@block
         if (!manual) {
             hasAutoRun = true
