@@ -3,6 +3,7 @@ package xyz.junerver.compose.hooks.uselist
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
@@ -31,9 +32,16 @@ fun <T> useListImpl(vararg elements: T): SnapshotStateList<T> = remember {
  */
 @Composable
 fun <S, T : S> useListReduceImpl(list: List<T>, operation: (acc: S, T) -> S): State<S?> {
-    val state = remember { mutableStateOf<S?>(null) }
-    useStateImpl(list) {
-        state.value = if (list.isEmpty()) null else list.reduce(operation)
+    val currentList = useIdentityState(list)
+    val currentOperation = useIdentityState(operation)
+    return useStateImpl {
+        currentList.value.reduceOrNull(currentOperation.value)
     }
+}
+
+@Composable
+private fun <T> useIdentityState(value: T): State<T> {
+    val state = remember { mutableStateOf(value, referentialEqualityPolicy()) }
+    state.value = value
     return state
 }

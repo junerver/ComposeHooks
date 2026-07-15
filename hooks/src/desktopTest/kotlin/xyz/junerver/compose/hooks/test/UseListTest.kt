@@ -2,13 +2,21 @@ package xyz.junerver.compose.hooks.test
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertSame
+import xyz.junerver.compose.hooks.rememberListReduce
 import xyz.junerver.compose.hooks.useList
+import xyz.junerver.compose.hooks.useListReduce
 import xyz.junerver.compose.hooks.useState
 
 /*
@@ -246,4 +254,126 @@ class UseListTest {
         // List should retain the added element
         onNodeWithText("size=4 counter=2").assertExists()
     }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun list_reduce_tracks_dynamic_sources_and_preserves_state_identity() = runComposeUiTest {
+        var source by mutableStateOf(listOf(1, 2, 3))
+        var reduced: State<Int?>? = null
+
+        setContent {
+            reduced = useListReduce(source) { acc, value -> acc + value }
+        }
+
+        waitForIdle()
+        val initialState = reduced
+        assertEquals(6, reduced!!.value)
+
+        source = emptyList()
+        waitForIdle()
+        assertSame(initialState, reduced)
+        assertEquals(null, reduced!!.value)
+
+        source = listOf(4, 5)
+        waitForIdle()
+        assertSame(initialState, reduced)
+        assertEquals(9, reduced!!.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun list_reduce_uses_latest_operation() = runComposeUiTest {
+        var source by mutableStateOf(listOf("a", "b"), referentialEqualityPolicy())
+        var separator by mutableStateOf("+")
+        var reduced: State<String?>? = null
+
+        setContent {
+            val currentSeparator = separator
+            reduced = useListReduce(source) { acc, value -> "$acc$currentSeparator$value" }
+        }
+
+        waitForIdle()
+        val initialState = reduced
+        assertEquals("a+b", reduced!!.value)
+
+        separator = "-"
+        waitForIdle()
+        assertSame(initialState, reduced)
+        assertEquals("a-b", reduced!!.value)
+
+        source = listOf("x", "y", "z")
+        waitForIdle()
+        assertSame(initialState, reduced)
+        assertEquals("x-y-z", reduced!!.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun list_reduce_observes_equal_but_distinct_singletons() = runComposeUiTest {
+        val first = EqualValue("same")
+        val replacement = EqualValue("same")
+        var source by mutableStateOf(listOf(first), referentialEqualityPolicy())
+        var operationCalls = 0
+        var reduced: State<EqualValue?>? = null
+
+        setContent {
+            reduced = useListReduce(source) { _, value ->
+                operationCalls += 1
+                value
+            }
+        }
+
+        waitForIdle()
+        val initialState = reduced
+        assertSame(first, reduced!!.value)
+        assertEquals(0, operationCalls)
+
+        source = listOf(replacement)
+        waitForIdle()
+        assertSame(initialState, reduced)
+        assertSame(replacement, reduced!!.value)
+        assertEquals(0, operationCalls)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun list_reduce_observes_rapid_snapshot_list_updates() = runComposeUiTest {
+        lateinit var list: SnapshotStateList<Int>
+        var reduced: State<Int?>? = null
+
+        setContent {
+            list = useList(1, 2)
+            reduced = useListReduce(list) { acc, value -> acc + value }
+        }
+
+        waitForIdle()
+        assertEquals(3, reduced!!.value)
+
+        list.add(3)
+        list[0] = 4
+        list.removeAt(1)
+        waitForIdle()
+        assertEquals(listOf(4, 3), list.toList())
+        assertEquals(7, reduced!!.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun remember_list_reduce_supports_empty_and_supertype_results() = runComposeUiTest {
+        var empty: State<Int?>? = null
+        var reduced: State<Number?>? = null
+
+        setContent {
+            empty = rememberListReduce(emptyList<Int>()) { acc, value -> acc + value }
+            reduced = rememberListReduce<Number, Int>(listOf(1, 2, 3)) { acc, value ->
+                acc.toDouble() + value
+            }
+        }
+
+        waitForIdle()
+        assertEquals(null, empty!!.value)
+        assertEquals(6.0, reduced!!.value)
+    }
+
+    private data class EqualValue(val value: String)
 }
