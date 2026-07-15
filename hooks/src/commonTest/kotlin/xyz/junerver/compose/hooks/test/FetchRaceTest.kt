@@ -12,10 +12,14 @@ import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -269,5 +273,116 @@ class FetchRaceTest {
             fixture.fetch.cancel()
             runCurrent()
         }
+    }
+
+    @Test
+    fun pluginOnBeforeReentrantCancelAbortsOuterRequest() = runTest {
+        var requestCalls = 0
+        lateinit var fetch: Fetch<String, Int>
+        val lifecycle = object : PluginLifecycle<String, Int>() {
+            override val onBefore: ((String) -> OnBeforeReturn<String, Int>?)? = {
+                fetch.cancel()
+                null
+            }
+        }
+        val fixture = createFixture(pluginImpls = arrayOf(lifecycle), requestFn = { params ->
+            requestCalls += 1
+            params.length
+        })
+        fetch = fixture.fetch
+
+        fixture.fetch.runAsync("blocked")
+
+        assertEquals(0, requestCalls)
+        assertFalse(fixture.loading.value)
+        assertNull(fixture.data.value)
+        assertNull(fixture.error.value)
+        assertEquals(0, fixture.fetch.activeRequestJobCount)
+    }
+
+    @Test
+    fun publicOnBeforeFailureUsesNormalErrorAndFinallySettlement() = runTest {
+        val beforeError = IllegalStateException("onBefore failed")
+        val events = mutableListOf<String>()
+        val uncaught = mutableListOf<Throwable>()
+        val executionScope = CoroutineScope(
+            SupervisorJob() +
+                StandardTestDispatcher(testScheduler) +
+                CoroutineExceptionHandler { _, error -> uncaught += error },
+        )
+        val options = UseRequestOptions.optionOf<String, Int> {
+            onBefore = { throw beforeError }
+            onError = { error, params -> events += "options:error:$params:${error.message}" }
+            onFinally = { params, data, error -> events += "options:finally:$params:$data:${error?.message}" }
+        }
+        val lifecycle = object : PluginLifecycle<String, Int>() {
+            override val onError: ((Throwable, String) -> Unit)? = { error, params ->
+                events += "plugin:error:$params:${error.message}"
+            }
+            override val onFinally: ((String, Int?, Throwable?) -> Unit)? = { params, data, error ->
+                events += "plugin:finally:$params:$data:${error?.message}"
+            }
+        }
+        var requestCalls = 0
+        val fixture = createFixture(
+            options = options,
+            pluginImpls = arrayOf(lifecycle),
+            executionScope = executionScope,
+            requestFn = { params ->
+                requestCalls += 1
+                params.length
+            },
+        )
+
+        try {
+            fixture.fetch.run("params")
+            runCurrent()
+
+            assertEquals(0, requestCalls)
+            assertEquals("params", fixture.fetch.fetchState.params)
+            assertFalse(fixture.loading.value)
+            assertSame(beforeError, fixture.error.value)
+            assertEquals(
+                listOf(
+                    "options:error:params:onBefore failed",
+                    "plugin:error:params:onBefore failed",
+                    "options:finally:params:null:onBefore failed",
+                    "plugin:finally:params:null:onBefore failed",
+                ),
+                events,
+            )
+            assertTrue(uncaught.isEmpty())
+            assertEquals(0, fixture.fetch.activeRequestJobCount)
+        } finally {
+            executionScope.cancel()
+            runCurrent()
+        }
+    }
+
+    @Test
+    fun publicOnBeforeReentrantCancelAbortsRequestAndStillRunsFinally() = runTest {
+        var requestCalls = 0
+        val finalEvents = mutableListOf<FinalEvent>()
+        lateinit var fetch: Fetch<String, Int>
+        val options = UseRequestOptions.optionOf<String, Int> {
+            onBefore = { fetch.cancel() }
+            onFinally = { params, data, error ->
+                finalEvents += FinalEvent(params, data, error?.message)
+            }
+        }
+        val fixture = createFixture(options = options, requestFn = { params ->
+            requestCalls += 1
+            params.length
+        })
+        fetch = fixture.fetch
+
+        fixture.fetch.runAsync("blocked")
+
+        assertEquals(0, requestCalls)
+        assertFalse(fixture.loading.value)
+        assertNull(fixture.data.value)
+        assertNull(fixture.error.value)
+        assertEquals(listOf(FinalEvent("blocked", null, null)), finalEvents)
+        assertEquals(0, fixture.fetch.activeRequestJobCount)
     }
 }

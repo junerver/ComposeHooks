@@ -38,6 +38,7 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
     IFetch<TParams, TData> {
     // 请求的代次；所有读写均通过 StateFlow 的原子操作完成。
     private val generation = MutableStateFlow(0L)
+    private val cancellationGeneration = MutableStateFlow(0L)
     private val transitionLock = SynchronizedObject()
 
     lateinit var fetchState: FetchState<TParams, TData>
@@ -131,6 +132,17 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
         nextGeneration().also { commitState(state) }
     }
 
+    private fun beginTransitionUnlessCanceled(
+        expectedCancellationGeneration: Long,
+        state: Map<String, Any?>,
+    ): Long? = withTransitionLock {
+        if (cancellationGeneration.value != expectedCancellationGeneration) {
+            null
+        } else {
+            nextGeneration().also { commitState(state) }
+        }
+    }
+
     private fun commitTerminalState(requestGeneration: Long, state: Map<String, Any?>): Boolean = withTransitionLock {
         if (!isCurrentGeneration(requestGeneration)) {
             false
@@ -190,6 +202,7 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
         }
 
         // 这里等同于runPluginHandler
+        val cancellationSnapshot = cancellationGeneration.value
         val onBeforeReturn = OnBeforeReturn<TParams, TData>(
             stopNow = false,
             returnNow = false,
@@ -205,19 +218,21 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
          */
         if (stopNow!!) return@coroutineScope
         // 使用缓存插件可以直接返回缓存的内容，而不需要发起真实请求
-        val requestGeneration = beginTransition(
+        val requestGeneration = beginTransitionUnlessCanceled(
+            cancellationSnapshot,
             mapOf(
                 Keys.loading to true,
                 Keys.params to resolvedParams,
             ) + state,
-        )
+        ) ?: return@coroutineScope
         if (returnNow!!) return@coroutineScope
-        // 调用选项配置的生命周期函数
-        options.onBefore.invoke(resolvedParams)
 
         var requestResult: TData? = null
         var requestError: Throwable? = null
         try {
+            // 调用选项配置的生命周期函数
+            options.onBefore.invoke(resolvedParams)
+            if (!isCurrentGeneration(requestGeneration)) return@coroutineScope
             var (serviceDeferred) = OnRequestReturn<TData>().copy(
                 (
                     runPluginHandler(
@@ -305,6 +320,7 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
         val lifecycleSnapshot = pluginImpls
         val jobsToCancel = detachRequestJobs()
         withTransitionLock {
+            cancellationGeneration.update { it + 1L }
             nextGeneration()
             commitState(
                 buildMap {
