@@ -804,6 +804,14 @@ fun <T> _rememberState(default: T) = _useState(default)
 @Composable
 fun <T> rememberState(vararg keys: Any?, factory: () -> T): State<T> = useState(*keys, factory = factory)
 
+@Composable
+fun rememberInterval(optionsOf: UseIntervalOptions.() -> Unit = {}, block: SuspendAsyncFn): IntervalHolder =
+    useIntervalImpl(optionsOf, block)
+
+@Composable
+fun rememberInterval(optionsOf: UseIntervalOptions.() -> Unit = {}, ready: Boolean, block: SuspendAsyncFn) =
+    useIntervalImpl(optionsOf, ready, block)
+
 @ExperimentalComputed
 @Composable
 fun <T> rememberStateAsync(

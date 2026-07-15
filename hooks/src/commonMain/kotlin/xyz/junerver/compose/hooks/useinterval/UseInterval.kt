@@ -5,10 +5,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import kotlin.properties.Delegates
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -16,12 +18,10 @@ import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.IsActive
 import xyz.junerver.compose.hooks.Options
 import xyz.junerver.compose.hooks.PauseFn
-import xyz.junerver.compose.hooks.useref.Ref
 import xyz.junerver.compose.hooks.ResumeFn
 import xyz.junerver.compose.hooks.SuspendAsyncFn
 import xyz.junerver.compose.hooks.useeffect.useEffectImpl
 import xyz.junerver.compose.hooks.useDynamicOptions
-import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
 import xyz.junerver.compose.hooks.usestate.useStateImpl
 
@@ -45,36 +45,76 @@ data class UseIntervalOptions internal constructor(
 }
 
 @Stable
-private class Interval(var options: UseIntervalOptions) {
-    var ready = true
-    var scope: CoroutineScope by Delegates.notNull()
-    var isActiveState: MutableState<Boolean>? = null
-    lateinit var intervalFn: Ref<SuspendAsyncFn>
+private class Interval(
+    private val scope: CoroutineScope,
+    private val isActiveState: MutableState<Boolean>?,
+    options: UseIntervalOptions,
+    block: SuspendAsyncFn,
+) {
+    private val lock = SynchronizedObject()
+    private var initialDelay = options.initialDelay
+    private var period = options.period
+    private var intervalFn = block
+    private var ready = true
     private var intervalJob: Job? = null
 
-    fun isRunning() = intervalJob?.isActive == true
-
-    fun resume() {
-        if (ready) {
-            if (isRunning()) return
-            scope.launch {
-                delay(options.initialDelay)
-                while (isActive) {
-                    intervalFn.current(this)
-                    delay(options.period)
-                }
-            }.also {
-                intervalJob = it
-                isActiveState?.value = true
-            }
+    fun update(options: UseIntervalOptions, ready: Boolean = true, block: SuspendAsyncFn) {
+        synchronized(lock) {
+            initialDelay = options.initialDelay
+            period = options.period
+            intervalFn = block
+            this.ready = ready
         }
     }
 
-    fun pause() {
-        if (intervalJob?.isActive == true) {
-            intervalJob?.cancel()
-            isActiveState?.value = false
+    fun isRunning(): Boolean = synchronized(lock) { intervalJob != null }
+
+    fun resume() {
+        lateinit var candidate: Job
+        val shouldStart = synchronized(lock) {
+            if (!ready || intervalJob != null) {
+                false
+            } else {
+                val scheduledInitialDelay = initialDelay
+                candidate = scope.launch(start = CoroutineStart.LAZY) {
+                    delay(scheduledInitialDelay)
+                    while (isActive) {
+                        val callback = synchronized(lock) {
+                            intervalFn.takeIf { intervalJob === candidate && ready }
+                        } ?: return@launch
+                        callback(this)
+                        val nextDelay = synchronized(lock) {
+                            period.takeIf { intervalJob === candidate && ready }
+                        } ?: return@launch
+                        delay(nextDelay)
+                    }
+                }
+                intervalJob = candidate
+                isActiveState?.value = true
+                true
+            }
         }
+        if (!shouldStart) return
+
+        candidate.invokeOnCompletion {
+            synchronized(lock) {
+                if (intervalJob === candidate) {
+                    intervalJob = null
+                    isActiveState?.value = false
+                }
+            }
+        }
+        candidate.start()
+    }
+
+    fun pause() {
+        val jobToCancel = synchronized(lock) {
+            val currentJob = intervalJob
+            intervalJob = null
+            isActiveState?.value = false
+            currentJob
+        }
+        jobToCancel?.cancel()
     }
 }
 
@@ -86,34 +126,34 @@ data class IntervalHolder(
 )
 
 @Composable
-fun useIntervalImpl(optionsOf: UseIntervalOptions.() -> Unit = {}, block: SuspendAsyncFn): IntervalHolder = useIntervalImpl(
-    options = useDynamicOptions(optionsOf),
-    block = block,
-)
+fun useIntervalImpl(optionsOf: UseIntervalOptions.() -> Unit = {}, block: SuspendAsyncFn): IntervalHolder {
+    val options = useDynamicOptions(optionsOf).validated()
+    return useIntervalImpl(options = options, block = block)
+}
 
 @Composable
-fun useIntervalImpl(optionsOf: UseIntervalOptions.() -> Unit = {}, ready: Boolean, block: SuspendAsyncFn): Unit = useIntervalImpl(
-    useDynamicOptions(optionsOf),
-    ready = ready,
-    block = block,
-)
+fun useIntervalImpl(optionsOf: UseIntervalOptions.() -> Unit = {}, ready: Boolean, block: SuspendAsyncFn) {
+    val options = useDynamicOptions(optionsOf).validated()
+    useIntervalImpl(options, ready = ready, block = block)
+}
+
+private fun UseIntervalOptions.validated(): UseIntervalOptions = apply {
+    require(initialDelay >= Duration.ZERO) { "useInterval initialDelay must not be negative" }
+    require(period > Duration.ZERO) { "useInterval period must be positive" }
+}
 
 @Composable
 private fun useIntervalImpl(options: UseIntervalOptions, block: SuspendAsyncFn): IntervalHolder {
-    val latestFn = useLatestRefImpl(value = block)
     val isActiveState = useStateImpl(default = false)
     val scope = rememberCoroutineScope()
     val interval = remember {
-        Interval(options).apply {
-            this.isActiveState = isActiveState
-            this.intervalFn = latestFn
-            this.scope = scope
-        }
-    }.apply {
-        this.options = options
-        this.intervalFn = latestFn
-        this.scope = scope
-    }
+        Interval(
+            scope = scope,
+            isActiveState = isActiveState,
+            options = options,
+            block = block,
+        )
+    }.also { it.update(options = options, block = block) }
     useUnmountImpl {
         interval.pause()
     }
@@ -128,19 +168,15 @@ private fun useIntervalImpl(options: UseIntervalOptions, block: SuspendAsyncFn):
 
 @Composable
 private fun useIntervalImpl(options: UseIntervalOptions, ready: Boolean, block: SuspendAsyncFn) {
-    val latestFn = useLatestRefImpl(value = block)
     val scope = rememberCoroutineScope()
     val interval = remember {
-        Interval(options).apply {
-            this.intervalFn = latestFn
-            this.scope = scope
-        }
-    }.apply {
-        this.options = options
-        this.intervalFn = latestFn
-        this.scope = scope
-        this.ready = ready
-    }
+        Interval(
+            scope = scope,
+            isActiveState = null,
+            options = options,
+            block = block,
+        )
+    }.also { it.update(options = options, ready = ready, block = block) }
     useEffectImpl(ready) {
         if (ready && !interval.isRunning()) {
             interval.resume()

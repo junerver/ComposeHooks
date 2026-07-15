@@ -7,11 +7,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
+import xyz.junerver.compose.hooks.rememberInterval
 import xyz.junerver.compose.hooks.useInterval
 import xyz.junerver.compose.hooks.useState
 
@@ -141,7 +147,7 @@ class UseIntervalTest {
     fun pause_before_resume_does_nothing() = runComposeUiTest {
         val count = AtomicInteger(0)
         setContent {
-            val (resume, pause, _) = useInterval(
+            val (resume, pause, _) = rememberInterval(
                 optionsOf = {
                     period = 100.milliseconds
                 },
@@ -341,5 +347,106 @@ class UseIntervalTest {
             count.get() >= 10 && phaseRef.get() == 3
         }
         assertTrue(fired, "Expected recomposed interval callback to increment by latest multiplier")
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun concurrent_resume_starts_only_one_interval_job() = runComposeUiTest {
+        val count = AtomicInteger(0)
+        lateinit var resume: () -> Unit
+        lateinit var pause: () -> Unit
+
+        setContent {
+            val holder = useInterval(
+                optionsOf = {
+                    initialDelay = Duration.ZERO
+                    period = 5.seconds
+                },
+            ) {
+                count.incrementAndGet()
+            }
+            resume = holder.resume
+            pause = holder.pause
+        }
+        waitForIdle()
+
+        val callers = 32
+        val ready = CountDownLatch(callers)
+        val start = CountDownLatch(1)
+        val done = CountDownLatch(callers)
+        val errors = ConcurrentLinkedQueue<Throwable>()
+        repeat(callers) {
+            Thread {
+                try {
+                    ready.countDown()
+                    start.await()
+                    resume()
+                } catch (error: Throwable) {
+                    errors.add(error)
+                } finally {
+                    done.countDown()
+                }
+            }.start()
+        }
+
+        assertTrue(ready.await(5, TimeUnit.SECONDS), "Concurrent callers did not become ready")
+        start.countDown()
+        assertTrue(done.await(5, TimeUnit.SECONDS), "Concurrent resume calls did not complete")
+        assertTrue(errors.isEmpty(), "Concurrent resume threw: ${errors.firstOrNull()}")
+        assertTrue(
+            waitAndCheck(maxAttempts = 80, delayMs = 25) {
+                waitForIdle()
+                count.get() >= 1
+            },
+            "Expected the interval callback to run",
+        )
+
+        waitForIdle()
+        pause()
+        assertEquals(1, count.get(), "Concurrent resume calls must share one interval job")
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun non_positive_period_is_rejected_before_interval_starts() {
+        listOf(Duration.ZERO, (-1).milliseconds).forEach { invalidPeriod ->
+            val result = runCatching {
+                runComposeUiTest {
+                    setContent {
+                        useInterval(
+                            optionsOf = {
+                                period = invalidPeriod
+                            },
+                        ) {}
+                    }
+                }
+            }
+
+            assertTrue(
+                result.exceptionOrNull() is IllegalArgumentException,
+                "Expected period=$invalidPeriod to fail with IllegalArgumentException, actual=${result.exceptionOrNull()}",
+            )
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun negative_initial_delay_is_rejected_before_interval_starts() {
+        val result = runCatching {
+            runComposeUiTest {
+                setContent {
+                    useInterval(
+                        optionsOf = {
+                            initialDelay = (-1).milliseconds
+                        },
+                    ) {}
+                }
+            }
+        }
+
+        assertTrue(
+            result.exceptionOrNull() is IllegalArgumentException,
+            "Expected a negative initialDelay to fail with IllegalArgumentException, actual=${result.exceptionOrNull()}",
+        )
     }
 }
