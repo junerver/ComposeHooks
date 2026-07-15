@@ -3,11 +3,16 @@ package xyz.junerver.compose.hooks.test
 import androidx.compose.material3.Text
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertSame
+import xyz.junerver.compose.hooks.rememberMap
 import xyz.junerver.compose.hooks.useMap
 import xyz.junerver.compose.hooks.useState
 
@@ -242,5 +247,95 @@ class UseMapTest {
         }
         waitForIdle()
         onNodeWithText("value=100 counter=2").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun map_keeps_initial_snapshot_and_identity_when_input_changes() = runComposeUiTest {
+        val mutableInput = mutableListOf("a" to 1)
+        var source by mutableStateOf<List<Pair<String, Int>>>(mutableInput)
+        lateinit var map: SnapshotStateMap<String, Int>
+
+        setContent {
+            map = useMap(source)
+        }
+
+        waitForIdle()
+        val initialMap = map
+        map["local"] = 2
+        mutableInput.add("external" to 3)
+        source = listOf("replacement" to 4)
+        waitForIdle()
+
+        assertSame(initialMap, map)
+        assertEquals(mapOf("a" to 1, "local" to 2), map.toMap())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun map_handles_duplicate_and_nullable_pairs_under_rapid_updates() = runComposeUiTest {
+        lateinit var map: SnapshotStateMap<String?, Int?>
+
+        setContent {
+            map = useMap(null to null, "duplicate" to 1, "duplicate" to 2)
+        }
+
+        waitForIdle()
+        assertEquals(mapOf(null to null, "duplicate" to 2), map.toMap())
+
+        map[null] = 4
+        map["nullable"] = null
+        map.remove("duplicate")
+        map.putAll(mapOf("x" to 5, "y" to 6))
+        map["x"] = 7
+        waitForIdle()
+
+        assertEquals(
+            mapOf<String?, Int?>(null to 4, "nullable" to null, "x" to 7, "y" to 6),
+            map.toMap(),
+        )
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun iterable_input_is_consumed_only_during_initialization() = runComposeUiTest {
+        var iterations = 0
+        val pairs = Iterable {
+            iterations += 1
+            listOf("a" to 1, "b" to 2).iterator()
+        }
+        var renderVersion by mutableStateOf(0)
+        lateinit var map: SnapshotStateMap<String, Int>
+
+        setContent {
+            renderVersion
+            map = useMap(pairs)
+        }
+
+        waitForIdle()
+        val initialMap = map
+        assertEquals(1, iterations)
+
+        renderVersion += 1
+        waitForIdle()
+        assertSame(initialMap, map)
+        assertEquals(1, iterations)
+        assertEquals(mapOf("a" to 1, "b" to 2), map.toMap())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun remember_map_aliases_match_vararg_and_iterable_overloads() = runComposeUiTest {
+        lateinit var varargMap: SnapshotStateMap<String?, Int?>
+        lateinit var iterableMap: SnapshotStateMap<String, Int>
+
+        setContent {
+            varargMap = rememberMap(null to null, "a" to 1, "a" to 2)
+            iterableMap = rememberMap(listOf("x" to 3, "y" to 4))
+        }
+
+        waitForIdle()
+        assertEquals(mapOf(null to null, "a" to 2), varargMap.toMap())
+        assertEquals(mapOf("x" to 3, "y" to 4), iterableMap.toMap())
     }
 }
