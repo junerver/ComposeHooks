@@ -1,7 +1,6 @@
 package xyz.junerver.compose.hooks.useautoreset
-import xyz.junerver.compose.hooks.usestate.useStateImpl
 import xyz.junerver.compose.hooks.useeffect.useEffectImpl
-import xyz.junerver.compose.hooks.usecreation.useCreationImpl
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -40,10 +39,9 @@ import kotlinx.coroutines.delay
 @Composable
 fun <T> useAutoResetImpl(default: T & Any, interval: Duration): MutableState<T & Any> {
     val state = useStateImpl(default = default)
-    val defaultValue = useCreationImpl { default }
-    useEffectImpl(state) {
+    useEffectImpl(state, default, interval) {
         delay(interval)
-        state.value = defaultValue.current
+        state.value = default
     }
     return state
 }
