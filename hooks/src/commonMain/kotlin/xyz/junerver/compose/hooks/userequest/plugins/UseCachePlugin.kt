@@ -58,6 +58,7 @@ private class CachePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
         get() = { fetch: Fetch<TParams, TData>, useRequestOptions: UseRequestOptions<TParams, TData> ->
             initFetch(fetch, useRequestOptions)
             val (cacheKey, staleTimeOp) = with(useRequestOptions) { tuple(cacheKey, staleTime) }
+            val loadingDelay = useRequestOptions.loadingDelay
             staleTime = staleTimeOp
 
             object : PluginLifecycle<TParams, TData>() {
@@ -95,7 +96,9 @@ private class CachePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
                 override val onRequest: PluginOnRequest<TParams, TData>
                     get() = onRequest@{ requestFn, param ->
                         var servicePromise: Deferred<TData>? = getCacheDeferred(cacheKey)
-                        trigger(cacheKey, RestoreFetchStateData(loading = true))
+                        if (!loadingDelay.asBoolean()) {
+                            trigger(cacheKey, RestoreFetchStateData(loading = true))
+                        }
 
                         // 如果已经发起过请求，则直接从缓存中返回之前请求的 Deferred
                         // 这样可以让同时发出的两个请求，共用同一个
@@ -195,6 +198,7 @@ internal fun <TParams, TData : Any> useCachePlugin(options: UseRequestOptions<TP
         Tuple4(cacheKey, cacheTime, setCache, getCache)
     }
     val staleTime = options.staleTime
+    val loadingDelay = options.loadingDelay
     if (cacheKey.isEmpty()) {
         return useEmptyPlugin()
     }
@@ -225,7 +229,7 @@ internal fun <TParams, TData : Any> useCachePlugin(options: UseRequestOptions<TP
     val unSubscribeRef = useRefImpl<(() -> Unit)?>(null)
     val currentPromiseRef = useRefImpl<Deferred<*>?>(null)
 
-    val cachePlugin = remember(cacheKey, staleTime) {
+    val cachePlugin = remember(cacheKey, staleTime, loadingDelay) {
         CachePlugin<TParams, TData>().apply {
             this.unSubscribeRef = unSubscribeRef
             this.currentPromiseRef = currentPromiseRef
