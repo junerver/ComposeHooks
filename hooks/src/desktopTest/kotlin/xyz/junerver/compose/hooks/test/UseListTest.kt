@@ -315,12 +315,13 @@ class UseListTest {
         var source by mutableStateOf(listOf(first), referentialEqualityPolicy())
         var operationCalls = 0
         var reduced: State<EqualValue?>? = null
+        val operation: (EqualValue, EqualValue) -> EqualValue = { _, value ->
+            operationCalls += 1
+            value
+        }
 
         setContent {
-            reduced = useListReduce(source) { _, value ->
-                operationCalls += 1
-                value
-            }
+            reduced = useListReduce(source, operation)
         }
 
         waitForIdle()
@@ -333,6 +334,31 @@ class UseListTest {
         assertSame(initialState, reduced)
         assertSame(replacement, reduced!!.value)
         assertEquals(0, operationCalls)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun list_reduce_observes_in_place_mutation_after_recomposition() = runComposeUiTest {
+        val source = mutableListOf(1, 2)
+        val operation: (Int, Int) -> Int = Int::plus
+        var renderVersion by mutableStateOf(0)
+        var reduced: State<Int?>? = null
+
+        setContent {
+            renderVersion
+            reduced = useListReduce(source, operation)
+        }
+
+        waitForIdle()
+        val initialState = reduced
+        assertEquals(3, reduced!!.value)
+
+        source[1] = 5
+        renderVersion += 1
+        waitForIdle()
+
+        assertSame(initialState, reduced)
+        assertEquals(6, reduced!!.value)
     }
 
     @OptIn(ExperimentalTestApi::class)
