@@ -322,6 +322,10 @@ abstract class Plugin<TParams, TData : Any> : IFetch<TParams, TData>, CoroutineS
     override fun cancel() {
         pluginJob.cancelChildren()
     }
+
+    internal fun disposeScope() {
+        pluginJob.cancel()
+    }
 }
 
 /**
@@ -333,6 +337,10 @@ internal class EmptyPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
         get() = { _, _ ->
             object : PluginLifecycle<TParams, TData>() {}
         }
+
+    fun dispose() {
+        disposeScope()
+    }
 }
 
 /** 返回一个空插件，避免直接使用[EmptyPlugin]实例 */
@@ -342,7 +350,7 @@ fun <TParams, TData : Any> useEmptyPlugin(): Plugin<TParams, TData> {
         EmptyPlugin<TParams, TData>()
     }.current
     useUnmountImpl {
-        emptyPlugin.cancel()
+        emptyPlugin.dispose()
     }
     return emptyPlugin
 }

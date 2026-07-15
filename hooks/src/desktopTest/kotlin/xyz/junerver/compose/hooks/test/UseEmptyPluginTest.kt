@@ -6,6 +6,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.test.Test
+import kotlin.test.assertFalse
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CompletableDeferred
@@ -26,6 +27,63 @@ import xyz.junerver.compose.hooks.useEmptyPlugin
 
 @Suppress("DEPRECATION")
 class UseEmptyPluginTest {
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun stale_empty_plugin_scope_rejects_work_after_unmount() = runComposeUiTest {
+        val mounted = mutableStateOf(true)
+        val executed = AtomicBoolean(false)
+        lateinit var plugin: Plugin<Unit, String>
+
+        setContent {
+            if (mounted.value) {
+                plugin = useEmptyPlugin()
+                Text("mounted")
+            }
+        }
+
+        waitForIdle()
+        runOnIdle { mounted.value = false }
+        waitForIdle()
+
+        val staleJob = plugin.launch {
+            executed.set(true)
+        }
+        staleJob.join()
+
+        assertTrue(staleJob.isCancelled)
+        assertFalse(executed.get())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun regular_cancel_keeps_mounted_empty_plugin_reusable() = runComposeUiTest {
+        val firstCancelled = CompletableDeferred<Unit>()
+        val secondExecuted = AtomicBoolean(false)
+        lateinit var plugin: Plugin<Unit, String>
+
+        setContent {
+            plugin = useEmptyPlugin()
+        }
+
+        waitForIdle()
+        val firstJob = plugin.launch {
+            try {
+                awaitCancellation()
+            } finally {
+                firstCancelled.complete(Unit)
+            }
+        }
+        plugin.cancel()
+        firstJob.join()
+        assertTrue(firstCancelled.isCompleted)
+
+        val secondJob = plugin.launch {
+            secondExecuted.set(true)
+        }
+        secondJob.join()
+        assertTrue(secondExecuted.get())
+    }
+
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun empty_plugin_cancels_child_coroutines_on_unmount() = runComposeUiTest {
