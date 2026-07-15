@@ -1,17 +1,21 @@
 package xyz.junerver.compose.hooks.userequest.plugins
-import xyz.junerver.compose.hooks.usebackfront.useFrontToBackEffectImpl
-import xyz.junerver.compose.hooks.usebackfront.useBackToFrontEffectImpl
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LifecycleResumeEffect
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import kotlin.time.Duration
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.getAndUpdate
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.tuple
-import xyz.junerver.compose.hooks.useBackToFrontEffect
-import xyz.junerver.compose.hooks.useFrontToBackEffect
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
 import xyz.junerver.compose.hooks.userequest.Plugin
@@ -33,41 +37,63 @@ import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 */
 internal class PollingTimer {
     private class ScheduledTask {
-        var job: Job? = null
+        lateinit var job: Job
     }
 
-    private var scheduledTask: ScheduledTask? = null
+    private val scheduledTask = MutableStateFlow<ScheduledTask?>(null)
 
     fun schedule(scope: CoroutineScope, interval: Duration, block: suspend () -> Unit) {
-        cancel()
         val task = ScheduledTask()
-        scheduledTask = task
-        task.job = scope.launch {
+        task.job = scope.launch(start = CoroutineStart.LAZY) {
             delay(interval)
-            if (scheduledTask !== task) return@launch
-            scheduledTask = null
+            if (!scheduledTask.compareAndSet(task, null)) return@launch
             block()
         }
+        scheduledTask.getAndUpdate { task }?.job?.cancel()
+        task.job.start()
+        if (scheduledTask.value !== task) task.job.cancel()
     }
 
     fun cancel() {
-        val task = scheduledTask
-        scheduledTask = null
-        task?.job?.cancel()
+        scheduledTask.getAndUpdate { null }?.job?.cancel()
     }
 }
 
-private class PollingPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
-    // 已经重试计数
-    var currentRetryCount = 0
-
-    var inBackground = false
-
+private class PollingPlugin<TParams, TData : Any>(initiallyInBackground: Boolean) : Plugin<TParams, TData>() {
+    private val stateLock = SynchronizedObject()
     private val pollingTimer = PollingTimer()
+    private var currentRetryCount = 0
+    private var inBackground = initiallyInBackground
+    private var pollingEpoch = 0L
 
     /** 轮询任务是一个单独 Job，新请求开始前必须停止旧任务，避免形成多个轮询链。 */
-    fun stopPolling() {
+    private fun stopPolling(resetErrors: Boolean = false) {
+        synchronized(stateLock) {
+            pollingEpoch += 1L
+            if (resetErrors) currentRetryCount = 0
+        }
         pollingTimer.cancel()
+    }
+
+    fun enterBackground() {
+        synchronized(stateLock) {
+            inBackground = true
+            pollingEpoch += 1L
+        }
+        pollingTimer.cancel()
+    }
+
+    fun enterForegroundAndRefresh() {
+        val shouldRefresh = synchronized(stateLock) {
+            if (!inBackground) {
+                false
+            } else {
+                inBackground = false
+                pollingEpoch += 1L
+                true
+            }
+        }
+        if (shouldRefresh) refresh()
     }
 
     override val invoke: GenPluginLifecycleFn<TParams, TData>
@@ -87,24 +113,39 @@ private class PollingPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
 
                 override val onError: PluginOnError<TParams>
                     get() = { _, _ ->
-                        currentRetryCount += 1
+                        synchronized(stateLock) {
+                            currentRetryCount += 1
+                        }
                     }
 
                 override val onSuccess: PluginOnSuccess<TParams, TData>
                     get() = { _, _ ->
-                        currentRetryCount = 0
+                        synchronized(stateLock) {
+                            currentRetryCount = 0
+                        }
                     }
 
                 override val onFinally: PluginOnFinally<TParams, TData>
-                    get() = onFinally@{ _, _, _ ->
+                    get() = onFinally@{ params, _, _ ->
                         val usedScope = if (pollingWhenHidden) pluginScope else fetch.scope
-                        if (!pollingWhenHidden && inBackground) return@onFinally
-                        if (pollingErrorRetryCount == -1 || currentRetryCount <= pollingErrorRetryCount) {
-                            pollingTimer.schedule(usedScope, pollingInterval) {
-                                if (pollingWhenHidden) fetch.refreshAsync() else fetch.refresh()
+                        synchronized(stateLock) {
+                            if (!pollingWhenHidden && inBackground) return@onFinally
+                            if (pollingErrorRetryCount != -1 && currentRetryCount > pollingErrorRetryCount) {
+                                currentRetryCount = 0
+                                return@onFinally
                             }
-                        } else {
-                            currentRetryCount = 0
+                            val scheduledEpoch = pollingEpoch
+                            val dispatchToken = fetch.requestDispatchToken()
+                            pollingTimer.schedule(usedScope, pollingInterval) {
+                                synchronized(stateLock) {
+                                    if (
+                                        scheduledEpoch == pollingEpoch &&
+                                        (pollingWhenHidden || !inBackground)
+                                    ) {
+                                        fetch.runIfDispatchTokenCurrent(dispatchToken, params)
+                                    }
+                                }
+                            }
                         }
                     }
 
@@ -116,7 +157,7 @@ private class PollingPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
         }
 
     override fun cancel() {
-        stopPolling()
+        stopPolling(resetErrors = true)
         super.cancel()
     }
 
@@ -130,20 +171,20 @@ internal fun <TParams, TData : Any> usePollingPlugin(options: UseRequestOptions<
     val pollingInterval = options.pollingInterval
     val pollingWhenHidden = options.pollingWhenHidden
     val pollingErrorRetryCount = options.pollingErrorRetryCount
-    if (pollingInterval == Duration.ZERO) {
+    if (pollingInterval <= Duration.ZERO) {
         return useEmptyPlugin()
     }
-    val pollingPlugin = remember(pollingInterval, pollingWhenHidden, pollingErrorRetryCount) {
-        PollingPlugin<TParams, TData>()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val initiallyInBackground = !lifecycleOwner.lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)
+    val pollingPlugin = remember(pollingInterval, pollingWhenHidden, pollingErrorRetryCount, lifecycleOwner) {
+        PollingPlugin<TParams, TData>(initiallyInBackground)
     }
     if (!pollingWhenHidden) {
-        useBackToFrontEffect {
-            pollingPlugin.refresh()
-            pollingPlugin.inBackground = false
-        }
-        useFrontToBackEffect {
-            pollingPlugin.stopPolling()
-            pollingPlugin.inBackground = true
+        LifecycleResumeEffect(pollingPlugin, lifecycleOwner = lifecycleOwner) {
+            pollingPlugin.enterForegroundAndRefresh()
+            onPauseOrDispose {
+                pollingPlugin.enterBackground()
+            }
         }
     }
 
