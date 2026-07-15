@@ -1,7 +1,9 @@
 package xyz.junerver.compose.hooks.usevibrate
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.platform.LocalContext
+import xyz.junerver.compose.hooks.useCreation
 
 /*
   Description:
@@ -13,9 +15,26 @@ import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun useVibrate(short: Long = 100, long: Long = 400): Pair<() -> Unit, () -> Unit> {
-    val ctx = LocalContext.current
-    return Pair(
-        first = { ctx.vibrateShort(short) },
-        second = { ctx.vibrateLong(long) },
-    )
+    val localContext = LocalContext.current
+    val context = localContext.applicationContext ?: localContext
+    val controller = useCreation(context) { createVibrationController(context) }.current
+
+    DisposableEffect(controller) {
+        onDispose {
+            controller.close()
+        }
+    }
+
+    return useCreation(controller, short, long) {
+        Pair(
+            first = {
+                controller.vibrate(short)
+                Unit
+            },
+            second = {
+                controller.vibrate(long)
+                Unit
+            },
+        )
+    }.current
 }

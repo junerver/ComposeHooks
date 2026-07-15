@@ -62,7 +62,10 @@ fun rememberSensor(
 ) = useSensor(sensorType, onAccuracyChangedFn, onSensorChangedFn)
 
 @Composable
-fun rememberVibrate() = useVibrate()
+fun rememberVibrate(): Pair<() -> Unit, () -> Unit> = useVibrate()
+
+@Composable
+fun rememberVibrate(short: Long, long: Long = 400): Pair<() -> Unit, () -> Unit> = useVibrate(short, long)
 
 @Composable
 fun rememberWakeLock(): Triple<RequestFn, ReleaseFn, IsActive> = useWakeLock()
