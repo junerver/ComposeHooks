@@ -86,6 +86,7 @@ kotlin {
             // (provided by kotlin-stdlib). Real reflection calls (.call/.callSuspend/
             // .createType) live in commonJvmAndroid; see the dependency block below.
             api(libs.kotlinx.coroutines)
+            implementation(libs.kotlinx.atomicfu)
             api(libs.kotlinx.datetime)
             api(libs.kotlinx.collections.immutable)
 

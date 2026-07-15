@@ -215,10 +215,10 @@ private fun <TParams, TData : Any> useRequestPluginsImpl(
     var pluginsRef by useRefImpl<Array<Plugin<TParams, TData>>>(emptyArray())
     var pluginsInitialized by useRefImpl(false)
     if (!pluginsInitialized || !pluginsRef.contentEquals(plugins)) {
-        pluginsRef.forEachIndexed { index, plugin ->
-            if (plugins.none { it === plugin }) {
-                runCatching { fetch.pluginImpls.getOrNull(index)?.onCancel?.invoke() }
-                plugin.cancel()
+        if (pluginsInitialized) {
+            fetch.cancelForPluginReplacement()
+            pluginsRef.forEach { plugin ->
+                if (plugins.none { it === plugin }) plugin.cancel()
             }
         }
         pluginsRef = plugins.copyOf()
