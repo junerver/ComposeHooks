@@ -10,6 +10,7 @@ import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.MutableState
 import arrow.core.Either
 import androidx.compose.runtime.State
+import kotlin.jvm.JvmName
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
@@ -404,12 +405,21 @@ typealias UseStateAsyncOptions = UseStateAsyncOptionsImpl
  */
 
 //region useRequest/useSse standalone 根包重导出
+@Deprecated("Binary compatibility bridge", level = DeprecationLevel.HIDDEN)
 @Composable
 fun <TParams, TData : Any> useRequest(
     requestFn: SuspendNormalFunction<TParams?, TData>,
     optionsOf: UseRequestOptions<TParams, TData>.() -> Unit = {},
     plugins: Array<@Composable (UseRequestOptions<TParams, TData>) -> Plugin<TParams, TData>> = emptyArray(),
-) = useRequestImpl(requestFn, optionsOf, plugins)
+): RequestHolder<TParams, TData> = useRequestImpl(requestFn, optionsOf, plugins)
+
+@JvmName("useRequestCanonical")
+@Composable
+fun <TParams, TData : Any> useRequest(
+    requestFn: SuspendNormalFunction<TParams, TData>,
+    optionsOf: UseRequestOptions<TParams, TData>.() -> Unit = {},
+    plugins: Array<@Composable (UseRequestOptions<TParams, TData>) -> Plugin<TParams, TData>> = emptyArray(),
+): RequestHolder<TParams, TData> = useRequestImpl(requestFn, optionsOf, plugins)
 
 @Composable
 fun <T> useTableRequest(
@@ -467,12 +477,21 @@ inline fun <reified T> rememberSelector(alias: String? = null): State<T> = useSe
 inline fun <reified T, R> rememberSelector(alias: String? = null, crossinline block: T.() -> R) = useSelectorImpl(alias, block)
 //endregion
 
+@Deprecated("Binary compatibility bridge", level = DeprecationLevel.HIDDEN)
 @Composable
 fun <TParams, TData : Any> rememberRequest(
     requestFn: SuspendNormalFunction<TParams?, TData>,
     optionsOf: UseRequestOptions<TParams, TData>.() -> Unit = {},
     plugins: Array<@Composable (UseRequestOptions<TParams, TData>) -> Plugin<TParams, TData>> = emptyArray(),
-) = useRequestImpl(requestFn, optionsOf, plugins)
+): RequestHolder<TParams, TData> = useRequestImpl(requestFn, optionsOf, plugins)
+
+@JvmName("rememberRequestCanonical")
+@Composable
+fun <TParams, TData : Any> rememberRequest(
+    requestFn: SuspendNormalFunction<TParams, TData>,
+    optionsOf: UseRequestOptions<TParams, TData>.() -> Unit = {},
+    plugins: Array<@Composable (UseRequestOptions<TParams, TData>) -> Plugin<TParams, TData>> = emptyArray(),
+): RequestHolder<TParams, TData> = useRequestImpl(requestFn, optionsOf, plugins)
 
 @Composable
 fun <TParams, TData : Any> rememberEmptyPlugin(): Plugin<TParams, TData> = useEmptyPluginImpl()
