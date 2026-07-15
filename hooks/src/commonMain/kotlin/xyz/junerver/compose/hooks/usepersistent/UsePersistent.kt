@@ -1,23 +1,21 @@
 package xyz.junerver.compose.hooks.usepersistent
-import xyz.junerver.compose.hooks.usecontext.createContextImpl
-import xyz.junerver.compose.hooks.usestate._useStateImpl
-import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
-import xyz.junerver.compose.hooks.useref.useRefImpl
-import xyz.junerver.compose.hooks.usemount.useMountImpl
-import xyz.junerver.compose.hooks.usecontext.useContextImpl
-import xyz.junerver.compose.hooks.useref.setValue
-import xyz.junerver.compose.hooks.useref.getValue
-import xyz.junerver.compose.hooks.SaveToPersistent
-import xyz.junerver.compose.hooks.useref.Ref
-import xyz.junerver.compose.hooks.PersistentContextValue
 import xyz.junerver.compose.hooks.HookClear
+import xyz.junerver.compose.hooks.PersistentContextValue
+import xyz.junerver.compose.hooks.SaveToPersistent
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
 import kotlin.reflect.KProperty
 import xyz.junerver.compose.hooks.internal.persistentKey
+import xyz.junerver.compose.hooks.usecontext.createContextImpl
+import xyz.junerver.compose.hooks.usecontext.useContextImpl
+import xyz.junerver.compose.hooks.usecreation.useCreationImpl
+import xyz.junerver.compose.hooks.useeffect.useEffectImpl
+import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
+import xyz.junerver.compose.hooks.usestate._useStateImpl
 import xyz.junerver.compose.hooks.utils.CacheManager
 import xyz.junerver.compose.hooks.utils.HooksEventManager
 
@@ -131,27 +129,36 @@ internal val InternalMemoryPersistentContext by lazy {
 @Composable
 fun <T> usePersistentImpl(key: String, defaultValue: T, forceUseMemory: Boolean = false): PersistentHolder<T> {
     val (get, set, clear) = useContextImpl(context = if (forceUseMemory) InternalMemoryPersistentContext else PersistentContext)
-    val getValue = { get(key, defaultValue as Any) as T }
-    val state = _useStateImpl(getValue())
+    val latestKey = useLatestRefImpl(key)
+    val latestDefaultValue = useLatestRefImpl(defaultValue)
+    val latestGet = useLatestRefImpl(get)
+    val latestSet = useLatestRefImpl(set)
+    val latestClear = useLatestRefImpl(clear)
+    val getValue = {
+        latestGet.current(latestKey.current, latestDefaultValue.current as Any) as T
+    }
+    val initialValue = useCreationImpl(factory = getValue).current
+    val state = _useStateImpl(initialValue)
+
+    useEffectImpl(key, defaultValue, get) {
+        state.value = getValue()
+    }
 
     /**
      * Register an observer callback for each component that uses this state,
      * and notify the update component when this storage changes;
      */
-    var unObserver by useRefImpl(default = {})
-    useMountImpl {
-        unObserver = memoryAddObserver(key) {
+    DisposableEffect(key) {
+        val unObserver = memoryAddObserver(key) {
             state.value = getValue()
         }
-    }
-    useUnmountImpl {
-        unObserver()
+        onDispose(unObserver)
     }
     return remember {
         PersistentHolder(
             state = state,
-            save = { value -> set(key, value) },
-            clear = { clear(key) },
+            save = { value -> latestSet.current(latestKey.current, value) },
+            clear = { latestClear.current(latestKey.current) },
         )
     }
 }
