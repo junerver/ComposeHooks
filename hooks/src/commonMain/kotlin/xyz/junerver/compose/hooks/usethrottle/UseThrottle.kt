@@ -71,16 +71,26 @@ internal class Throttle<TParams>(
 
     private val stateLock = SynchronizedObject()
     private var currentFn = fn
-    private var currentOptions = options
+    private var currentOptions = options.copy()
     private var timeoutJob: Job? = null
     private var lastArgs: PendingArgs<TParams>? = null
     private var latestInvokedTime = Instant.DISTANT_PAST
 
     fun update(fn: VoidFunction<TParams>, options: UseThrottleOptions) {
-        synchronized(stateLock) {
+        val transition = synchronized(stateLock) {
             currentFn = fn
-            currentOptions = options
+            if (currentOptions == options) {
+                null
+            } else {
+                currentOptions = options.copy()
+                val timeoutToCancel = timeoutJob
+                timeoutJob = null
+                lastArgs = null
+                latestInvokedTime = Instant.DISTANT_PAST
+                Transition<TParams>(timeoutToCancel = timeoutToCancel)
+            }
         }
+        completeTransition(transition)
     }
 
     private fun createTimeoutJobLocked(wait: Duration, trailing: Boolean): Job {

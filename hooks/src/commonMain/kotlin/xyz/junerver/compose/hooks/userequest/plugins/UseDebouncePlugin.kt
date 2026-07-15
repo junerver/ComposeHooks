@@ -19,22 +19,29 @@ import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
   Email: junerver@gmail.com
   Version: v1.0
 */
+private data class DebouncedRequest<T>(
+    val params: T,
+    val dispatchToken: Long,
+)
+
 private class DebouncePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
     override val invoke: GenPluginLifecycleFn<TParams, TData>
         get() = { fetch: Fetch<TParams, TData>, useRequestOptions: UseRequestOptions<TParams, TData> ->
-            var debounce: Debounce<TParams?>? = null
+            var debounce: Debounce<*>? = null
             if (useRequestOptions.debounceOptions.wait > Duration.ZERO) {
-                val debounced = Debounce<TParams?>(
-                    fn = { params -> fetch._run(params) },
+                val debounced = Debounce<DebouncedRequest<TParams?>>(
+                    fn = { request ->
+                        fetch.runIfDispatchTokenCurrent(request.dispatchToken, request.params)
+                    },
                     scope = this,
                     useRequestOptions.debounceOptions,
                 )
                 debounce = debounced
                 fetch.runAsync = {
-                    debounced.invoke(it)
+                    debounced.invoke(DebouncedRequest(it, fetch.beginRequestDispatch()))
                 }
                 fetch.run = {
-                    debounced.invoke(it)
+                    debounced.invoke(DebouncedRequest(it, fetch.beginRequestDispatch()))
                 }
             }
             object : PluginLifecycle<TParams, TData>() {

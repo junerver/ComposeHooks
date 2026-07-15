@@ -19,23 +19,30 @@ import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
   Email: junerver@gmail.com
   Version: v1.0
 */
+private data class ThrottledRequest<T>(
+    val params: T,
+    val dispatchToken: Long,
+)
+
 private class ThrottlePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
     override val invoke: GenPluginLifecycleFn<TParams, TData>
         get() = { fetch: Fetch<TParams, TData>, useRequestOptions: UseRequestOptions<TParams, TData> ->
             initFetch(fetch, useRequestOptions)
-            var throttle: Throttle<TParams?>? = null
+            var throttle: Throttle<*>? = null
             if (useRequestOptions.throttleOptions.wait > Duration.ZERO) {
-                val throttled = Throttle<TParams?>(
-                    fn = { params -> fetch._run(params) },
+                val throttled = Throttle<ThrottledRequest<TParams?>>(
+                    fn = { request ->
+                        fetch.runIfDispatchTokenCurrent(request.dispatchToken, request.params)
+                    },
                     scope = this,
                     useRequestOptions.throttleOptions,
                 )
                 throttle = throttled
                 fetch.run = {
-                    throttled.invoke(it)
+                    throttled.invoke(ThrottledRequest(it, fetch.beginRequestDispatch()))
                 }
                 fetch.runAsync = {
-                    throttled.invoke(it)
+                    throttled.invoke(ThrottledRequest(it, fetch.beginRequestDispatch()))
                 }
             }
             object : PluginLifecycle<TParams, TData>() {

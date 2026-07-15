@@ -325,4 +325,75 @@ class UseDebounceComprehensiveTest {
         runCurrent()
         assertEquals(listOf(4, 5), calls)
     }
+
+    @Test
+    fun debounceOptionUpdateAppliesLeadingAndTrailingFlags() = runTest {
+        val calls = mutableListOf<Int>()
+        val debounce = Debounce(
+            fn = { value: Int -> calls += value },
+            scope = this,
+            options = UseDebounceOptions.optionOf {
+                wait = 100.milliseconds
+                leading = false
+                trailing = true
+            },
+            now = { nowInstant() },
+        )
+
+        debounce.invoke(1)
+        advanceTimeBy(50)
+        runCurrent()
+        debounce.update(
+            fn = { calls += it },
+            options = UseDebounceOptions.optionOf {
+                wait = 100.milliseconds
+                leading = true
+                trailing = false
+            },
+        )
+        debounce.invoke(2)
+        runCurrent()
+
+        assertEquals(listOf(2), calls)
+        advanceTimeBy(200)
+        runCurrent()
+        assertEquals(listOf(2), calls)
+    }
+
+    @Test
+    fun debounceOptionUpdateAppliesNewMaxWaitAndDropsOldWindow() = runTest {
+        val calls = mutableListOf<Int>()
+        val debounce = Debounce(
+            fn = { value: Int -> calls += value },
+            scope = this,
+            options = UseDebounceOptions.optionOf {
+                wait = 200.milliseconds
+                maxWait = 500.milliseconds
+            },
+            now = { nowInstant() },
+        )
+
+        debounce.invoke(1)
+        advanceTimeBy(50)
+        runCurrent()
+        debounce.update(
+            fn = { calls += it },
+            options = UseDebounceOptions.optionOf {
+                wait = 200.milliseconds
+                maxWait = 100.milliseconds
+            },
+        )
+        debounce.invoke(2)
+
+        advanceTimeBy(99)
+        runCurrent()
+        assertEquals(emptyList(), calls)
+        advanceTimeBy(1)
+        runCurrent()
+        assertEquals(listOf(2), calls)
+
+        advanceTimeBy(500)
+        runCurrent()
+        assertEquals(listOf(2), calls)
+    }
 }

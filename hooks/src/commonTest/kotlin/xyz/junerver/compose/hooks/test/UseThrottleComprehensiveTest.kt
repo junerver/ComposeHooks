@@ -214,4 +214,38 @@ class UseThrottleComprehensiveTest {
         runCurrent()
         assertEquals(listOf(1, 3), calls)
     }
+
+    @Test
+    fun throttleOptionUpdateAppliesLeadingAndTrailingFlags() = runTest {
+        val calls = mutableListOf<Int>()
+        val throttle = Throttle(
+            fn = { value: Int -> calls += value },
+            scope = this,
+            options = UseThrottleOptions.optionOf {
+                wait = 100.milliseconds
+                leading = false
+                trailing = true
+            },
+            now = { nowInstant() },
+        )
+
+        throttle.invoke(1)
+        advanceTimeBy(50)
+        runCurrent()
+        throttle.update(
+            fn = { calls += it },
+            options = UseThrottleOptions.optionOf {
+                wait = 100.milliseconds
+                leading = true
+                trailing = false
+            },
+        )
+        throttle.invoke(2)
+        runCurrent()
+
+        assertEquals(listOf(2), calls)
+        advanceTimeBy(200)
+        runCurrent()
+        assertEquals(listOf(2), calls)
+    }
 }

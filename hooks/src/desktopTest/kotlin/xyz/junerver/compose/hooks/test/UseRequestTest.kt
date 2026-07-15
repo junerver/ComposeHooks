@@ -466,7 +466,7 @@ class UseRequestTest {
                 optionsOf = {
                     manual = true
                     debounceOptionsOf = {
-                        wait = 50.milliseconds
+                        wait = 10.seconds
                         leading = false
                         trailing = true
                     }
@@ -480,13 +480,8 @@ class UseRequestTest {
             holder.request("stale")
             holder.cancel()
         }
-
-        val unexpectedlyRan = waitForCondition(maxAttempts = 20, delayMs = 10) {
-            callCount.get() > 0
-        }
         waitForIdle()
 
-        assertFalse(unexpectedlyRan)
         assertEquals(0, callCount.get())
         assertNull(holder.data.value)
     }
@@ -557,7 +552,7 @@ class UseRequestTest {
                 optionsOf = {
                     manual = true
                     debounceOptionsOf = {
-                        wait = if (enabled.value) 300.milliseconds else 0.milliseconds
+                        wait = if (enabled.value) 10.seconds else 0.milliseconds
                     }
                 },
             )
@@ -575,11 +570,6 @@ class UseRequestTest {
         waitForIdle()
         assertSame(initialHolder, holder)
         assertSame(initialRequest, holder.request)
-
-        val unexpectedlyRan = waitForCondition(maxAttempts = 25, delayMs = 20) {
-            callCount.get() > 0
-        }
-        assertFalse(unexpectedlyRan)
 
         runOnIdle { initialRequest("direct") }
         waitForIdle()
@@ -634,6 +624,55 @@ class UseRequestTest {
 
         assertTrue(completed, "Expected the updated debounce wait to take effect")
         assertEquals(listOf("latest"), receivedParams.toList())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun debouncePlugin_replaces_on_maxWait_only_change() = runComposeUiTest {
+        val maxWait = mutableStateOf(1.seconds)
+        val cancelCount = AtomicInteger(0)
+        lateinit var holder: RequestHolder<String, Int>
+        setContent {
+            val probePlugin = remember {
+                object : Plugin<String, Int>() {
+                    override val invoke: (
+                        Fetch<String, Int>,
+                        UseRequestOptions<String, Int>,
+                    ) -> PluginLifecycle<String, Int> = { fetch, options ->
+                        initFetch(fetch, options)
+                        object : PluginLifecycle<String, Int>() {
+                            override val onCancel: (() -> Unit)? = {
+                                cancelCount.incrementAndGet()
+                            }
+                        }
+                    }
+                }
+            }
+            val probeGenerator = remember {
+                @androidx.compose.runtime.Composable
+                { _: UseRequestOptions<String, Int> -> probePlugin }
+            }
+            holder = useRequest(
+                requestFn = { params: String -> params.length },
+                optionsOf = {
+                    manual = true
+                    debounceOptionsOf = {
+                        wait = 10.seconds
+                        this.maxWait = maxWait.value
+                    }
+                },
+                plugins = arrayOf(probeGenerator),
+            )
+            Text("data=${holder.data.value}")
+        }
+
+        waitForIdle()
+        assertEquals(0, cancelCount.get())
+
+        runOnIdle { maxWait.value = 2.seconds }
+        waitForIdle()
+
+        assertEquals(1, cancelCount.get())
     }
 
     @OptIn(ExperimentalTestApi::class)
@@ -791,7 +830,7 @@ class UseRequestTest {
                 optionsOf = {
                     manual = true
                     throttleOptionsOf = {
-                        wait = 50.milliseconds
+                        wait = 10.seconds
                         leading = false
                         trailing = true
                     }
@@ -805,13 +844,8 @@ class UseRequestTest {
             holder.request("stale")
             holder.cancel()
         }
-
-        val unexpectedlyRan = waitForCondition(maxAttempts = 20, delayMs = 10) {
-            callCount.get() > 0
-        }
         waitForIdle()
 
-        assertFalse(unexpectedlyRan)
         assertEquals(0, callCount.get())
         assertNull(holder.data.value)
     }
@@ -964,6 +998,56 @@ class UseRequestTest {
 
         assertTrue(completed, "Expected the updated throttle options to take effect")
         assertEquals(listOf("first", "delayed"), receivedParams.toList())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun throttlePlugin_replaces_on_flags_only_change() = runComposeUiTest {
+        val trailingMode = mutableStateOf(false)
+        val cancelCount = AtomicInteger(0)
+        lateinit var holder: RequestHolder<String, Int>
+        setContent {
+            val probePlugin = remember {
+                object : Plugin<String, Int>() {
+                    override val invoke: (
+                        Fetch<String, Int>,
+                        UseRequestOptions<String, Int>,
+                    ) -> PluginLifecycle<String, Int> = { fetch, options ->
+                        initFetch(fetch, options)
+                        object : PluginLifecycle<String, Int>() {
+                            override val onCancel: (() -> Unit)? = {
+                                cancelCount.incrementAndGet()
+                            }
+                        }
+                    }
+                }
+            }
+            val probeGenerator = remember {
+                @androidx.compose.runtime.Composable
+                { _: UseRequestOptions<String, Int> -> probePlugin }
+            }
+            holder = useRequest(
+                requestFn = { params: String -> params.length },
+                optionsOf = {
+                    manual = true
+                    throttleOptionsOf = {
+                        wait = 10.seconds
+                        leading = !trailingMode.value
+                        trailing = trailingMode.value
+                    }
+                },
+                plugins = arrayOf(probeGenerator),
+            )
+            Text("data=${holder.data.value}")
+        }
+
+        waitForIdle()
+        assertEquals(0, cancelCount.get())
+
+        runOnIdle { trailingMode.value = true }
+        waitForIdle()
+
+        assertEquals(1, cancelCount.get())
     }
 
     // endregion

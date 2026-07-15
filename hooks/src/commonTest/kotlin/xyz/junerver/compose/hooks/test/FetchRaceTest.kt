@@ -12,6 +12,8 @@ import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Instant
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
@@ -22,13 +24,18 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
+import xyz.junerver.compose.hooks.usedebounce.Debounce
+import xyz.junerver.compose.hooks.usedebounce.UseDebounceOptions
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.FetchState
 import xyz.junerver.compose.hooks.userequest.OnBeforeReturn
 import xyz.junerver.compose.hooks.userequest.PluginLifecycle
 import xyz.junerver.compose.hooks.userequest.UseRequestOptions
+import xyz.junerver.compose.hooks.usethrottle.Throttle
+import xyz.junerver.compose.hooks.usethrottle.UseThrottleOptions
 
 /*
   Description: Fetch 请求竞态回归测试
@@ -49,6 +56,11 @@ class FetchRaceTest {
         val params: String?,
         val data: Int?,
         val errorMessage: String?,
+    )
+
+    private data class TimedDispatch(
+        val params: String,
+        val dispatchToken: Long,
     )
 
     private fun TestScope.createFixture(
@@ -431,6 +443,90 @@ class FetchRaceTest {
             assertEquals(listOf("current"), calls)
             assertEquals(7, fixture.data.value)
         } finally {
+            fixture.fetch.cancel()
+            runCurrent()
+        }
+    }
+
+    @Test
+    fun staleDebounceTimerCannotDispatchAfterCancel() = runTest {
+        val calls = mutableListOf<String>()
+        val fixture = createFixture(requestFn = { params ->
+            calls += params
+            params.length
+        })
+        val debounce = Debounce(
+            fn = { dispatch: TimedDispatch ->
+                fixture.fetch.runIfDispatchTokenCurrent(dispatch.dispatchToken, dispatch.params)
+            },
+            scope = backgroundScope,
+            options = UseDebounceOptions.optionOf {
+                wait = 100.milliseconds
+            },
+            now = { Instant.fromEpochMilliseconds(testScheduler.currentTime) },
+        )
+
+        try {
+            debounce.invoke(TimedDispatch("stale", fixture.fetch.beginRequestDispatch()))
+            fixture.fetch.cancel()
+            advanceTimeBy(100)
+            runCurrent()
+
+            assertEquals(emptyList(), calls)
+            assertEquals(0, fixture.fetch.activeRequestJobCount)
+
+            debounce.invoke(TimedDispatch("current", fixture.fetch.beginRequestDispatch()))
+            advanceTimeBy(100)
+            runCurrent()
+
+            assertEquals(listOf("current"), calls)
+            assertEquals(7, fixture.data.value)
+            assertEquals(0, fixture.fetch.activeRequestJobCount)
+        } finally {
+            debounce.cancel()
+            fixture.fetch.cancel()
+            runCurrent()
+        }
+    }
+
+    @Test
+    fun staleThrottleTimerCannotDispatchAfterPluginReplacement() = runTest {
+        val calls = mutableListOf<String>()
+        val fixture = createFixture(requestFn = { params ->
+            calls += params
+            params.length
+        })
+        val throttle = Throttle(
+            fn = { dispatch: TimedDispatch ->
+                fixture.fetch.runIfDispatchTokenCurrent(dispatch.dispatchToken, dispatch.params)
+            },
+            scope = backgroundScope,
+            options = UseThrottleOptions.optionOf {
+                wait = 100.milliseconds
+                leading = false
+                trailing = true
+            },
+            now = { Instant.fromEpochMilliseconds(testScheduler.currentTime) },
+        )
+
+        try {
+            throttle.invoke(TimedDispatch("stale", fixture.fetch.beginRequestDispatch()))
+            fixture.fetch.cancelForPluginReplacement()
+            advanceTimeBy(100)
+            runCurrent()
+
+            assertEquals(emptyList(), calls)
+            assertEquals(0, fixture.fetch.activeRequestJobCount)
+
+            throttle.invoke(TimedDispatch("current", fixture.fetch.beginRequestDispatch()))
+            advanceTimeBy(100)
+            runCurrent()
+
+            assertEquals(listOf("current"), calls)
+            assertEquals(7, fixture.data.value)
+            assertEquals(0, fixture.fetch.activeRequestJobCount)
+        } finally {
+            throttle.cancel()
             fixture.fetch.cancel()
             runCurrent()
         }

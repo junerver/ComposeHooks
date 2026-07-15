@@ -74,7 +74,7 @@ internal class Debounce<TParams>(
 
     private val stateLock = SynchronizedObject()
     private var currentFn = fn
-    private var currentOptions = options
+    private var currentOptions = options.copy()
     private var timeoutJob: Job? = null
     private var maxWaitJob: Job? = null
     private var latestInvokedTime = Instant.DISTANT_PAST
@@ -84,10 +84,27 @@ internal class Debounce<TParams>(
     private var isAwaitingNextDebounce: Boolean = true
 
     fun update(fn: VoidFunction<TParams>, options: UseDebounceOptions) {
-        synchronized(stateLock) {
+        val transition = synchronized(stateLock) {
             currentFn = fn
-            currentOptions = options
+            if (currentOptions == options) {
+                null
+            } else {
+                currentOptions = options.copy()
+                val timeoutToCancel = timeoutJob
+                val maxWaitToCancel = maxWaitJob
+                timeoutJob = null
+                maxWaitJob = null
+                latestInvokedTime = Instant.DISTANT_PAST
+                latestCalledTime = latestInvokedTime
+                lastArgs = null
+                isAwaitingNextDebounce = true
+                Transition<TParams>(
+                    timeoutToCancel = timeoutToCancel,
+                    maxWaitToCancel = maxWaitToCancel,
+                )
+            }
         }
+        completeTransition(transition)
     }
 
     private fun claimCallbackLocked(params: PendingArgs<TParams>?, invokedAt: Instant): ClaimedCallback<TParams>? {
