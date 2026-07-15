@@ -22,6 +22,7 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.userequest.Fetch
@@ -1054,6 +1055,7 @@ class UseRequestTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
     fun pollingPlugin_polls_at_specified_interval() = runComposeUiTest {
+        mainClock.autoAdvance = false
         val callCount = AtomicInteger(0)
         lateinit var holder: RequestHolder<String, Unit>
         setContent {
@@ -1062,9 +1064,9 @@ class UseRequestTest {
                     callCount.incrementAndGet()
                 },
                 optionsOf = {
-                    defaultParams = "test"
+                    manual = true
                     pollingInterval = 100.milliseconds
-                    pollingWhenHidden = true
+                    pollingWhenHidden = false
                 },
             )
 
@@ -1072,19 +1074,203 @@ class UseRequestTest {
         }
 
         waitForIdle()
+        runOnIdle { holder.request("test") }
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
         assertEquals(1, callCount.get())
 
-        mainClock.advanceTimeBy(250)
+        mainClock.advanceTimeBy(110)
+        waitForIdle()
+        assertEquals(2, callCount.get())
+
+        mainClock.advanceTimeBy(110)
+        waitForIdle()
+        holder.cancel()
+
+        assertEquals(3, callCount.get())
+        assertFalse(holder.isLoading.value)
+        assertNull(holder.error.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun pollingPlugin_cancel_during_request_does_not_restart_from_finally() = runComposeUiTest {
+        val callCount = AtomicInteger(0)
+        lateinit var holder: RequestHolder<String, Unit>
+        setContent {
+            holder = useRequest(
+                requestFn = { _: String ->
+                    callCount.incrementAndGet()
+                    awaitCancellation()
+                },
+                optionsOf = {
+                    manual = true
+                    pollingInterval = 50.milliseconds
+                    pollingWhenHidden = true
+                },
+            )
+            Text("count=${callCount.get()} loading=${holder.isLoading.value}")
+        }
+
+        waitForIdle()
+        runOnIdle { holder.request("test") }
+        waitForIdle()
+        assertEquals(1, callCount.get())
+
+        runOnIdle { holder.cancel() }
         waitForIdle()
 
-        val completed = waitForCondition {
-            callCount.get() >= 3 &&
-                holder.isLoading.value == false &&
-                holder.error.value == null
+        val restarted = waitForCondition(maxAttempts = 20, delayMs = 10) {
+            callCount.get() > 1
         }
-        assertTrue(completed, "Expected polling to trigger repeated refreshes")
-        assertEquals(false, holder.isLoading.value)
-        assertEquals(null, holder.error.value)
+        runOnIdle { holder.cancel() }
+        waitForIdle()
+
+        assertFalse(restarted, "A cancelled request must not restart polling from its finally block")
+        assertEquals(1, callCount.get())
+        assertFalse(holder.isLoading.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun pollingPlugin_applies_changed_positive_interval() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        val useShortInterval = mutableStateOf(false)
+        val callCount = AtomicInteger(0)
+        lateinit var holder: RequestHolder<String, Unit>
+        setContent {
+            holder = useRequest(
+                requestFn = { _: String ->
+                    callCount.incrementAndGet()
+                },
+                optionsOf = {
+                    manual = true
+                    pollingInterval = if (useShortInterval.value) 50.milliseconds else 1.seconds
+                    pollingWhenHidden = false
+                },
+            )
+            Text("count=${callCount.get()} loading=${holder.isLoading.value}")
+        }
+
+        waitForIdle()
+        val initialHolder = holder
+        val initialRefresh = holder.refresh
+        runOnIdle { holder.request("test") }
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+        assertEquals(1, callCount.get())
+
+        runOnIdle { useShortInterval.value = true }
+        mainClock.advanceTimeByFrame()
+        waitForIdle()
+        assertSame(initialHolder, holder)
+        assertSame(initialRefresh, holder.refresh)
+
+        runOnIdle { initialRefresh() }
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+        assertEquals(2, callCount.get())
+
+        mainClock.advanceTimeBy(100)
+        waitForIdle()
+        val completed = callCount.get() >= 3
+        holder.cancel()
+        waitForIdle()
+
+        assertTrue(completed, "Expected the updated polling interval to take effect")
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun pollingPlugin_stops_after_error_retry_limit() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        val callCount = AtomicInteger(0)
+        lateinit var holder: RequestHolder<String, Unit>
+        setContent {
+            holder = useRequest(
+                requestFn = { _: String ->
+                    callCount.incrementAndGet()
+                    error("poll failure")
+                },
+                optionsOf = {
+                    manual = true
+                    pollingInterval = 50.milliseconds
+                    pollingWhenHidden = false
+                    pollingErrorRetryCount = 2
+                    onError = { _, _ -> }
+                },
+            )
+            Text("count=${callCount.get()} error=${holder.error.value?.message}")
+        }
+
+        waitForIdle()
+        runOnIdle { holder.request("test") }
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+        assertEquals(1, callCount.get())
+
+        mainClock.advanceTimeBy(60)
+        waitForIdle()
+        assertEquals(2, callCount.get())
+
+        mainClock.advanceTimeBy(60)
+        waitForIdle()
+        assertEquals(3, callCount.get())
+
+        mainClock.advanceTimeBy(200)
+        waitForIdle()
+        assertEquals(3, callCount.get())
+        assertEquals("poll failure", holder.error.value?.message)
+        holder.cancel()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun pollingPlugin_disable_cancels_timer_and_keeps_stable_request() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        val enabled = mutableStateOf(true)
+        val callCount = AtomicInteger(0)
+        lateinit var holder: RequestHolder<String, Unit>
+        setContent {
+            holder = useRequest(
+                requestFn = { _: String -> callCount.incrementAndGet() },
+                optionsOf = {
+                    manual = true
+                    pollingInterval = if (enabled.value) 100.milliseconds else 0.milliseconds
+                    pollingWhenHidden = false
+                },
+            )
+            Text("count=${callCount.get()} loading=${holder.isLoading.value}")
+        }
+
+        waitForIdle()
+        val initialHolder = holder
+        val initialRequest = holder.request
+        runOnIdle { initialRequest("first") }
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+        assertEquals(1, callCount.get())
+
+        runOnIdle { enabled.value = false }
+        mainClock.advanceTimeByFrame()
+        waitForIdle()
+        assertSame(initialHolder, holder)
+        assertSame(initialRequest, holder.request)
+
+        mainClock.advanceTimeBy(200)
+        waitForIdle()
+        assertEquals(1, callCount.get())
+
+        runOnIdle { initialRequest("second") }
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+        assertEquals(2, callCount.get())
+
+        mainClock.advanceTimeBy(200)
+        waitForIdle()
+        holder.cancel()
+
+        assertEquals(2, callCount.get())
     }
 
     // endregion

@@ -31,31 +31,43 @@ import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
   Email: junerver@gmail.com
   Version: v1.0
 */
+internal class PollingTimer {
+    private class ScheduledTask {
+        var job: Job? = null
+    }
+
+    private var scheduledTask: ScheduledTask? = null
+
+    fun schedule(scope: CoroutineScope, interval: Duration, block: suspend () -> Unit) {
+        cancel()
+        val task = ScheduledTask()
+        scheduledTask = task
+        task.job = scope.launch {
+            delay(interval)
+            if (scheduledTask !== task) return@launch
+            scheduledTask = null
+            block()
+        }
+    }
+
+    fun cancel() {
+        val task = scheduledTask
+        scheduledTask = null
+        task?.job?.cancel()
+    }
+}
+
 private class PollingPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
     // 已经重试计数
     var currentRetryCount = 0
 
     var inBackground = false
 
-    // 保存正在轮询的job，其本质是一个延时执行刷新的协程job
-    private lateinit var pollingJob: Job
+    private val pollingTimer = PollingTimer()
 
-    // 被使用的作用域
-    private lateinit var usedScope: CoroutineScope
-
-    /**
-     * 判断是否正在轮询中
-     */
-    private fun isPolling(): Boolean = this::pollingJob.isInitialized && pollingJob.isActive
-
-    /**
-     * 轮询任务是一个单独job，应该单独停止。[force]时强制停止
-     */
-    fun stopPolling(force: Boolean = false) {
-        // 正在轮询， 未设置隐藏时轮询
-        if ((isPolling() && !options.pollingWhenHidden) || force) {
-            if (this::pollingJob.isInitialized) pollingJob.cancel()
-        }
+    /** 轮询任务是一个单独 Job，新请求开始前必须停止旧任务，避免形成多个轮询链。 */
+    fun stopPolling() {
+        pollingTimer.cancel()
     }
 
     override val invoke: GenPluginLifecycleFn<TParams, TData>
@@ -85,13 +97,12 @@ private class PollingPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
 
                 override val onFinally: PluginOnFinally<TParams, TData>
                     get() = onFinally@{ _, _, _ ->
-                        usedScope = if (pollingWhenHidden) pluginScope else fetch.scope
+                        val usedScope = if (pollingWhenHidden) pluginScope else fetch.scope
                         if (!pollingWhenHidden && inBackground) return@onFinally
                         if (pollingErrorRetryCount == -1 || currentRetryCount <= pollingErrorRetryCount) {
-                            usedScope.launch {
-                                delay(pollingInterval)
+                            pollingTimer.schedule(usedScope, pollingInterval) {
                                 if (pollingWhenHidden) fetch.refreshAsync() else fetch.refresh()
-                            }.also { pollingJob = it }
+                            }
                         } else {
                             currentRetryCount = 0
                         }
@@ -105,7 +116,7 @@ private class PollingPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
         }
 
     override fun cancel() {
-        if (isPolling()) pollingJob.cancel()
+        stopPolling()
         super.cancel()
     }
 
@@ -116,19 +127,22 @@ private class PollingPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
 
 @Composable
 internal fun <TParams, TData : Any> usePollingPlugin(options: UseRequestOptions<TParams, TData>): Plugin<TParams, TData> {
-    if (options.pollingInterval == Duration.ZERO) {
+    val pollingInterval = options.pollingInterval
+    val pollingWhenHidden = options.pollingWhenHidden
+    val pollingErrorRetryCount = options.pollingErrorRetryCount
+    if (pollingInterval == Duration.ZERO) {
         return useEmptyPlugin()
     }
-    val pollingPlugin = remember {
+    val pollingPlugin = remember(pollingInterval, pollingWhenHidden, pollingErrorRetryCount) {
         PollingPlugin<TParams, TData>()
     }
-    if (!options.pollingWhenHidden) {
+    if (!pollingWhenHidden) {
         useBackToFrontEffect {
             pollingPlugin.refresh()
             pollingPlugin.inBackground = false
         }
         useFrontToBackEffect {
-            pollingPlugin.stopPolling(true)
+            pollingPlugin.stopPolling()
             pollingPlugin.inBackground = true
         }
     }
