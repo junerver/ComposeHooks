@@ -15,6 +15,7 @@ import androidx.compose.runtime.referentialEqualityPolicy
 import androidx.compose.runtime.remember
 import kotlinx.collections.immutable.PersistentList
 import xyz.junerver.compose.hooks.usecreation.useCreationImpl
+import xyz.junerver.compose.hooks.uselatest.useLatestStateImpl
 
 /*
   Description: Cycle through a list of items
@@ -71,7 +72,7 @@ data class UseCycleListOptions<T> internal constructor(
 fun <T> useCycleListImpl(list: PersistentList<T>, optionsOf: UseCycleListOptions<T>.() -> Unit = {}): CycleListHolder<T> {
     val options = useDynamicOptions(optionsOf)
     val currentList = useIdentityState(list)
-    val currentFallbackIndex = useIdentityState(options.fallbackIndex)
+    val currentFallbackIndex = useLatestStateImpl(options.fallbackIndex)
     val currentGetIndexOf = useIdentityState(options.getIndexOf)
     val initialValue = useCreationImpl { getInitialValue(list, options) }.current
     val initialIndex = useCreationImpl {

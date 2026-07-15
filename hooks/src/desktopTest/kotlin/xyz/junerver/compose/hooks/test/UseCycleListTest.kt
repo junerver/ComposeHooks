@@ -433,6 +433,41 @@ class UseCycleListTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
+    fun equal_large_fallback_does_not_reinvalidate_composition() = runComposeUiTest {
+        val equalityCounter = EqualityCounter()
+        val missing = CountingValue("missing", equalityCounter)
+        val items = persistentListOf(
+            CountingValue("A", equalityCounter),
+            CountingValue("B", equalityCounter),
+        )
+        var renderVersion by mutableStateOf(0)
+        var compositions = 0
+        lateinit var holder: CycleListHolder<CountingValue>
+
+        setContent {
+            val currentVersion = renderVersion
+            holder = useCycleList(items) {
+                initialValue = missing
+                fallbackIndex = 1_000
+            }
+            compositions += 1
+            Text("version=$currentVersion index=${holder.index.value}")
+        }
+
+        waitForIdle()
+        val initialCompositions = compositions
+        val initialEqualityChecks = equalityCounter.calls
+        assertEquals(1_000, holder.index.value)
+
+        renderVersion = 1
+        waitForIdle()
+        onNodeWithText("version=1 index=1000").assertExists()
+        assertEquals(initialCompositions + 1, compositions)
+        assertEquals(initialEqualityChecks, equalityCounter.calls)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
     fun explicit_initial_value_supports_an_empty_list() = runComposeUiTest {
         lateinit var holder: CycleListHolder<String>
 
@@ -467,5 +502,19 @@ class UseCycleListTest {
         holder.next()
         waitForIdle()
         assertEquals("A", holder.state.value)
+    }
+
+    private class EqualityCounter(var calls: Int = 0)
+
+    private class CountingValue(
+        private val value: String,
+        private val counter: EqualityCounter,
+    ) {
+        override fun equals(other: Any?): Boolean {
+            counter.calls += 1
+            return other is CountingValue && value == other.value
+        }
+
+        override fun hashCode(): Int = value.hashCode()
     }
 }
