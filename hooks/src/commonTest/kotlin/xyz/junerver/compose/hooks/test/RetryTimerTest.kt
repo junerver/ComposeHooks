@@ -11,11 +11,13 @@ package xyz.junerver.compose.hooks.test
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import xyz.junerver.compose.hooks.userequest.plugins.RetryTimer
+import xyz.junerver.compose.hooks.userequest.plugins.retryDelay
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class RetryTimerTest {
@@ -69,5 +71,21 @@ class RetryTimerTest {
         advanceTimeBy(50)
         runCurrent()
         assertEquals(listOf(1, 2), calls)
+    }
+
+    @Test
+    fun defaultDelayUsesExponentialBackoffAndCapsAtThirtySeconds() {
+        assertEquals(2.seconds, retryDelay(0.seconds, 1))
+        assertEquals(4.seconds, retryDelay(0.seconds, 2))
+        assertEquals(8.seconds, retryDelay(0.seconds, 3))
+        assertEquals(16.seconds, retryDelay(0.seconds, 4))
+        assertEquals(30.seconds, retryDelay(0.seconds, 5))
+        assertEquals(30.seconds, retryDelay(0.seconds, 100))
+    }
+
+    @Test
+    fun configuredPositiveDelayWinsAndNegativeDelayUsesDefault() {
+        assertEquals(250.milliseconds, retryDelay(250.milliseconds, 4))
+        assertEquals(4.seconds, retryDelay((-1).seconds, 2))
     }
 }
