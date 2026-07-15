@@ -7,9 +7,9 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
-import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import xyz.junerver.compose.hooks.ComposeComponent
+import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.usecontext.ReactContext
 import xyz.junerver.compose.hooks.usecontext.createContextImpl
 
@@ -35,25 +35,17 @@ internal val NetworkContext: ReactContext<State<NetworkState>> by lazy { createC
  */
 @Composable
 fun useNetwork(): State<NetworkState> {
-    val context = LocalContext.current
-    remember {
-        NetConnectManager.init(context)
-    }
+    val localContext = LocalContext.current
+    val context = localContext.applicationContext ?: localContext
+    val initialState = useCreation(context) { NetConnectManager.currentState(context) }.current
     return produceState(
-        initialValue = NetworkState(
-            isConnect = NetConnectManager.isConnected(),
-            connectType = NetConnectManager.getConnectType(),
-        ),
+        initialValue = initialState,
+        context,
     ) {
-        val typeChangeListener: (type: ConnectType) -> Unit = {
-            value = value.copy(connectType = it)
-        }
-        val statusChangeListener: (isAvailable: Boolean) -> Unit = {
-            value = value.copy(isConnect = it)
-        }
-        NetConnectManager.addListener(typeChangeListener, statusChangeListener)
+        val listener: NetworkStateListener = { value = it }
+        value = NetConnectManager.addListener(context, listener)
         awaitDispose {
-            NetConnectManager.removeListener(typeChangeListener, statusChangeListener)
+            NetConnectManager.removeListener(listener)
         }
     }
 }

@@ -37,188 +37,214 @@ sealed class ConnectType(val value: Int) {
     }
 }
 
+internal fun createNetworkState(isValidated: Boolean, isCellular: Boolean, isWifi: Boolean): NetworkState {
+    if (!isValidated) return NetworkState()
+    val connectType = when {
+        isCellular -> ConnectType.Mobile
+        isWifi -> ConnectType.Wifi
+        else -> ConnectType.None
+    }
+    return NetworkState(isConnect = true, connectType = connectType)
+}
+
+internal class NetworkListenerRegistry {
+    private val listeners = linkedSetOf<NetworkStateListener>()
+
+    /** Returns true when this listener becomes the first active owner. */
+    fun add(listener: NetworkStateListener): Boolean {
+        if (!listeners.add(listener)) return false
+        return listeners.size == 1
+    }
+
+    /** Returns true when this removal releases the final active owner. */
+    fun remove(listener: NetworkStateListener): Boolean {
+        if (!listeners.remove(listener)) return false
+        return listeners.isEmpty()
+    }
+
+    fun snapshot(): List<NetworkStateListener> = listeners.toList()
+}
+
 internal object NetConnectManager {
-    private var mConnectivityManager: ConnectivityManager? = null
-    private val mainHandler = Handler(Looper.getMainLooper())
-    private val mNetTypeListener = mutableListOf<NetTypeChangeListener>()
-    private val mNetStateListener = mutableListOf<NetStatusChangeListener>()
-    private var mCurrentConnectType: ConnectType? = null
-    private var mIsNetAvailable: Boolean? = null
+    private const val NETWORK_LOSS_DELAY_MILLIS = 500L
 
-    /**
-     * 初始化
-     */
-    @SuppressLint("ObsoleteSdkInt")
-    fun init(context: Context): NetConnectManager {
-        mConnectivityManager = context.getSystemService()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-            mConnectivityManager?.registerDefaultNetworkCallback(DefaultNetConnectCallback())
-        } else {
-            @Suppress("DEPRECATION")
-            context.registerReceiver(
-                NetConnectReceiver(),
-                IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION),
-            )
+    private val lock = Any()
+    private val listeners = NetworkListenerRegistry()
+    private val mainHandler by lazy(LazyThreadSafetyMode.SYNCHRONIZED) { Handler(Looper.getMainLooper()) }
+
+    private var applicationContext: Context? = null
+    private var connectivityManager: ConnectivityManager? = null
+    private var networkCallback: ConnectivityManager.NetworkCallback? = null
+    private var networkReceiver: BroadcastReceiver? = null
+    private var pendingRefresh: Runnable? = null
+    private var currentState = NetworkState()
+
+    fun currentState(context: Context): NetworkState {
+        val manager = try {
+            context.getSystemService<ConnectivityManager>()
+        } catch (_: SecurityException) {
+            null
         }
-        return this
+        return manager?.readNetworkState() ?: NetworkState()
     }
 
-    /**
-     * 两个监听一起注册
-     */
-    fun addListener(typeChangeListener: NetTypeChangeListener, statusChangeListener: NetStatusChangeListener) {
-        addNetTypeChangeListener(typeChangeListener)
-        addNetStatusChangeListener(statusChangeListener)
-    }
-
-    /**
-     * 两个监听一起移除
-     */
-    fun removeListener(typeChangeListener: NetTypeChangeListener, statusChangeListener: NetStatusChangeListener) {
-        removeNetTypeChangeListener(typeChangeListener)
-        removeNetStatusChangeListener(statusChangeListener)
-    }
-
-    /**
-     * 注册网络类型监听
-     */
-    private fun addNetTypeChangeListener(listener: NetTypeChangeListener) {
-        mNetTypeListener.add(listener)
-    }
-
-    /**
-     * 反注册网络类型监听
-     */
-
-    private fun removeNetTypeChangeListener(listener: NetTypeChangeListener) {
-        mNetTypeListener.remove(listener)
-    }
-
-    /**
-     * 注册网络状态监听
-     */
-    private fun addNetStatusChangeListener(listener: NetStatusChangeListener) {
-        mNetStateListener.add(listener)
-    }
-
-    /**
-     * 反注册网络状态监听
-     */
-    private fun removeNetStatusChangeListener(listener: NetStatusChangeListener) {
-        mNetStateListener.remove(listener)
-    }
-
-    /**
-     * 获取当前网络类型
-     */
-    fun getConnectType(): ConnectType {
-        if (mConnectivityManager == null) {
-            throw UninitializedPropertyAccessException("请先调用init()初始化")
+    fun addListener(context: Context, listener: NetworkStateListener): NetworkState = synchronized(lock) {
+        if (listeners.add(listener)) {
+            startMonitoringLocked(context.applicationContext ?: context)
         }
-        return mCurrentConnectType ?: mConnectivityManager?.getNetworkCapabilities(
-            mConnectivityManager?.activeNetwork,
-        ).let {
-            return if (it?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) == true) {
-                ConnectType.Mobile
-            } else if (it?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true) {
-                ConnectType.Wifi
-            } else {
-                ConnectType.None
+        currentState
+    }
+
+    fun removeListener(listener: NetworkStateListener) {
+        synchronized(lock) {
+            if (listeners.remove(listener)) {
+                stopMonitoringLocked()
             }
         }
     }
 
-    /**
-     * 获取当前是否网络已连接
-     */
-    fun isConnected(): Boolean {
-        if (mConnectivityManager == null) {
-            throw UninitializedPropertyAccessException("请先调用init()初始化")
+    @Suppress("DEPRECATION")
+    @SuppressLint("ObsoleteSdkInt", "UnspecifiedRegisterReceiverFlag")
+    private fun startMonitoringLocked(context: Context) {
+        applicationContext = context
+        val manager = try {
+            context.getSystemService<ConnectivityManager>()
+        } catch (_: SecurityException) {
+            null
         }
-        return (
-            mIsNetAvailable
-                ?: mConnectivityManager?.getNetworkCapabilities(mConnectivityManager?.activeNetwork)
-                    ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-        ) == true
+        connectivityManager = manager
+        currentState = manager?.readNetworkState() ?: NetworkState()
+        if (manager == null) return
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            val callback = createNetworkCallback()
+            networkCallback = callback
+            try {
+                manager.registerDefaultNetworkCallback(callback)
+            } catch (_: SecurityException) {
+                networkCallback = null
+            }
+        } else {
+            val receiver = createNetworkReceiver()
+            networkReceiver = receiver
+            try {
+                context.registerReceiver(receiver, IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION))
+            } catch (_: SecurityException) {
+                networkReceiver = null
+            }
+        }
     }
 
-    private class DefaultNetConnectCallback : ConnectivityManager.NetworkCallback() {
+    private fun stopMonitoringLocked() {
+        pendingRefresh?.let { mainHandler.removeCallbacks(it) }
+        pendingRefresh = null
+
+        val manager = connectivityManager
+        val callback = networkCallback
+        networkCallback = null
+        if (manager != null && callback != null) {
+            try {
+                manager.unregisterNetworkCallback(callback)
+            } catch (_: IllegalArgumentException) {
+                // The callback was already detached by the platform.
+            }
+        }
+
+        val context = applicationContext
+        val receiver = networkReceiver
+        networkReceiver = null
+        if (context != null && receiver != null) {
+            try {
+                context.unregisterReceiver(receiver)
+            } catch (_: IllegalArgumentException) {
+                // The receiver was already detached by the platform.
+            }
+        }
+
+        connectivityManager = null
+        applicationContext = null
+    }
+
+    private fun createNetworkCallback(): ConnectivityManager.NetworkCallback = object : ConnectivityManager.NetworkCallback() {
         override fun onLost(network: Network) {
-            super.onLost(network)
-            mCurrentConnectType = ConnectType.None
-            mainHandler.postDelayed({
-                if (mCurrentConnectType == ConnectType.None && mIsNetAvailable == true) {
-                    mIsNetAvailable = false
-                    mNetStateListener.forEach { it.invoke(false) }
-                    mNetTypeListener.forEach { it(ConnectType.None) }
-                }
-            }, 500)
+            scheduleNetworkRefresh(this, NETWORK_LOSS_DELAY_MILLIS)
+        }
+
+        override fun onUnavailable() {
+            scheduleNetworkRefresh(this, NETWORK_LOSS_DELAY_MILLIS)
         }
 
         override fun onCapabilitiesChanged(network: Network, networkCapabilities: NetworkCapabilities) {
-            super.onCapabilitiesChanged(network, networkCapabilities)
+            val nextState = networkCapabilities.toNetworkState()
             mainHandler.post {
-                val isConnected =
-                    networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
-                val isCellular =
-                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR)
-                val isWifi =
-                    networkCapabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI)
-
-                if (isConnected) {
-                    val newConnectType =
-                        if (isCellular) {
-                            ConnectType.Mobile
-                        } else if (isWifi) {
-                            ConnectType.Wifi
-                        } else {
-                            ConnectType.None
-                        }
-                    if (mIsNetAvailable == null || mIsNetAvailable == false) {
-                        mIsNetAvailable = true
-                        mNetStateListener.forEach { it(true) }
-                    }
-                    if (mCurrentConnectType != newConnectType) {
-                        mCurrentConnectType = newConnectType
-                        mNetTypeListener.forEach { it(newConnectType) }
-                    }
+                val stateListeners = synchronized(lock) {
+                    if (networkCallback !== this) return@post
+                    cancelPendingRefreshLocked()
+                    updateStateLocked(nextState)
                 }
+                stateListeners.forEach { it(nextState) }
             }
         }
     }
 
-    private class NetConnectReceiver : BroadcastReceiver() {
+    private fun createNetworkReceiver(): BroadcastReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
-            @Suppress("DEPRECATION")
-            val activityNetworkInfo =
-                context?.getSystemService(ConnectivityManager::class.java)?.allNetworkInfo?.firstOrNull {
-                    (it.type == ConnectType.Mobile.value || it.type == ConnectType.Wifi.value) && it.isConnected
+            mainHandler.post {
+                val nextState: NetworkState
+                val stateListeners = synchronized(lock) {
+                    if (networkReceiver !== this) return@post
+                    nextState = connectivityManager?.readNetworkState() ?: NetworkState()
+                    updateStateLocked(nextState)
                 }
-            if (activityNetworkInfo != null) {
-                if (mIsNetAvailable == null || mIsNetAvailable == false) {
-                    mIsNetAvailable = true
-                    mNetStateListener.forEach { it(true) }
-                }
-                @Suppress("DEPRECATION")
-                ConnectType.convert2Type(activityNetworkInfo.type).let { connectType ->
-                    if (connectType != mCurrentConnectType) {
-                        mCurrentConnectType = connectType
-                        mNetTypeListener.forEach { it(connectType) }
-                    }
-                }
-                return
+                stateListeners.forEach { it(nextState) }
             }
-            mCurrentConnectType = ConnectType.None
-            mainHandler.postDelayed({
-                if (mCurrentConnectType == ConnectType.None && mIsNetAvailable == true) {
-                    mIsNetAvailable = false
-                    mNetStateListener.forEach { it(false) }
-                    mNetTypeListener.forEach { it(ConnectType.None) }
-                }
-            }, 500)
         }
     }
+
+    private fun scheduleNetworkRefresh(callback: ConnectivityManager.NetworkCallback, delayMillis: Long) {
+        mainHandler.post {
+            synchronized(lock) {
+                if (networkCallback !== callback) return@post
+                cancelPendingRefreshLocked()
+                val refresh = Runnable {
+                    val nextState: NetworkState
+                    val stateListeners = synchronized(lock) {
+                        if (networkCallback !== callback) return@Runnable
+                        pendingRefresh = null
+                        nextState = connectivityManager?.readNetworkState() ?: NetworkState()
+                        updateStateLocked(nextState)
+                    }
+                    stateListeners.forEach { it(nextState) }
+                }
+                pendingRefresh = refresh
+                mainHandler.postDelayed(refresh, delayMillis)
+            }
+        }
+    }
+
+    private fun cancelPendingRefreshLocked() {
+        pendingRefresh?.let { mainHandler.removeCallbacks(it) }
+        pendingRefresh = null
+    }
+
+    private fun updateStateLocked(nextState: NetworkState): List<NetworkStateListener> {
+        if (currentState == nextState) return emptyList()
+        currentState = nextState
+        return listeners.snapshot()
+    }
+
+    private fun ConnectivityManager.readNetworkState(): NetworkState = try {
+        val capabilities = activeNetwork?.let(::getNetworkCapabilities)
+        capabilities?.toNetworkState() ?: NetworkState()
+    } catch (_: SecurityException) {
+        NetworkState()
+    }
+
+    private fun NetworkCapabilities.toNetworkState(): NetworkState = createNetworkState(
+        isValidated = hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED),
+        isCellular = hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR),
+        isWifi = hasTransport(NetworkCapabilities.TRANSPORT_WIFI),
+    )
 }
 
-internal typealias NetTypeChangeListener = (type: ConnectType) -> Unit
-internal typealias NetStatusChangeListener = (isAvailable: Boolean) -> Unit
+internal typealias NetworkStateListener = (state: NetworkState) -> Unit

@@ -3,7 +3,7 @@ package xyz.junerver.compose.hooks.usedeviceinfo
 import android.os.Build
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.remember
+import xyz.junerver.compose.hooks.useCreation
 
 /*
   Description:
@@ -13,7 +13,15 @@ import androidx.compose.runtime.remember
   Version: v1.0
 */
 @Composable
-fun useBuildInfo(): BuildInfo = remember { BuildInfo(Build.BRAND, Build.MODEL, Build.VERSION.RELEASE) }
+fun useBuildInfo(): BuildInfo = useCreation {
+    createBuildInfo(Build.BRAND, Build.MODEL, Build.VERSION.RELEASE)
+}.current
+
+internal fun createBuildInfo(brand: String?, model: String?, release: String?): BuildInfo = BuildInfo(
+    brand = brand.orEmpty(),
+    model = model.orEmpty(),
+    release = release.orEmpty(),
+)
 
 @Stable
 data class BuildInfo(val brand: String, val model: String, val release: String)

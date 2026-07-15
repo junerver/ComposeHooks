@@ -4,9 +4,11 @@ import android.content.res.Configuration
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.IntSize
+import kotlin.math.roundToInt
+import xyz.junerver.compose.hooks.useCreation
 
 /*
   Description:
@@ -17,15 +19,46 @@ import androidx.compose.ui.unit.IntSize
 */
 @Composable
 fun useScreenInfo(): ScreenInfo {
-    val context = LocalContext.current
     val density = LocalDensity.current
     val configuration = LocalConfiguration.current
-    val displayMetrics = context.resources.displayMetrics
+    val containerSize = LocalWindowInfo.current.containerSize
+    val screenWidthDp = configuration.screenWidthDp
+    val screenHeightDp = configuration.screenHeightDp
+    val densityValue = density.density
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    return useCreation(screenWidthDp, screenHeightDp, densityValue, isLandscape, containerSize) {
+        createScreenInfo(
+            screenWidthDp = screenWidthDp,
+            screenHeightDp = screenHeightDp,
+            density = densityValue,
+            isLandscape = isLandscape,
+            containerSize = containerSize,
+        )
+    }.current
+}
+
+internal fun createScreenInfo(
+    screenWidthDp: Int,
+    screenHeightDp: Int,
+    density: Float,
+    isLandscape: Boolean,
+    containerSize: IntSize,
+): ScreenInfo {
+    val screenDp = IntSize(screenWidthDp, screenHeightDp)
+    val screenPx = if (containerSize.width > 0 && containerSize.height > 0) {
+        containerSize
+    } else {
+        val safeDensity = density.takeIf { it.isFinite() && it > 0f } ?: 1f
+        IntSize(
+            (screenWidthDp.coerceAtLeast(0) * safeDensity).roundToInt(),
+            (screenHeightDp.coerceAtLeast(0) * safeDensity).roundToInt(),
+        )
+    }
     return ScreenInfo(
-        IntSize(configuration.screenWidthDp, configuration.screenHeightDp),
-        IntSize(displayMetrics.widthPixels, displayMetrics.heightPixels),
-        density.density,
-        configuration.orientation == Configuration.ORIENTATION_LANDSCAPE,
+        screenDp = screenDp,
+        screenPx = screenPx,
+        density = density,
+        isLandscape = isLandscape,
     )
 }
 

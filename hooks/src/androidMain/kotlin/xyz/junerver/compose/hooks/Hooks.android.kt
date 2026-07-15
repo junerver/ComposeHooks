@@ -5,8 +5,10 @@ package xyz.junerver.compose.hooks
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import xyz.junerver.compose.hooks.usedeviceinfo.BatteryInfo
 import xyz.junerver.compose.hooks.usedeviceinfo.BuildInfo
 import xyz.junerver.compose.hooks.usedeviceinfo.ScreenInfo
 import xyz.junerver.compose.hooks.usedeviceinfo.useBatteryInfo
@@ -14,11 +16,12 @@ import xyz.junerver.compose.hooks.usedeviceinfo.useBuildInfo
 import xyz.junerver.compose.hooks.usedeviceinfo.useScreenInfo
 import xyz.junerver.compose.hooks.useidle.useIdle
 import xyz.junerver.compose.hooks.usenetwork.NetworkContext
+import xyz.junerver.compose.hooks.usenetwork.NetworkState
 import xyz.junerver.compose.hooks.usevibrate.useVibrate
 
 //region useDeviceInfo - 更符合 Compose 的函数命名方式
 @Composable
-fun rememberBatteryInfo() = useBatteryInfo()
+fun rememberBatteryInfo(): State<BatteryInfo> = useBatteryInfo()
 
 @Composable
 fun rememberBuildInfo(): BuildInfo = useBuildInfo()
@@ -46,7 +49,7 @@ fun rememberIlluminance(calibrate: Float = 1.0f): IlluminanceHolder = useIllumin
  * 务必注意：必须配合 [xyz.junerver.compose.hooks.usenetwork.NetworkProvider] 在子组件内使用。
  */
 @Composable
-fun rememberNetwork() = useContext(context = NetworkContext)
+fun rememberNetwork(): State<NetworkState> = useContext(context = NetworkContext)
 
 @Composable
 fun rememberScreenBrightness(): Pair<SetValueFn<Float>, Float> = useScreenBrightness()

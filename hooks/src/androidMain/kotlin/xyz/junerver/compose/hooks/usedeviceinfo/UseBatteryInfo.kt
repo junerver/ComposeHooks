@@ -21,24 +21,50 @@ import androidx.compose.ui.platform.LocalContext
 
 @Composable
 fun useBatteryInfo(): State<BatteryInfo> {
-    val context = LocalContext.current
-    return produceState(initialValue = BatteryInfo()) {
+    val localContext = LocalContext.current
+    val context = localContext.applicationContext ?: localContext
+    return produceState(initialValue = BatteryInfo(), context) {
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                val status = intent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
-                val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL
-                val originLevel = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, 0) ?: 0
-                val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, 0) ?: 0
-                val level = (originLevel / scale.toFloat() * 100).toInt()
-                value = BatteryInfo(level, isCharging)
+                value = intent?.toBatteryInfo() ?: BatteryInfo()
             }
         }
-        context.registerReceiver(receiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        val isRegistered = try {
+            val stickyIntent = context.registerReceiver(receiver, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+            stickyIntent?.let { value = it.toBatteryInfo() }
+            true
+        } catch (_: SecurityException) {
+            false
+        }
 
         awaitDispose {
-            context.unregisterReceiver(receiver)
+            if (isRegistered) {
+                try {
+                    context.unregisterReceiver(receiver)
+                } catch (_: IllegalArgumentException) {
+                    // The platform may already have detached the receiver while its context was shutting down.
+                }
+            }
         }
     }
+}
+
+private fun Intent.toBatteryInfo(): BatteryInfo {
+    val status = getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+    return createBatteryInfo(
+        level = getIntExtra(BatteryManager.EXTRA_LEVEL, -1),
+        scale = getIntExtra(BatteryManager.EXTRA_SCALE, -1),
+        isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING || status == BatteryManager.BATTERY_STATUS_FULL,
+    )
+}
+
+internal fun createBatteryInfo(level: Int, scale: Int, isCharging: Boolean): BatteryInfo {
+    val percentage = if (level < 0 || scale <= 0) {
+        -1
+    } else {
+        (level.toDouble() / scale * 100).toInt().coerceIn(0, 100)
+    }
+    return BatteryInfo(level = percentage, isCharging = isCharging)
 }
 
 @Stable
