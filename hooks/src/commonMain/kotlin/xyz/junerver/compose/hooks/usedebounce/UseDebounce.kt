@@ -9,7 +9,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -49,13 +52,29 @@ data class UseDebounceOptions internal constructor(
 
 @Stable
 internal class Debounce<TParams>(
-    var fn: VoidFunction<TParams>,
+    fn: VoidFunction<TParams>,
     private val scope: CoroutineScope,
-    var options: UseDebounceOptions = UseDebounceOptions(),
+    options: UseDebounceOptions = UseDebounceOptions(),
     private val now: () -> Instant = { currentInstant },
 ) {
     private class PendingArgs<T>(val value: T)
 
+    private class ClaimedCallback<T>(
+        val fn: VoidFunction<T>,
+        val params: T,
+    )
+
+    private class Transition<T>(
+        val timeoutToCancel: Job? = null,
+        val maxWaitToCancel: Job? = null,
+        val timeoutToStart: Job? = null,
+        val maxWaitToStart: Job? = null,
+        val callback: ClaimedCallback<T>? = null,
+    )
+
+    private val stateLock = SynchronizedObject()
+    private var currentFn = fn
+    private var currentOptions = options
     private var timeoutJob: Job? = null
     private var maxWaitJob: Job? = null
     private var latestInvokedTime = Instant.DISTANT_PAST
@@ -64,92 +83,191 @@ internal class Debounce<TParams>(
 
     private var isAwaitingNextDebounce: Boolean = true
 
-    private fun cancelTimeout() {
-        timeoutJob?.cancel()
-        timeoutJob = null
-    }
-
-    private fun executeFn(params: PendingArgs<TParams>?) {
-        params ?: return
-        if (lastArgs === params) lastArgs = null
-        latestInvokedTime = now()
-        fn(params.value)
-    }
-
-    private fun resetDebounceState() {
-        isAwaitingNextDebounce = true
-        timeoutJob = null
-        maxWaitJob?.cancel()
-        maxWaitJob = null
-        lastArgs = null
-    }
-
-    private fun scheduleMaxWait(maxWait: Duration) {
-        if (maxWait <= Duration.ZERO || maxWaitJob != null) return
-        maxWaitJob = scope.launch {
-            delay(maxWait)
-            maxWaitJob = null
-            if (options.trailing) executeFn(lastArgs)
+    fun update(fn: VoidFunction<TParams>, options: UseDebounceOptions) {
+        synchronized(stateLock) {
+            currentFn = fn
+            currentOptions = options
         }
     }
 
-    fun cancel() {
-        cancelTimeout()
-        maxWaitJob?.cancel()
-        maxWaitJob = null
-        latestInvokedTime = Instant.DISTANT_PAST
-        latestCalledTime = latestInvokedTime
-        lastArgs = null
+    private fun claimCallbackLocked(params: PendingArgs<TParams>?, invokedAt: Instant): ClaimedCallback<TParams>? {
+        params ?: return null
+        if (lastArgs === params) lastArgs = null
+        latestInvokedTime = invokedAt
+        return ClaimedCallback(currentFn, params.value)
+    }
+
+    private fun resetDebounceStateLocked(): Job? {
         isAwaitingNextDebounce = true
+        timeoutJob = null
+        val maxWaitToCancel = maxWaitJob
+        maxWaitJob = null
+        lastArgs = null
+        return maxWaitToCancel
+    }
+
+    private fun createMaxWaitJobLocked(maxWait: Duration, trailing: Boolean): Job {
+        lateinit var job: Job
+        job = scope.launch(start = CoroutineStart.LAZY) {
+            delay(maxWait)
+            fireMaxWait(job, trailing)
+        }
+        maxWaitJob = job
+        return job
+    }
+
+    private fun createResetTimeoutJobLocked(wait: Duration): Job {
+        lateinit var job: Job
+        job = scope.launch(start = CoroutineStart.LAZY) {
+            delay(wait)
+            fireResetTimeout(job)
+        }
+        timeoutJob = job
+        return job
+    }
+
+    private fun createTrailingTimeoutJobLocked(
+        wait: Duration,
+        trailing: Boolean,
+        isMaxWaitExceeded: Boolean,
+    ): Job {
+        lateinit var job: Job
+        job = scope.launch(start = CoroutineStart.LAZY) {
+            delay(wait)
+            fireTrailingTimeout(job, wait, trailing, isMaxWaitExceeded)
+        }
+        timeoutJob = job
+        return job
+    }
+
+    private fun fireMaxWait(job: Job, trailing: Boolean) {
+        val invokedAt = now()
+        val transition = synchronized(stateLock) {
+            if (maxWaitJob !== job) {
+                null
+            } else {
+                maxWaitJob = null
+                val callback = if (trailing) claimCallbackLocked(lastArgs, invokedAt) else null
+                Transition<TParams>(callback = callback)
+            }
+        }
+        completeTransition(transition)
+    }
+
+    private fun fireResetTimeout(job: Job) {
+        val transition = synchronized(stateLock) {
+            if (timeoutJob !== job) {
+                null
+            } else {
+                Transition<TParams>(maxWaitToCancel = resetDebounceStateLocked())
+            }
+        }
+        completeTransition(transition)
+    }
+
+    private fun fireTrailingTimeout(
+        job: Job,
+        wait: Duration,
+        trailing: Boolean,
+        isMaxWaitExceeded: Boolean,
+    ) {
+        val invokedAt = now()
+        val transition = synchronized(stateLock) {
+            if (timeoutJob !== job) {
+                null
+            } else {
+                val trailingArgs = lastArgs.takeIf {
+                    (invokedAt - latestCalledTime >= wait || isMaxWaitExceeded) && trailing
+                }
+                val maxWaitToCancel = resetDebounceStateLocked()
+                Transition<TParams>(
+                    maxWaitToCancel = maxWaitToCancel,
+                    callback = claimCallbackLocked(trailingArgs, invokedAt),
+                )
+            }
+        }
+        completeTransition(transition)
+    }
+
+    private fun completeTransition(transition: Transition<TParams>?) {
+        transition ?: return
+        transition.timeoutToCancel?.cancel()
+        transition.maxWaitToCancel?.cancel()
+        transition.maxWaitToStart?.start()
+        transition.timeoutToStart?.start()
+        transition.callback?.let { it.fn(it.params) }
+    }
+
+    fun cancel() {
+        val transition = synchronized(stateLock) {
+            val timeoutToCancel = timeoutJob
+            val maxWaitToCancel = maxWaitJob
+            timeoutJob = null
+            maxWaitJob = null
+            latestInvokedTime = Instant.DISTANT_PAST
+            latestCalledTime = latestInvokedTime
+            lastArgs = null
+            isAwaitingNextDebounce = true
+            Transition<TParams>(
+                timeoutToCancel = timeoutToCancel,
+                maxWaitToCancel = maxWaitToCancel,
+            )
+        }
+        completeTransition(transition)
     }
 
     fun invoke(p1: TParams) {
         if (!scope.isActive) return
-        val (wait, leading, trailing, maxWait) = options
-        val pendingArgs = PendingArgs(p1)
-        lastArgs = pendingArgs
-
         val currentTimeStamp = now()
-        if (latestInvokedTime == Instant.DISTANT_PAST) {
-            latestInvokedTime = currentTimeStamp
-        }
-        val waitTime = currentTimeStamp - latestInvokedTime
-
-        val isMaxWaitExceeded = maxWait > Duration.ZERO && waitTime >= maxWait
-
-        val shouldInvokeImmediately = leading && isAwaitingNextDebounce
-
-        latestCalledTime = currentTimeStamp
-        cancelTimeout()
-        if (trailing) scheduleMaxWait(maxWait)
-        if (shouldInvokeImmediately) {
-            isAwaitingNextDebounce = false
-            timeoutJob = scope.launch {
-                delay(wait)
-                resetDebounceState()
+        val transition = synchronized(stateLock) {
+            val (wait, leading, trailing, maxWait) = currentOptions
+            val pendingArgs = PendingArgs(p1)
+            lastArgs = pendingArgs
+            if (latestInvokedTime == Instant.DISTANT_PAST) {
+                latestInvokedTime = currentTimeStamp
             }
-            executeFn(pendingArgs)
-        } else {
-            timeoutJob = scope.launch {
-                delay(wait)
-                val trailingArgs = lastArgs.takeIf {
-                    (now() - latestCalledTime >= wait || isMaxWaitExceeded) && trailing
+            val waitTime = currentTimeStamp - latestInvokedTime
+            val isMaxWaitExceeded = maxWait > Duration.ZERO && waitTime >= maxWait
+            val shouldInvokeImmediately = leading && isAwaitingNextDebounce
+            latestCalledTime = currentTimeStamp
+
+            val timeoutToCancel = timeoutJob
+            timeoutJob = null
+            var maxWaitToCancel: Job? = null
+            var maxWaitToStart: Job? = null
+            val timeoutToStart: Job
+            val callback: ClaimedCallback<TParams>?
+
+            if (shouldInvokeImmediately) {
+                if (trailing && maxWait > Duration.ZERO && maxWaitJob == null) {
+                    maxWaitToStart = createMaxWaitJobLocked(maxWait, trailing)
                 }
-                resetDebounceState()
-                executeFn(trailingArgs)
-            }
-            if (isMaxWaitExceeded) {
-                cancelTimeout()
-                maxWaitJob?.cancel()
+                isAwaitingNextDebounce = false
+                timeoutToStart = createResetTimeoutJobLocked(wait)
+                callback = claimCallbackLocked(pendingArgs, currentTimeStamp)
+            } else if (isMaxWaitExceeded) {
+                maxWaitToCancel = maxWaitJob
                 maxWaitJob = null
                 isAwaitingNextDebounce = false
-                timeoutJob = scope.launch {
-                    delay(wait)
-                    resetDebounceState()
+                timeoutToStart = createResetTimeoutJobLocked(wait)
+                callback = claimCallbackLocked(lastArgs, currentTimeStamp)
+            } else {
+                if (trailing && maxWait > Duration.ZERO && maxWaitJob == null) {
+                    maxWaitToStart = createMaxWaitJobLocked(maxWait, trailing)
                 }
-                executeFn(lastArgs)
+                timeoutToStart = createTrailingTimeoutJobLocked(wait, trailing, isMaxWaitExceeded)
+                callback = null
             }
+
+            Transition<TParams>(
+                timeoutToCancel = timeoutToCancel,
+                maxWaitToCancel = maxWaitToCancel,
+                timeoutToStart = timeoutToStart,
+                maxWaitToStart = maxWaitToStart,
+                callback = callback,
+            )
         }
+        completeTransition(transition)
     }
 }
 
@@ -190,8 +308,7 @@ private fun <TParams> useDebounceFnImpl(fn: VoidFunction<TParams>, options: UseD
     val debounced = remember {
         Debounce(latestFn, scope, options)
     }.apply {
-        this.fn = latestFn
-        this.options = options
+        update(latestFn, options)
     }
     return remember { { p1 -> debounced.invoke(p1) } }
 }

@@ -9,7 +9,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
 import kotlin.time.Instant
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
@@ -48,71 +51,129 @@ data class UseThrottleOptions internal constructor(
 
 @Stable
 internal class Throttle<TParams>(
-    var fn: VoidFunction<TParams>,
+    fn: VoidFunction<TParams>,
     private val scope: CoroutineScope,
-    var options: UseThrottleOptions = UseThrottleOptions(),
+    options: UseThrottleOptions = UseThrottleOptions(),
     private val now: () -> Instant = { currentInstant },
 ) {
     private class PendingArgs<T>(val value: T)
 
+    private class ClaimedCallback<T>(
+        val fn: VoidFunction<T>,
+        val params: T,
+    )
+
+    private class Transition<T>(
+        val timeoutToCancel: Job? = null,
+        val timeoutToStart: Job? = null,
+        val callback: ClaimedCallback<T>? = null,
+    )
+
+    private val stateLock = SynchronizedObject()
+    private var currentFn = fn
+    private var currentOptions = options
     private var timeoutJob: Job? = null
     private var lastArgs: PendingArgs<TParams>? = null
     private var latestInvokedTime = Instant.DISTANT_PAST
 
-    private fun trailingEdge() {
-        val pendingArgs = lastArgs
-        lastArgs = null
-        if (options.trailing && pendingArgs != null) {
-            latestInvokedTime = now()
-            fn(pendingArgs.value)
+    fun update(fn: VoidFunction<TParams>, options: UseThrottleOptions) {
+        synchronized(stateLock) {
+            currentFn = fn
+            currentOptions = options
         }
     }
 
+    private fun createTimeoutJobLocked(wait: Duration, trailing: Boolean): Job {
+        lateinit var job: Job
+        job = scope.launch(start = CoroutineStart.LAZY) {
+            delay(wait)
+            fireTimeout(job, trailing)
+        }
+        timeoutJob = job
+        return job
+    }
+
+    private fun fireTimeout(job: Job, trailing: Boolean) {
+        val invokedAt = now()
+        val transition = synchronized(stateLock) {
+            if (timeoutJob !== job) {
+                null
+            } else {
+                timeoutJob = null
+                val pendingArgs = lastArgs
+                lastArgs = null
+                val callback = if (trailing && pendingArgs != null) {
+                    latestInvokedTime = invokedAt
+                    ClaimedCallback(currentFn, pendingArgs.value)
+                } else {
+                    null
+                }
+                Transition<TParams>(callback = callback)
+            }
+        }
+        completeTransition(transition)
+    }
+
+    private fun completeTransition(transition: Transition<TParams>?) {
+        transition ?: return
+        transition.timeoutToCancel?.cancel()
+        transition.timeoutToStart?.start()
+        transition.callback?.let { it.fn(it.params) }
+    }
+
     fun cancel() {
-        timeoutJob?.cancel()
-        timeoutJob = null
-        lastArgs = null
-        latestInvokedTime = Instant.DISTANT_PAST
+        val transition = synchronized(stateLock) {
+            val timeoutToCancel = timeoutJob
+            timeoutJob = null
+            lastArgs = null
+            latestInvokedTime = Instant.DISTANT_PAST
+            Transition<TParams>(timeoutToCancel = timeoutToCancel)
+        }
+        completeTransition(transition)
     }
 
     fun invoke(p1: TParams) {
         if (!scope.isActive) return
-        val (wait, leading, trailing) = options
         val nowInstant = now()
-        val pendingArgs = PendingArgs(p1)
-        lastArgs = pendingArgs
+        val transition = synchronized(stateLock) {
+            val (wait, leading, trailing) = currentOptions
+            val pendingArgs = PendingArgs(p1)
+            lastArgs = pendingArgs
 
-        if (latestInvokedTime == Instant.DISTANT_PAST && !leading) {
-            latestInvokedTime = nowInstant
-        }
+            if (latestInvokedTime == Instant.DISTANT_PAST && !leading) {
+                latestInvokedTime = nowInstant
+            }
 
-        val remaining = wait - (nowInstant - latestInvokedTime)
+            val remaining = wait - (nowInstant - latestInvokedTime)
+            var timeoutToCancel: Job? = null
+            var timeoutToStart: Job? = null
+            var callback: ClaimedCallback<TParams>? = null
 
-        if (remaining <= Duration.ZERO || remaining > wait) {
-            timeoutJob?.cancel()
-            timeoutJob = null
-            latestInvokedTime = nowInstant
-            if (leading) {
-                if (lastArgs === pendingArgs) lastArgs = null
-                fn(pendingArgs.value)
-            } else if (trailing) {
-                timeoutJob = scope.launch {
-                    delay(wait)
-                    timeoutJob = null
-                    trailingEdge()
+            if (remaining <= Duration.ZERO || remaining > wait) {
+                timeoutToCancel = timeoutJob
+                timeoutJob = null
+                latestInvokedTime = nowInstant
+                if (leading) {
+                    if (lastArgs === pendingArgs) lastArgs = null
+                    callback = ClaimedCallback(currentFn, pendingArgs.value)
+                } else if (trailing) {
+                    timeoutToStart = createTimeoutJobLocked(wait, trailing)
+                } else if (lastArgs === pendingArgs) {
+                    lastArgs = null
                 }
-            } else if (lastArgs === pendingArgs) {
+            } else if (timeoutJob == null && trailing) {
+                timeoutToStart = createTimeoutJobLocked(remaining, trailing)
+            } else if (!trailing && lastArgs === pendingArgs) {
                 lastArgs = null
             }
-        } else if (timeoutJob == null && trailing) {
-            timeoutJob = scope.launch {
-                delay(remaining)
-                timeoutJob = null
-                trailingEdge()
-            }
-        } else if (!trailing && lastArgs === pendingArgs) {
-            lastArgs = null
+
+            Transition<TParams>(
+                timeoutToCancel = timeoutToCancel,
+                timeoutToStart = timeoutToStart,
+                callback = callback,
+            )
         }
+        completeTransition(transition)
     }
 }
 
@@ -153,8 +214,7 @@ private fun <TParams> useThrottleFnImpl(fn: VoidFunction<TParams>, options: UseT
     val throttled = remember {
         Throttle(latestFn, scope, options)
     }.apply {
-        this.fn = latestFn
-        this.options = options
+        update(latestFn, options)
     }
     return remember { { p1: TParams -> throttled.invoke(p1) } }
 }
