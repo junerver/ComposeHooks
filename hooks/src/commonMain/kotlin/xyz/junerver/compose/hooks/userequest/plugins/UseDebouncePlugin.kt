@@ -22,22 +22,25 @@ import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 private class DebouncePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
     override val invoke: GenPluginLifecycleFn<TParams, TData>
         get() = { fetch: Fetch<TParams, TData>, useRequestOptions: UseRequestOptions<TParams, TData> ->
+            var debounce: Debounce<TParams?>? = null
             if (useRequestOptions.debounceOptions.wait > Duration.ZERO) {
-                val debounce = Debounce<TParams?>(
+                val debounced = Debounce<TParams?>(
                     fn = { params -> fetch._run(params) },
                     scope = this,
                     useRequestOptions.debounceOptions,
                 )
+                debounce = debounced
                 fetch.runAsync = {
-                    debounce.invoke(it)
+                    debounced.invoke(it)
                 }
                 fetch.run = {
-                    debounce.invoke(it)
+                    debounced.invoke(it)
                 }
             }
             object : PluginLifecycle<TParams, TData>() {
                 override val onCancel: PluginOnCancel
                     get() = {
+                        debounce?.cancel()
                         cancel()
                     }
             }

@@ -409,6 +409,83 @@ class UseRequestTest {
         assertNull(holder.error.value)
     }
 
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun debouncePlugin_cancel_resets_leading_window() = runComposeUiTest {
+        val receivedParams = mutableListOf<String>()
+        lateinit var holder: RequestHolder<String, Int>
+        setContent {
+            holder = useRequest(
+                requestFn = { params: String ->
+                    receivedParams += params
+                    params.length
+                },
+                optionsOf = {
+                    manual = true
+                    debounceOptionsOf = {
+                        wait = 10.seconds
+                        leading = true
+                        trailing = false
+                    }
+                },
+            )
+            Text("data=${holder.data.value}")
+        }
+
+        waitForIdle()
+        runOnIdle { holder.request("first") }
+        waitForIdle()
+        assertEquals(listOf("first"), receivedParams)
+
+        runOnIdle {
+            holder.cancel()
+            holder.request("second")
+        }
+        waitForIdle()
+
+        assertEquals(listOf("first", "second"), receivedParams)
+        assertEquals(6, holder.data.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun debouncePlugin_cancel_drops_pending_trailing_request() = runComposeUiTest {
+        val callCount = AtomicInteger(0)
+        lateinit var holder: RequestHolder<String, Int>
+        setContent {
+            holder = useRequest(
+                requestFn = { params: String ->
+                    callCount.incrementAndGet()
+                    params.length
+                },
+                optionsOf = {
+                    manual = true
+                    debounceOptionsOf = {
+                        wait = 50.milliseconds
+                        leading = false
+                        trailing = true
+                    }
+                },
+            )
+            Text("data=${holder.data.value}")
+        }
+
+        waitForIdle()
+        runOnIdle {
+            holder.request("stale")
+            holder.cancel()
+        }
+
+        val unexpectedlyRan = waitForCondition(maxAttempts = 20, delayMs = 10) {
+            callCount.get() > 0
+        }
+        waitForIdle()
+
+        assertFalse(unexpectedlyRan)
+        assertEquals(0, callCount.get())
+        assertNull(holder.data.value)
+    }
+
     // endregion
 
     // region ThrottlePlugin Tests
@@ -462,6 +539,83 @@ class UseRequestTest {
         assertEquals(1, holder.data.value)
         assertFalse(holder.isLoading.value)
         assertNull(holder.error.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun throttlePlugin_cancel_resets_leading_window() = runComposeUiTest {
+        val receivedParams = mutableListOf<String>()
+        lateinit var holder: RequestHolder<String, Int>
+        setContent {
+            holder = useRequest(
+                requestFn = { params: String ->
+                    receivedParams += params
+                    params.length
+                },
+                optionsOf = {
+                    manual = true
+                    throttleOptionsOf = {
+                        wait = 10.seconds
+                        leading = true
+                        trailing = false
+                    }
+                },
+            )
+            Text("data=${holder.data.value}")
+        }
+
+        waitForIdle()
+        runOnIdle { holder.request("first") }
+        waitForIdle()
+        assertEquals(listOf("first"), receivedParams)
+
+        runOnIdle {
+            holder.cancel()
+            holder.request("second")
+        }
+        waitForIdle()
+
+        assertEquals(listOf("first", "second"), receivedParams)
+        assertEquals(6, holder.data.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun throttlePlugin_cancel_drops_pending_trailing_request() = runComposeUiTest {
+        val callCount = AtomicInteger(0)
+        lateinit var holder: RequestHolder<String, Int>
+        setContent {
+            holder = useRequest(
+                requestFn = { params: String ->
+                    callCount.incrementAndGet()
+                    params.length
+                },
+                optionsOf = {
+                    manual = true
+                    throttleOptionsOf = {
+                        wait = 50.milliseconds
+                        leading = false
+                        trailing = true
+                    }
+                },
+            )
+            Text("data=${holder.data.value}")
+        }
+
+        waitForIdle()
+        runOnIdle {
+            holder.request("stale")
+            holder.cancel()
+        }
+
+        val unexpectedlyRan = waitForCondition(maxAttempts = 20, delayMs = 10) {
+            callCount.get() > 0
+        }
+        waitForIdle()
+
+        assertFalse(unexpectedlyRan)
+        assertEquals(0, callCount.get())
+        assertNull(holder.data.value)
     }
 
     // endregion

@@ -23,22 +23,25 @@ private class ThrottlePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
     override val invoke: GenPluginLifecycleFn<TParams, TData>
         get() = { fetch: Fetch<TParams, TData>, useRequestOptions: UseRequestOptions<TParams, TData> ->
             initFetch(fetch, useRequestOptions)
+            var throttle: Throttle<TParams?>? = null
             if (useRequestOptions.throttleOptions.wait > Duration.ZERO) {
-                val throttle = Throttle<TParams?>(
+                val throttled = Throttle<TParams?>(
                     fn = { params -> fetch._run(params) },
                     scope = this,
                     useRequestOptions.throttleOptions,
                 )
+                throttle = throttled
                 fetch.run = {
-                    throttle.invoke(it)
+                    throttled.invoke(it)
                 }
                 fetch.runAsync = {
-                    throttle.invoke(it)
+                    throttled.invoke(it)
                 }
             }
             object : PluginLifecycle<TParams, TData>() {
                 override val onCancel: PluginOnCancel
                     get() = {
+                        throttle?.cancel()
                         cancel()
                     }
             }
