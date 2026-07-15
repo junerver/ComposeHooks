@@ -13,7 +13,9 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
+import xyz.junerver.compose.hooks.rememberList
 import xyz.junerver.compose.hooks.rememberListReduce
 import xyz.junerver.compose.hooks.useList
 import xyz.junerver.compose.hooks.useListReduce
@@ -399,6 +401,79 @@ class UseListTest {
         waitForIdle()
         assertEquals(null, empty!!.value)
         assertEquals(6.0, reduced!!.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun list_keeps_initial_snapshot_and_identity_when_input_changes() = runComposeUiTest {
+        val mutableInput = mutableListOf<String?>("A", "A", null)
+        var source by mutableStateOf<List<String?>>(mutableInput)
+        lateinit var list: SnapshotStateList<String?>
+
+        setContent {
+            list = useList(source)
+        }
+
+        waitForIdle()
+        val initialList = list
+        list.add("local")
+        mutableInput.add("external")
+        source = listOf("replacement")
+        waitForIdle()
+
+        assertSame(initialList, list)
+        assertEquals(listOf("A", "A", null, "local"), list.toList())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun list_applies_rapid_updates_without_losing_duplicates() = runComposeUiTest {
+        lateinit var list: SnapshotStateList<Int>
+
+        setContent {
+            list = useList(1, 1, 2)
+        }
+
+        waitForIdle()
+        list.add(3)
+        list.removeAt(0)
+        list[0] = 9
+        list.addAll(listOf(3, 4))
+        list.remove(2)
+        waitForIdle()
+
+        assertEquals(listOf(9, 3, 3, 4), list.toList())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun list_preserves_standard_index_failures() = runComposeUiTest {
+        lateinit var list: SnapshotStateList<Int>
+
+        setContent {
+            list = useList(1, 2)
+        }
+
+        waitForIdle()
+        assertFailsWith<IndexOutOfBoundsException> { list[-1] }
+        assertFailsWith<IndexOutOfBoundsException> { list.removeAt(list.size) }
+        assertEquals(listOf(1, 2), list.toList())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun remember_list_aliases_match_collection_and_vararg_overloads() = runComposeUiTest {
+        lateinit var collectionList: SnapshotStateList<String>
+        lateinit var varargList: SnapshotStateList<Int?>
+
+        setContent {
+            collectionList = rememberList(listOf("a", "b"))
+            varargList = rememberList(1, null, 1)
+        }
+
+        waitForIdle()
+        assertEquals(listOf("a", "b"), collectionList.toList())
+        assertEquals(listOf(1, null, 1), varargList.toList())
     }
 
     private data class EqualValue(val value: String)
