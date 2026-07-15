@@ -2,17 +2,16 @@
 
 package xyz.junerver.compose.hooks.usestate
 import xyz.junerver.compose.hooks.Options
-import xyz.junerver.compose.hooks.useref.Ref
-import xyz.junerver.compose.hooks.useasync.useCancelableAsyncImpl
+import xyz.junerver.compose.hooks.usecreation.useCreationImpl
 import xyz.junerver.compose.hooks.useeffect.useEffectImpl
-import xyz.junerver.compose.hooks.usegetstate._useGetStateImpl
-import xyz.junerver.compose.hooks.invoke
+import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 import xyz.junerver.compose.hooks.usenumber.useDoubleImpl
 import xyz.junerver.compose.hooks.usenumber.useFloatImpl
 import xyz.junerver.compose.hooks.usenumber.useIntImpl
 import xyz.junerver.compose.hooks.usenumber.useLongImpl
-import xyz.junerver.compose.hooks.useref.useRefImpl
 import xyz.junerver.compose.hooks.useDynamicOptions
+import xyz.junerver.compose.hooks.useref.Ref
+import xyz.junerver.compose.hooks.utils.unwrap
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -21,7 +20,16 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import kotlin.coroutines.cancellation.CancellationException
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.currentCoroutineContext
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.annotation.ExperimentalComputed
 
 /*
@@ -149,34 +157,154 @@ fun <T> useStateAsyncImpl(
     factory: suspend () -> T,
 ): State<T?> {
     val (lazy, onError) = useDynamicOptions(optionsOf)
-    val (asyncRun) = useCancelableAsyncImpl()
-    val (state, setState) = _useGetStateImpl(initValue)
-    val calcFnRef = useRefImpl {
-        asyncRun {
-            try {
-                setState(factory())
-            } catch (e: CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                onError(e)
-                setState(null)
+    val scope = rememberCoroutineScope()
+    val state = _useStateImpl(initValue)
+    val factoryRef = useLatestRefImpl(factory)
+    val onErrorRef = useLatestRefImpl(onError)
+    val lazyRef = useLatestRefImpl(lazy)
+    val dependencyKey = useCreationImpl(*unwrap(keys)) { Any() }.current
+    val dependencyKeyRef = useLatestRefImpl(dependencyKey)
+    val controller = useCreationImpl {
+        AsyncStateController(scope, state, factoryRef, onErrorRef)
+    }.current
+    val asyncState = useCreationImpl<State<T?>> {
+        AsyncCalcState(controller, dependencyKeyRef, lazyRef, state)
+    }.current
+
+    useEffectImpl(dependencyKey, lazy) {
+        controller.updateKey(dependencyKey)
+        if (!lazy) {
+            controller.request(dependencyKey)
+        }
+    }
+
+    return asyncState
+}
+
+internal class AsyncStateController<T>(
+    private val scope: CoroutineScope,
+    private val state: MutableState<T?>,
+    private val factoryRef: Ref<suspend () -> T>,
+    private val onErrorRef: Ref<(Throwable) -> Unit>,
+) {
+    private class RequestTransition(
+        val previousJob: Job?,
+        val requestJob: Job?,
+    )
+
+    private val stateLock = SynchronizedObject()
+    private var currentKey: Any? = null
+    private var hasCurrentKey = false
+    private var requested = false
+    private var generation = 0L
+    private var job: Job? = null
+
+    fun updateKey(key: Any) {
+        val previousJob = synchronized(stateLock) {
+            if (hasCurrentKey && currentKey === key) {
+                null
+            } else {
+                hasCurrentKey = true
+                currentKey = key
+                requested = false
+                generation += 1
+                job.also { job = null }
+            }
+        }
+        previousJob?.cancel()
+    }
+
+    fun request(key: Any) {
+        val transition = synchronized(stateLock) {
+            var previousJob: Job? = null
+            if (!hasCurrentKey || currentKey !== key) {
+                hasCurrentKey = true
+                currentKey = key
+                requested = false
+                generation += 1
+                previousJob = job
+                job = null
+            }
+            if (requested) {
+                RequestTransition(previousJob, null)
+            } else {
+                requested = true
+                generation += 1
+                val requestGeneration = generation
+                lateinit var requestJob: Job
+                requestJob = scope.launch(start = CoroutineStart.LAZY) {
+                    try {
+                        execute(key, requestGeneration, requestJob)
+                    } catch (e: CancellationException) {
+                        throw e
+                    } catch (_: Exception) {
+                        // Preserve useCancelableAsync behavior for failures raised by user callbacks.
+                    }
+                }
+                job = requestJob
+                RequestTransition(previousJob, requestJob)
+            }
+        }
+        transition.previousJob?.cancel()
+        transition.requestJob?.start()
+    }
+
+    private suspend fun execute(
+        key: Any,
+        requestGeneration: Long,
+        requestJob: Job,
+    ) {
+        try {
+            val result = factoryRef.current()
+            currentCoroutineContext().ensureActive()
+            synchronized(stateLock) {
+                if (isCurrent(key, requestGeneration, requestJob)) {
+                    state.value = result
+                }
+            }
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            currentCoroutineContext().ensureActive()
+            val shouldHandle = synchronized(stateLock) {
+                isCurrent(key, requestGeneration, requestJob)
+            }
+            if (shouldHandle) {
+                onErrorRef.current(e)
+                currentCoroutineContext().ensureActive()
+                synchronized(stateLock) {
+                    if (isCurrent(key, requestGeneration, requestJob)) {
+                        state.value = null
+                    }
+                }
+            }
+        } finally {
+            synchronized(stateLock) {
+                if (job === requestJob) {
+                    job = null
+                }
             }
         }
     }
-    if (lazy) {
-        return remember { AsyncCalcState(calcFnRef, state) }
-    } else {
-        useEffectImpl(deps = arrayOf(*keys, factory)) {
-            calcFnRef.current()
-        }
-        return state
-    }
+
+    private fun isCurrent(
+        key: Any,
+        requestGeneration: Long,
+        requestJob: Job,
+    ): Boolean = currentKey === key && generation == requestGeneration && job === requestJob
 }
 
-internal class AsyncCalcState<T>(val calcFn: Ref<() -> Unit>, val state: State<T?>) : State<T?> {
+internal class AsyncCalcState<T>(
+    private val controller: AsyncStateController<T>,
+    private val dependencyKeyRef: Ref<Any>,
+    private val lazyRef: Ref<Boolean>,
+    private val state: State<T?>,
+) : State<T?> {
     override val value: T?
         get() {
-            calcFn.current()
+            if (lazyRef.current) {
+                controller.request(dependencyKeyRef.current)
+            }
             return state.value
         }
 }
