@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertSame
 import xyz.junerver.compose.hooks.PersistentHolder
 import xyz.junerver.compose.hooks.PersistentContext
@@ -190,6 +191,40 @@ class UsePersistentTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
+    fun persistent_old_key_notification_does_not_reach_switched_consumer() = runComposeUiTest {
+        val firstKey = "persistent-late-old-key-a"
+        val secondKey = "persistent-late-old-key-b"
+        val backend = TestPersistentBackend(
+            mapOf(
+                firstKey to "value-a",
+                secondKey to "value-b",
+            ),
+        )
+        var key by mutableStateOf(firstKey)
+
+        setContent {
+            PersistentContext.Provider(value = backend.contextValue) {
+                val holder = usePersistent(key, "default")
+                Text(holder.state.value)
+            }
+        }
+
+        waitForIdle()
+        onNodeWithText("value-a").assertExists()
+        key = secondKey
+        waitForIdle()
+        onNodeWithText("value-b").assertExists()
+        val readsAfterSwitch = backend.readCount
+
+        backend.values[firstKey] = "late-value-a"
+        notifyDefaultPersistentObserver(firstKey)
+        waitForIdle()
+        onNodeWithText("value-b").assertExists()
+        assertEquals(readsAfterSwitch, backend.readCount)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
     fun persistent_dynamic_default_applies_only_when_storage_is_empty() = runComposeUiTest {
         var defaultValue by mutableStateOf("first-default")
         lateinit var holder: PersistentHolder<String>
@@ -320,6 +355,24 @@ class UsePersistentTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
+    fun persistent_reads_storage_once_on_initial_mount() = runComposeUiTest {
+        val key = "persistent-single-initial-read"
+        val backend = TestPersistentBackend(mapOf(key to "stored"))
+
+        setContent {
+            PersistentContext.Provider(value = backend.contextValue) {
+                val holder = usePersistent(key, "default")
+                Text(holder.state.value)
+            }
+        }
+
+        waitForIdle()
+        onNodeWithText("stored").assertExists()
+        assertEquals(1, backend.readCount)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
     fun remember_persistent_matches_dynamic_key_behavior() = runComposeUiTest {
         var key by mutableStateOf("remember-persistent-a")
         lateinit var holder: PersistentHolder<String>
@@ -339,18 +392,231 @@ class UsePersistentTest {
         waitForIdle()
         onNodeWithText("value-b").assertExists()
     }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun persistent_initial_read_failure_falls_back_and_recovers() = runComposeUiTest {
+        val key = "persistent-initial-read-failure"
+        val backend = TestPersistentBackend(mapOf(key to "recovered"))
+        backend.failReads = true
+
+        setContent {
+            PersistentContext.Provider(value = backend.contextValue) {
+                val holder = usePersistent(key, "fallback")
+                Text(holder.state.value)
+            }
+        }
+
+        waitForIdle()
+        onNodeWithText("fallback").assertExists()
+        backend.failReads = false
+        notifyDefaultPersistentObserver(key)
+        waitForIdle()
+        onNodeWithText("recovered").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun persistent_observer_read_failure_falls_back_and_recovers() = runComposeUiTest {
+        val key = "persistent-observer-read-failure"
+        val backend = TestPersistentBackend(mapOf(key to "initial"))
+
+        setContent {
+            PersistentContext.Provider(value = backend.contextValue) {
+                val holder = usePersistent(key, "fallback")
+                Text(holder.state.value)
+            }
+        }
+
+        waitForIdle()
+        onNodeWithText("initial").assertExists()
+        backend.failReads = true
+        notifyDefaultPersistentObserver(key)
+        waitForIdle()
+        onNodeWithText("fallback").assertExists()
+
+        backend.failReads = false
+        backend.values[key] = "recovered"
+        notifyDefaultPersistentObserver(key)
+        waitForIdle()
+        onNodeWithText("recovered").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun persistent_incompatible_stored_type_uses_default_and_can_recover() = runComposeUiTest {
+        val key = "persistent-incompatible-type"
+        val backend = TestPersistentBackend(mapOf(key to 42))
+
+        setContent {
+            PersistentContext.Provider(value = backend.contextValue) {
+                val holder = usePersistent(key, "fallback")
+                Text(holder.state.value)
+            }
+        }
+
+        waitForIdle()
+        onNodeWithText("fallback").assertExists()
+        backend.values[key] = "recovered"
+        notifyDefaultPersistentObserver(key)
+        waitForIdle()
+        onNodeWithText("recovered").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun persistent_nullable_default_supports_save_sync_and_clear() = runComposeUiTest {
+        val key = "persistent-nullable-default"
+        lateinit var first: PersistentHolder<String?>
+        lateinit var second: PersistentHolder<String?>
+
+        setContent {
+            first = usePersistent(key, null, forceUseMemory = true)
+            second = usePersistent(key, null, forceUseMemory = true)
+            Text("first=${first.state.value ?: "null"} second=${second.state.value ?: "null"}")
+        }
+
+        waitForIdle()
+        onNodeWithText("first=null second=null").assertExists()
+        first.save("saved")
+        waitForIdle()
+        onNodeWithText("first=saved second=saved").assertExists()
+        first.save(null)
+        waitForIdle()
+        onNodeWithText("first=null second=null").assertExists()
+        second.save("saved-again")
+        waitForIdle()
+        onNodeWithText("first=saved-again second=saved-again").assertExists()
+        second.clear()
+        waitForIdle()
+        onNodeWithText("first=null second=null").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun persistent_nullable_default_remains_compatible_with_custom_backend() = runComposeUiTest {
+        val key = "persistent-nullable-custom-backend"
+        val backend = TestPersistentBackend()
+        lateinit var holder: PersistentHolder<String?>
+
+        setContent {
+            PersistentContext.Provider(value = backend.contextValue) {
+                holder = usePersistent(key, null)
+                Text(holder.state.value ?: "null")
+            }
+        }
+
+        waitForIdle()
+        onNodeWithText("null").assertExists()
+        holder.save("saved")
+        waitForIdle()
+        onNodeWithText("saved").assertExists()
+        holder.save(null)
+        waitForIdle()
+        onNodeWithText("null").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun persistent_save_failure_is_visible_and_next_save_can_recover() = runComposeUiTest {
+        val key = "persistent-save-failure"
+        val backend = TestPersistentBackend(mapOf(key to "initial"))
+        lateinit var holder: PersistentHolder<String>
+
+        setContent {
+            PersistentContext.Provider(value = backend.contextValue) {
+                holder = usePersistent(key, "fallback")
+                Text(holder.state.value)
+            }
+        }
+
+        waitForIdle()
+        backend.failSaves = true
+        assertFailsWith<IllegalStateException> {
+            holder.save("failed")
+        }
+        assertEquals("initial", backend.values[key])
+        onNodeWithText("initial").assertExists()
+
+        backend.failSaves = false
+        holder.save("recovered")
+        waitForIdle()
+        assertEquals("recovered", backend.values[key])
+        onNodeWithText("recovered").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun persistent_custom_backend_keeps_defaults_and_instances_in_sync() = runComposeUiTest {
+        val key = "persistent-custom-sync"
+        val backend = TestPersistentBackend()
+        lateinit var first: PersistentHolder<String>
+        lateinit var second: PersistentHolder<String>
+
+        setContent {
+            PersistentContext.Provider(value = backend.contextValue) {
+                first = usePersistent(key, "first-default")
+                second = usePersistent(key, "second-default")
+                Text("first=${first.state.value} second=${second.state.value}")
+            }
+        }
+
+        waitForIdle()
+        onNodeWithText("first=first-default second=second-default").assertExists()
+        first.save("shared")
+        waitForIdle()
+        onNodeWithText("first=shared second=shared").assertExists()
+        second.clear()
+        waitForIdle()
+        onNodeWithText("first=first-default second=second-default").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun persistent_unmount_unregisters_storage_observer() = runComposeUiTest {
+        val key = "persistent-unmount-observer"
+        val backend = TestPersistentBackend(mapOf(key to "mounted"))
+        var mounted by mutableStateOf(true)
+
+        setContent {
+            PersistentContext.Provider(value = backend.contextValue) {
+                if (mounted) {
+                    val holder = usePersistent(key, "fallback")
+                    Text(holder.state.value)
+                } else {
+                    Text("unmounted")
+                }
+            }
+        }
+
+        waitForIdle()
+        onNodeWithText("mounted").assertExists()
+        mounted = false
+        waitForIdle()
+        onNodeWithText("unmounted").assertExists()
+        val readsAfterUnmount = backend.readCount
+
+        backend.values[key] = "must-not-be-read"
+        notifyDefaultPersistentObserver(key)
+        waitForIdle()
+        assertEquals(readsAfterUnmount, backend.readCount)
+    }
 }
 
 private class TestPersistentBackend(initialValues: Map<String, Any?> = emptyMap()) {
     val values = initialValues.toMutableMap()
     var readCount = 0
+    var failReads = false
+    var failSaves = false
 
     val contextValue = Triple(
         first = { key: String, defaultValue: Any ->
             readCount += 1
+            if (failReads) error("read failed")
             values[key] ?: defaultValue
         },
         second = { key: String, value: Any? ->
+            if (failSaves) error("save failed")
             values[key] = value
             notifyDefaultPersistentObserver(key)
         },

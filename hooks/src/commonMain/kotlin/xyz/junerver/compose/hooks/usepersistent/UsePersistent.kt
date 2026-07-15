@@ -1,6 +1,7 @@
 package xyz.junerver.compose.hooks.usepersistent
 import xyz.junerver.compose.hooks.HookClear
 import xyz.junerver.compose.hooks.PersistentContextValue
+import xyz.junerver.compose.hooks.PersistentGet
 import xyz.junerver.compose.hooks.SaveToPersistent
 
 import androidx.compose.runtime.Composable
@@ -15,6 +16,7 @@ import xyz.junerver.compose.hooks.usecontext.useContextImpl
 import xyz.junerver.compose.hooks.usecreation.useCreationImpl
 import xyz.junerver.compose.hooks.useeffect.useEffectImpl
 import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
+import xyz.junerver.compose.hooks.useref.useRefImpl
 import xyz.junerver.compose.hooks.usestate._useStateImpl
 import xyz.junerver.compose.hooks.utils.CacheManager
 import xyz.junerver.compose.hooks.utils.HooksEventManager
@@ -135,13 +137,22 @@ fun <T> usePersistentImpl(key: String, defaultValue: T, forceUseMemory: Boolean 
     val latestSet = useLatestRefImpl(set)
     val latestClear = useLatestRefImpl(clear)
     val getValue = {
-        latestGet.current(latestKey.current, latestDefaultValue.current as Any) as T
+        getPersistentValueOrDefault(
+            get = latestGet.current,
+            key = latestKey.current,
+            defaultValue = latestDefaultValue.current,
+        )
     }
     val initialValue = useCreationImpl(factory = getValue).current
     val state = _useStateImpl(initialValue)
+    val loadedConfiguration = useRefImpl(Triple(key, defaultValue, get))
 
     useEffectImpl(key, defaultValue, get) {
-        state.value = getValue()
+        val currentConfiguration = Triple(key, defaultValue, get)
+        if (loadedConfiguration.current != currentConfiguration) {
+            loadedConfiguration.current = currentConfiguration
+            state.value = getValue()
+        }
     }
 
     /**
@@ -162,6 +173,23 @@ fun <T> usePersistentImpl(key: String, defaultValue: T, forceUseMemory: Boolean 
         )
     }
 }
+
+private object NullPersistentDefault
+
+@Suppress("UNCHECKED_CAST")
+private fun <T> getPersistentValueOrDefault(get: PersistentGet, key: String, defaultValue: T): T =
+    try {
+        val backendDefault = defaultValue ?: NullPersistentDefault
+        val storedValue = get(key, backendDefault)
+        when {
+            storedValue === NullPersistentDefault -> defaultValue
+            defaultValue == null -> storedValue as T
+            (defaultValue as Any)::class.isInstance(storedValue) -> storedValue as T
+            else -> defaultValue
+        }
+    } catch (_: Exception) {
+        defaultValue
+    }
 
 /** Callback function when performing persistence operation */
 private typealias SavePersistentCallback = (Unit) -> Unit
