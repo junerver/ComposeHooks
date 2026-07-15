@@ -8,12 +8,19 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.runComposeUiTest
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.awaitCancellation
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.useTimeoutPoll
 
@@ -252,5 +259,171 @@ class UseTimeoutPollTest {
         Thread.sleep(220)
         waitForIdle()
         assertEquals(0, count.get())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun immediate_callback_finishes_before_next_poll_is_scheduled() = runComposeUiTest {
+        val count = AtomicInteger(0)
+        val releaseCallback = CompletableDeferred<Unit>()
+        lateinit var holder: xyz.junerver.compose.hooks.TimeoutPollHolder
+
+        setContent {
+            holder = useTimeoutPoll(
+                fn = {
+                    count.incrementAndGet()
+                    releaseCallback.await()
+                },
+                interval = 50.milliseconds,
+                optionsOf = {
+                    immediate = false
+                    immediateCallback = true
+                },
+            )
+        }
+        waitForIdle()
+
+        holder.resume()
+        assertTrue(
+            waitForCondition {
+                waitForIdle()
+                count.get() >= 1
+            },
+            "Expected the immediate callback to start",
+        )
+
+        mainClock.advanceTimeBy(180)
+        waitForIdle()
+        val countBeforeRelease = count.get()
+        holder.pause()
+        releaseCallback.complete(Unit)
+
+        assertEquals(1, countBeforeRelease, "Polling must wait for the current callback before scheduling the next timeout")
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun pause_cancels_running_immediate_callback() = runComposeUiTest {
+        val started = CompletableDeferred<Unit>()
+        val canceled = AtomicBoolean(false)
+        lateinit var holder: xyz.junerver.compose.hooks.TimeoutPollHolder
+
+        setContent {
+            holder = useTimeoutPoll(
+                fn = {
+                    started.complete(Unit)
+                    try {
+                        awaitCancellation()
+                    } finally {
+                        canceled.set(true)
+                    }
+                },
+                interval = 5.seconds,
+                optionsOf = {
+                    immediate = false
+                    immediateCallback = true
+                },
+            )
+        }
+        waitForIdle()
+
+        holder.resume()
+        assertTrue(
+            waitForCondition {
+                waitForIdle()
+                started.isCompleted
+            },
+            "Expected the immediate callback to start",
+        )
+        holder.pause()
+
+        assertTrue(
+            waitForCondition {
+                waitForIdle()
+                canceled.get()
+            },
+            "Expected pause to cancel the running immediate callback",
+        )
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun non_positive_poll_interval_is_rejected_before_polling_starts() {
+        listOf(Duration.ZERO, (-1).milliseconds).forEach { invalidInterval ->
+            val result = runCatching {
+                runComposeUiTest {
+                    setContent {
+                        useTimeoutPoll(
+                            fn = {},
+                            interval = invalidInterval,
+                            optionsOf = {
+                                immediate = false
+                            },
+                        )
+                    }
+                }
+            }
+
+            assertTrue(
+                result.exceptionOrNull() is IllegalArgumentException,
+                "Expected interval=$invalidInterval to fail with IllegalArgumentException, actual=${result.exceptionOrNull()}",
+            )
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun concurrent_resume_calls_start_only_one_immediate_callback() = runComposeUiTest {
+        val count = AtomicInteger(0)
+        lateinit var holder: xyz.junerver.compose.hooks.TimeoutPollHolder
+
+        setContent {
+            holder = useTimeoutPoll(
+                fn = {
+                    count.incrementAndGet()
+                    awaitCancellation()
+                },
+                interval = 5.seconds,
+                optionsOf = {
+                    immediate = false
+                    immediateCallback = true
+                },
+            )
+        }
+        waitForIdle()
+
+        val callers = 32
+        val ready = CountDownLatch(callers)
+        val start = CountDownLatch(1)
+        val done = CountDownLatch(callers)
+        val errors = ConcurrentLinkedQueue<Throwable>()
+        repeat(callers) {
+            Thread {
+                try {
+                    ready.countDown()
+                    start.await()
+                    holder.resume()
+                } catch (error: Throwable) {
+                    errors.add(error)
+                } finally {
+                    done.countDown()
+                }
+            }.start()
+        }
+
+        assertTrue(ready.await(5, TimeUnit.SECONDS), "Concurrent callers did not become ready")
+        start.countDown()
+        assertTrue(done.await(5, TimeUnit.SECONDS), "Concurrent poll resumes did not complete")
+        assertTrue(errors.isEmpty(), "Concurrent resume threw: ${errors.firstOrNull()}")
+        assertTrue(
+            waitForCondition {
+                waitForIdle()
+                count.get() >= 1
+            },
+            "Expected the immediate callback to start",
+        )
+
+        assertEquals(1, count.get(), "Concurrent resume calls must share one poll job")
+        holder.pause()
     }
 }

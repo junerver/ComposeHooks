@@ -1,22 +1,24 @@
 package xyz.junerver.compose.hooks.usetimeoutpoll
-import xyz.junerver.compose.hooks.useasync.useAsyncImpl
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.Options
 import xyz.junerver.compose.hooks.SuspendAsyncFn
-import xyz.junerver.compose.hooks.useref.getValue
+import xyz.junerver.compose.hooks.useDynamicOptions
 import xyz.junerver.compose.hooks.usemount.useMountImpl
 import xyz.junerver.compose.hooks.useunmount.useUnmountImpl
-import xyz.junerver.compose.hooks.useDynamicOptions
-import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
-import xyz.junerver.compose.hooks.usetimeoutfn.useTimeoutFnImpl
-import xyz.junerver.compose.hooks.useref.useRefImpl
 import xyz.junerver.compose.hooks.usestate.useStateImpl
 
 /*
@@ -46,69 +48,150 @@ data class TimeoutPollHolder(
     val resume: () -> Unit,
 )
 
+@Stable
+private class TimeoutPoll(
+    private val scope: CoroutineScope,
+    private val isActiveState: MutableState<Boolean>,
+    options: UseTimeoutPollOptions,
+    interval: Duration,
+    fn: SuspendAsyncFn,
+) {
+    private val lock = SynchronizedObject()
+    private var immediateCallback = options.immediateCallback
+    private var interval = interval
+    private var pollFn = fn
+    private var active = false
+    private var generation = 0L
+    private var pollJob: Job? = null
+
+    fun update(options: UseTimeoutPollOptions, interval: Duration, fn: SuspendAsyncFn) {
+        synchronized(lock) {
+            immediateCallback = options.immediateCallback
+            this.interval = interval
+            pollFn = fn
+        }
+    }
+
+    fun resume() {
+        val nextSchedule = synchronized(lock) {
+            if (active) {
+                null
+            } else {
+                active = true
+                generation += 1L
+                isActiveState.value = true
+                Schedule(
+                    generation = generation,
+                    delay = if (immediateCallback) Duration.ZERO else interval,
+                )
+            }
+        } ?: return
+
+        schedule(nextSchedule)
+    }
+
+    fun pause() {
+        val jobToCancel = synchronized(lock) {
+            active = false
+            generation += 1L
+            isActiveState.value = false
+            pollJob.also { pollJob = null }
+        }
+        jobToCancel?.cancel()
+    }
+
+    private fun schedule(schedule: Schedule) {
+        lateinit var candidate: Job
+        candidate = scope.launch(start = CoroutineStart.LAZY) {
+            delay(schedule.delay)
+            val callback = synchronized(lock) {
+                pollFn.takeIf {
+                    active && generation == schedule.generation && pollJob === candidate
+                }
+            } ?: return@launch
+
+            callback(this)
+
+            val nextDelay = synchronized(lock) {
+                if (active && generation == schedule.generation && pollJob === candidate) {
+                    pollJob = null
+                    interval
+                } else {
+                    null
+                }
+            }
+            nextDelay?.let {
+                schedule(Schedule(generation = schedule.generation, delay = it))
+            }
+        }
+
+        val shouldStart = synchronized(lock) {
+            if (active && generation == schedule.generation && pollJob == null) {
+                pollJob = candidate
+                true
+            } else {
+                false
+            }
+        }
+        if (!shouldStart) {
+            candidate.cancel()
+            return
+        }
+
+        candidate.invokeOnCompletion {
+            synchronized(lock) {
+                if (pollJob === candidate) {
+                    pollJob = null
+                    active = false
+                    isActiveState.value = false
+                }
+            }
+        }
+        candidate.start()
+    }
+
+    private data class Schedule(
+        val generation: Long,
+        val delay: Duration,
+    )
+}
+
 @Composable
 fun useTimeoutPollImpl(
     fn: SuspendAsyncFn,
     interval: Duration = 1.seconds,
     optionsOf: UseTimeoutPollOptions.() -> Unit,
 ): TimeoutPollHolder {
+    require(interval > Duration.ZERO) { "useTimeoutPoll interval must be positive" }
     val options = useDynamicOptions(optionsOf)
-    val latestFn = useLatestRefImpl(value = fn)
     val isActiveState = useStateImpl(default = false)
-    val asyncRun = useAsyncImpl()
-
-    val startRef = useRefImpl(default = {})
-    val stopRef = useRefImpl(default = {})
-
-    val internalLoop: SuspendAsyncFn = internalLoop@{
-        if (!isActiveState.value) {
-            return@internalLoop
-        }
-        latestFn.current(this)
-        startRef.current()
-    }
-
-    val (_, startTimeoutFn, stopTimeoutFn) = useTimeoutFnImpl(
-        fn = internalLoop,
-        interval = interval,
-        optionsOf = {
-            immediate = false
-            immediateCallback = false
-        },
-    )
-
-    startRef.current = startTimeoutFn
-    stopRef.current = stopTimeoutFn
-
-    val pause = {
-        isActiveState.value = false
-        stopTimeoutFn()
-    }
-
-    val resume = {
-        if (!isActiveState.value) {
-            isActiveState.value = true
-            if (options.immediateCallback) {
-                asyncRun(latestFn.current)
-            }
-            startTimeoutFn()
-        }
-    }
+    val scope = rememberCoroutineScope()
+    val timeoutPoll = remember {
+        TimeoutPoll(
+            scope = scope,
+            isActiveState = isActiveState,
+            options = options,
+            interval = interval,
+            fn = fn,
+        )
+    }.also { it.update(options = options, interval = interval, fn = fn) }
 
     useMountImpl {
         if (options.immediate) {
-            resume()
+            timeoutPoll.resume()
         }
     }
     useUnmountImpl {
-        pause()
+        timeoutPoll.pause()
     }
 
-    return TimeoutPollHolder(
-        isActive = isActiveState,
-        pause = pause,
-        resume = resume,
-    )
+    return remember {
+        TimeoutPollHolder(
+            isActive = isActiveState,
+            pause = timeoutPoll::pause,
+            resume = timeoutPoll::resume,
+        )
+    }
 }
 
 @Composable
