@@ -21,6 +21,7 @@ import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
 import xyz.junerver.compose.hooks.rememberMount
 import xyz.junerver.compose.hooks.rememberUnmount
+import xyz.junerver.compose.hooks.rememberUnmountedRef
 import xyz.junerver.compose.hooks.useMount
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.useUnmount
@@ -171,31 +172,41 @@ class UseMountUnmountTest {
         val mounted = mutableStateOf(true)
         val recomposeTick = mutableStateOf(0)
         lateinit var currentRef: Ref<Boolean>
+        lateinit var currentRememberRef: Ref<Boolean>
         var firstRef: Ref<Boolean>? = null
+        var firstRememberRef: Ref<Boolean>? = null
 
         setContent {
             if (mounted.value) {
                 currentRef = useUnmountedRef()
+                currentRememberRef = rememberUnmountedRef()
                 if (firstRef == null) firstRef = currentRef
-                Text("unmounted=${currentRef.current} tick=${recomposeTick.value}")
+                if (firstRememberRef == null) firstRememberRef = currentRememberRef
+                Text("unmounted=${currentRef.current}/${currentRememberRef.current} tick=${recomposeTick.value}")
             }
         }
 
         waitForIdle()
         val originalRef = requireNotNull(firstRef)
+        val originalRememberRef = requireNotNull(firstRememberRef)
         assertFalse(originalRef.current)
+        assertFalse(originalRememberRef.current)
         runOnIdle { recomposeTick.value = 1 }
         waitForIdle()
         assertSame(originalRef, currentRef)
+        assertSame(originalRememberRef, currentRememberRef)
 
         runOnIdle { mounted.value = false }
         waitForIdle()
         assertTrue(originalRef.current)
+        assertTrue(originalRememberRef.current)
 
         runOnIdle { mounted.value = true }
         waitForIdle()
         assertNotSame(originalRef, currentRef)
+        assertNotSame(originalRememberRef, currentRememberRef)
         assertFalse(currentRef.current)
+        assertFalse(currentRememberRef.current)
     }
 
     @OptIn(ExperimentalTestApi::class)
