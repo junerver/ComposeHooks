@@ -414,6 +414,29 @@ class FetchRaceTest {
     }
 
     @Test
+    fun newerManualDispatchInvalidatesOlderDelayedToken() = runTest {
+        val calls = mutableListOf<String>()
+        val fixture = createFixture(requestFn = { params ->
+            calls += params
+            params.length
+        })
+        val staleToken = fixture.fetch.requestDispatchToken()
+        val currentToken = fixture.fetch.beginRequestDispatch()
+
+        try {
+            assertFalse(fixture.fetch.runIfDispatchTokenCurrent(staleToken, "stale"))
+            assertTrue(fixture.fetch.runIfDispatchTokenCurrent(currentToken, "current"))
+            runCurrent()
+
+            assertEquals(listOf("current"), calls)
+            assertEquals(7, fixture.data.value)
+        } finally {
+            fixture.fetch.cancel()
+            runCurrent()
+        }
+    }
+
+    @Test
     fun requestCancellationResetsLoadingAndSkipsPluginFinally() = runTest {
         val publicFinally = mutableListOf<FinalEvent>()
         var pluginFinallyCount = 0

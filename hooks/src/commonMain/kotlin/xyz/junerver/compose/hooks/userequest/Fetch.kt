@@ -39,7 +39,9 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
     // 请求的代次；所有读写均通过 StateFlow 的原子操作完成。
     private val generation = MutableStateFlow(0L)
     private val cancellationGeneration = MutableStateFlow(0L)
+    private val requestDispatchGeneration = MutableStateFlow(0L)
     private val transitionLock = SynchronizedObject()
+    private val dispatchLock = SynchronizedObject()
 
     lateinit var fetchState: FetchState<TParams, TData>
 
@@ -92,7 +94,11 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
 
     private fun detachRequestJobs(): Set<Job> = requestJobs.getAndUpdate { emptySet() }
 
-    internal fun requestDispatchToken(): Long = cancellationGeneration.value
+    internal fun requestDispatchToken(): Long = requestDispatchGeneration.value
+
+    internal fun beginRequestDispatch(): Long = synchronized(dispatchLock) {
+        requestDispatchGeneration.updateAndGet { it + 1L }
+    }
 
     private fun Throwable.rethrowIfCancellation() {
         if (this is CancellationException) throw this
@@ -327,12 +333,13 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
         val requestJob = this.scope.launch(start = CoroutineStart.LAZY) {
             _runAsync(params)
         }
-        val registered = if (expectedDispatchToken == null) {
-            registerRequestJob(requestJob)
-            true
-        } else {
-            withTransitionLock {
-                if (cancellationGeneration.value != expectedDispatchToken) {
+        val registered = synchronized(dispatchLock) {
+            if (expectedDispatchToken == null) {
+                requestDispatchGeneration.update { it + 1L }
+                registerRequestJob(requestJob)
+                true
+            } else {
+                if (requestDispatchGeneration.value != expectedDispatchToken) {
                     false
                 } else {
                     registerRequestJob(requestJob)
@@ -357,15 +364,18 @@ class Fetch<TParams, TData : Any>(private val options: UseRequestOptions<TParams
 
     private fun cancelRequestLifecycle(clearError: Boolean) {
         val lifecycleSnapshot = pluginImpls
-        val jobsToCancel = withTransitionLock {
-            cancellationGeneration.update { it + 1L }
-            nextGeneration()
-            commitState(
-                buildMap {
-                    put(Keys.loading, false)
-                    if (clearError) put(Keys.error, null)
-                },
-            )
+        val jobsToCancel = synchronized(dispatchLock) {
+            requestDispatchGeneration.update { it + 1L }
+            withTransitionLock {
+                cancellationGeneration.update { it + 1L }
+                nextGeneration()
+                commitState(
+                    buildMap {
+                        put(Keys.loading, false)
+                        if (clearError) put(Keys.error, null)
+                    },
+                )
+            }
             detachRequestJobs()
         }
         runPluginHandler(Methods.OnCancel, lifecycleSnapshot)
