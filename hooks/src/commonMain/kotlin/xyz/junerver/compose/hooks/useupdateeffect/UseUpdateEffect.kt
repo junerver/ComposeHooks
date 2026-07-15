@@ -1,11 +1,11 @@
 package xyz.junerver.compose.hooks.useupdateeffect
 
 import androidx.compose.runtime.Composable
-import xyz.junerver.compose.hooks.useref.getValue
-import xyz.junerver.compose.hooks.useref.setValue
 import xyz.junerver.compose.hooks.SuspendAsyncFn
+import xyz.junerver.compose.hooks.usecreation.useCreationImpl
 import xyz.junerver.compose.hooks.useeffect.useEffectImpl
-import xyz.junerver.compose.hooks.useref.useRefImpl
+import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
+import xyz.junerver.compose.hooks.utils.unwrap
 
 /*
   Description: [useUpdateEffect] 用法等同于 [useEffect]，但是会忽略首次执行，只在依赖更新时执行。
@@ -17,12 +17,12 @@ import xyz.junerver.compose.hooks.useref.useRefImpl
 
 @Composable
 fun useUpdateEffectImpl(vararg deps: Any?, block: SuspendAsyncFn) {
-    var isMounted by useRefImpl(false)
-    useEffectImpl(*deps) {
-        if (!isMounted) {
-            isMounted = true
-        } else {
-            block()
+    val dependencyKey = useCreationImpl(*unwrap(deps)) { Any() }.current
+    val initialDependencyKey = useCreationImpl { dependencyKey }.current
+    val blockRef = useLatestRefImpl(block)
+    useEffectImpl(dependencyKey) {
+        if (dependencyKey !== initialDependencyKey) {
+            blockRef.current.invoke(this)
         }
     }
 }
