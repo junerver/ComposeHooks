@@ -1,7 +1,9 @@
 package xyz.junerver.compose.hooks.useredux
 import xyz.junerver.compose.hooks.useasync.useAsyncImpl
+import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import xyz.junerver.compose.hooks.Dispatch
 import xyz.junerver.compose.hooks.DispatchAsync
 import xyz.junerver.compose.hooks.DispatchCallback
@@ -36,13 +38,21 @@ inline fun <reified A> useDispatchAsync(
     noinline onBefore: DispatchCallback<A>? = null,
     noinline onFinally: DispatchCallback<A>? = null,
 ): DispatchAsync<A> {
-    val dispatch: Dispatch<A> = useDispatch(alias)
+    val dispatchRef = useLatestRefImpl(useDispatch<A>(alias))
+    val onBeforeRef = useLatestRefImpl(onBefore)
+    val onFinallyRef = useLatestRefImpl(onFinally)
     val asyncRun = useAsyncImpl()
-    return { block ->
-        onBefore?.invoke(dispatch)
-        asyncRun {
-            dispatch(block(dispatch))
+    return remember(asyncRun, dispatchRef, onBeforeRef, onFinallyRef) {
+        { block ->
+            val dispatch = dispatchRef.current
+            onBeforeRef.current?.invoke(dispatch)
+            asyncRun {
+                try {
+                    dispatch(block(dispatch))
+                } finally {
+                    onFinallyRef.current?.invoke(dispatch)
+                }
+            }
         }
-        onFinally?.invoke(dispatch)
     }
 }
