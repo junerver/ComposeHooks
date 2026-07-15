@@ -1557,6 +1557,94 @@ class UseRequestTest {
 
     @OptIn(ExperimentalTestApi::class)
     @Test
+    fun cachePlugin_canceling_non_owner_waiter_keeps_inflight_deduplication() = runComposeUiTest {
+        val cacheKey = "test-cache-cancel-waiter-${System.currentTimeMillis()}"
+        val requestGate = CompletableDeferred<Unit>()
+        val callCount = AtomicInteger(0)
+        val showThirdHolder = mutableStateOf(false)
+        lateinit var firstHolder: RequestHolder<String, Int>
+        lateinit var secondHolder: RequestHolder<String, Int>
+        lateinit var thirdHolder: RequestHolder<String, Int>
+        val requestFn: suspend (String) -> Int = { params ->
+            callCount.incrementAndGet()
+            requestGate.await()
+            params.length
+        }
+
+        setContent {
+            firstHolder = useRequest(
+                requestFn = requestFn,
+                optionsOf = {
+                    manual = true
+                    this.cacheKey = cacheKey
+                },
+            )
+            secondHolder = useRequest(
+                requestFn = requestFn,
+                optionsOf = {
+                    manual = true
+                    this.cacheKey = cacheKey
+                },
+            )
+            if (showThirdHolder.value) {
+                thirdHolder = useRequest(
+                    requestFn = requestFn,
+                    optionsOf = {
+                        manual = true
+                        this.cacheKey = cacheKey
+                    },
+                )
+            }
+            Text("first=${firstHolder.data.value} second=${secondHolder.data.value}")
+        }
+
+        waitForIdle()
+        try {
+            runOnIdle {
+                firstHolder.request("abc")
+                secondHolder.request("abc")
+            }
+            waitForIdle()
+            assertTrue(waitForCondition { callCount.get() == 1 })
+
+            runOnIdle { secondHolder.cancel() }
+            waitForIdle()
+            assertTrue(waitForCondition { !secondHolder.isLoading.value })
+
+            runOnIdle { showThirdHolder.value = true }
+            waitForIdle()
+            runOnIdle { thirdHolder.request("abc") }
+            waitForIdle()
+
+            val duplicateStarted = waitForCondition(maxAttempts = 20, delayMs = 10) {
+                callCount.get() > 1
+            }
+            assertFalse(duplicateStarted)
+            assertEquals(1, callCount.get())
+
+            requestGate.complete(Unit)
+            waitForIdle()
+            val completed = waitForCondition {
+                firstHolder.data.value == 3 && thirdHolder.data.value == 3
+            }
+
+            assertTrue(completed, "Expected the third holder to reuse the still-active shared request")
+            assertEquals(1, callCount.get())
+            assertEquals(3, firstHolder.data.value)
+            assertEquals(3, thirdHolder.data.value)
+        } finally {
+            requestGate.complete(Unit)
+            runOnIdle {
+                firstHolder.cancel()
+                secondHolder.cancel()
+                if (showThirdHolder.value) thirdHolder.cancel()
+            }
+            waitForIdle()
+        }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
     fun cachePlugin_synchronizes_error_then_success_across_holders() = runComposeUiTest {
         val cacheKey = "test-cache-sync-${System.currentTimeMillis()}"
         val callCount = AtomicInteger(0)

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -30,8 +31,7 @@ import xyz.junerver.compose.hooks.userequest.UseRequestOptions
 import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 import xyz.junerver.compose.hooks.userequest.utils.RestoreFetchStateData
-import xyz.junerver.compose.hooks.userequest.utils.getCacheDeferred
-import xyz.junerver.compose.hooks.userequest.utils.setCacheDeferred
+import xyz.junerver.compose.hooks.userequest.utils.acquireCacheDeferred
 import xyz.junerver.compose.hooks.userequest.utils.subscribe
 import xyz.junerver.compose.hooks.userequest.utils.trigger
 import xyz.junerver.compose.hooks.utils.CacheManager
@@ -95,21 +95,22 @@ private class CachePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
 
                 override val onRequest: PluginOnRequest<TParams, TData>
                     get() = onRequest@{ requestFn, param ->
-                        var servicePromise: Deferred<TData>? = getCacheDeferred(cacheKey)
                         if (!loadingDelay.asBoolean()) {
                             trigger(cacheKey, RestoreFetchStateData(loading = true))
                         }
 
-                        // 如果已经发起过请求，则直接从缓存中返回之前请求的 Deferred
-                        // 这样可以让同时发出的两个请求，共用同一个
-                        if (servicePromise != null && servicePromise != currentPromiseRef.current) {
-                            return@onRequest OnRequestReturn(servicePromise)
+                        // 先创建不执行请求函数的候选 Deferred，再通过原子注册选出唯一 winner。
+                        val requestSupervisor = SupervisorJob(coroutineContext[Job])
+                        val requestContext = requestSupervisor + coroutineContext.minusKey(Job)
+                        val candidate = async(requestContext, start = CoroutineStart.LAZY) { requestFn(param) }
+                        candidate.invokeOnCompletion { requestSupervisor.cancel() }
+                        val servicePromise = acquireCacheDeferred(cacheKey, currentPromiseRef.current, candidate)
+                        if (servicePromise === candidate) {
+                            currentPromiseRef.current = candidate
+                            candidate.start()
+                        } else {
+                            candidate.cancel()
                         }
-                        // 发起异步请求，将Deferred存入 ref、缓存，并且返回 包装后的OnRequestReturn
-                        val requestContext = SupervisorJob(coroutineContext[Job]) + coroutineContext.minusKey(Job)
-                        servicePromise = async(requestContext) { requestFn(param) }
-                        currentPromiseRef.current = servicePromise
-                        setCacheDeferred(cacheKey, servicePromise)
                         OnRequestReturn(servicePromise)
                     }
 
