@@ -1,7 +1,7 @@
 package xyz.junerver.compose.hooks.useresetstate
 import xyz.junerver.compose.hooks.invoke
 import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
-import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
+import xyz.junerver.compose.hooks.uselatest.useLatestRefImpl
 import xyz.junerver.compose.hooks.SetValueFn
 import xyz.junerver.compose.hooks.SetterEither
 import xyz.junerver.compose.hooks.ResetFn
@@ -59,9 +59,10 @@ import androidx.compose.runtime.remember
 @Composable
 fun <T> useResetStateImpl(default: T & Any): ResetStateHolder<T & Any> {
     val (state, setState, getState) = useGetStateImpl(default)
+    val defaultRef = useLatestRefImpl(default)
 
     fun reset() {
-        setState(default)
+        setState(defaultRef.current)
     }
     return remember { ResetStateHolder(state, setState, getState, ::reset) }
 }
