@@ -103,7 +103,7 @@ class MutableRef<T>(initialValue: T) : Ref<T> {
     }
 
     private fun notify(newValue: T) {
-        mObservers.forEach {
+        mObservers.toList().forEach {
             it.invoke(newValue)
         }
     }
@@ -169,7 +169,7 @@ fun <T> useRefImpl(default: T): MutableRef<T> = remember {
 @Composable
 fun <T> Ref<T>.observeAsStateImpl(): State<T> {
     val state = _useStateImpl(default = this.current)
-    DisposableEffect(Unit) {
+    DisposableEffect(this) {
         val observer = { it: T -> state.value = it }
         observe(observer)
         onDispose {
