@@ -7,8 +7,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
+import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.CountDownLatch
+import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
@@ -222,5 +226,54 @@ class UseTimeoutFnTest {
             result.exceptionOrNull() is IllegalArgumentException,
             "Expected a negative interval to fail with IllegalArgumentException, actual=${result.exceptionOrNull()}",
         )
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun concurrent_starts_leave_only_one_timeout_scheduled() = runComposeUiTest {
+        val count = AtomicInteger(0)
+        lateinit var holder: xyz.junerver.compose.hooks.TimeoutFnHolder
+
+        setContent {
+            holder = useTimeoutFn(
+                fn = {
+                    count.incrementAndGet()
+                },
+                interval = 100.milliseconds,
+                optionsOf = {
+                    immediate = false
+                },
+            )
+        }
+        waitForIdle()
+
+        val callers = 32
+        val ready = CountDownLatch(callers)
+        val start = CountDownLatch(1)
+        val done = CountDownLatch(callers)
+        val errors = ConcurrentLinkedQueue<Throwable>()
+        repeat(callers) {
+            Thread {
+                try {
+                    ready.countDown()
+                    start.await()
+                    holder.start()
+                } catch (error: Throwable) {
+                    errors.add(error)
+                } finally {
+                    done.countDown()
+                }
+            }.start()
+        }
+
+        assertTrue(ready.await(5, TimeUnit.SECONDS), "Concurrent callers did not become ready")
+        start.countDown()
+        assertTrue(done.await(5, TimeUnit.SECONDS), "Concurrent timeout starts did not complete")
+        assertTrue(errors.isEmpty(), "Concurrent start threw: ${errors.firstOrNull()}")
+
+        mainClock.advanceTimeBy(150)
+        waitForIdle()
+        assertEquals(1, count.get(), "Concurrent starts must leave only the latest timeout scheduled")
+        holder.stop()
     }
 }
