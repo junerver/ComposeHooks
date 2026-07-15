@@ -17,6 +17,7 @@ import kotlin.math.sqrt
 import kotlin.math.truncate
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import xyz.junerver.compose.hooks.useAbs
 import xyz.junerver.compose.hooks.useCeil
 import xyz.junerver.compose.hooks.useFloor
@@ -244,5 +245,30 @@ class UseMathTest {
         waitForIdle()
         assertEquals(abs(Int.MIN_VALUE), absInt.value)
         assertEquals(abs(Long.MIN_VALUE), absLong.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun floating_point_hooks_preserve_nan_and_infinity_semantics() = runComposeUiTest {
+        lateinit var absoluteInfinity: State<Double>
+        lateinit var ceilNaN: State<Double>
+        lateinit var floorInfinity: State<Double>
+        lateinit var invalidSquareRoot: State<Double>
+        lateinit var invalidPower: State<Double>
+
+        setContent {
+            absoluteInfinity = useAbs(Double.NEGATIVE_INFINITY)
+            ceilNaN = useCeil(Double.NaN)
+            floorInfinity = useFloor(Double.POSITIVE_INFINITY)
+            invalidSquareRoot = useSqrt(-1.0)
+            invalidPower = usePow(-2.0, 0.5)
+        }
+
+        waitForIdle()
+        assertEquals(Double.POSITIVE_INFINITY, absoluteInfinity.value)
+        assertTrue(ceilNaN.value.isNaN())
+        assertEquals(Double.POSITIVE_INFINITY, floorInfinity.value)
+        assertTrue(invalidSquareRoot.value.isNaN())
+        assertTrue(invalidPower.value.isNaN())
     }
 }

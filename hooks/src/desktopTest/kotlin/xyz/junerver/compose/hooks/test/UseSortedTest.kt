@@ -68,4 +68,45 @@ class UseSortedTest {
         waitForIdle()
         assertEquals(listOf<Any>(1, "10", 2), result!!.value)
     }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun sorted_updates_dynamic_comparator_and_preserves_duplicates() = runComposeUiTest {
+        var descending by mutableStateOf(false)
+        var result: State<List<Int>>? = null
+
+        setContent {
+            result = useSorted(listOf(2, 1, 2, 3)) {
+                compareFn = if (descending) {
+                    { a, b -> b.compareTo(a) }
+                } else {
+                    { a, b -> a.compareTo(b) }
+                }
+            }
+        }
+
+        waitForIdle()
+        assertEquals(listOf(1, 2, 2, 3), result!!.value)
+
+        descending = true
+        waitForIdle()
+        assertEquals(listOf(3, 2, 2, 1), result!!.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun sorted_dirty_mode_updates_mutable_source() = runComposeUiTest {
+        val source = mutableListOf(3, 1, 2)
+        var result: State<List<Int>>? = null
+
+        setContent {
+            result = useSorted(source) {
+                dirty = true
+            }
+        }
+
+        waitForIdle()
+        assertEquals(listOf(1, 2, 3), result!!.value)
+        assertEquals(listOf(1, 2, 3), source)
+    }
 }

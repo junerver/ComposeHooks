@@ -159,7 +159,7 @@ fun <T> useSortedImpl(source: List<T>, optionsOf: UseSortedOptions<T>.() -> Unit
     val compareFn by useCreationImpl(options.compareFn) { options.compareFn ?: defaultCompare() }
 
     val dirty = options.dirty
-    val sortedState = useStateImpl {
+    val sortedState = useStateImpl(sortFn, compareFn) {
         val sorted = sortFn(sourceState.value, compareFn)
         sorted
     }
