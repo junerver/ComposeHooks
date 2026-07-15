@@ -3,8 +3,6 @@ package xyz.junerver.compose.hooks.usetimeago
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
-import androidx.compose.runtime.getValue
-import kotlin.math.abs
 import kotlin.math.ceil
 import kotlin.math.floor
 import kotlin.math.round
@@ -14,7 +12,7 @@ import kotlin.time.Instant
 import xyz.junerver.compose.hooks.utils.currentInstant
 import xyz.junerver.compose.hooks.utils.toLocalDateTime
 import xyz.junerver.compose.hooks.Options
-import xyz.junerver.compose.hooks.useref.getValue
+import xyz.junerver.compose.hooks.useeffect.useEffectImpl
 import xyz.junerver.compose.hooks.usetimestamp.useTimestampImpl
 import xyz.junerver.compose.hooks.uselatest.useLatestStateImpl
 import xyz.junerver.compose.hooks.useDynamicOptions
@@ -181,9 +179,10 @@ private val DEFAULT_UNITS = listOf(
  * @return Formatted time difference string
  */
 fun formatTimeAgo(from: Instant, options: FormatTimeAgoOptions = FormatTimeAgoOptions(), now: Instant = currentInstant): String {
-    val diff = now.toEpochMilliseconds() - from.toEpochMilliseconds()
-    val absDiff = abs(diff)
-    val isPast = diff > 0
+    require(options.max == null || options.max!! >= 0) { "formatTimeAgo max must not be negative" }
+    val difference = now - from
+    val absDiff = if (difference < Duration.ZERO) (-difference).inWholeMilliseconds else difference.inWholeMilliseconds
+    val isPast = difference > Duration.ZERO
 
     // Check if exceeds maximum unit
     if (options.max != null && absDiff > options.max!!) {
@@ -191,13 +190,16 @@ fun formatTimeAgo(from: Instant, options: FormatTimeAgoOptions = FormatTimeAgoOp
     }
 
     // If time difference is very small, show "just now"
-    if (absDiff < 30000 && !options.showSecond) {
+    if (absDiff == 0L || (absDiff < 30000 && !options.showSecond)) {
         return options.messages.justNow
     }
 
     // Use custom units or default units
     val units = options.units ?: DEFAULT_UNITS
+    require(units.isNotEmpty()) { "formatTimeAgo units must not be empty" }
+    require(units.all { it.max > 0 && it.value > 0 }) { "formatTimeAgo unit max and value must be positive" }
     val filteredUnits = if (options.showSecond) units else units.filter { it.name != TimeAgoUnitNames.SECOND }
+    require(filteredUnits.isNotEmpty()) { "formatTimeAgo units must contain a non-second unit when showSecond is false" }
 
     // Find suitable time unit
     val unit = filteredUnits.find { absDiff < it.max } ?: filteredUnits.last()
@@ -211,14 +213,15 @@ fun formatTimeAgo(from: Instant, options: FormatTimeAgoOptions = FormatTimeAgoOp
     }
 
     // Get unit string
+    val messageValue = roundedValue.coerceIn(0L, Int.MAX_VALUE.toLong()).toInt()
     val unitStr = when (unit.name) {
-        TimeAgoUnitNames.SECOND -> options.messages.second(roundedValue.toInt())
-        TimeAgoUnitNames.MINUTE -> options.messages.minute(roundedValue.toInt())
-        TimeAgoUnitNames.HOUR -> options.messages.hour(roundedValue.toInt())
-        TimeAgoUnitNames.DAY -> options.messages.day(roundedValue.toInt())
-        TimeAgoUnitNames.WEEK -> options.messages.week(roundedValue.toInt())
-        TimeAgoUnitNames.MONTH -> options.messages.month(roundedValue.toInt())
-        TimeAgoUnitNames.YEAR -> options.messages.year(roundedValue.toInt())
+        TimeAgoUnitNames.SECOND -> options.messages.second(messageValue)
+        TimeAgoUnitNames.MINUTE -> options.messages.minute(messageValue)
+        TimeAgoUnitNames.HOUR -> options.messages.hour(messageValue)
+        TimeAgoUnitNames.DAY -> options.messages.day(messageValue)
+        TimeAgoUnitNames.WEEK -> options.messages.week(messageValue)
+        TimeAgoUnitNames.MONTH -> options.messages.month(messageValue)
+        TimeAgoUnitNames.YEAR -> options.messages.year(messageValue)
     }
 
     // Format final string based on past/future
@@ -266,15 +269,40 @@ fun useTimeAgoImpl(time: Instant, optionsOf: UseTimeAgoOptions.() -> Unit = {}):
  */
 @Composable
 private fun useTimeAgo(time: Instant, options: UseTimeAgoOptions): State<String> {
-    val latestTime by useLatestStateImpl(time)
     val updateInterval = options.updateInterval
-    val timestamp: State<Long> = if (updateInterval > Duration.ZERO) {
-        val timestampHolder = useTimestampImpl({ interval = updateInterval }, updateInterval > Duration.ZERO)
-        timestampHolder.state
-    } else {
-        useStateImpl(currentInstant.toEpochMilliseconds())
+    require(updateInterval >= Duration.ZERO) { "useTimeAgo updateInterval must not be negative" }
+    val effectiveInterval = if (updateInterval > Duration.ZERO) updateInterval else 1.seconds
+    val timestampHolder = useTimestampImpl(
+        optionsOf = { interval = effectiveInterval },
+        autoResume = false,
+    )
+    useEffectImpl(updateInterval) {
+        if (updateInterval > Duration.ZERO) {
+            timestampHolder.resume()
+        } else {
+            timestampHolder.pause()
+        }
     }
+    val timeState = useLatestStateImpl(time)
+    val maxState = useLatestStateImpl(options.max)
+    val fullDateFormatterState = useLatestStateImpl(options.fullDateFormatter)
+    val messagesState = useLatestStateImpl(options.messages)
+    val showSecondState = useLatestStateImpl(options.showSecond)
+    val roundingState = useLatestStateImpl(options.rounding)
+    val unitsState = useLatestStateImpl(options.units)
     return useStateImpl {
-        formatTimeAgo(latestTime, options, Instant.fromEpochMilliseconds(timestamp.value))
+        val currentOptions = FormatTimeAgoOptions.optionOf {
+            max = maxState.value
+            fullDateFormatter = fullDateFormatterState.value
+            messages = messagesState.value
+            showSecond = showSecondState.value
+            rounding = roundingState.value
+            units = unitsState.value
+        }
+        formatTimeAgo(
+            from = timeState.value,
+            options = currentOptions,
+            now = Instant.fromEpochMilliseconds(timestampHolder.state.value),
+        )
     }
 }

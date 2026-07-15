@@ -2,6 +2,8 @@ package xyz.junerver.compose.hooks.test
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
@@ -96,5 +98,40 @@ class UseTimeAgoFormattingTest {
         val result = formatTimeAgo(from, options = options, now = now)
 
         assertEquals("3 hours ago", result)
+    }
+
+    @Test
+    fun exact_now_is_just_now_even_when_seconds_are_enabled() {
+        val options = FormatTimeAgoOptions.optionOf { showSecond = true }
+
+        assertEquals("just now", formatTimeAgo(now, options = options, now = now))
+    }
+
+    @Test
+    fun distant_instants_do_not_overflow_into_future_seconds() {
+        val result = formatTimeAgo(
+            from = Instant.DISTANT_PAST,
+            options = FormatTimeAgoOptions.optionOf { showSecond = true },
+            now = Instant.DISTANT_FUTURE,
+        )
+
+        assertTrue(result.endsWith("years ago"), "Expected a distant past result, got: $result")
+    }
+
+    @Test
+    fun invalid_custom_units_fail_with_clear_argument_error() {
+        listOf(
+            emptyList(),
+            listOf(TimeAgoUnit(max = 1_000, value = 0, name = TimeAgoUnitNames.SECOND)),
+        ).forEach { invalidUnits ->
+            val options = FormatTimeAgoOptions.optionOf {
+                showSecond = true
+                units = invalidUnits
+            }
+
+            assertFailsWith<IllegalArgumentException> {
+                formatTimeAgo(now - 1.seconds, options = options, now = now)
+            }
+        }
     }
 }
