@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import xyz.junerver.compose.hooks.useState
 import xyz.junerver.compose.hooks.useTimeout
@@ -78,6 +79,23 @@ class UseTimeoutTest {
         mainClock.advanceTimeBy(250)
         waitForIdle()
         assertEquals(0, count.get(), "Unmount must cancel the pending timeout callback")
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun zero_delay_executes_timeout_once() = runComposeUiTest {
+        val count = AtomicInteger(0)
+
+        setContent {
+            useTimeout(delay = Duration.ZERO) {
+                count.incrementAndGet()
+            }
+        }
+
+        waitForIdle()
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+        assertEquals(1, count.get(), "A zero-delay timeout must execute exactly once")
     }
 
     @OptIn(ExperimentalTestApi::class)
