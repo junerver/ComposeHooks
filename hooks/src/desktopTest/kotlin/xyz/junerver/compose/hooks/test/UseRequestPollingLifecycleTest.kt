@@ -21,7 +21,9 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertNull
 import kotlin.time.Duration.Companion.milliseconds
+import kotlinx.coroutines.awaitCancellation
 import xyz.junerver.compose.hooks.userequest.EmptyPlugin
 import xyz.junerver.compose.hooks.userequest.RequestHolder
 import xyz.junerver.compose.hooks.userequest.UseRequestOptions
@@ -156,5 +158,49 @@ class UseRequestPollingLifecycleTest {
         waitForIdle()
         assertEquals(3, calls.get())
         runOnIdle { holder.cancel() }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun pollingSuccessResetsTheErrorRetryBudget() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        val calls = AtomicInteger(0)
+        lateinit var holder: RequestHolder<String, Int>
+
+        setContent {
+            holder = useRequest(
+                requestFn = { _: String ->
+                    val call = calls.incrementAndGet()
+                    if (call == 1 || call == 3) error("failure $call")
+                    if (call == 4) awaitCancellation()
+                    call
+                },
+                optionsOf = {
+                    manual = true
+                    pollingInterval = 50.milliseconds
+                    pollingErrorRetryCount = 1
+                    onError = { _, _ -> }
+                },
+            )
+            Text("calls=${calls.get()} data=${holder.data.value}")
+        }
+
+        waitForIdle()
+        runOnIdle { holder.request("reset") }
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+        assertEquals(1, calls.get())
+
+        repeat(3) { expectedOffset ->
+            mainClock.advanceTimeBy(60)
+            waitForIdle()
+            assertEquals(expectedOffset + 2, calls.get())
+        }
+        assertEquals(4, calls.get())
+        runOnIdle { holder.cancel() }
+        waitForIdle()
+
+        assertEquals(2, holder.data.value)
+        assertNull(holder.error.value)
     }
 }
