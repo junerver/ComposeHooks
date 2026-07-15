@@ -1,16 +1,16 @@
 package xyz.junerver.compose.hooks.usepausableeffect
-import xyz.junerver.compose.hooks.SuspendAsyncFn
-import xyz.junerver.compose.hooks.useref.useRefImpl
-import xyz.junerver.compose.hooks.useeffect.useEffectImpl
-import xyz.junerver.compose.hooks.useref.setValue
-import xyz.junerver.compose.hooks.useref.getValue
-import xyz.junerver.compose.hooks.StopFn
-import xyz.junerver.compose.hooks.ResumeFn
-import xyz.junerver.compose.hooks.PauseFn
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import xyz.junerver.compose.hooks.PauseFn
+import xyz.junerver.compose.hooks.ResumeFn
+import xyz.junerver.compose.hooks.StopFn
+import xyz.junerver.compose.hooks.SuspendAsyncFn
+import xyz.junerver.compose.hooks.useeffect.useEffectImpl
+import xyz.junerver.compose.hooks.usestate.useStateImpl
 
 /*
   Description: A pausable effect hook that provides the ability to pause, resume, and stop effect execution
@@ -57,34 +57,27 @@ import androidx.compose.runtime.remember
  */
 @Composable
 fun usePausableEffectImpl(vararg deps: Any?, block: SuspendAsyncFn): PausableEffectHolder {
-    // Use useRef to store state, ensuring state persistence during recomposition
-    var isStop by useRefImpl(false) // Controls whether to completely stop the effect
-    var isPause by useRefImpl(false) // Controls whether to pause the effect
+    var isStop by useStateImpl(false)
+    var isPause by useStateImpl(false)
 
-    // Only create the effect if it's not stopped
-    if (!isStop) {
+    if (!isStop && !isPause) {
         useEffectImpl(*deps) {
-            // Only execute the effect function if it's not paused
-            if (!isPause) {
-                block()
-            }
+            block()
         }
     }
 
-    // Define control functions
     val stop = {
-        isStop = true // Completely stop the effect, no longer respond to dependency changes
+        isStop = true
     }
 
     val pause = {
-        isPause = true // Pause the effect, but still respond to dependency changes
+        isPause = true
     }
 
     val resume = {
-        isPause = false // Resume effect execution
+        isPause = false
     }
 
-    // Use remember to ensure returning the same instance, avoiding unnecessary recomposition
     return remember { PausableEffectHolder(stop, pause, resume) }
 }
 
