@@ -271,14 +271,14 @@ class UseRequestLoadingDelayTest {
     fun disabling_delay_cancels_pending_timer_with_stable_controls() = runComposeUiTest {
         mainClock.autoAdvance = false
         val loadingDelay = mutableStateOf(150.milliseconds)
-        val gate = CompletableDeferred<Unit>()
+        val gates = listOf(CompletableDeferred<Unit>(), CompletableDeferred<Unit>())
         val callCount = AtomicInteger(0)
         lateinit var holder: RequestHolder<String, Int>
         setContent {
             holder = useRequest(
                 requestFn = { params: String ->
-                    callCount.incrementAndGet()
-                    gate.await()
+                    val callIndex = callCount.getAndIncrement()
+                    gates[callIndex].await()
                     params.length
                 },
                 optionsOf = {
@@ -313,10 +313,84 @@ class UseRequestLoadingDelayTest {
         waitForIdle()
         assertFalse(holder.isLoading.value)
 
-        gate.complete(Unit)
+        gates[0].complete(Unit)
         mainClock.advanceTimeBy(1)
         waitForIdle()
         assertEquals(3, holder.data.value)
+        assertFalse(holder.isLoading.value)
+
+        runOnIdle { initialRequest("abcd") }
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+        assertEquals(2, callCount.get())
+        assertTrue(holder.isLoading.value, "Disabling loadingDelay must restore immediate loading")
+
+        gates[1].complete(Unit)
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+        assertEquals(4, holder.data.value)
+        assertFalse(holder.isLoading.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun enabling_delay_keeps_inflight_request_and_applies_to_next_request() = runComposeUiTest {
+        mainClock.autoAdvance = false
+        val loadingDelay = mutableStateOf(Duration.ZERO)
+        val gates = listOf(CompletableDeferred<Unit>(), CompletableDeferred<Unit>())
+        val callCount = AtomicInteger(0)
+        lateinit var holder: RequestHolder<String, Int>
+        setContent {
+            holder = useRequest(
+                requestFn = { params: String ->
+                    val callIndex = callCount.getAndIncrement()
+                    gates[callIndex].await()
+                    params.length
+                },
+                optionsOf = {
+                    manual = true
+                    this.loadingDelay = loadingDelay.value
+                },
+            )
+            Text("data=${holder.data.value} loading=${holder.isLoading.value}")
+        }
+
+        waitForIdle()
+        val initialHolder = holder
+        val initialRequest = holder.request
+        runOnIdle { initialRequest("abc") }
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+        assertEquals(1, callCount.get())
+        assertTrue(holder.isLoading.value)
+
+        runOnIdle { loadingDelay.value = 150.milliseconds }
+        mainClock.advanceTimeByFrame()
+        waitForIdle()
+        assertSame(initialHolder, holder)
+        assertSame(initialRequest, holder.request)
+        assertTrue(holder.isLoading.value)
+
+        gates[0].complete(Unit)
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+        assertEquals(3, holder.data.value)
+        assertFalse(holder.isLoading.value)
+
+        runOnIdle { initialRequest("abcd") }
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+        assertEquals(2, callCount.get())
+        assertFalse(holder.isLoading.value)
+
+        mainClock.advanceTimeBy(170)
+        waitForIdle()
+        assertTrue(holder.isLoading.value)
+
+        gates[1].complete(Unit)
+        mainClock.advanceTimeBy(1)
+        waitForIdle()
+        assertEquals(4, holder.data.value)
         assertFalse(holder.isLoading.value)
     }
 

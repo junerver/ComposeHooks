@@ -20,7 +20,6 @@ import xyz.junerver.compose.hooks.userequest.PluginOnCancel
 import xyz.junerver.compose.hooks.userequest.PluginOnFinally
 import xyz.junerver.compose.hooks.userequest.PluginOnRequest
 import xyz.junerver.compose.hooks.userequest.UseRequestOptions
-import xyz.junerver.compose.hooks.userequest.useEmptyPlugin
 import xyz.junerver.compose.hooks.userequest.utils.RestoreFetchStateData
 import xyz.junerver.compose.hooks.userequest.utils.trigger
 import xyz.junerver.compose.hooks.utils.asBoolean
@@ -56,31 +55,44 @@ internal class LoadingDelayTimer {
     }
 }
 
+private data class LoadingDelayConfig(
+    val loadingDelay: Duration = Duration.ZERO,
+    val ready: Boolean = true,
+    val cacheKey: String = "",
+)
+
 private class LoadingDelayPlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
-    /**
-     * [ready]是动态值，可以通过外部副作用修改传递
-     */
-    var ready = true
     private val loadingDelayTimer = LoadingDelayTimer()
+    private val config = MutableStateFlow(LoadingDelayConfig())
+
+    fun updateConfig(loadingDelay: Duration, ready: Boolean, cacheKey: String) {
+        val updatedConfig = LoadingDelayConfig(loadingDelay, ready, cacheKey)
+        if (config.getAndUpdate { updatedConfig } != updatedConfig) {
+            loadingDelayTimer.cancel()
+        }
+    }
 
     override val invoke: GenPluginLifecycleFn<TParams, TData>
         get() = { fetch: Fetch<TParams, TData>, useRequestOptions: UseRequestOptions<TParams, TData> ->
             initFetch(fetch, useRequestOptions)
-            val loadingDelay = useRequestOptions.loadingDelay
-            val cacheKey = useRequestOptions.cacheKey
             object : PluginLifecycle<TParams, TData>() {
                 override val onBefore: PluginOnBefore<TParams, TData>
                     get() = {
                         loadingDelayTimer.cancel()
-                        OnBeforeReturn(loading = false)
+                        if (config.value.loadingDelay.asBoolean()) {
+                            OnBeforeReturn(loading = false)
+                        } else {
+                            null
+                        }
                     }
 
                 override val onRequest: PluginOnRequest<TParams, TData>
                     get() = { _, _ ->
-                        if (ready) {
-                            loadingDelayTimer.schedule(fetch.scope, loadingDelay) {
-                                if (cacheKey.asBoolean()) {
-                                    trigger(cacheKey, RestoreFetchStateData(loading = true))
+                        val configSnapshot = config.value
+                        if (configSnapshot.ready && configSnapshot.loadingDelay.asBoolean()) {
+                            loadingDelayTimer.schedule(fetch.scope, configSnapshot.loadingDelay) {
+                                if (configSnapshot.cacheKey.asBoolean()) {
+                                    trigger(configSnapshot.cacheKey, RestoreFetchStateData(loading = true))
                                 } else {
                                     fetch.setState(Keys.loading to true)
                                 }
@@ -108,14 +120,10 @@ internal fun <TParams, TData : Any> useLoadingDelayPlugin(options: UseRequestOpt
     val loadingDelay = options.loadingDelay
     val ready = options.ready
     val cacheKey = options.cacheKey
-    if (!loadingDelay.asBoolean()) {
-        return useEmptyPlugin()
-    }
-
-    val loadingDelayPlugin = remember(loadingDelay, cacheKey) {
+    val loadingDelayPlugin = remember {
         LoadingDelayPlugin<TParams, TData>()
     }.apply {
-        this.ready = ready
+        updateConfig(loadingDelay, ready, cacheKey)
     }
     return loadingDelayPlugin
 }
