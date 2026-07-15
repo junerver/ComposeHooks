@@ -156,4 +156,62 @@ class UseThrottleComprehensiveTest {
         runCurrent()
         assertEquals(listOf(3), calls)
     }
+
+    @Test
+    fun throttleTrailingSupportsNullableArguments() = runTest {
+        val calls = mutableListOf<String?>()
+        val throttle = Throttle<String?>(
+            fn = { calls += it },
+            scope = this,
+            options = UseThrottleOptions.optionOf {
+                wait = 100.milliseconds
+                leading = false
+                trailing = true
+            },
+            now = { nowInstant() },
+        )
+
+        throttle.invoke(null)
+        advanceTimeBy(100)
+        runCurrent()
+
+        assertEquals(listOf<String?>(null), calls)
+    }
+
+    @Test
+    fun throttleTrailingReentrantCallDoesNotLeaveAStaleTimer() = runTest {
+        val calls = mutableListOf<Int>()
+        lateinit var throttle: Throttle<Int>
+        throttle = Throttle(
+            fn = { value ->
+                calls += value
+                if (value == 1) throttle.invoke(2)
+            },
+            scope = this,
+            options = UseThrottleOptions.optionOf {
+                wait = 100.milliseconds
+                leading = false
+                trailing = true
+            },
+            now = { nowInstant() },
+        )
+
+        throttle.invoke(1)
+        advanceTimeBy(100)
+        runCurrent()
+        assertEquals(listOf(1), calls)
+
+        advanceTimeBy(50)
+        runCurrent()
+        throttle.cancel()
+        throttle.invoke(3)
+
+        advanceTimeBy(50)
+        runCurrent()
+        assertEquals(listOf(1), calls)
+
+        advanceTimeBy(50)
+        runCurrent()
+        assertEquals(listOf(1, 3), calls)
+    }
 }

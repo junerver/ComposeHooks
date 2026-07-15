@@ -12,6 +12,7 @@ import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.None
 import xyz.junerver.compose.hooks.Options
@@ -53,10 +54,13 @@ internal class Debounce<TParams>(
     var options: UseDebounceOptions = UseDebounceOptions(),
     private val now: () -> Instant = { currentInstant },
 ) {
+    private class PendingArgs<T>(val value: T)
+
     private var timeoutJob: Job? = null
+    private var maxWaitJob: Job? = null
     private var latestInvokedTime = Instant.DISTANT_PAST
     private var latestCalledTime = latestInvokedTime
-    private var lastArgs: TParams? = null
+    private var lastArgs: PendingArgs<TParams>? = null
 
     private var isAwaitingNextDebounce: Boolean = true
 
@@ -65,19 +69,45 @@ internal class Debounce<TParams>(
         timeoutJob = null
     }
 
-    private fun executeFn(params: TParams?) {
-        params?.let { fn(it) }
+    private fun executeFn(params: PendingArgs<TParams>?) {
+        params ?: return
+        if (lastArgs === params) lastArgs = null
         latestInvokedTime = now()
+        fn(params.value)
     }
 
     private fun resetDebounceState() {
         isAwaitingNextDebounce = true
         timeoutJob = null
+        maxWaitJob?.cancel()
+        maxWaitJob = null
+        lastArgs = null
+    }
+
+    private fun scheduleMaxWait(maxWait: Duration) {
+        if (maxWait <= Duration.ZERO || maxWaitJob != null) return
+        maxWaitJob = scope.launch {
+            delay(maxWait)
+            maxWaitJob = null
+            if (options.trailing) executeFn(lastArgs)
+        }
+    }
+
+    fun cancel() {
+        cancelTimeout()
+        maxWaitJob?.cancel()
+        maxWaitJob = null
+        latestInvokedTime = Instant.DISTANT_PAST
+        latestCalledTime = latestInvokedTime
+        lastArgs = null
+        isAwaitingNextDebounce = true
     }
 
     fun invoke(p1: TParams) {
+        if (!scope.isActive) return
         val (wait, leading, trailing, maxWait) = options
-        lastArgs = p1
+        val pendingArgs = PendingArgs(p1)
+        lastArgs = pendingArgs
 
         val currentTimeStamp = now()
         if (latestInvokedTime == Instant.DISTANT_PAST) {
@@ -91,29 +121,33 @@ internal class Debounce<TParams>(
 
         latestCalledTime = currentTimeStamp
         cancelTimeout()
+        if (trailing) scheduleMaxWait(maxWait)
         if (shouldInvokeImmediately) {
-            executeFn(p1)
             isAwaitingNextDebounce = false
             timeoutJob = scope.launch {
                 delay(wait)
                 resetDebounceState()
             }
+            executeFn(pendingArgs)
         } else {
             timeoutJob = scope.launch {
                 delay(wait)
-                if ((now() - latestCalledTime >= wait || isMaxWaitExceeded) && trailing) {
-                    executeFn(lastArgs)
+                val trailingArgs = lastArgs.takeIf {
+                    (now() - latestCalledTime >= wait || isMaxWaitExceeded) && trailing
                 }
                 resetDebounceState()
+                executeFn(trailingArgs)
             }
             if (isMaxWaitExceeded) {
                 cancelTimeout()
-                executeFn(lastArgs)
+                maxWaitJob?.cancel()
+                maxWaitJob = null
                 isAwaitingNextDebounce = false
                 timeoutJob = scope.launch {
                     delay(wait)
                     resetDebounceState()
                 }
+                executeFn(lastArgs)
             }
         }
     }

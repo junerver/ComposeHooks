@@ -12,6 +12,7 @@ import kotlin.time.Instant
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import xyz.junerver.compose.hooks.None
 import xyz.junerver.compose.hooks.Options
@@ -52,28 +53,34 @@ internal class Throttle<TParams>(
     var options: UseThrottleOptions = UseThrottleOptions(),
     private val now: () -> Instant = { currentInstant },
 ) {
+    private class PendingArgs<T>(val value: T)
+
     private var timeoutJob: Job? = null
-    private var lastArgs: TParams? = null
+    private var lastArgs: PendingArgs<TParams>? = null
     private var latestInvokedTime = Instant.DISTANT_PAST
 
     private fun trailingEdge() {
-        if (options.trailing) {
-            lastArgs?.let { fn(it) }
+        val pendingArgs = lastArgs
+        lastArgs = null
+        if (options.trailing && pendingArgs != null) {
             latestInvokedTime = now()
+            fn(pendingArgs.value)
         }
-        timeoutJob = null
     }
 
     fun cancel() {
         timeoutJob?.cancel()
         timeoutJob = null
+        lastArgs = null
         latestInvokedTime = Instant.DISTANT_PAST
     }
 
     fun invoke(p1: TParams) {
+        if (!scope.isActive) return
         val (wait, leading, trailing) = options
         val nowInstant = now()
-        lastArgs = p1
+        val pendingArgs = PendingArgs(p1)
+        lastArgs = pendingArgs
 
         if (latestInvokedTime == Instant.DISTANT_PAST && !leading) {
             latestInvokedTime = nowInstant
@@ -86,18 +93,25 @@ internal class Throttle<TParams>(
             timeoutJob = null
             latestInvokedTime = nowInstant
             if (leading) {
-                fn(p1)
+                if (lastArgs === pendingArgs) lastArgs = null
+                fn(pendingArgs.value)
             } else if (trailing) {
                 timeoutJob = scope.launch {
                     delay(wait)
+                    timeoutJob = null
                     trailingEdge()
                 }
+            } else if (lastArgs === pendingArgs) {
+                lastArgs = null
             }
         } else if (timeoutJob == null && trailing) {
             timeoutJob = scope.launch {
                 delay(remaining)
+                timeoutJob = null
                 trailingEdge()
             }
+        } else if (!trailing && lastArgs === pendingArgs) {
+            lastArgs = null
         }
     }
 }

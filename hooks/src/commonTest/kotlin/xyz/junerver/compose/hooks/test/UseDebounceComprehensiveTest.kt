@@ -157,14 +157,172 @@ class UseDebounceComprehensiveTest {
         debounce.invoke(4)
         assertEquals(emptyList(), calls)
 
-        advanceTimeBy(20) // t=260 (>= maxWait since t=0)
+        advanceTimeBy(10) // t=250 (maxWait since t=0)
         runCurrent()
-        debounce.invoke(5)
-        runCurrent()
-        assertEquals(listOf(5), calls)
+        assertEquals(listOf(4), calls)
 
-        advanceTimeBy(500)
+        advanceTimeBy(10) // t=260
+        debounce.invoke(5)
+        advanceTimeBy(99)
         runCurrent()
-        assertEquals(listOf(5), calls)
+        assertEquals(listOf(4), calls)
+
+        advanceTimeBy(1)
+        runCurrent()
+        assertEquals(listOf(4, 5), calls)
+    }
+
+    @Test
+    fun debounceLeadingSupportsNullableArguments() = runTest {
+        val calls = mutableListOf<String?>()
+        val debounce = Debounce<String?>(
+            fn = { calls += it },
+            scope = this,
+            options = UseDebounceOptions.optionOf {
+                wait = 100.milliseconds
+                leading = true
+                trailing = false
+            },
+            now = { nowInstant() },
+        )
+
+        debounce.invoke(null)
+        runCurrent()
+
+        assertEquals(listOf<String?>(null), calls)
+    }
+
+    @Test
+    fun debounceCancelClearsTrailingAndRestoresLeadingWindow() = runTest {
+        val calls = mutableListOf<Int>()
+        val debounce = Debounce<Int>(
+            fn = { calls += it },
+            scope = this,
+            options = UseDebounceOptions.optionOf {
+                wait = 100.milliseconds
+                leading = true
+                trailing = true
+            },
+            now = { nowInstant() },
+        )
+
+        debounce.invoke(1)
+        advanceTimeBy(20)
+        runCurrent()
+        debounce.invoke(2)
+        debounce.cancel()
+
+        advanceTimeBy(200)
+        runCurrent()
+        assertEquals(listOf(1), calls)
+
+        debounce.invoke(3)
+        runCurrent()
+        assertEquals(listOf(1, 3), calls)
+    }
+
+    @Test
+    fun debounceLeadingReentrantCallStaysWithinCurrentWindow() = runTest {
+        val calls = mutableListOf<Int>()
+        lateinit var debounce: Debounce<Int>
+        debounce = Debounce(
+            fn = { value ->
+                calls += value
+                if (value == 1) debounce.invoke(2)
+            },
+            scope = this,
+            options = UseDebounceOptions.optionOf {
+                wait = 100.milliseconds
+                leading = true
+                trailing = true
+            },
+            now = { nowInstant() },
+        )
+
+        debounce.invoke(1)
+        assertEquals(listOf(1), calls)
+
+        advanceTimeBy(99)
+        runCurrent()
+        assertEquals(listOf(1), calls)
+
+        advanceTimeBy(1)
+        runCurrent()
+        assertEquals(listOf(1, 2), calls)
+    }
+
+    @Test
+    fun debounceTrailingReentrantCallStartsANewWindow() = runTest {
+        val calls = mutableListOf<Int>()
+        lateinit var debounce: Debounce<Int>
+        debounce = Debounce(
+            fn = { value ->
+                calls += value
+                if (value == 1) debounce.invoke(2)
+            },
+            scope = this,
+            options = UseDebounceOptions.optionOf {
+                wait = 100.milliseconds
+                leading = false
+                trailing = true
+            },
+            now = { nowInstant() },
+        )
+
+        debounce.invoke(1)
+        advanceTimeBy(100)
+        runCurrent()
+        assertEquals(listOf(1), calls)
+
+        advanceTimeBy(99)
+        runCurrent()
+        assertEquals(listOf(1), calls)
+
+        advanceTimeBy(1)
+        runCurrent()
+        assertEquals(listOf(1, 2), calls)
+    }
+
+    @Test
+    fun debounceMaxWaitReentrantCallStartsANewWindow() = runTest {
+        val calls = mutableListOf<Int>()
+        lateinit var debounce: Debounce<Int>
+        debounce = Debounce(
+            fn = { value ->
+                calls += value
+                if (value == 4) debounce.invoke(5)
+            },
+            scope = this,
+            options = UseDebounceOptions.optionOf {
+                wait = 100.milliseconds
+                leading = false
+                trailing = true
+                maxWait = 250.milliseconds
+            },
+            now = { nowInstant() },
+        )
+
+        debounce.invoke(1)
+        advanceTimeBy(80)
+        runCurrent()
+        debounce.invoke(2)
+        advanceTimeBy(80)
+        runCurrent()
+        debounce.invoke(3)
+        advanceTimeBy(80)
+        runCurrent()
+        debounce.invoke(4)
+
+        advanceTimeBy(10)
+        runCurrent()
+        assertEquals(listOf(4), calls)
+
+        advanceTimeBy(99)
+        runCurrent()
+        assertEquals(listOf(4), calls)
+
+        advanceTimeBy(1)
+        runCurrent()
+        assertEquals(listOf(4, 5), calls)
     }
 }
