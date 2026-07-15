@@ -19,6 +19,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.TestScope
@@ -442,6 +443,37 @@ class FetchRaceTest {
 
             assertEquals(listOf("current"), calls)
             assertEquals(7, fixture.data.value)
+        } finally {
+            fixture.fetch.cancel()
+            runCurrent()
+        }
+    }
+
+    @Test
+    fun manualRequestInvalidatesPendingDelayedDispatch() = runTest {
+        val calls = mutableListOf<String>()
+        val fixture = createFixture(requestFn = { params ->
+            calls += params
+            params.length
+        })
+        val delayedToken = fixture.fetch.requestDispatchToken()
+        val delayedFireStarted = CompletableDeferred<Unit>()
+        val releaseDelayedFire = CompletableDeferred<Unit>()
+        val delayedDispatch = async {
+            delayedFireStarted.complete(Unit)
+            releaseDelayedFire.await()
+            fixture.fetch.runIfDispatchTokenCurrent(delayedToken, "stale")
+        }
+
+        try {
+            delayedFireStarted.await()
+            fixture.fetch.run("manual")
+            releaseDelayedFire.complete(Unit)
+            runCurrent()
+
+            assertFalse(delayedDispatch.await())
+            assertEquals(listOf("manual"), calls)
+            assertEquals(6, fixture.data.value)
         } finally {
             fixture.fetch.cancel()
             runCurrent()
