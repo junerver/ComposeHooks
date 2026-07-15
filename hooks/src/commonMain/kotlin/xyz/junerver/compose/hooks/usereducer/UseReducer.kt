@@ -14,6 +14,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.remember
+import kotlinx.atomicfu.locks.SynchronizedObject
+import kotlinx.atomicfu.locks.synchronized
 
 /*
   Description:
@@ -79,6 +81,7 @@ fun <S, A> useReducerImpl(reducer: Reducer<S, A>, initialState: S, middlewares: 
 
     val reducerRef = useLatestRefImpl(reducer)
     val middlewaresRef = useLatestRefImpl(middlewares)
+    val dispatchLock = remember { SynchronizedObject() }
 
     val baseDispatch: Dispatch<A> = remember(state, reducerRef) {
         { action ->
@@ -86,19 +89,21 @@ fun <S, A> useReducerImpl(reducer: Reducer<S, A>, initialState: S, middlewares: 
         }
     }
 
-    val enhancedDispatch: Dispatch<A> = remember(state, baseDispatch, middlewaresRef) {
+    val enhancedDispatch: Dispatch<A> = remember(state, baseDispatch, middlewaresRef, dispatchLock) {
         { action ->
-            val currentMiddlewares = middlewaresRef.current
-            var nextDispatch: Dispatch<A> = baseDispatch
+            synchronized(dispatchLock) {
+                val currentMiddlewares = middlewaresRef.current
+                var nextDispatch: Dispatch<A> = baseDispatch
 
-            if (currentMiddlewares.isNotEmpty()) {
-                for (index in currentMiddlewares.size - 1 downTo 0) {
-                    val middleware = currentMiddlewares[index]
-                    nextDispatch = middleware(nextDispatch, state.value)
+                if (currentMiddlewares.isNotEmpty()) {
+                    for (index in currentMiddlewares.size - 1 downTo 0) {
+                        val middleware = currentMiddlewares[index]
+                        nextDispatch = middleware(nextDispatch, state.value)
+                    }
                 }
-            }
 
-            nextDispatch(action)
+                nextDispatch(action)
+            }
         }
     }
 
