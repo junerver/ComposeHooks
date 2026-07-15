@@ -10,8 +10,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import xyz.junerver.compose.hooks.Tuple2
 import xyz.junerver.compose.hooks.internal.cacheKey
 import xyz.junerver.compose.hooks.tuple
@@ -32,15 +32,15 @@ internal object CacheManager : CoroutineScope {
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Default + SupervisorJob()
 
-    private val cache: MutableMap<String, DataCache> = mutableMapOf()
-    private val mutex = Mutex()
+    private val cache = MutableStateFlow<Map<String, DataCache>>(emptyMap())
 
     init {
         launch {
             delay(1.seconds)
             while (isActive) {
-                mutex.withLock {
-                    cache.entries.removeAll { it.value.second <= currentInstant }
+                val now = currentInstant
+                cache.update { currentCache ->
+                    currentCache.filterValues { it.second > now }
                 }
                 delay(30.seconds)
             }
@@ -61,36 +61,48 @@ internal object CacheManager : CoroutineScope {
     fun <T> saveCache(key: String, duration: Duration, cachedData: CachedData<T>): Boolean =
         (duration.asBoolean() || duration == (-1).seconds).also {
             runIf(it) {
-                cache[key.cacheKey] = tuple(
-                    cachedData,
-                    if (duration == (-1).seconds) Instant.DISTANT_FUTURE else cachedData.time + duration,
-                )
+                cache.update { currentCache ->
+                    currentCache + (
+                        key.cacheKey to tuple(
+                            cachedData,
+                            if (duration == (-1).seconds) Instant.DISTANT_FUTURE else cachedData.time + duration,
+                        )
+                    )
+                }
             }
         }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> getCache(key: String): CachedData<T>? = cache[key.cacheKey]?.takeIf {
-        currentInstant < it.second
-    }?.first as? CachedData<T> ?: run {
-        cache.remove(key.cacheKey)
-        null
+    fun <T> getCache(key: String): CachedData<T>? {
+        val internalKey = key.cacheKey
+        val cachedEntry = cache.value[internalKey] ?: return null
+        if (currentInstant < cachedEntry.second) return cachedEntry.first as? CachedData<T>
+        cache.update { currentCache ->
+            if (currentCache[internalKey] === cachedEntry) currentCache - internalKey else currentCache
+        }
+        return null
     }
     //endregion
 
     //region longTermCache & without wrap
     fun <T> saveCache(key: String, data: T) {
-        cache[key] = tuple(
-            CachedData(data),
-            Instant.DISTANT_FUTURE,
-        )
+        cache.update { currentCache ->
+            currentCache + (
+                key to tuple(
+                    CachedData(data),
+                    Instant.DISTANT_FUTURE,
+                )
+            )
+        }
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun <T> getCache(key: String, default: T): T = (cache[key]?.first as CachedData<T>?)?.data ?: default
+    fun <T> getCache(key: String, default: T): T = (cache.value[key]?.first as CachedData<T>?)?.data ?: default
 
     fun clearCache(vararg keys: String) {
-        keys.forEach {
-            cache.remove(it)
+        val keysToRemove = keys.toSet()
+        cache.update { currentCache ->
+            currentCache - keysToRemove
         }
     }
     //endregion

@@ -12,8 +12,8 @@ import xyz.junerver.compose.hooks.useref.MutableRef
 import xyz.junerver.compose.hooks.Tuple4
 import xyz.junerver.compose.hooks.tuple
 import xyz.junerver.compose.hooks.useref.useRefImpl
+import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.useUnmount
-import xyz.junerver.compose.hooks.useUpdateEffect
 import xyz.junerver.compose.hooks.userequest.Fetch
 import xyz.junerver.compose.hooks.userequest.GenPluginLifecycleFn
 import xyz.junerver.compose.hooks.userequest.Keys
@@ -162,22 +162,28 @@ private class CachePlugin<TParams, TData : Any> : Plugin<TParams, TData>() {
      * 初始化 fetch 的状态
      */
     fun initFetchStateWithCachedData(cacheData: CachedData<TData>) {
-        with(fetchInstance.fetchState) {
-            data = cacheData.data
-            @Suppress("UNCHECKED_CAST")
-            params = cacheData.params as TParams
-            if (staleTime == (-1).seconds || currentInstant - cacheData.time <= staleTime) {
-                loading = false
-            }
-        }
+        fetchInstance.setState(
+            buildMap {
+                this[Keys.data] = cacheData.data
+                this[Keys.params] = cacheData.params
+                this[Keys.error] = null
+                if (staleTime == (-1).seconds || currentInstant - cacheData.time <= staleTime) {
+                    this[Keys.loading] = false
+                }
+            },
+        )
     }
 
     fun setFetchState(data: RestoreFetchStateData) {
         fetchInstance.setState(
             buildMap {
                 if (data.loading.isNotNull) this[Keys.loading] = data.loading
-                if (data.data.isNotNull) this[Keys.data] = data.data
-                if (data.error.isNotNull) this[Keys.error] = data.error
+                if (data.data.isNotNull) {
+                    this[Keys.data] = data.data
+                    this[Keys.error] = data.error
+                } else if (data.error.isNotNull) {
+                    this[Keys.error] = data.error
+                }
             },
         )
     }
@@ -188,6 +194,7 @@ internal fun <TParams, TData : Any> useCachePlugin(options: UseRequestOptions<TP
     val (cacheKey, cacheTime, customSetCache, customGetCache) = with(options) {
         Tuple4(cacheKey, cacheTime, setCache, getCache)
     }
+    val staleTime = options.staleTime
     if (cacheKey.isEmpty()) {
         return useEmptyPlugin()
     }
@@ -218,16 +225,20 @@ internal fun <TParams, TData : Any> useCachePlugin(options: UseRequestOptions<TP
     val unSubscribeRef = useRefImpl<(() -> Unit)?>(null)
     val currentPromiseRef = useRefImpl<Deferred<*>?>(null)
 
-    val cachePlugin = remember {
+    val cachePlugin = remember(cacheKey, staleTime) {
         CachePlugin<TParams, TData>().apply {
-            this.setCache = ::setCache
-            this.getCache = ::getCache
             this.unSubscribeRef = unSubscribeRef
             this.currentPromiseRef = currentPromiseRef
         }
+    }.apply {
+        this.setCache = ::setCache
+        this.getCache = ::getCache
+        this.unSubscribeRef = unSubscribeRef
+        this.currentPromiseRef = currentPromiseRef
     }
 
-    useUpdateEffect {
+    useEffect(cacheKey, cachePlugin) {
+        unSubscribeRef.current?.invoke()
         val cacheData = getCache(cacheKey)
         cacheData?.let {
             // 使用缓存初始化
@@ -244,6 +255,7 @@ internal fun <TParams, TData : Any> useCachePlugin(options: UseRequestOptions<TP
 
     useUnmount {
         unSubscribeRef.current?.invoke()
+        unSubscribeRef.current = null
     }
 
     return cachePlugin

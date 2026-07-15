@@ -22,6 +22,7 @@ import kotlin.time.Clock
 import kotlin.time.Instant
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.delay
 import xyz.junerver.compose.hooks.useState
@@ -1493,6 +1494,255 @@ class UseRequestTest {
         assertFalse(holder.isLoading.value)
         assertNull(holder.error.value)
         onNodeWithText("data=3 loading=false error=null").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun cachePlugin_deduplicates_inflight_request_across_holders() = runComposeUiTest {
+        val cacheKey = "test-cache-inflight-${System.currentTimeMillis()}"
+        val gate = CompletableDeferred<Unit>()
+        val callCount = AtomicInteger(0)
+        lateinit var firstHolder: RequestHolder<String, Int>
+        lateinit var secondHolder: RequestHolder<String, Int>
+        setContent {
+            firstHolder = useRequest(
+                requestFn = { params: String ->
+                    callCount.incrementAndGet()
+                    gate.await()
+                    params.length
+                },
+                optionsOf = {
+                    manual = true
+                    this.cacheKey = cacheKey
+                },
+            )
+            secondHolder = useRequest(
+                requestFn = { params: String ->
+                    callCount.incrementAndGet()
+                    gate.await()
+                    params.length
+                },
+                optionsOf = {
+                    manual = true
+                    this.cacheKey = cacheKey
+                },
+            )
+            Text("first=${firstHolder.data.value} second=${secondHolder.data.value}")
+        }
+
+        waitForIdle()
+        runOnIdle {
+            firstHolder.request("abc")
+            secondHolder.request("abc")
+        }
+        waitForIdle()
+        val sharedRequestStarted = waitForCondition { callCount.get() == 1 }
+
+        assertTrue(sharedRequestStarted, "Expected both holders to share one in-flight request")
+        assertEquals(1, callCount.get())
+
+        gate.complete(Unit)
+        waitForIdle()
+
+        val completed = waitForCondition {
+            waitForIdle()
+            firstHolder.data.value == 3 && secondHolder.data.value == 3
+        }
+
+        assertTrue(completed, "Expected both holders to resolve the shared in-flight request")
+        assertEquals(1, callCount.get())
+        assertEquals(3, firstHolder.data.value)
+        assertEquals(3, secondHolder.data.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun cachePlugin_synchronizes_error_then_success_across_holders() = runComposeUiTest {
+        val cacheKey = "test-cache-sync-${System.currentTimeMillis()}"
+        val callCount = AtomicInteger(0)
+        lateinit var firstHolder: RequestHolder<String, Int>
+        lateinit var secondHolder: RequestHolder<String, Int>
+        setContent {
+            val requestFn: suspend (String) -> Int = { params ->
+                if (callCount.incrementAndGet() == 1) error("cache failure")
+                params.length
+            }
+            firstHolder = useRequest(
+                requestFn = requestFn,
+                optionsOf = {
+                    manual = true
+                    this.cacheKey = cacheKey
+                    staleTime = 10.seconds
+                    onError = { _, _ -> }
+                },
+            )
+            secondHolder = useRequest(
+                requestFn = requestFn,
+                optionsOf = {
+                    manual = true
+                    this.cacheKey = cacheKey
+                    staleTime = 10.seconds
+                    onError = { _, _ -> }
+                },
+            )
+            Text("first=${firstHolder.data.value} second=${secondHolder.data.value} error=${secondHolder.error.value?.message}")
+        }
+
+        waitForIdle()
+        runOnIdle { firstHolder.request("abc") }
+        waitForIdle()
+
+        val firstFailed = waitForCondition {
+            firstHolder.error.value?.message == "cache failure" &&
+                secondHolder.error.value?.message == "cache failure"
+        }
+
+        assertTrue(firstFailed, "Expected the request error to synchronize across holders")
+        assertEquals("cache failure", firstHolder.error.value?.message)
+        assertEquals("cache failure", secondHolder.error.value?.message)
+
+        runOnIdle { firstHolder.request("abc") }
+        waitForIdle()
+
+        val recovered = waitForCondition {
+            callCount.get() == 2 &&
+                firstHolder.data.value == 3 &&
+                secondHolder.data.value == 3 &&
+                firstHolder.error.value == null &&
+                secondHolder.error.value == null
+        }
+
+        assertTrue(recovered, "Expected success to clear synchronized errors")
+        assertEquals(2, callCount.get())
+        assertEquals(3, firstHolder.data.value)
+        assertEquals(3, secondHolder.data.value)
+        assertNull(firstHolder.error.value)
+        assertNull(secondHolder.error.value)
+
+        runOnIdle { firstHolder.mutate { 4 } }
+        waitForIdle()
+
+        val mutated = waitForCondition {
+            firstHolder.data.value == 4 && secondHolder.data.value == 4
+        }
+
+        assertTrue(mutated, "Expected mutate to synchronize through the cache subscription")
+        assertEquals(4, firstHolder.data.value)
+        assertEquals(4, secondHolder.data.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun cachePlugin_applies_changed_cache_key_with_stable_controls() = runComposeUiTest {
+        val firstKey = "test-cache-key-a-${System.currentTimeMillis()}"
+        val secondKey = "test-cache-key-b-${System.currentTimeMillis()}"
+        val cacheKey = mutableStateOf(firstKey)
+        val callCount = AtomicInteger(0)
+        lateinit var holder: RequestHolder<String, Int>
+        setContent {
+            holder = useRequest(
+                requestFn = { params: String ->
+                    callCount.incrementAndGet()
+                    params.length
+                },
+                optionsOf = {
+                    manual = true
+                    this.cacheKey = cacheKey.value
+                    staleTime = 10.seconds
+                },
+            )
+            Text("data=${holder.data.value}")
+        }
+
+        waitForIdle()
+        val initialHolder = holder
+        val initialRequest = holder.request
+        runOnIdle { initialRequest("a") }
+        waitForIdle()
+        val firstLoaded = waitForCondition {
+            callCount.get() == 1 && holder.data.value == 1
+        }
+
+        assertTrue(firstLoaded, "Expected the request using the initial cache key to complete")
+        assertEquals(1, callCount.get())
+        assertEquals(1, holder.data.value)
+
+        runOnIdle { cacheKey.value = secondKey }
+        waitForIdle()
+        assertSame(initialHolder, holder)
+        assertSame(initialRequest, holder.request)
+
+        runOnIdle { initialRequest("bb") }
+        waitForIdle()
+
+        val secondLoaded = waitForCondition {
+            callCount.get() == 2 && holder.data.value == 2
+        }
+
+        assertTrue(secondLoaded, "Expected the stable request control to use the changed cache key")
+        assertEquals(2, callCount.get())
+        assertEquals(2, holder.data.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun cachePlugin_hydrates_holder_mounted_after_cache_is_saved() = runComposeUiTest {
+        val cacheKey = "test-cache-hydrate-${System.currentTimeMillis()}"
+        val showSecondHolder = mutableStateOf(false)
+        val callCount = AtomicInteger(0)
+        lateinit var firstHolder: RequestHolder<String, Int>
+        lateinit var secondHolder: RequestHolder<String, Int>
+        setContent {
+            val requestFn: suspend (String) -> Int = { params ->
+                callCount.incrementAndGet()
+                params.length
+            }
+            firstHolder = useRequest(
+                requestFn = requestFn,
+                optionsOf = {
+                    manual = true
+                    this.cacheKey = cacheKey
+                    staleTime = 10.seconds
+                },
+            )
+            if (showSecondHolder.value) {
+                secondHolder = useRequest(
+                    requestFn = requestFn,
+                    optionsOf = {
+                        manual = true
+                        this.cacheKey = cacheKey
+                        staleTime = 10.seconds
+                    },
+                )
+            }
+            Text("first=${firstHolder.data.value}")
+        }
+
+        waitForIdle()
+        runOnIdle { firstHolder.request("abc") }
+        waitForIdle()
+        val firstLoaded = waitForCondition {
+            callCount.get() == 1 && firstHolder.data.value == 3
+        }
+
+        assertTrue(firstLoaded, "Expected the first holder to populate the cache")
+        assertEquals(1, callCount.get())
+        assertEquals(3, firstHolder.data.value)
+
+        runOnIdle { showSecondHolder.value = true }
+        waitForIdle()
+
+        val hydrated = waitForCondition {
+            secondHolder.data.value == 3 &&
+                secondHolder.isLoading.value == false &&
+                secondHolder.error.value == null
+        }
+
+        assertTrue(hydrated, "Expected the later holder to hydrate from the existing cache")
+        assertEquals(1, callCount.get())
+        assertEquals(3, secondHolder.data.value)
+        assertFalse(secondHolder.isLoading.value)
+        assertNull(secondHolder.error.value)
     }
 
     // endregion

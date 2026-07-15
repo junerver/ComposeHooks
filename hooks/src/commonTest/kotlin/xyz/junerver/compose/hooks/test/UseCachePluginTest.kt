@@ -10,6 +10,10 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.test.runTest
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 import xyz.junerver.compose.hooks.utils.CacheManager
 
@@ -161,6 +165,22 @@ class UseCachePluginTest {
             key
         }
 
+        keys.forEachIndexed { index, key ->
+            assertEquals("value_$index", CacheManager.getCache<String>(key)?.data)
+        }
+    }
+
+    @Test
+    fun concurrent_writes_keep_each_entry_accessible() = runTest {
+        val keys = List(100) { index -> uniqueKey("concurrent-$index") }
+
+        val saved = keys.mapIndexed { index, key ->
+            async(Dispatchers.Default) {
+                CacheManager.saveCache(key, 10.seconds, CachedData("value_$index"))
+            }
+        }.awaitAll()
+
+        assertTrue(saved.all { it })
         keys.forEachIndexed { index, key ->
             assertEquals("value_$index", CacheManager.getCache<String>(key)?.data)
         }
