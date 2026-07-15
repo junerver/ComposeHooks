@@ -3,11 +3,17 @@ package xyz.junerver.compose.hooks.test
 import androidx.compose.material3.Text
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNotSame
+import kotlin.test.assertSame
+import xyz.junerver.compose.hooks.Ref
+import xyz.junerver.compose.hooks.rememberCreation
 import xyz.junerver.compose.hooks.useCreation
 import xyz.junerver.compose.hooks.useState
 
@@ -178,5 +184,69 @@ class UseCreationTest {
         waitForIdle()
         onNodeWithText("value=constant counter=5").assertExists()
         assert(creationCount == 1) { "Expected creationCount=1, got $creationCount" }
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun reference_identity_only_changes_when_key_changes() = runComposeUiTest {
+        val key = mutableStateOf(1)
+        val unrelated = mutableStateOf(0)
+        lateinit var observed: Ref<StringBuilder>
+        setContent {
+            observed = useCreation(key.value) { StringBuilder("key=${key.value}") }
+            Text("unrelated=${unrelated.value} value=${observed.current}")
+        }
+
+        waitForIdle()
+        val first = observed
+        runOnIdle { unrelated.value++ }
+        waitForIdle()
+        assertSame(first, observed, "Unrelated recomposition must keep the created reference")
+
+        runOnIdle { key.value++ }
+        waitForIdle()
+        assertNotSame(first, observed, "Changing a key must create a new reference")
+        assertEquals("key=2", observed.current.toString())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun equal_keys_keep_reference_identity() = runComposeUiTest {
+        val key = mutableStateOf(listOf(1))
+        val trigger = mutableStateOf(0)
+        lateinit var observed: Ref<Any>
+        setContent {
+            observed = useCreation(key.value) { Any() }
+            Text("trigger=${trigger.value}")
+        }
+
+        waitForIdle()
+        val first = observed
+        runOnIdle {
+            key.value = listOf(1)
+            trigger.value++
+        }
+        waitForIdle()
+
+        assertSame(first, observed, "Structurally equal keys should follow Compose remember semantics")
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun remember_alias_uses_the_same_key_semantics() = runComposeUiTest {
+        val key = mutableStateOf("a")
+        lateinit var observed: Ref<String>
+        setContent {
+            observed = rememberCreation(key.value) { "value-${key.value}" }
+            Text(observed.current)
+        }
+
+        waitForIdle()
+        val first = observed
+        runOnIdle { key.value = "b" }
+        waitForIdle()
+
+        assertNotSame(first, observed)
+        assertEquals("value-b", observed.current)
     }
 }

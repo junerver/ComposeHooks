@@ -3,11 +3,17 @@ package xyz.junerver.compose.hooks.test
 import androidx.compose.material3.Text
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
+import kotlin.test.assertFalse
+import kotlin.test.assertSame
+import kotlin.test.assertTrue
+import xyz.junerver.compose.hooks.BooleanHolder
+import xyz.junerver.compose.hooks.rememberBoolean
 import xyz.junerver.compose.hooks.useBoolean
 import xyz.junerver.compose.hooks.useState
 
@@ -216,5 +222,63 @@ class UseBooleanTest {
         }
         waitForIdle()
         onNodeWithText("value=true").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun holder_and_functions_keep_identity_across_recomposition() = runComposeUiTest {
+        val trigger = mutableStateOf(0)
+        lateinit var observed: BooleanHolder
+        setContent {
+            observed = useBoolean()
+            Text("trigger=${trigger.value} value=${observed.state.value}")
+        }
+
+        waitForIdle()
+        val first = observed
+        runOnIdle { trigger.value++ }
+        waitForIdle()
+        val second = observed
+
+        assertSame(first.state, second.state)
+        assertSame(first.toggle, second.toggle)
+        assertSame(first.setValue, second.setValue)
+        assertSame(first.setTrue, second.setTrue)
+        assertSame(first.setFalse, second.setFalse)
+        assertSame(first, second)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun rapid_toggles_read_the_latest_value() = runComposeUiTest {
+        lateinit var holder: BooleanHolder
+        setContent {
+            holder = useBoolean()
+            Text("value=${holder.state.value}")
+        }
+
+        waitForIdle()
+        runOnIdle { repeat(1_001) { holder.toggle() } }
+        waitForIdle()
+        assertTrue(holder.state.value)
+
+        runOnIdle { repeat(1_001) { holder.toggle() } }
+        waitForIdle()
+        assertFalse(holder.state.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun remember_alias_preserves_boolean_behavior() = runComposeUiTest {
+        lateinit var holder: BooleanHolder
+        setContent {
+            holder = rememberBoolean(default = true)
+            Text("value=${holder.state.value}")
+        }
+
+        waitForIdle()
+        runOnIdle { holder.toggle() }
+        waitForIdle()
+        assertFalse(holder.state.value)
     }
 }
