@@ -43,6 +43,43 @@ private val asyncDispatchReducer: (Int, AsyncDispatchAction) -> Int = { state, a
 class UseDispatchAsyncTest {
     @OptIn(ExperimentalTestApi::class)
     @Test
+    fun initial_runner_survives_forced_call_site_recompositions() = runComposeUiTest {
+        val recomposeTick = mutableStateOf(0)
+        val compositionCount = AtomicInteger(0)
+        lateinit var dispatchAsync: DispatchAsync<AsyncDispatchAction>
+        var initialDispatchAsync: DispatchAsync<AsyncDispatchAction>? = null
+
+        setContent {
+            val store = createStore { asyncDispatchReducer with 0 }
+            ReduxProvider(store) {
+                val currentTick = recomposeTick.value
+                compositionCount.incrementAndGet()
+                dispatchAsync = useDispatchAsync()
+                if (initialDispatchAsync == null) initialDispatchAsync = dispatchAsync
+                val state = useSelector<Int>()
+                Text("count=${state.value} tick=$currentTick")
+            }
+        }
+
+        waitForIdle()
+        repeat(3) { index ->
+            runOnIdle { recomposeTick.value = index + 1 }
+            waitForIdle()
+        }
+
+        assertTrue(compositionCount.get() >= 4)
+        assertSame(initialDispatchAsync, dispatchAsync)
+        initialDispatchAsync!! { AsyncDispatchAction.Add(1) }
+        repeat(20) {
+            waitForIdle()
+            if (runCatching { onNodeWithText("count=1 tick=3").assertExists() }.isSuccess) return@repeat
+            Thread.sleep(10)
+        }
+        onNodeWithText("count=1 tick=3").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
     fun concurrent_calls_dispatch_every_result_and_finish_after_each_block() = runComposeUiTest {
         val firstGate = CompletableDeferred<Unit>()
         val secondGate = CompletableDeferred<Unit>()
