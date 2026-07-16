@@ -989,11 +989,12 @@ fun <T> rememberTable(
 
 @Deprecated("Use useTable(data, columns) with explicit data and columns instead.")
 @Composable
-fun <T> Table.rememberTable(): TableInstance<T> = error("Table.useTable() is deprecated. Use useTable(data, columns) instead.")
+fun <T> Table.rememberTable(): TableInstance<T> =
+    error("Table.useTable() is deprecated. Use useTable(data, columns) with explicit data and columns instead.")
 
 @Deprecated("Use useTable(data, columns) with explicit data and columns instead.")
 @Composable
-fun <T> Table.rememberTableInstance(): TableInstance<T> = error("Table.useTable() is deprecated. Use useTable(data, columns) instead.")
+fun <T> Table.rememberTableInstance(): TableInstance<T> = error("useTableInstance is deprecated. Use the useTable hook directly.")
 //endregion
 
 //region useMath
