@@ -186,7 +186,9 @@ fun <S : Any, E, CTX> useStateMachineImpl(machineGraph: Ref<MachineGraph<S, E, C
         if (nextState != null) {
             updateState(nextState)
             setUndoState(nextState)
-            pushHistory(nextState)
+            if (nextState != current) {
+                pushHistory(nextState)
+            }
         }
 
         if (suspendAction != null) {
