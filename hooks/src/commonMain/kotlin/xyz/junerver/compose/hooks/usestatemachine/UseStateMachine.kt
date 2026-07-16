@@ -10,13 +10,15 @@ import xyz.junerver.compose.hooks.usecreation.useCreationImpl
 import xyz.junerver.compose.hooks.usegetstate._useGetStateImpl
 import xyz.junerver.compose.hooks.usegetstate.useGetStateImpl
 import xyz.junerver.compose.hooks.useref.useRefImpl
-import xyz.junerver.compose.hooks.usestate.useStateImpl
 import xyz.junerver.compose.hooks.useundo.useUndoImpl
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import kotlin.properties.Delegates
 import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
 
 /*
@@ -131,20 +133,45 @@ fun <S : Any, E, CTX> useStateMachineImpl(machineGraph: Ref<MachineGraph<S, E, C
     requireNotNull(machineGraph.current.initialState) {
         "must call `createMachine` first, and must call `initial`"
     }
-    val (contextState, setContextState) = _useGetStateImpl(machineGraph.current.context)
-    val (currentState, setState) = useGetStateImpl(machineGraph.current.initialState)
-    val (undoState, setUndoState, resetUndoState, undo, _, canUndo, _) = useUndoImpl(machineGraph.current.initialState)
+    val (contextState, setContextState, _) = _useGetStateImpl(machineGraph.current.context)
+    val (currentState, setState, _) = useGetStateImpl(machineGraph.current.initialState)
+    val (_, setUndoState, resetUndoState, undo, _, _, _) = useUndoImpl(machineGraph.current.initialState)
 
     val (runAction, cancelAction, _) = useCancelableAsyncImpl()
     val transitionVersionRef = useRefImpl(0L)
+    val currentStateRef = useRefImpl(currentState.value)
+    val contextRef = useRefImpl(contextState.value)
+    val historyState = remember { mutableStateOf(persistentListOf(currentState.value)) }
+    val canGoBackState = remember { derivedStateOf { historyState.value.size > 1 } }
+
+    currentStateRef.current = currentState.value
+    contextRef.current = contextState.value
+
+    val updateState = { state: S ->
+        currentStateRef.current = state
+        setState(state)
+    }
+
+    val updateContext = { context: CTX? ->
+        contextRef.current = context
+        setContextState(context)
+    }
+
+    val pushHistory = { state: S ->
+        historyState.value = historyState.value.add(state)
+    }
+
+    val resetHistory = { state: S ->
+        historyState.value = persistentListOf(state)
+    }
 
     val canTransition = { event: E ->
-        val key = currentState.value to event
+        val key = currentStateRef.current to event
         machineGraph.current.transitions.containsKey(key) || machineGraph.current.suspendActions.containsKey(key)
     }
 
     val transition = transition@{ event: E ->
-        val current = currentState.value
+        val current = currentStateRef.current
         val nextState = machineGraph.current.transitions[current to event]
         val suspendAction = machineGraph.current.suspendActions[current to event]
 
@@ -157,8 +184,9 @@ fun <S : Any, E, CTX> useStateMachineImpl(machineGraph: Ref<MachineGraph<S, E, C
         val transitionVersion = transitionVersionRef.current
 
         if (nextState != null) {
-            setState(nextState)
+            updateState(nextState)
             setUndoState(nextState)
+            pushHistory(nextState)
         }
 
         if (suspendAction != null) {
@@ -168,11 +196,11 @@ fun <S : Any, E, CTX> useStateMachineImpl(machineGraph: Ref<MachineGraph<S, E, C
                     return@runAction
                 }
                 // Capture context at action execution time, not at transition call time
-                val contextBefore = contextState.value
+                val contextBefore = contextRef.current
                 val newContext = suspendAction(contextBefore, event)
                 // Check version again after action completes
                 if (transitionVersionRef.current == transitionVersion) {
-                    setContextState(newContext)
+                    updateContext(newContext)
                 }
             }
         }
@@ -182,21 +210,24 @@ fun <S : Any, E, CTX> useStateMachineImpl(machineGraph: Ref<MachineGraph<S, E, C
         cancelAction()
         transitionVersionRef.current += 1
         val graph = machineGraph.current
-        setState(graph.initialState)
+        updateState(graph.initialState)
         resetUndoState(graph.initialState)
-        setContextState(graph.context)
+        resetHistory(graph.initialState)
+        updateContext(graph.context)
     }
 
     val goBack = goBack@{
-        if (!canUndo.value) return@goBack
+        if (!canGoBackState.value) return@goBack
         cancelAction()
         transitionVersionRef.current += 1
+        val previousState = historyState.value[historyState.value.size - 2]
+        historyState.value = historyState.value.removeAt(historyState.value.size - 1)
         undo()
-        setState(undoState.value.present)
+        updateState(previousState)
     }
 
     val getAvailableEvents = {
-        val state = currentState.value
+        val state = currentStateRef.current
         val transitionEvents = machineGraph.current.transitions.keys.asSequence()
             .filter { it.first == state }
             .map { it.second }
@@ -206,18 +237,14 @@ fun <S : Any, E, CTX> useStateMachineImpl(machineGraph: Ref<MachineGraph<S, E, C
         (transitionEvents + actionEvents).distinct().toList()
     }
 
-    val history = useStateImpl {
-        undoState.value.past.add(undoState.value.present)
-    }
-
     return remember {
         StateMachineHolder(
             currentState = currentState,
             canTransition = canTransition,
             transition = transition,
-            history = history,
+            history = historyState,
             reset = reset,
-            canGoBack = canUndo,
+            canGoBack = canGoBackState,
             goBack = goBack,
             getAvailableEvents = getAvailableEvents,
             context = contextState,

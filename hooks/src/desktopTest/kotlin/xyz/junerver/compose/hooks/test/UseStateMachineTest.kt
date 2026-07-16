@@ -2,16 +2,22 @@ package xyz.junerver.compose.hooks.test
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.runComposeUiTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
 import xyz.junerver.compose.hooks.createMachine
+import xyz.junerver.compose.hooks.rememberStateMachine
 import xyz.junerver.compose.hooks.useRef
 import xyz.junerver.compose.hooks.useStateMachine
+import xyz.junerver.compose.hooks.usestatemachine.StateMachineHolder
 
 /*
   Description: Tests for useStateMachine
@@ -901,5 +907,113 @@ class UseStateMachineTest {
 
         waitForIdle()
         onNodeWithText("state=Idle").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun rapid_transitions_in_same_frame_use_latest_state() = runComposeUiTest {
+        lateinit var holder: StateMachineHolder<MachineState, MachineEvent, Int>
+
+        setContent {
+            val graph = createMachine<MachineState, MachineEvent, Int> {
+                context(0)
+                initial(MachineState.Idle)
+
+                state(MachineState.Idle) {
+                    on(MachineEvent.Start) {
+                        target(MachineState.Loading)
+                        action { ctx, _ -> (ctx ?: 0) + 1 }
+                    }
+                }
+                state(MachineState.Loading) {
+                    on(MachineEvent.Complete) {
+                        target(MachineState.Success)
+                        action { ctx, _ -> (ctx ?: 0) + 10 }
+                    }
+                }
+            }
+
+            holder = useStateMachine(graph)
+            Text(text = "state=${holder.currentState.value}")
+        }
+
+        waitForIdle()
+        runOnIdle {
+            holder.transition(MachineEvent.Start)
+            holder.transition(MachineEvent.Complete)
+            assertEquals(MachineState.Success, holder.currentState.value)
+        }
+        onNodeWithText("state=Success").assertExists()
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun history_updates_after_transitions_and_backtracking() = runComposeUiTest {
+        lateinit var holder: StateMachineHolder<MachineState, MachineEvent, Unit>
+
+        setContent {
+            val graph = createMachine<MachineState, MachineEvent, Unit> {
+                initial(MachineState.Idle)
+
+                state(MachineState.Idle) {
+                    on(MachineEvent.Start) { target(MachineState.Loading) }
+                }
+                state(MachineState.Loading) {
+                    on(MachineEvent.Complete) { target(MachineState.Success) }
+                }
+            }
+
+            holder = useStateMachine(graph)
+            Text(text = "history=${holder.history.value.joinToString(">")} state=${holder.currentState.value}")
+        }
+
+        waitForIdle()
+        runOnIdle {
+            holder.transition(MachineEvent.Start)
+            holder.transition(MachineEvent.Complete)
+        }
+        waitForIdle()
+        assertEquals(listOf(MachineState.Idle, MachineState.Loading, MachineState.Success), holder.history.value)
+
+        runOnIdle { holder.goBack() }
+        waitForIdle()
+        assertEquals(listOf(MachineState.Idle, MachineState.Loading), holder.history.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun remember_state_machine_alias_keeps_holder_and_action_identity() = runComposeUiTest {
+        var marker by mutableStateOf(0)
+        lateinit var holder: StateMachineHolder<MachineState, MachineEvent, Unit>
+        var initialHolder: StateMachineHolder<MachineState, MachineEvent, Unit>? = null
+
+        setContent {
+            val graph = createMachine<MachineState, MachineEvent, Unit> {
+                initial(MachineState.Idle)
+                state(MachineState.Idle) {
+                    on(MachineEvent.Start) { target(MachineState.Loading) }
+                }
+            }
+
+            holder = rememberStateMachine(graph)
+            if (initialHolder == null) initialHolder = holder
+            Text(text = "marker=$marker state=${holder.currentState.value}")
+        }
+
+        waitForIdle()
+        val first = initialHolder ?: error("holder was not composed")
+        val initialTransition = first.transition
+        val initialCanTransition = first.canTransition
+        val initialReset = first.reset
+
+        marker = 1
+        waitForIdle()
+
+        assertSame(first, holder)
+        assertSame(initialTransition, holder.transition)
+        assertSame(initialCanTransition, holder.canTransition)
+        assertSame(initialReset, holder.reset)
+        assertSame(first.currentState, holder.currentState)
+        assertSame(first.history, holder.history)
     }
 }
