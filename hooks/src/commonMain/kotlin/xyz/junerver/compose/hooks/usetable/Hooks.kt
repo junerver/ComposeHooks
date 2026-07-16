@@ -204,7 +204,11 @@ fun <T> useTable(
     }
     instance.setColumnFilter = { columnId: String, value: Any? ->
         val currentState = tableStateRef.current
-        val newFilters = currentState.filtering.columnFilters + (columnId to value)
+        val newFilters = if (value == null) {
+            currentState.filtering.columnFilters - columnId
+        } else {
+            currentState.filtering.columnFilters + (columnId to value)
+        }
         setTableState(currentState.copy(filtering = currentState.filtering.copy(columnFilters = newFilters)))
     }
     instance.clearFilters = {
@@ -305,12 +309,13 @@ fun <T> useTable(
     }
     
     // Create core rows
-    val coreRows = remember(data) {
+    val getRowId = options.getRowId
+    val coreRows = remember(data, getRowId) {
         data.mapIndexed { index, item ->
             Row(
-                id = options.getRowId(item, index),
+                id = getRowId(item, index),
                 original = item,
-                index = index
+                index = index,
             )
         }
     }
