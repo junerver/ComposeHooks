@@ -3,6 +3,7 @@ package xyz.junerver.compose.hooks.test
 import androidx.compose.material3.Text
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.runComposeUiTest
@@ -10,8 +11,11 @@ import java.util.concurrent.atomic.AtomicInteger
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertEquals
+import kotlin.test.assertSame
 import kotlin.test.assertTrue
+import xyz.junerver.compose.hooks.rememberTableRequest
 import xyz.junerver.compose.hooks.useState
+import xyz.junerver.compose.hooks.userequest.TableRequestHolder
 import xyz.junerver.compose.hooks.userequest.TableRequestParams
 import xyz.junerver.compose.hooks.userequest.TableResult
 import xyz.junerver.compose.hooks.userequest.useTableRequest
@@ -182,5 +186,113 @@ class UseTableRequestTest {
         assertTrue(cleared, "Expected clearFilters to reset filter state and request with empty filters")
         assertEquals("", latestGlobalFilter())
         assertTrue(latestColumnFilters().isEmpty())
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun rapid_page_size_then_page_change_uses_live_state() = runComposeUiTest {
+        val paramsHistory = mutableListOf<TableRequestParams>()
+        lateinit var holder: TableRequestHolder<String>
+
+        setContent {
+            holder = useTableRequest(
+                requestFn = { params ->
+                    paramsHistory.add(params)
+                    TableResult(emptyList(), 100)
+                },
+                optionsOf = {
+                    initialPage = 2
+                    initialPageSize = 10
+                },
+            )
+        }
+
+        waitForIdle()
+        assertTrue(waitForCondition { paramsHistory.isNotEmpty() })
+        runOnIdle {
+            holder.onPageChange(2, 20)
+            holder.onPageChange(3, 20)
+        }
+        waitForIdle()
+
+        val updated = waitForCondition {
+            paramsHistory.lastOrNull()?.let { it.page == 3 && it.pageSize == 20 } == true
+        }
+        assertTrue(updated, "Rapid page changes must compare against the live page size")
+        assertEquals(3, holder.currentPage.value)
+        assertEquals(20, holder.pageSize.value)
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun manual_refresh_uses_latest_filters_when_auto_trigger_is_disabled() = runComposeUiTest {
+        val paramsHistory = mutableListOf<TableRequestParams>()
+        lateinit var holder: TableRequestHolder<String>
+        val sorting = listOf(SortDescriptor("name", desc = true))
+
+        setContent {
+            holder = useTableRequest(
+                requestFn = { params ->
+                    paramsHistory.add(params)
+                    TableResult(emptyList(), 0)
+                },
+                optionsOf = {
+                    triggerOnSortingChange = false
+                    triggerOnFilteringChange = false
+                },
+            )
+        }
+
+        waitForIdle()
+        assertTrue(waitForCondition { paramsHistory.size == 1 })
+        runOnIdle {
+            holder.setSorting(sorting)
+            holder.setGlobalFilter("latest")
+            holder.setColumnFilter("status", "active")
+        }
+        waitForIdle()
+        assertEquals(1, paramsHistory.size, "Disabled triggers must not auto-request")
+
+        runOnIdle { holder.refresh() }
+        assertTrue(waitForCondition { paramsHistory.size == 2 })
+        val refreshed = paramsHistory.last()
+        assertEquals(sorting, refreshed.sorting)
+        assertEquals("latest", refreshed.globalFilter)
+        assertEquals("active", refreshed.columnFilters["status"])
+    }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun remember_two_parameter_alias_keeps_holder_and_action_identity() = runComposeUiTest {
+        var marker by mutableStateOf(0)
+        lateinit var holder: TableRequestHolder<String>
+        var initialHolder: TableRequestHolder<String>? = null
+
+        setContent {
+            holder = rememberTableRequest(
+                requestFn = { page: Int, pageSize: Int ->
+                    TableResult(listOf("$page:$pageSize"), 1)
+                },
+            )
+            if (initialHolder == null) initialHolder = holder
+            Text("marker=$marker rows=${holder.rows.value}")
+        }
+
+        waitForIdle()
+        assertTrue(waitForCondition { holder.rows.value == listOf("0:10") })
+        val first = initialHolder ?: error("holder was not composed")
+        val initialRefresh = first.refresh
+        val initialPageChange = first.onPageChange
+        val initialSetSorting = first.setSorting
+
+        marker = 1
+        waitForIdle()
+
+        assertSame(first, holder)
+        assertSame(initialRefresh, holder.refresh)
+        assertSame(initialPageChange, holder.onPageChange)
+        assertSame(initialSetSorting, holder.setSorting)
+        assertSame(first.rows, holder.rows)
+        assertSame(first.total, holder.total)
     }
 }

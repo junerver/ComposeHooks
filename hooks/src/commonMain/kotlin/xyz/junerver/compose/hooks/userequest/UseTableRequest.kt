@@ -1,8 +1,10 @@
 package xyz.junerver.compose.hooks.userequest
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.rememberUpdatedState
+import xyz.junerver.compose.hooks.usecreation.useCreationImpl
 import xyz.junerver.compose.hooks.usestate._useStateImpl
 import xyz.junerver.compose.hooks.useEffect
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
@@ -88,6 +90,7 @@ class UseTableRequestOptions<TData : Any> {
  *
  * State management happens at this Holder level, not in TableResult.
  */
+@Stable
 data class TableRequestHolder<T>(
     // Current page data (State-wrapped at Holder level to avoid unnecessary recompositions)
     val rows: State<List<T>>,
@@ -263,10 +266,6 @@ fun <T> useTableRequest(
         }
     )
 
-    val refresh: () -> Unit = {
-        requestHolder.request(requestParamsState.value)
-    }
-
     // 5. Auto-fetch when pagination/sorting/filtering changes
     useEffect(currentPage, currentPageSize, sortingDeps, globalFilterDep, columnFiltersDep) {
         val newParams = TableRequestParams(
@@ -286,57 +285,59 @@ fun <T> useTableRequest(
 
     val total = rememberUpdatedState(requestHolder.data.value?.total ?: 0)
 
-    // 7. Pagination controls
-    val onPageChange: (Int, Int) -> Unit = { newPage, newSize ->
-        if (newSize != currentPageSize) {
-            pageSizeState.value = newSize
-            pageState.value = 0  // Reset to first page
-        } else if (newPage != currentPage) {
-            pageState.value = newPage
+    val currentParams = useCreationImpl {
+        {
+            TableRequestParams(
+                page = pageState.value,
+                pageSize = pageSizeState.value,
+                sorting = sortingState.value,
+                globalFilter = globalFilterState.value,
+                columnFilters = columnFiltersState.value,
+            )
         }
-    }
+    }.current
 
-    // 8. Sorting & filtering controls
-    val setSorting: (List<SortDescriptor>) -> Unit = { sorting ->
-        sortingState.value = sorting
-    }
-
-    val setGlobalFilter: (String) -> Unit = { filter ->
-        globalFilterState.value = filter
-    }
-
-    val setColumnFilter: (String, Any?) -> Unit = { columnId, value ->
-        columnFiltersState.value = if (value == null) {
-            columnFiltersState.value - columnId
-        } else {
-            columnFiltersState.value + (columnId to value)
-        }
-    }
-
-    val clearFilters: () -> Unit = {
-        columnFiltersState.value = emptyMap()
-        globalFilterState.value = ""
-    }
-
-    // 9. Return holder
-    return TableRequestHolder(
-        rows = rows,
-        isLoading = requestHolder.isLoading,
-        error = requestHolder.error,
-        currentPage = pageState,
-        pageSize = pageSizeState,
-        total = total,
-        sorting = sortingState,
-        globalFilter = globalFilterState,
-        columnFilters = columnFiltersState,
-        refresh = refresh,
-        cancel = requestHolder.cancel,
-        onPageChange = onPageChange,
-        setSorting = setSorting,
-        setGlobalFilter = setGlobalFilter,
-        setColumnFilter = setColumnFilter,
-        clearFilters = clearFilters
-    )
+    // 7. Return a stable holder whose actions read the live state objects.
+    return useCreationImpl {
+        TableRequestHolder(
+            rows = rows,
+            isLoading = requestHolder.isLoading,
+            error = requestHolder.error,
+            currentPage = pageState,
+            pageSize = pageSizeState,
+            total = total,
+            sorting = sortingState,
+            globalFilter = globalFilterState,
+            columnFilters = columnFiltersState,
+            refresh = {
+                val params = currentParams()
+                requestParamsState.value = params
+                requestHolder.request(params)
+            },
+            cancel = { requestHolder.cancel() },
+            onPageChange = { newPage, newSize ->
+                if (newSize != pageSizeState.value) {
+                    pageSizeState.value = newSize
+                    pageState.value = 0 // Reset to first page.
+                } else if (newPage != pageState.value) {
+                    pageState.value = newPage
+                }
+            },
+            setSorting = { sorting -> sortingState.value = sorting },
+            setGlobalFilter = { filter -> globalFilterState.value = filter },
+            setColumnFilter = { columnId, value ->
+                columnFiltersState.value = if (value == null) {
+                    columnFiltersState.value - columnId
+                } else {
+                    columnFiltersState.value + (columnId to value)
+                }
+            },
+            clearFilters = {
+                columnFiltersState.value = emptyMap()
+                globalFilterState.value = ""
+            },
+        )
+    }.current
 }
 
 @Composable
