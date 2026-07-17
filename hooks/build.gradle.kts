@@ -227,9 +227,9 @@ tasks.register("runQualityChecks") {
     group = "verification"
     description = "Run scoped static checks for baseline test/quality tasks."
     dependsOn(
-        "ktlintCommonTestSourceSetCheck",
-        "ktlintAndroidUnitTestSourceSetCheck",
-        "ktlintAndroidInstrumentedTestSourceSetCheck",
+        "lintKotlinCommonTest",
+        "lintKotlinAndroidUnitTest",
+        "lintKotlinAndroidInstrumentedTest",
     )
 }
 
