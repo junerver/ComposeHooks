@@ -27,11 +27,7 @@ import androidx.compose.ui.input.key.type
  */
 @Composable
 fun useKeyPress(key: Key, eventHandler: () -> Unit) {
-    useEffect(KeyPressDelegate.keyPress) {
-        if (key in KeyPressDelegate.keyPress && KeyPressDelegate.keyPress.size == 1) {
-            eventHandler()
-        }
-    }
+    useKeyPressExact(listOf(key), eventHandler)
 }
 
 /**
@@ -47,11 +43,7 @@ fun useKeyPress(key: Key, eventHandler: () -> Unit) {
  */
 @Composable
 fun useKeyPress(key1: Key, key2: Key, eventHandler: () -> Unit) {
-    useEffect(KeyPressDelegate.keyPress) {
-        if (key1 in KeyPressDelegate.keyPress && key2 in KeyPressDelegate.keyPress && KeyPressDelegate.keyPress.size == 2) {
-            eventHandler()
-        }
-    }
+    useKeyPressExact(listOf(key1, key2), eventHandler)
 }
 
 /**
@@ -73,11 +65,7 @@ fun useKeyPress(
     key3: Key,
     eventHandler: () -> Unit,
 ) {
-    useEffect(KeyPressDelegate.keyPress) {
-        if (key1 in KeyPressDelegate.keyPress && key2 in KeyPressDelegate.keyPress && key3 in KeyPressDelegate.keyPress && KeyPressDelegate.keyPress.size == 3) {
-            eventHandler()
-        }
-    }
+    useKeyPressExact(listOf(key1, key2, key3), eventHandler)
 }
 
 /**
@@ -101,9 +89,16 @@ fun useKeyPress(
     key4: Key,
     eventHandler: () -> Unit,
 ) {
-    useEffect(KeyPressDelegate.keyPress) {
-        if (key1 in KeyPressDelegate.keyPress && key2 in KeyPressDelegate.keyPress && key3 in KeyPressDelegate.keyPress && key4 in KeyPressDelegate.keyPress && KeyPressDelegate.keyPress.size == 4) {
-            eventHandler()
+    useKeyPressExact(listOf(key1, key2, key3, key4), eventHandler)
+}
+
+@Composable
+private fun useKeyPressExact(keys: List<Key>, eventHandler: () -> Unit) {
+    val eventHandlerRef = useLatestRef(eventHandler)
+    val isPressed = KeyPressDelegate.areExactKeysPressed(keys)
+    useEffect(isPressed) {
+        if (isPressed) {
+            eventHandlerRef.current()
         }
     }
 }
@@ -120,6 +115,12 @@ object KeyPressDelegate {
      * The key is the keyboard key, and the value is a boolean indicating the key is pressed.
      */
     internal val keyPress = mutableStateMapOf<Key, Boolean>()
+
+    internal fun areExactKeysPressed(keys: List<Key>): Boolean =
+        keys.isNotEmpty() &&
+            keys.distinct().size == keys.size &&
+            keyPress.size == keys.size &&
+            keys.all { keyPress[it] == true }
 
     /**
      * Processes keyboard events and updates the keyPress map accordingly.
