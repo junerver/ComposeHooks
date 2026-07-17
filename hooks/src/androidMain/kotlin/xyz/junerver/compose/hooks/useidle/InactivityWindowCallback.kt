@@ -1,10 +1,13 @@
 package xyz.junerver.compose.hooks.useidle
 
+import android.os.Build
 import android.os.SystemClock
 import android.view.KeyEvent
+import android.view.KeyboardShortcutGroup
+import android.view.Menu
 import android.view.MotionEvent
 import android.view.Window
-import androidx.appcompat.view.WindowCallbackWrapper
+import androidx.annotation.RequiresApi
 import java.util.WeakHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.time.Duration
@@ -79,32 +82,45 @@ internal fun remainingIdleDuration(
 }
 
 internal class InactivityWindowCallback(
-    originalCallback: Window.Callback,
+    private val originalCallback: Window.Callback,
     private val markActive: () -> Unit,
-) : WindowCallbackWrapper(originalCallback) {
+) : Window.Callback by originalCallback {
     override fun dispatchTouchEvent(event: MotionEvent?): Boolean {
         markActive()
-        return super.dispatchTouchEvent(event)
+        return originalCallback.dispatchTouchEvent(event)
     }
 
     override fun dispatchKeyEvent(event: KeyEvent?): Boolean {
         markActive()
-        return super.dispatchKeyEvent(event)
+        return originalCallback.dispatchKeyEvent(event)
     }
 
     override fun dispatchKeyShortcutEvent(event: KeyEvent?): Boolean {
         markActive()
-        return super.dispatchKeyShortcutEvent(event)
+        return originalCallback.dispatchKeyShortcutEvent(event)
     }
 
     override fun dispatchTrackballEvent(event: MotionEvent?): Boolean {
         markActive()
-        return super.dispatchTrackballEvent(event)
+        return originalCallback.dispatchTrackballEvent(event)
     }
 
     override fun dispatchGenericMotionEvent(event: MotionEvent?): Boolean {
         markActive()
-        return super.dispatchGenericMotionEvent(event)
+        return originalCallback.dispatchGenericMotionEvent(event)
+    }
+
+    override fun onProvideKeyboardShortcuts(
+        data: MutableList<KeyboardShortcutGroup>?,
+        menu: Menu?,
+        deviceId: Int,
+    ) {
+        originalCallback.onProvideKeyboardShortcuts(data, menu, deviceId)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onPointerCaptureChanged(hasCapture: Boolean) {
+        originalCallback.onPointerCaptureChanged(hasCapture)
     }
 }
 
