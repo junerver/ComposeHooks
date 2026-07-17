@@ -6,9 +6,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.test.isDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.v2.createComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import kotlin.time.Duration.Companion.milliseconds
 import org.junit.Rule
 import org.junit.Test
 import xyz.junerver.compose.hooks.None
@@ -32,9 +33,14 @@ class UseDebounceTest {
     fun testDebounceFn() {
         composeTestRule.setContent {
             var state by useState(default = 0)
-            val debounceAdd = useDebounceFn<None>(fn = {
-                state += 1
-            })
+            val debounceAdd = useDebounceFn<None>(
+                fn = {
+                    state += 1
+                },
+                optionsOf = {
+                    wait = 200.milliseconds
+                },
+            )
             Column {
                 Text("result:$state")
                 Button(onClick = { debounceAdd() }) {
@@ -46,18 +52,18 @@ class UseDebounceTest {
         composeTestRule.onNodeWithText("result:0").assertExists()
         // quick change
         repeat(5) {
-            Thread.sleep(100)
             buttonNode.performClick()
         }
-        composeTestRule.waitUntil(2_000) {
+        composeTestRule.waitUntil(5_000) {
             composeTestRule.onNodeWithText("result:1").isDisplayed()
         }
         // debounce invoke
-        Thread.sleep(1001)
         buttonNode.performClick()
-        Thread.sleep(1001)
+        composeTestRule.waitUntil(5_000) {
+            composeTestRule.onNodeWithText("result:2").isDisplayed()
+        }
         buttonNode.performClick()
-        composeTestRule.waitUntil(2_000) {
+        composeTestRule.waitUntil(5_000) {
             composeTestRule.onNodeWithText("result:3").isDisplayed()
         }
     }
