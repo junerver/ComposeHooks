@@ -94,6 +94,10 @@ kotlin {
             api(libs.arrow.functions)
         }
 
+        wasmJsMain.dependencies {
+            implementation(npm("@js-joda/timezone", "2.23.0"))
+        }
+
         val commonJvmAndroid by creating {
             dependsOn(commonMain.get())
             dependencies {
