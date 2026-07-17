@@ -10,12 +10,14 @@ import kotlin.test.assertTrue
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
+import kotlin.time.Instant
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.test.runTest
 import xyz.junerver.compose.hooks.userequest.utils.CachedData
 import xyz.junerver.compose.hooks.utils.CacheManager
+import xyz.junerver.compose.hooks.utils.instantProvider
 
 /*
   Description: CacheManager contract tests
@@ -27,6 +29,17 @@ import xyz.junerver.compose.hooks.utils.CacheManager
 
 class UseCachePluginTest {
     private fun uniqueKey(prefix: String): String = "$prefix-${kotlin.random.Random.nextInt()}"
+
+    private fun <T> withTestClock(block: (advanceBy: (Duration) -> Unit) -> T): T {
+        val originalProvider = instantProvider
+        var now = Instant.fromEpochMilliseconds(1_000)
+        instantProvider = { now }
+        return try {
+            block { duration -> now += duration }
+        } finally {
+            instantProvider = originalProvider
+        }
+    }
 
     @Test
     fun save_cache_stores_value_and_params() {
@@ -69,13 +82,15 @@ class UseCachePluginTest {
 
     @Test
     fun expired_cache_is_removed_when_read() {
-        val key = uniqueKey("expire")
-        CacheManager.saveCache(key, 10.milliseconds, CachedData("value"))
+        withTestClock { advanceBy ->
+            val key = uniqueKey("expire")
+            CacheManager.saveCache(key, 10.milliseconds, CachedData("value"))
 
-        Thread.sleep(20)
+            advanceBy(20.milliseconds)
 
-        assertNull(CacheManager.getCache<String>(key))
-        assertNull(CacheManager.getCache<String>(key))
+            assertNull(CacheManager.getCache<String>(key))
+            assertNull(CacheManager.getCache<String>(key))
+        }
     }
 
     @Test
@@ -118,13 +133,15 @@ class UseCachePluginTest {
 
     @Test
     fun cached_data_equality_includes_creation_time() {
-        val first = CachedData("same", "params")
-        Thread.sleep(2)
-        val second = CachedData("same", "params")
+        withTestClock { advanceBy ->
+            val first = CachedData("same", "params")
+            advanceBy(2.milliseconds)
+            val second = CachedData("same", "params")
 
-        assertNotEquals(first, second)
-        assertEquals(first.data, second.data)
-        assertEquals(first.params, second.params)
+            assertNotEquals(first, second)
+            assertEquals(first.data, second.data)
+            assertEquals(first.params, second.params)
+        }
     }
 
     @Test
