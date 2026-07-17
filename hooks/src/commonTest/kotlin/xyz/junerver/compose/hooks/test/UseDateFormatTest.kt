@@ -7,9 +7,11 @@ import kotlin.test.assertIs
 import kotlin.test.assertTrue
 import kotlin.time.Clock
 import kotlin.time.Instant
+import kotlinx.datetime.FixedOffsetTimeZone
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.Month
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.UtcOffset
 import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import xyz.junerver.compose.hooks.UseDateFormatOptions
@@ -123,6 +125,31 @@ class UseDateFormatTest {
         assertEquals("GMT-4", formatDate(testDate, "z", newYorkOptions))
         assertEquals("GMT-4", formatDate(testDate, "zzz", newYorkOptions))
         assertEquals("GMT-04:00", formatDate(testDate, "zzzz", newYorkOptions))
+    }
+
+    @Test
+    fun fixed_offset_timezone_formats_preserve_non_hour_minutes() {
+        val tokens = listOf("z", "zz", "zzz", "zzzz")
+
+        fun formattedOffsets(hours: Int, minutes: Int): List<String> {
+            val fixedOffsetOptions = UseDateFormatOptions.optionOf {
+                timeZone = FixedOffsetTimeZone(UtcOffset(hours = hours, minutes = minutes))
+            }
+            return tokens.map { token -> formatDate(testDate, token, fixedOffsetOptions) }
+        }
+
+        assertEquals(
+            listOf("GMT+5:45", "GMT+5:45", "GMT+5:45", "GMT+05:45"),
+            formattedOffsets(hours = 5, minutes = 45),
+        )
+        assertEquals(
+            listOf("GMT-3:30", "GMT-3:30", "GMT-3:30", "GMT-03:30"),
+            formattedOffsets(hours = -3, minutes = -30),
+        )
+        assertEquals(
+            listOf("GMT+8", "GMT+8", "GMT+8", "GMT+08:00"),
+            formattedOffsets(hours = 8, minutes = 0),
+        )
     }
 
     @Test

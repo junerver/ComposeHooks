@@ -572,8 +572,9 @@ private fun getTimezoneString(
         val minuteStringPadded = absMinutes.toString().padStart(2, '0')
         "GMT$sign$hourStringPadded:$minuteStringPadded" // e.g., "GMT+08:00"
     } else {
-        // Non-long format (GMT+H or GMT+HH) - only use hours, no zero padding
-        "GMT$sign$absHours" // e.g., "GMT+8" or "GMT+9"
+        // Non-long format keeps hours unpadded while preserving non-zero offset minutes.
+        val minuteSuffix = if (absMinutes == 0) "" else ":${absMinutes.toString().padStart(2, '0')}"
+        "GMT$sign$absHours$minuteSuffix" // e.g., "GMT+8" or "GMT+5:45"
     }
 }
 
